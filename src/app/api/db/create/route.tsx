@@ -1,6 +1,5 @@
 import { KeyDTO, DatabaseCreateRequestDTO, databaseCreateRequestSchema } from "@/data/dto";
 import { maintenance } from "@/data/server/db-provider";
-import ServerFolderRepository from "@/data/server/server-folder-repository";
 import ServerKeyRepository from "@/data/server/server-key-repository";
 import { authorizeSaasContext } from "@/lib/generic-api";
 import { getCurrentTS, getErrorMessage, getZedErrorMessage } from "@/lib/utils";
@@ -39,7 +38,7 @@ export async function POST(request: NextRequest) {
 
             if (maintenance.checkIfDatabaseExists(authCreateRequest.emailHash)) { // to not avoid overriding database fiels
                 return Response.json({
-                    message: 'Database already exists. Please select different Id.',
+                    message: 'Account with given e-mail already exists. Please select different one or Log-In.',
                     data: { 
                         emailHash: authCreateRequest.emailHash
                     },
@@ -55,7 +54,6 @@ export async function POST(request: NextRequest) {
                         geo: request.geo
                     }                
                 });
-                const folderRepo = new ServerFolderRepository(authCreateRequest.emailHash); // creating a first User Key                     
                 const keyRepo = new ServerKeyRepository(authCreateRequest.emailHash); // creating a first User Key
                 const existingKeys = await keyRepo.findAll({  filter: { emailHash: authCreateRequest.emailHash } }); // check if key already exists
 
@@ -83,16 +81,6 @@ export async function POST(request: NextRequest) {
                         expiryDate: null,
                         updatedAt: getCurrentTS(),
                     })
-
-                    const firstFolder = folderRepo.create({
-                        name: 'General',
-                        json: JSON.stringify({
-                            name: 'root',
-                            type: 'folder',
-                            children: []
-                        }),
-                        updatedAt: getCurrentTS()
-                    });
 
                     if (saasContext.isSaasMode) {
                         try {
