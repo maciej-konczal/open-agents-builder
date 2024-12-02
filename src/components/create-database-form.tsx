@@ -226,7 +226,7 @@ export function CreateDatabaseForm({
             </div>      
           </NoSSR>
           <div className="items-center flex justify-center">
-              <Button type="submit">Create database</Button>
+              <Button type="submit">Create account</Button>
           </div>
         </div>
       </form>
