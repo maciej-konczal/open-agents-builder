@@ -1,0 +1,215 @@
+import { BaseRepository } from "@/data/server/base-repository";
+import { getErrorMessage, getZedErrorMessage } from "./utils";
+import { ZodError, ZodObject } from "zod";
+import { NextRequest, NextResponse } from "next/server";
+import { authorizeKey } from "@/data/server/server-key-helpers";
+import { jwtVerify } from "jose";
+import { defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO } from "@/data/dto";
+import { Key } from "react";
+import { PlatformApiClient } from "@/data/server/platform-api-client";
+import NodeCache from "node-cache";
+import { ApiError } from "@/data/client/base-api-client";
+
+const saasCtxCache = new NodeCache({ stdTTL: 60 * 60 * 10 /* 10 min cache */});
+
+export type ApiResult = {
+    message: string;
+    data?: any;
+    error?: any
+    issues?: any[];
+    status: 200 | 400 | 500;
+}
+
+export type AuthorizedRequestContext = { 
+    emailHash: string;
+    keyHash: string;
+    keyLocatorHash: string;
+    acl: KeyACLDTO;
+    extra: any;
+}
+
+export type AuthorizedSaaSContext = {
+    saasContex: SaaSDTO|null
+    isSaasMode: boolean
+    hasAccess: boolean;
+    error?: string;
+    apiClient: PlatformApiClient|null
+}
+
+export async function authorizeSaasContext(request: NextRequest, forceNoCache: boolean = false): Promise<AuthorizedSaaSContext> {
+    if(!process.env.SAAS_PLATFORM_URL) {
+        return {
+            saasContex: null,
+            hasAccess: true,
+            isSaasMode: false,
+            apiClient: null
+        }
+    } else {
+        
+        const useCache = forceNoCache ? false : (request.nextUrl.searchParams.get('useCache') === 'false' ? false : true);
+        const saasToken = request.headers.get('saas-token') !== null ? request.headers.get('saas-token') : request.nextUrl.searchParams.get('saasToken');
+        const emailHash = request.headers.get('database-id-hash') !== null ? request.headers.get('database-id-hash') : request.nextUrl.searchParams.get('emailHash');
+        if (!saasToken && !emailHash) {
+             return {
+                 saasContex: null,
+                 isSaasMode: false,
+                 hasAccess: false,
+                 apiClient: null,
+                 error: 'No SaaS Token / Database Id Hash provided. Please register your account / apply for beta tests on official landing page.'
+            }            
+        }
+        const resp = useCache ? saasCtxCache.get(saasToken ?? '' + emailHash) : null;
+        if (!useCache) {
+            console.log('Cache for SaasContext disabled');
+        }
+        if (resp) {
+            return {
+                ...resp,
+                apiClient: new PlatformApiClient(saasToken ?? '')
+            } as AuthorizedSaaSContext;
+        } else {
+            const client = new PlatformApiClient(saasToken ?? '');
+            try {
+                const response = await client.account({ emailHash, apiKey: saasToken });
+                if(response.status !== 200) {
+                    const resp = {
+                        saasContex: null,
+                        isSaasMode: false,
+                        hasAccess: false,
+                        apiClient: null,
+                        error: response.message
+                    }
+                    saasCtxCache.set(saasToken ?? '' + emailHash, resp, 60 * 2); // errors cachef for 2s
+                    return resp;
+
+                } else {
+                    const saasContext = await response.data;
+                    const resp = {
+                        saasContex: saasContext as SaaSDTO,
+                        hasAccess: true,
+                        isSaasMode: true,
+                        apiClient: client
+                    }
+                    saasCtxCache.set(saasToken ?? '' + emailHash, resp, 60 * 60 * 10); // ok results cached for 10 min
+                    return resp;
+                }
+            } catch (e) {
+                if (e instanceof ApiError && e.code && e.code === 'ECONNREFUSED') { // saas is down
+                    return {
+                        saasContex: null,
+                        isSaasMode: false,
+                        hasAccess: true,
+                        apiClient: null
+                    }
+                } else {
+                    return {
+                        saasContex: null,
+                        isSaasMode: false,
+                        hasAccess: false,
+                        apiClient: null,
+                        error: getErrorMessage(e)
+                    }
+                }
+            }
+        }
+    }
+}
+
+export async function authorizeRequestContext(request: Request, response?: NextResponse): Promise<AuthorizedRequestContext> {
+    const authorizationHeader = request.headers.get('Authorization');
+    const jwtToken = authorizationHeader?.replace('Bearer ', '');
+
+    if (jwtToken) {
+        const decoded = await jwtVerify(jwtToken as string, new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
+
+        const authResult = await authorizeKey({
+            emailHash: decoded.payload.emailHash as string,
+            keyHash: decoded.payload.keyHash as string,
+            keyLocatorHash: decoded.payload.keyLocatorHash as string
+        });
+        if(!authResult) {
+            NextResponse.json({ message: 'Unauthorized', status: 401 });
+            throw new Error('Unauthorized. Wrong Key.');
+        } else {
+            const keyACL = (authResult as KeyDTO).acl ?? null;
+            const aclDTO = keyACL ? JSON.parse(keyACL) : defaultKeyACL
+            return {
+                emailHash: decoded.payload.emailHash as string,
+                keyHash: decoded.payload.keyHash as string,
+                keyLocatorHash: decoded.payload.keyLocatorHash as string,
+                acl: aclDTO as KeyACLDTO,
+                extra: (authResult as KeyDTO).extra
+            }
+        }
+    } else {
+        throw new Error('Unauthorized. No Token');
+    }
+}
+
+export async function genericPUT<T extends { [key:string]: any }>(inputObject: any, schema: { safeParse: (a0:any) => { success: true; data: T; } | { success: false; error: ZodError; } }, repo: BaseRepository<T>, identityKey: string): Promise<ApiResult> {
+    try {
+        const validationResult = schema.safeParse(inputObject); // validation
+        if (validationResult.success === true) {
+            const updatedValues:T = validationResult.data as T;
+            const upsertedData = await repo.upsert({ [identityKey]: updatedValues[identityKey] }, updatedValues)
+
+            return {
+                message: 'Data saved successfully!',
+                data: upsertedData,
+                status: 200
+            };
+        } else {
+            return {
+                message: getZedErrorMessage(validationResult.error),
+                issues: validationResult.error.issues,
+                status: 400               
+            };
+        }
+    } catch (e) {
+        console.error(e);
+        return {
+            message: getErrorMessage(e),
+            error: e,
+            status: 500
+        };
+    }
+}
+
+export async function genericGET<T extends { [key:string]: any }>(request: NextRequest, repo: BaseRepository<T>, defaultLimit: number = -1, defaultOffset: number  = -1): Promise<T[]> {
+    const filterObj: Record<string, string> = Object.fromEntries(request.nextUrl.searchParams.entries());
+
+    let limit = defaultLimit;
+    let offset = defaultOffset;
+    if (filterObj.limit) {
+        limit = parseInt(filterObj.limit);
+    }
+    if (filterObj.offset) {
+        offset = parseInt(filterObj.offset);
+    }
+    const items: T[] = await repo.findAll({ filter: filterObj, limit, offset });
+    return items;
+}
+
+
+export async function genericDELETE<T extends { [key:string]: any }>(request: Request, repo: BaseRepository<T>, query: Record<string, string | number>): Promise<ApiResult>{
+    try {
+        if(await repo.delete(query)) {
+            return {
+                message: 'Data deleted successfully!',
+                status: 200
+            }
+        } else {
+            return {
+                message: 'Data not found!',
+                status: 400
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        return {
+            message: getErrorMessage(e),
+            error: e,
+            status: 500
+        }
+    }
+}
