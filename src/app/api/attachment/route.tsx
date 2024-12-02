@@ -1,5 +1,5 @@
-import { EncryptedAttachmentDTO, EncryptedAttachmentDTOSchema } from "@/data/dto";
-import ServerEncryptedAttachmentRepository from "@/data/server/server-encryptedattachment-repository";
+import { AttachmentDTO, AttachmentDTOSchema } from "@/data/dto";
+import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
 import { authorizeRequestContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
@@ -22,16 +22,16 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
     const requestContext = await authorizeRequestContext(request, response);
 
     const storageService = new StorageService(requestContext.emailHash);
-    let apiResult = await genericPUT<EncryptedAttachmentDTO>(
+    let apiResult = await genericPUT<AttachmentDTO>(
         inputJson,
-        EncryptedAttachmentDTOSchema,
-        new ServerEncryptedAttachmentRepository(requestContext.emailHash),
+        AttachmentDTOSchema,
+        new ServerAttachmentRepository(requestContext.emailHash),
         'id'
     );
     if (apiResult.status === 200) { // validation went OK, now we can store the file
         if (file) { // file could be not uploaded in case of metadata update
             try {
-                const savedAttachment: EncryptedAttachmentDTO = apiResult.data as EncryptedAttachmentDTO;
+                const savedAttachment: AttachmentDTO = apiResult.data as AttachmentDTO;
                 storageService.saveAttachment(file, savedAttachment.storageKey);
             } catch (e) {
                 console.error("Error saving attachment", e);
@@ -46,5 +46,5 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
 
 export async function GET(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
-    return Response.json(await genericGET<EncryptedAttachmentDTO>(request, new ServerEncryptedAttachmentRepository(requestContext.emailHash)));
+    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.emailHash)));
 }

@@ -1,4 +1,4 @@
-import ServerEncryptedAttachmentRepository from "@/data/server/server-encryptedattachment-repository";
+import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
 import { authorizeRequestContext, genericDELETE } from "@/lib/generic-api";
 import { StorageService } from "@/lib/storage-service";
 export const dynamic = 'force-dynamic' // defaults to auto
@@ -12,7 +12,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     if(!recordLocator){
         return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
     } else { 
-        const repo = new ServerEncryptedAttachmentRepository(requestContext.emailHash)
+        const repo = new ServerAttachmentRepository(requestContext.emailHash)
         const recordBeforeDelete = await repo.findOne({ storageKey: recordLocator });
         if (!recordBeforeDelete) {
             return Response.json({ message: "Record not found", status: 404 }, {status: 404});

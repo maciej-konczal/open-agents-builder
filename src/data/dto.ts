@@ -46,7 +46,7 @@ export type AttachmentAssigmentDTO = {
   type: string;
 }
 
-export const EncryptedAttachmentDTOSchema = z.object({
+export const AttachmentDTOSchema = z.object({
   id: z.number().positive().optional(),
   displayName: z.string().min(1),
   description: z.string().optional().nullable(),
@@ -66,8 +66,8 @@ export const EncryptedAttachmentDTOSchema = z.object({
   // bc. we're using end 2 end encryption on the database level even JSON fields must be represented as string
   assignedTo: z.string().optional().nullable()
 });
-export const EncryptedAttachmentDTOEncSettings = { ecnryptedFields: ['displayName', 'description', 'mimeType', 'type', 'json', 'extra'] };
-export type EncryptedAttachmentDTO = z.infer<typeof EncryptedAttachmentDTOSchema>;
+export const AttachmentDTOEncSettings = { ecnryptedFields: ['displayName', 'description', 'mimeType', 'type', 'json', 'extra'] };
+export type AttachmentDTO = z.infer<typeof AttachmentDTOSchema>;
 
 export const recordDTOSchema = z.object({
   id: z.number().positive().optional(),

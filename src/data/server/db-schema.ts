@@ -1,13 +1,6 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
-export const folders = sqliteTable('folders', {
-    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-    name: text('name'),
-    json: text('json', { mode: 'json' }),
-    updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
-});
-
 
 export const config = sqliteTable('config', {
     key: text('key', { mode: 'text' }).primaryKey(),
@@ -28,33 +21,8 @@ export const keys = sqliteTable('keys', {
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 }); 
 
-export const records = sqliteTable('records', {
-    id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
-    folderId: integer('folderId', { mode: 'number' }).references(() => folders.id),
-    description: text('description'),
-    type: text('type'),
 
-    title: text('title'),
-    tags: text('tags'),
-    
-    json: text('json', { mode: 'json' }),
-    text: text('text'),
-
-    transcription: text('transcription'),
-
-    checksum: text('checksum'),
-    checksumLastParsed: text('checksumLastParsed'),
-
-    extra: text('extra', { mode: 'json' }),
-    attachments: text('attachments', { mode: 'json' }),
-    
-    eventDate: text('eventDate').notNull().default(''),
-    createdAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
-    updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
-});
-
-
-export const encryptedAttachments = sqliteTable('encryptedAttachments', {
+export const Attachments = sqliteTable('Attachments', {
     id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
     
     displayName: text('displayName'),

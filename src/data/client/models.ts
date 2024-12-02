@@ -1,4 +1,4 @@
-import { EncryptedAttachmentDTO, KeyACLDTO, KeyDTO, FolderDTO, RecordDTO, TermDTO } from "@/data/dto";
+import { AttachmentDTO, KeyACLDTO, KeyDTO, FolderDTO, RecordDTO, TermDTO } from "@/data/dto";
 import { z } from "zod";
 
 import PasswordValidator from 'password-validator';
@@ -70,7 +70,7 @@ export type DisplayableDataObject =  {
     name: string;
 }
 
-export class EncryptedAttachment {
+export class Attachment {
     id?: number;
     assignedTo?: AttachmentAssigment[];
     displayName: string;
@@ -85,7 +85,7 @@ export class EncryptedAttachment {
     createdAt: string;
     updatedAt: string;
 
-    constructor(attachmentDTO: EncryptedAttachmentDTO) {
+    constructor(attachmentDTO: AttachmentDTO) {
         this.id = attachmentDTO.id;
         this.assignedTo = attachmentDTO.assignedTo ? ( typeof attachmentDTO.assignedTo == 'string' ? JSON.parse(attachmentDTO.assignedTo) : attachmentDTO.assignedTo ): [];
         this.displayName = attachmentDTO.displayName;
@@ -101,11 +101,11 @@ export class EncryptedAttachment {
         this.updatedAt = attachmentDTO.updatedAt;
     }
 
-    static fromDTO(fileDTO: EncryptedAttachmentDTO): EncryptedAttachment {
-        return new EncryptedAttachment(fileDTO);
+    static fromDTO(fileDTO: AttachmentDTO): Attachment {
+        return new Attachment(fileDTO);
     }
 
-    toDTO(): EncryptedAttachmentDTO {
+    toDTO(): AttachmentDTO {
         return {
             id: this.id,
             assignedTo: JSON.stringify(this.assignedTo),
@@ -169,7 +169,7 @@ export class Record {
     eventDate: string;
     createdAt: string;
     updatedAt: string;
-    attachments: EncryptedAttachment[] = [];
+    attachments: Attachment[] = [];
 
     checksum: string;
     checksumLastParsed: string;
@@ -211,7 +211,7 @@ export class Record {
       if(recordSource instanceof Record) {
          this.attachments = recordSource.attachments
       } else {
-         this.attachments = recordSource.attachments ? (typeof recordSource.attachments === 'string' ? JSON.parse(recordSource.attachments) : recordSource.attachments).map(EncryptedAttachment.fromDTO) : [];
+         this.attachments = recordSource.attachments ? (typeof recordSource.attachments === 'string' ? JSON.parse(recordSource.attachments) : recordSource.attachments).map(Attachment.fromDTO) : [];
       }
     }
   
