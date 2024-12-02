@@ -4,18 +4,14 @@ import { Input } from "@/components/ui/input"
 import { set, useForm } from "react-hook-form"
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from "zod"
-import { FolderContext } from "@/contexts/folder-context"
 import { useContext, useEffect, useRef, useState } from "react"
-import { Folder } from "@/data/client/models"
 import { Credenza, CredenzaClose, CredenzaContent, CredenzaDescription, CredenzaFooter, CredenzaHeader, CredenzaTitle, CredenzaTrigger } from "./credenza"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { KeyContext } from "@/contexts/key-context";
 import { DatabaseContext } from "@/contexts/db-context";
 import { PutKeyResponse } from "@/data/client/key-api-client";
 import { Textarea } from "./ui/textarea";
-import { CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
-import { pdf, Document, Page } from '@react-pdf/renderer';
+import { CopyIcon } from "lucide-react";
 import assert from "assert";
 
 function getRandomSixDigit() {
