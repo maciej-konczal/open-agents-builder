@@ -12,23 +12,10 @@ import { AuditContextProvider } from "@/contexts/audit-context";
 // const DynamicRecordContextProvider = dynamic(() => import('@/contexts/record-context'), { ssr: false });
 // const DynamicChatContextProvider = dynamic(() => import('@/contexts/chat-context'), { ssr: false });
 // const DynamicFolderContextProvider = dynamic(() => import('@/contexts/folder-context'), { ssr: false });
+import { projects } from '@/lib/data/projects';
+import { redirect } from 'next/navigation';
 
-export default function FolderPad() {
-  return (
-    <DatabaseContextProvider>
-      <SaaSContextProvider>
-        <ConfigContextProvider>
-          <AuditContextProvider>
-            <AuthorizationGuard>
-              <KeyContextProvider>
-                <div className="flex flex-col min-h-[100svh]">
-                  <CookieConsentBannerComponent />
-                </div>
-              </KeyContextProvider>
-            </AuthorizationGuard> 
-          </AuditContextProvider>
-         </ConfigContextProvider>
-        </SaaSContextProvider>
-      </DatabaseContextProvider>
-  );
+export default function HomePage() {
+  const firstProject = projects[0];
+  redirect(`/project/${firstProject.id}/general`);
 }

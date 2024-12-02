@@ -53,8 +53,8 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
         </div>
         <Tabs defaultValue="authorize" value={currentTab} onValueChange={(value) => setCurrentTab(value)} className="w-96">
           <TabsList className="grid grid-cols-2">
-            <TabsTrigger value="authorize" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100">Log in</TabsTrigger>
-            <TabsTrigger value="create" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100">Create account</TabsTrigger>
+            <TabsTrigger value="authorize" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200">Log in</TabsTrigger>
+            <TabsTrigger value="create" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200">Create account</TabsTrigger>
           </TabsList>
           <TabsContent value="authorize" className="max-w-600">
             <Card>

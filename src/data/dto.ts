@@ -5,16 +5,6 @@ export type DTOEncryptionSettings = {
   ecnryptedFields: string[]
 }
 
-export const folderDTOSchema = z.object({
-  id: z.number().positive().optional(),
-  name: z.string().min(1),
-  json: z.string().optional().nullable(), // all additional fields are located in JSON field
-  updatedAt: z.string().default(() => getCurrentTS()),
-});
-
-export const FolderDTOEncSettings: DTOEncryptionSettings =  { ecnryptedFields: ['name', 'json'] }
-export type FolderDTO = z.infer<typeof folderDTOSchema>;
-
 export const configDTOSchema = z.object({
   key: z.string().min(1),
   value: z.string().nullable(),
@@ -68,35 +58,6 @@ export const AttachmentDTOSchema = z.object({
 });
 export const AttachmentDTOEncSettings = { ecnryptedFields: ['displayName', 'description', 'mimeType', 'type', 'json', 'extra'] };
 export type AttachmentDTO = z.infer<typeof AttachmentDTOSchema>;
-
-export const recordDTOSchema = z.object({
-  id: z.number().positive().optional(),
-  folderId: z.number().positive().int(),
-
-  description: z.string().optional().nullable(),
-  type: z.string().min(1),
-  title: z.string().nullable().optional(),
-  tags: z.string().nullable().optional(),
-  text: z.string().nullable(),
-  json: z.string().optional().nullable(),
-  extra: z.string().optional().nullable(),
-  transcription: z.string().nullable().optional(),
-
-  checksum: z.string().optional().nullable(),
-  checksumLastParsed: z.string().optional().nullable(),
-
-  eventDate: z.string().default(() => getCurrentTS()),
-  createdAt: z.string().default(() => getCurrentTS()),
-  updatedAt: z.string().default(() => getCurrentTS()),
-
-  // bc. we're using end 2 end encryption on the database level even JSON fields must be represented as string
-  attachments: z.string().optional().nullable()
-});
-
-export const RecordDTOEncSettings = { ecnryptedFields: ['description', 'type', 'json', 'extra', 'text', 'attachments', 'title', 'tags'] }
-export type RecordDTO = z.infer<typeof recordDTOSchema>;
-
-
 
 export const databaseCreateRequestSchema = z.object({
   keyLocatorHash: z.string().min(64).max(64),

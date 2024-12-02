@@ -1,3 +1,4 @@
+'use client'
 import { DatabaseContext } from '@/contexts/db-context';
 import { DatabaseAuthStatus } from '@/data/client/models';
 import React, { PropsWithChildren, useContext, useState } from 'react';
