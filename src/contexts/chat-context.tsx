@@ -6,13 +6,11 @@ import { ollama, createOllama } from 'ollama-ai-provider';
 import { CallWarning, convertToCoreMessages, FinishReason, streamText } from 'ai';
 import { ConfigContext } from '@/contexts/config-context';
 import { toast } from 'sonner';
-import { Record } from '@/data/client/models';
 import { StatDTO, AggregatedStatsDTO } from '@/data/dto';
 import { AggregatedStatsResponse, AggregateStatResponse, StatApiClient } from '@/data/client/stat-api-client';
 import { DatabaseContext } from './db-context';
 import { findCodeBlocks, getErrorMessage } from '@/lib/utils';
 import { SaaSContext } from './saas-context';
-import { prompts } from '@/data/ai/prompts';
 import { jsonrepair } from 'jsonrepair';
 import { json } from 'stream/consumers';
 import showdown from 'showdown';
@@ -131,7 +129,6 @@ export type ChatContextType = {
     setRecordsLoaded: (value: boolean) => void;
     sendMessage: (msg: CreateMessageEnvelope, includeExistingMessagesAsContext?: boolean) => void;
     sendMessages: (msg: CreateMessagesEnvelope, includeExistingMessagesAsContext?: boolean) => void;
-    autoCheck: (messages: MessageEx[], providerName?: string, modelName?: string) => void;
     agentFinishedDialogOpen: boolean;
     agentFinishMessage: string;
     chatOpen: boolean,
@@ -174,7 +171,6 @@ export const ChatContext = createContext<ChatContextType>({
     agentContext: null,
     setAgentContext: (value: AgentContext) => {},
     setRecordsLoaded: (value: boolean) => {},
-    autoCheck: (messages: MessageEx[], providerName?, modelName?: string) => {},
     sendMessage: (msg: CreateMessageEnvelope, includeExistingMessagesAsContext: boolean = true) => {},
     sendMessages: (msg: CreateMessagesEnvelope, includeExistingMessagesAsContext: boolean = true) => {},
     chatOpen: false,
@@ -184,7 +180,7 @@ export const ChatContext = createContext<ChatContextType>({
     isStreaming: false,
     isCrossChecking: false,
     checkApiConfig: async () => { return false },
-    chatCustomPromptVisible: false,
+    chatCustomPromptVisible: true,
     setChatCustomPromptVisible: (value: boolean) => {},
     chatTemplatePromptVisible: false,
     setTemplatePromptVisible: (value: boolean) => {},
@@ -215,12 +211,11 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
     const [isStreaming, setIsStreaming] = useState(false);
     const [isCrossChecking, setIsCrossChecking] = useState(false);
     const [crossCheckResult, setCrossCheckResult] = useState<CrossCheckResultType | null>(null);
-    const [crosscheckAnswers, setCrosscheckAnswers] = useState(process.env.NEXT_PUBLIC_CHAT_CROSSCHECK_DISABLE ? false : true);
     const [crosscheckModel, setCrosscheckModel] = useState('llama3.1:latest');
     const [crosscheckProvider, setCrosscheckProvider] = useState('ollama');
 
     const [areRecordsLoaded, setRecordsLoaded] = useState(false);
-    const [chatCustomPromptVisible, setChatCustomPromptVisible] = useState(false);
+    const [chatCustomPromptVisible, setChatCustomPromptVisible] = useState(true);
     const [chatTemplatePromptVisible, setTemplatePromptVisible] = useState(false);
     const [promptTemplate, setPromptTemplate] = useState('');
     const [statsPopupOpen, setStatsPopupOpen] = useState(false);
@@ -379,45 +374,6 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         setTemplatePromptVisible(false);
         setChatCustomPromptVisible(true)
         setChatOpen(true);        
-    }
-
-    const autoCheck = async (messages: MessageEx[], providerName: string = crosscheckProvider, modelName:string =  crosscheckModel) => {
-        setCrossCheckResult(null);
-        if (agentContext?.crossCheckEnabled === false) return; // do not do crosscheck when agent context is enabled
-        messages.push({
-                content: prompts.autoCheck({}),
-                role: 'user',
-                id: nanoid(),
-            } as MessageEx            
-        )
-        aiDirectCall(messages, (result, eventData) => {
-            try {
-                if (result.content.indexOf('```json') > -1) {
-                    const codeBlocks = findCodeBlocks(result.content);
-                    if (codeBlocks.blocks.length > 0) {
-                        for (const block of codeBlocks.blocks) {
-                            if (block.syntax === 'json') {
-                                const jsonObject = JSON.parse(jsonrepair(block.code));
-                                setCrossCheckResult(jsonObject as CrossCheckResultType);
-                            }
-                        }
-                    }
-                } else {
-                    const jsonResult = JSON.parse(result.content);
-                    setCrossCheckResult(jsonResult as CrossCheckResultType);
-                }
-            } catch (e) {
-                console.error(e);
-//                toast.error('Error parsing the auto check result: ' + result.content);
-            setCrossCheckResult({
-                    risk: 'yellow',
-                    validity: 'yellow',
-                    nextQuestion: '',
-                    answer: '',
-                    explanation:  result.content
-                });
-            }
-        }, providerName, modelName); // TODO: add an option to auto check with different models
     }
 
     /// TODO: instead of actions we could process tool calls but actually it didn't matter that much
@@ -648,15 +604,12 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         aggregatedStats,
         crossCheckResult,
         setCrossCheckResult,
-        autoCheck,
         agentContext,
         setAgentContext,
         startAgent,
         stopAgent,
-        crosscheckAnswers,
         crosscheckModel,
         crosscheckProvider,
-        setCrosscheckAnswers,
         setCrosscheckModel,
         setCrosscheckProvider,
         newChat,

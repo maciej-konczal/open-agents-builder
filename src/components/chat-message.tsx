@@ -11,7 +11,6 @@ import showdown from 'showdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, SaveIcon } from 'lucide-react';
-import { RecordContext } from '@/contexts/record-context';
 import { removeCodeBlocks } from '@/lib/utils';
 import DataLoader from './data-loader';
 import { QuestionMarkCircledIcon, QuestionMarkIcon } from '@radix-ui/react-icons';
@@ -25,16 +24,13 @@ interface ChatMessageProps {
 const ChatMessage: React.FC<ChatMessageProps> = ({ message, ref }) => {
     const { theme, systemTheme } = useTheme();
     const chatContext = useContext(ChatContext);
-    const recordContext = useContext(RecordContext);
     const shTheme = (theme === 'system' ? systemTheme : theme) === 'dark' ? 'material-dark' : 'material-light';
     return (
     <div id={'msg-' + message.id} ref={ref} className={message.role === 'user' ?  "flex items-start gap-4 justify-end" :  "flex items-start gap-4"}>
         <div className={message.role === 'user' ?  "p-4 gap-4 text-right rounded-lg max-w-[90%] bg-gray dark:bg-zinc-500" :  "p-4 gap-1 rounded-lg max-w-[90%] bg-white dark:bg-zinc-950"}>
           <div className="font-bold">{message.name}</div>
           <div className="prose text-sm text-muted-foreground">
-            {(message.visibility === MessageVisibility.ProgressWhileStreaming  && !message.finished) ? (
-              <div className="flex"><span className="text-xs">Parsing data in progress ({message.recordRef ? 'rec: ' + message.recordRef.id + ', ' : ''}queue length: {recordContext?.parseQueueLength ? recordContext?.parseQueueLength : 1})... <Button className="h-6" onClick={(e) => message.visibility = MessageVisibility.Visible }>Show progress</Button></span></div>
-            ) : (
+          {(
               (message.displayMode === 'internalJSONRequest') ? (
               <div>
                 <Accordion type="single" collapsible className="w-full">
