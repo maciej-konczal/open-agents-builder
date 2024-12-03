@@ -8,6 +8,30 @@ export const config = sqliteTable('config', {
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
 
+
+export const agents = sqliteTable('agents', {
+    id: text('id').primaryKey(),
+    name: text('displayName'),
+    settings: text('options', { mode: 'json' }),
+    prompt: text('prompt').notNull(),
+    safetyRules: text('safetyRules', { mode: 'json' }),
+    createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
+}); 
+
+export const sessions = sqliteTable('sessions', {
+    id: text('id').primaryKey(),   
+    agentId: text('agentId').references(() => agents.id),
+    user: text('user', { mode: 'json' }),
+    messages: text('messages', { mode: 'json' }),
+    result: text('result'),
+    prompt: text('prompt').notNull(),
+    safetyRules: text('safetyRules', { mode: 'json' }),
+    createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
+    finalzedAt: text('finalizedAt')
+}); 
+
 export const keys = sqliteTable('keys', {
     keyLocatorHash: text('keyLocatorHash').primaryKey(),
     displayName: text('displayName'),
