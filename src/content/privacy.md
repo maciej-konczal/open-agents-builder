@@ -3,7 +3,7 @@
 Last Updated: 17.09.2024
 
 1. **Data Controller**: We are CT Tornado sp. z o.o., with its registered office in Wrocław, Poland (address: ul. Wyspa Słodowa 7, 50-266 Wrocław; registration: District Court Wrocław-Fabryczna, KRS number: 783910; tax ID no.: 8982262377; share capital: PLN 5 000,00; email address).
-2. **Scope of Processing**: We process personal data of users of the Chat Doodle application (the “**App**”) and the access management site (each, a “**User**”).
+2. **Scope of Processing**: We process personal data of users of the Agent Doodle application (the “**App**”) and the access management site (each, a “**User**”).
 3. **Consent**: By using our services, you consent to the processing of your personal data in accordance with this Privacy Policy.
 4. **Contact Information**: Queries about personal data can be directed to us via: (i) email: info@catchthetornado.com; (ii) [contact form](https://www.catchthetornado.com/contact-us); or (iii) postal address: our registered office.
 5. **Compliance with Privacy Laws**: We adhere to the General Data Protection Regulation (the “**GDPR**”), which sets the framework for data protection and privacy within the European Union. Our practices also comply with the e-Privacy Directive and its local implementations, particularly for email marketing consents. We recognize and respect the privacy rights of California residents under the California Consumer Privacy Act (the “**CCPA**”). Additionally, we actively comply with relevant privacy laws applicable to various jurisdictions where our services are accessed or used. This multi-layered approach ensures that all personal data we handle is managed with the utmost care and respect for individual privacy rights.

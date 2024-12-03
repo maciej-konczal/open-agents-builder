@@ -17,9 +17,9 @@ export function Header() {
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
       <div className="flex-1">
-        <img src="/img/chat-doodle-logo.svg" alt="Chat Doodle" className="w-10"/>
+        <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10"/>
       </div>
-      <div className="flex-1"><h1 className="text-lg font-bold text-left">Chat Doodle</h1>
+      <div className="flex-1"><h1 className="text-lg font-bold text-left">Agent Doodle</h1>
       </div>
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon">

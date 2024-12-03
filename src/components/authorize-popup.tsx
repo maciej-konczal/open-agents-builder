@@ -31,7 +31,7 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
   }, [saasContext?.email]);
   return (
     <div className="p-4 grid items-center justify-center h-screen">
-     {!applicationLoaded || autoLoginInProgress ? (<div className="w-96 flex items-center justify-center flex-col"><div className="flex-row h-40 w-40"><img src="/img/chat-doodle-logo.svg" /></div><div><DataLoader /></div></div>):(
+     {!applicationLoaded || autoLoginInProgress ? (<div className="w-96 flex items-center justify-center flex-col"><div className="flex-row h-40 w-40"><img src="/img/agent-doodle-logo.svg" /></div><div><DataLoader /></div></div>):(
       <div>
         <Suspense fallback={<div>Loading SaaSContext...</div>}>
           <SaaSContextLoader />
@@ -39,7 +39,7 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
         <FeedbackWidget />
         {saasContext?.email ? (
           <div className="text-xs w-96 p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500">
-            Hello {saasContext?.email}! Welcome to Chat Doodle. You can spend {saasContext.currentQuota.allowedUSDBudget}$ for AI requests. Read <a className="underline" target="_blank" href="/content/terms">terms</a> and <a className="underline" target="_blank" href="/content/privacy">privacy</a> before using the app.
+            Hello {saasContext?.email}! Welcome to Agent Doodle. You can spend {saasContext.currentQuota.allowedUSDBudget}$ for AI requests. Read <a className="underline" target="_blank" href="/content/terms">terms</a> and <a className="underline" target="_blank" href="/content/privacy">privacy</a> before using the app.
           </div>
         ): ((process.env.NEXT_PUBLIC_SAAS_REGISTER_URL && process.env.NEXT_PUBLIC_SAAS) ? (
           <div className="text-xs w-96 p-3 border-2 border-red-500 background-red-200 text-sm font-semibold text-red-500">
@@ -48,8 +48,8 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
         ) : (null))}
         
         <div className="flex">
-          <img alt="Application logo" className="w-20" src={currentTheme === 'dark' ? `/img/chat-doodle-logo-white.svg` : `/img/chat-doodle-logo.svg`} />
-          <h1 className="text-5xl text-center p-8 pl-0">Chat Doodle</h1>
+          <img alt="Application logo" className="w-20" src={currentTheme === 'dark' ? `/img/agent-doodle-logo-white.svg` : `/img/agent-doodle-logo.svg`} />
+          <h1 className="text-5xl text-center p-8 pl-0">Agent Doodle</h1>
         </div>
         <Tabs defaultValue="authorize" value={currentTab} onValueChange={(value) => setCurrentTab(value)} className="w-96">
           <TabsList className="grid grid-cols-2">

@@ -2,7 +2,7 @@
 
 Last Updated: 22.09.2024
 
-**These Terms of Service** (these “**Terms**”) govern your access to, and use of, Chat Doodle (the “**App**”) and the access management site (collectively, the “**Services**”) provided by CT Tornado sp. z o. o. with its registered office in Wrocław, Poland (address: ul. Wyspa Słodowa 7, 50-266 Wrocław; registration: District Court Wrocław-Fabryczna, KRS number: 783910; tax ID no.: 8982262377; share capital: PLN 5 000,00; email address: info@catchthetornado.com; “**CTT**”, “**we,**" “**us**,” or “**our**”).
+**These Terms of Service** (these “**Terms**”) govern your access to, and use of, Agent Doodle (the “**App**”) and the access management site (collectively, the “**Services**”) provided by CT Tornado sp. z o. o. with its registered office in Wrocław, Poland (address: ul. Wyspa Słodowa 7, 50-266 Wrocław; registration: District Court Wrocław-Fabryczna, KRS number: 783910; tax ID no.: 8982262377; share capital: PLN 5 000,00; email address: info@catchthetornado.com; “**CTT**”, “**we,**" “**us**,” or “**our**”).
 
 The Services are provided entirely electronically and are intended for use by adults only. By accessing or using the Services, you acknowledge that you are an adult and agree to be bound by these Terms. If you do not agree to these Terms or if you are not an adult, do not use the Services.
 

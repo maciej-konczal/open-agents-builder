@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Chat Doodle',
-    short_name: 'Chat Doodle',
+    name: 'Agent Doodle',
+    short_name: 'Agent Doodle',
     description: 'Secure Data Folder folder with AI assistant',
     start_url: '/',
     display: 'standalone',
@@ -11,7 +11,7 @@ export default function manifest(): MetadataRoute.Manifest {
     theme_color: '#000',
     icons: [
       {
-        src: '/img/chat-doodle-logo.svg',
+        src: '/img/agent-doodle-logo.svg',
         sizes: 'any',
         type: 'image/svg+xml',
       },
