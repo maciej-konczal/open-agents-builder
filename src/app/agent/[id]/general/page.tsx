@@ -10,7 +10,7 @@ export default function GeneralPage() {
       <form className="space-y-4">
       <div>
         <label htmlFor="projectName" className="block text-sm font-medium text-gray-700">
-        Project Name
+        Agent Name
         </label>
         <Input
         type="text"

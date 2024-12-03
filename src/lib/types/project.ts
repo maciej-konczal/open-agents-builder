@@ -1,4 +1,4 @@
-export interface Project {
+export interface Agent {
   id: string;
   name: string;
   description: string;
@@ -6,11 +6,11 @@ export interface Project {
   updatedAt: string;
 }
 
-export interface CreateProjectInput {
+export interface CreateAgentInput {
   name: string;
   description: string;
 }
 
-export interface UpdateProjectInput extends Partial<CreateProjectInput> {
+export interface UpdateAgentInput extends Partial<CreateAgentInput> {
   id: string;
 }

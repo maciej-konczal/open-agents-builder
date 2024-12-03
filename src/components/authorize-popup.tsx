@@ -48,7 +48,7 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
         ) : (null))}
         
         <div className="flex">
-          <img alt="Application logo" className="w-20" src={currentTheme === 'dark' ? `/img/agent-doodle-logo-white.svg` : `/img/agent-doodle-logo.svg`} />
+          <img alt="Application logo" className="w-16 mr-5" src={currentTheme === 'dark' ? `/img/agent-doodle-logo-white.svg` : `/img/agent-doodle-logo.svg`} />
           <h1 className="text-5xl text-center p-8 pl-0">Agent Doodle</h1>
         </div>
         <Tabs defaultValue="authorize" value={currentTab} onValueChange={(value) => setCurrentTab(value)} className="w-96">

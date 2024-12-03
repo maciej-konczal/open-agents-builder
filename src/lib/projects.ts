@@ -1,10 +1,10 @@
-export interface Project {
+export interface Agent {
   id: string;
   name: string;
 }
 
-export const projects: Project[] = [
-  { id: '1', name: 'Project Alpha' },
-  { id: '2', name: 'Project Beta' },
-  { id: '3', name: 'Project Gamma' },
+export const projects: Agent[] = [
+  { id: '1', name: 'Agent Alpha' },
+  { id: '2', name: 'Agent Beta' },
+  { id: '3', name: 'Agent Gamma' },
 ];

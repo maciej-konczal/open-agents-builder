@@ -13,7 +13,7 @@ export default function ResultsPage() {
       <h1 className="text-3xl font-bold">Results</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Project Results</CardTitle>
+          <CardTitle>Agent Results</CardTitle>
         </CardHeader>
         <CardContent>
           <p>View your project results here.</p>

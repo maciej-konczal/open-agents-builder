@@ -1,61 +1,61 @@
 import { v4 as uuidv4 } from 'uuid';
-import { Project, CreateProjectInput, UpdateProjectInput } from '../types/project';
+import { Agent, CreateAgentInput, UpdateAgentInput } from '../types/project';
 
 // Initial projects with GUIDs
-export const projects: Project[] = [
+export const projects: Agent[] = [
   {
     id: '123e4567-e89b-12d3-a456-426614174000',
-    name: 'Project Alpha',
+    name: 'Agent Alpha',
     description: 'Our first AI project',
     createdAt: new Date('2024-01-01').toISOString(),
     updatedAt: new Date('2024-01-01').toISOString(),
   },
   {
     id: '987fcdeb-51a2-43d7-9876-543210987001',
-    name: 'Project Beta',
+    name: 'Agent Beta',
     description: 'Advanced language model implementation',
     createdAt: new Date('2024-01-15').toISOString(),
     updatedAt: new Date('2024-01-15').toISOString(),
   },
 ];
 
-export function getProjects(): Project[] {
+export function getAgents(): Agent[] {
   return projects;
 }
 
-export function getProject(id: string): Project | undefined {
+export function getAgent(id: string): Agent | undefined {
   return projects.find(project => project.id === id);
 }
 
-export function createProject(input: CreateProjectInput): Project {
+export function createAgent(input: CreateAgentInput): Agent {
   const now = new Date().toISOString();
-  const newProject: Project = {
+  const newAgent: Agent = {
     id: uuidv4(),
     ...input,
     createdAt: now,
     updatedAt: now,
   };
-  projects.push(newProject);
-  return newProject;
+  projects.push(newAgent);
+  return newAgent;
 }
 
-export function updateProject(input: UpdateProjectInput): Project {
+export function updateAgent(input: UpdateAgentInput): Agent {
   const index = projects.findIndex(p => p.id === input.id);
   if (index === -1) {
-    throw new Error('Project not found');
+    throw new Error('Agent not found');
   }
 
-  const updatedProject = {
+  const updatedAgent = {
     ...projects[index],
     ...input,
     updatedAt: new Date().toISOString(),
   };
   
-  projects[index] = updatedProject;
-  return updatedProject;
+  projects[index] = updatedAgent;
+  return updatedAgent;
 }
 
-export function deleteProject(id: string): void {
+export function deleteAgent(id: string): void {
   const index = projects.findIndex(p => p.id === id);
   if (index !== -1) {
     projects.splice(index, 1);

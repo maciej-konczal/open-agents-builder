@@ -1,28 +1,28 @@
 'use client';
 
 import { useCallback } from 'react';
-import { getProjects, createProject, updateProject, deleteProject } from '@/lib/data/projects';
-import { CreateProjectInput, UpdateProjectInput } from '@/lib/types/project';
+import { getAgents, createAgent, updateAgent, deleteAgent } from '@/lib/data/projects';
+import { CreateAgentInput, UpdateAgentInput } from '@/lib/types/project';
 
-export function useProjects() {
-  const projects = getProjects();
+export function useAgents() {
+  const projects = getAgents();
 
-  const addProject = useCallback((input: CreateProjectInput) => {
-    return createProject(input);
+  const addAgent = useCallback((input: CreateAgentInput) => {
+    return createAgent(input);
   }, []);
 
-  const editProject = useCallback((input: UpdateProjectInput) => {
-    return updateProject(input);
+  const editAgent = useCallback((input: UpdateAgentInput) => {
+    return updateAgent(input);
   }, []);
 
-  const removeProject = useCallback((id: string) => {
-    deleteProject(id);
+  const removeAgent = useCallback((id: string) => {
+    deleteAgent(id);
   }, []);
 
   return {
     projects,
-    addProject,
-    editProject,
-    removeProject,
+    addAgent,
+    editAgent,
+    removeAgent,
   };
 }

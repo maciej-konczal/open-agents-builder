@@ -1,7 +1,7 @@
 'use client'
 
-import { ProjectHeader } from '@/components/layout/project-header';
-import { ProjectSidebar } from '@/components/layout/project-sidebar';
+import { AgentHeader } from '@/components/layout/agent-header';
+import { AgentSidebar } from '@/components/layout/agent-sidebar';
 import { Header } from '@/components/layout/header';
 import { DatabaseContextProvider } from '@/contexts/db-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
@@ -10,7 +10,7 @@ import { AuditContextProvider } from '@/contexts/audit-context';
 import AuthorizationGuard from '@/components/authorization-guard';
 import { KeyContextProvider } from '@/contexts/key-context';
 
-export default function ProjectLayout({
+export default function AgentLayout({
   children,
   params,
 }: {
@@ -26,9 +26,9 @@ export default function ProjectLayout({
               <KeyContextProvider>
                 <div className="flex h-screen flex-col">
                   <Header />
-                  <ProjectHeader />
+                  <AgentHeader />
                   <div className="flex flex-1 overflow-hidden">
-                    <ProjectSidebar />
+                    <AgentSidebar />
                     <main className="flex-1 overflow-auto p-6">
                       {children}
                     </main>

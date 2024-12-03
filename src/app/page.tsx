@@ -8,6 +8,6 @@ import { projects } from '@/lib/data/projects';
 import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  const firstProject = projects[0];
-  redirect(`/project/${firstProject.id}/general`);
+  const firstAgent = projects[0];
+  redirect(`/project/${firstAgent.id}/general`);
 }

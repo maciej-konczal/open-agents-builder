@@ -34,7 +34,7 @@ const sidebarItems = [
   },
 ];
 
-export function ProjectSidebar() {
+export function AgentSidebar() {
   const pathname = usePathname();
   const params = useParams();
   const projectId = params?.id as string;
