@@ -9,6 +9,7 @@ import { ConfigContextProvider } from '@/contexts/config-context';
 import { AuditContextProvider } from '@/contexts/audit-context';
 import AuthorizationGuard from '@/components/authorization-guard';
 import { KeyContextProvider } from '@/contexts/key-context';
+import { AgentProvider } from '@/contexts/agent-context';
 
 export default function AgentLayout({
   children,
@@ -24,16 +25,18 @@ export default function AgentLayout({
           <AuditContextProvider>
             <AuthorizationGuard>
               <KeyContextProvider>
-                <div className="flex h-screen flex-col">
-                  <Header />
-                  <AgentHeader />
-                  <div className="flex flex-1 overflow-hidden">
-                    <AgentSidebar />
-                    <main className="flex-1 overflow-auto p-6">
-                      {children}
-                    </main>
+                <AgentProvider>
+                  <div className="flex h-screen flex-col">
+                    <Header />
+                    <AgentHeader />
+                    <div className="flex flex-1 overflow-hidden">
+                      <AgentSidebar />
+                      <main className="flex-1 overflow-auto p-6">
+                        {children}
+                      </main>
+                    </div>
                   </div>
-                </div>
+                </AgentProvider>
               </KeyContextProvider>
             </AuthorizationGuard>
           </AuditContextProvider>
