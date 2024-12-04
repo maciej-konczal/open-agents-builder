@@ -39,6 +39,9 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
             if(query.filter['agentId']){
                 dbQuery.where(eq(sessions.agentId, query.filter['agentId'] as string));
             }
+            if(query.filter['id']){
+                dbQuery.where(eq(sessions.id, query.filter['id'] as string));
+            }
         }        
         return Promise.resolve(dbQuery.all() as SessionDTO[])
     }

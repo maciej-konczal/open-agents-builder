@@ -35,6 +35,11 @@ export default class ServerAgentRepository extends BaseRepository<AgentDTO> {
     async findAll(query?: IQuery): Promise<AgentDTO[]> {
         const db = (await this.db());
         let dbQuery = db.select().from(agents);
+        if(query?.filter){
+            if(query.filter['id']){
+                dbQuery.where(eq(agents.id, query.filter['id'] as string));
+            }
+        }              
         return Promise.resolve(dbQuery.all() as AgentDTO[])
     }
 }

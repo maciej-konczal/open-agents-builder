@@ -202,6 +202,7 @@ export const agentDTOSchema = z.object({
   updatedAt: z.string().default(() => getCurrentTS()),
 });
 export type AgentDTO = z.infer<typeof agentDTOSchema>;
+export const AgentDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
 
 export const sessionDTOSchema = z.object({
   id: z.string().min(1),
@@ -214,3 +215,4 @@ export const sessionDTOSchema = z.object({
   finalizedAt: z.string().optional().nullable(),
 });
 export type SessionDTO = z.infer<typeof sessionDTOSchema>;
+export const SessionDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
