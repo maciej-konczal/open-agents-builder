@@ -189,3 +189,28 @@ export type AggregatedStatsDTO = {
     requests: number;
   },
 }
+
+
+
+export const agentDTOSchema = z.object({
+  id: z.string().min(1),
+  displayName: z.string().min(1),
+  options: z.string().optional().nullable(),
+  prompt: z.string().min(1),
+  safetyRules: z.string().optional().nullable(),
+  createdAt: z.string().default(() => getCurrentTS()),
+  updatedAt: z.string().default(() => getCurrentTS()),
+});
+export type AgentDTO = z.infer<typeof agentDTOSchema>;
+
+export const sessionDTOSchema = z.object({
+  id: z.string().min(1),
+  agentId: z.string().min(1),
+  user: z.string().optional().nullable(),
+  messages: z.string().optional().nullable(),
+  result: z.string().optional().nullable(),
+  createdAt: z.string().default(() => getCurrentTS()),
+  updatedAt: z.string().default(() => getCurrentTS()),
+  finalizedAt: z.string().optional().nullable(),
+});
+export type SessionDTO = z.infer<typeof sessionDTOSchema>;

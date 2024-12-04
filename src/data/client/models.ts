@@ -1,9 +1,10 @@
-import { AttachmentDTO, KeyACLDTO, KeyDTO, FolderDTO, RecordDTO, TermDTO } from "@/data/dto";
+import { AttachmentDTO, KeyACLDTO, KeyDTO, FolderDTO, RecordDTO, TermDTO, AgentDTO, SessionDTO } from "@/data/dto";
 import { z } from "zod";
 
 import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
 import { sha256 } from "@/lib/crypto";
+import { MessageEx } from "@/contexts/chat-context";
 
 
 export enum DataLoadingStatus {
@@ -198,6 +199,104 @@ export class Term {
     }
     
 }
+
+export type AgentOptions = { 
+    welcomeMessage: string;
+    termsAndConditions: string;
+    mustConfirmTerms: boolean;
+    resultEmail: string;
+    collectUserEmail: boolean;
+    collectUserName: boolean;
+}
+
+export type AgentSafetyRules = [
+    {
+        rule: string;
+    }
+]
+
+export class Agent {
+    id: string;
+    displayName: string;
+    options?: AgentOptions | null;
+    prompt: string;
+    safetyRules?: AgentSafetyRules | null;
+    createdAt: string;
+    updatedAt: string;
+
+    constructor(agentDTO: AgentDTO) {
+        this.id = agentDTO.id;
+        this.displayName = agentDTO.displayName;
+        this.options = agentDTO instanceof Agent ? agentDTO.options :  (agentDTO.options ? JSON.parse(agentDTO.options) : null);
+
+        this.prompt = agentDTO.prompt;
+        this.safetyRules = agentDTO instanceof Agent ? agentDTO.safetyRules :  (agentDTO.safetyRules ? JSON.parse(agentDTO.safetyRules) : null);
+
+        this.createdAt = agentDTO.createdAt;
+        this.updatedAt = agentDTO.updatedAt;
+    }
+
+    static fromDTO(agentDTO: AgentDTO): Agent {
+        return new Agent(agentDTO);
+    }
+
+    toDTO(): AgentDTO {
+        return {
+            id: this.id,
+            displayName: this.displayName,
+            options: JSON.stringify(this.options),
+            prompt: this.prompt,
+            safetyRules: JSON.stringify(this.safetyRules),
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+        };
+    }
+}
+
+export type SessionUserInfo = {
+    name: string;
+    email: string;
+}
+
+export class Session {
+    id: string;
+    agentId: string;
+    user?: SessionUserInfo | null;
+    messages?: [MessageEx] | null;
+    result?: string | null;
+    createdAt: string;
+    updatedAt: string;
+    finalizedAt?: string | null;
+
+    constructor(sessionDTO: SessionDTO) {
+        this.id = sessionDTO.id;
+        this.agentId = sessionDTO.agentId;
+        this.user = sessionDTO instanceof Session ? sessionDTO.user :  (sessionDTO.user ? JSON.parse(sessionDTO.user) : null);
+        this.messages = sessionDTO instanceof Session ? sessionDTO.messages :  (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
+        this.result = sessionDTO.result ?? null;
+        this.createdAt = sessionDTO.createdAt;
+        this.updatedAt = sessionDTO.updatedAt;
+        this.finalizedAt = sessionDTO.finalizedAt ?? null;
+    }
+
+    static fromDTO(sessionDTO: SessionDTO): Session {
+        return new Session(sessionDTO);
+    }
+
+    toDTO(): SessionDTO {
+        return {
+            id: this.id,
+            agentId: this.agentId,
+            user: JSON.stringify(this.user),
+            messages: JSON.stringify(this.messages),
+            result: this.result,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+            finalizedAt: this.finalizedAt,
+        };
+    }
+}
+
 
 export class DatabaseCreateRequest {
     email: string;
