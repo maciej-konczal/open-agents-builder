@@ -11,26 +11,26 @@ const sidebarItems = [
   { 
     icon: Settings2, 
     label: 'General', 
-    href: '/project/[id]/general',
-    pattern: '/project/[id]/general'
+    href: '/agent/[id]/general',
+    pattern: '/agent/[id]/general'
   },
   { 
     icon: FileText, 
     label: 'Prompt', 
-    href: '/project/[id]/prompt',
-    pattern: '/project/[id]/prompt'
+    href: '/agent/[id]/prompt',
+    pattern: '/agent/[id]/prompt'
   },
   { 
     icon: Shield, 
     label: 'Safety Rules', 
-    href: '/project/[id]/safety',
-    pattern: '/project/[id]/safety'
+    href: '/agent/[id]/safety',
+    pattern: '/agent/[id]/safety'
   },
   { 
     icon: BarChart, 
     label: 'Results', 
-    href: '/project/[id]/results',
-    pattern: '/project/[id]/results'
+    href: '/agent/[id]/results',
+    pattern: '/agent/[id]/results'
   },
 ];
 

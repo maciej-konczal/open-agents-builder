@@ -11,7 +11,7 @@ export const config = sqliteTable('config', {
 
 export const agents = sqliteTable('agents', {
     id: text('id').primaryKey(),
-    name: text('displayName'),
+    displayName: text('displayName'),
     settings: text('options', { mode: 'json' }),
     prompt: text('prompt').notNull(),
     safetyRules: text('safetyRules', { mode: 'json' }),

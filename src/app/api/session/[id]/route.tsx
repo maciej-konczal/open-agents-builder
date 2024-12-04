@@ -1,4 +1,4 @@
-import ServerAgentRepository from "@/data/server/server-session-repository";
+import ServerSessionRepository from "@/data/server/server-session-repository";
 import {  authorizeRequestContext, genericDELETE } from "@/lib/generic-api";
 
 export async function DELETE(request: Request, { params }: { params: { id: number }} ) {
@@ -8,6 +8,6 @@ export async function DELETE(request: Request, { params }: { params: { id: numbe
     if(!recordLocator){
         return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
     } else { 
-        return Response.json(await genericDELETE(request, new ServerAgentRepository(requestContext.emailHash), { id: recordLocator}));
+        return Response.json(await genericDELETE(request, new ServerSessionRepository(requestContext.emailHash), { id: recordLocator}));
     }
 }

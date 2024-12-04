@@ -19,7 +19,7 @@ export function AgentHeader() {
   const { projects } = useAgents();
 
   const handleAgentChange = (newId: string) => {
-    router.push(`/project/${newId}/general`);
+    router.push(`/agent/${newId}/general`);
   };
 
   return (

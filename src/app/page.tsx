@@ -9,5 +9,5 @@ import { redirect } from 'next/navigation';
 
 export default function HomePage() {
   const firstAgent = projects[0];
-  redirect(`/project/${firstAgent.id}/general`);
+  redirect(`/agent/${firstAgent.id}/general`);
 }
