@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
 
             if (!keyDetails) { // this situation theoretically should not happen bc. if database file exists we return out of the function
                 return Response.json({
-                    message: 'Invalid Database Id or Key. Key not found.',
+                    message: 'Invalid Email or Password. Key not found.',
                     status: 401               
                 });                    
             } else {
