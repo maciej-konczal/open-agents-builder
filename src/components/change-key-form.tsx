@@ -16,6 +16,7 @@ import { pdf, Document, Page } from '@react-pdf/renderer';
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
 import { KeyContext } from "@/contexts/key-context";
+import { useTranslation } from "react-i18next";
 
 
 interface ChangeKeyFormProps {
@@ -36,6 +37,7 @@ export function ChangeKeyForm({
   const [keepLoggedIn, setKeepLoggedIn] = useState(typeof localStorage !== 'undefined' ? localStorage.getItem("keepLoggedIn") === "true" : false)
   const dbContext = useContext(DatabaseContext);
   const keyContext = useContext(KeyContext);
+  const { t } = useTranslation();
 
   useEffect(() => { 
     setOperationResult(null);
@@ -45,11 +47,11 @@ export function ChangeKeyForm({
     // Handle form submission
 
     if (dbContext?.password !== data.currentKey) {
-      setOperationResult({ success: false, message: "Current key is incorrect", issues: [] });
-      toast.error('Current key is incorrect');
+      setOperationResult({ success: false, message: t("Current key is incorrect"), issues: [] });
+      toast.error(t('Current key is incorrect'));
     } else  {
 
-      const newKeyResult = await keyContext.addKey(dbContext?.email, 'Owner Key', data.key, null, {
+      const newKeyResult = await keyContext.addKey(dbContext?.email, t('Owner Key'), data.key, null, {
         role: 'owner',
         features: ['*']
       });
@@ -60,11 +62,11 @@ export function ChangeKeyForm({
 
         if(deleteOldKeyResult.status !== 200) {
           setOperationResult({ success: false, message: "Error while changing key", issues: deleteOldKeyResult.issues ?? []});
-          toast.error('Error while changing key');
+          toast.error(t('Error while changing key'));
           return;
         } else {
           setOperationResult({ success: true, message: "Key has been successfully changed", issues: [] });
-          toast.success('Key has been successfully changed');
+          toast.success(t('Key has been successfully changed'));
 
           if (keepLoggedIn){
             localStorage.setItem("email", dbContext?.email);
@@ -73,7 +75,7 @@ export function ChangeKeyForm({
         }
       } else {
         setOperationResult({ success: false, message: "Error while changing key", issues: newKeyResult.issues ?? []});
-        toast.error('Error while changing key');
+        toast.error(t('Error while changing key'));
         return;
       }
     }
@@ -82,11 +84,11 @@ export function ChangeKeyForm({
 
   if (operationResult?.success) {
     return (<div className="flex flex-col space-y-2 gap-2 mb-4">
-      <h2 className="text-green-500 text-bold">Congratulations!</h2>
-      <p className="text-sm">Database Key has been changed. Please store the credentials in safe place as they are <strong>NEVER send to server</strong> and thus <strong>CAN NOT be recovered</strong></p>
+      <h2 className="text-green-500 text-bold">{t('Congratulations!')}</h2>
+      <p className="text-sm">{t('Database Key has been changed. Please store the credentials in safe place as they are ')}<strong>{t('NEVER send to server')}</strong>{t(' and thus ')}<strong>{t('CAN NOT be recovered')}</strong></p>
       <div className="border-2 border-dashed border-green-400 p-5">
         <div className="text-sm mb-5">
-          <Label htmlFor="current">Database Id:</Label>
+          <Label htmlFor="current">{t('E-mail:')}</Label>
           <Input type="password" id="email" readOnly value={dbContext?.email} />
         </div>
         <div className="text-sm">

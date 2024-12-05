@@ -9,6 +9,7 @@ import { ConfigContextType } from '@/contexts/config-context';
 import { getCurrentTS } from '@/lib/utils';
 import assert from 'assert';
 import { SaaSContext, SaaSContextType } from './saas-context';
+import { useTranslation } from 'react-i18next';
 const argon2 = require("argon2-browser");
 
 interface KeyContextProps {
@@ -79,12 +80,13 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
         });
         const emailHash = await sha256(email, defaultDatabaseIdHashSalt);
         const keyLocatorHash = await sha256(sharedKey + email, defaultKeyLocatorHashSalt);
+        const { t } = useTranslation();
 
         const existingKey = keys.find((key) => key.keyLocatorHash === keyLocatorHash);
         if (existingKey) {
             
-            toast.error('Key already exists, please choose a different key!');
-            throw new Error('Key already exists');
+            toast.error(t('Key already exists, please choose a different key!'));
+            throw new Error(t('Key already exists'));
         }
 
         const encryptionUtils = new EncryptionUtils(sharedKey);
@@ -108,9 +110,9 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
         const result = await apiClient.put(keyDTO);
         
         if(result.status === 200) {
-            toast('Shared Key succesfull added. Please send Database Id and Key value to the user you like to share date with.')
+            toast(t('Shared Key succesfull added. Please send Database Id and Key value to the user you like to share date with.'))
         } else {
-            toast.error((result as PutKeyResponseError).message);
+            toast.error(t((result as PutKeyResponseError).message));
         }
 
         return result;

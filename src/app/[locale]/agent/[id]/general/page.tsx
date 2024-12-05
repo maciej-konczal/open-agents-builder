@@ -3,14 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 
 export default function GeneralPage() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <form className="space-y-4">
       <div>
         <label htmlFor="projectName" className="block text-sm font-medium">
-        Agent Name
+        {t('Agent Name')}
         </label>
         <Input
         type="text"
@@ -21,7 +23,7 @@ export default function GeneralPage() {
       </div>
       <div>
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">
-          Welcome Message
+          {t('Welcome Message')}
         </label>
         <Textarea
           id="welcomeInfo"
@@ -32,7 +34,7 @@ export default function GeneralPage() {
       </div>
       <div>
         <label htmlFor="termsConditions" className="block text-sm font-medium">
-          Terms and Conditions
+          {t('Terms and Conditions')}
         </label>
         <Textarea
           id="termsConditions"
@@ -49,12 +51,12 @@ export default function GeneralPage() {
         name="confirmTerms"
         className="mr-2 w-4"
           />
-          Must confirm terms and conditions
+          {t('Must confirm terms and conditions')}
         </label>
       </div>
       <div>
         <label htmlFor="resultEmail" className="block text-sm font-medium">
-        Result Email
+        {t('Result Email')}
         </label>
         <Input
         type="email"
@@ -71,7 +73,7 @@ export default function GeneralPage() {
             name="collectUserInfo"
             className="mr-2 w-4"
           />
-          Collect user e-mail addresses and names
+          {t('Collect user e-mail addresses and names')}
         </label>
       </div>
       <div>
@@ -79,7 +81,7 @@ export default function GeneralPage() {
         type="submit"
         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-        Save
+        {t('Save')}
         </Button>
       </div>
       </form>

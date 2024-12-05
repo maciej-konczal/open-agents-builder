@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Settings2, FileText, Shield, BarChart } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
+import { useTranslation } from 'react-i18next';
 
 const sidebarItems = [
   { 
@@ -35,16 +36,17 @@ const sidebarItems = [
 ];
 
 export function AgentSidebar() {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const params = useParams();
-  const projectId = params?.id as string;
+  const agentId = params?.id as string;
 
   return (
     <div className="flex w-64 flex-col border-r bg-card">
       <ScrollArea className="flex-1">
         <div className="space-y-1 p-2">
           {sidebarItems.map((item) => {
-            const href = item.href.replace('[id]', projectId);
+            const href = item.href.replace('[id]', agentId);
             const isActive = pathname.startsWith(href);
             
             return (
@@ -54,7 +56,7 @@ export function AgentSidebar() {
                   className="w-full justify-start"
                 >
                   <item.icon className="mr-2 h-5 w-5" />
-                  {item.label}
+                  {t(item.label)}
                 </Button>
               </Link>
             );

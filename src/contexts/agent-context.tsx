@@ -6,6 +6,7 @@ import { DatabaseContext } from './db-context';
 import { AgentApiClient } from '@/data/client/agent-api-client';
 import { SaaSContext } from './saas-context';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 
 
 interface AgentContextType {
@@ -25,6 +26,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [current, setCurrent] = useState<Agent | null>(null);
     const [agents, setAgents] = useState<Agent[]>([]);
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
+    const { t } = useTranslation();
 
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
@@ -46,7 +48,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             const newRecord = typeof agent?.id  === 'undefined'
             if (response.status !== 200) {
                 console.error('Error adding agent:', response.message);
-                toast.error('Error adding folder');
+                toast.error(t('Error adding agent'));
 
                 return agent;
             } else {
@@ -59,7 +61,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             }
         } catch (error) {
             console.error('Error adding folder record:', error);
-            toast.error('Error adding folder record');
+            toast.error(t('Error adding folder record'));
             return agent;
         }
     };

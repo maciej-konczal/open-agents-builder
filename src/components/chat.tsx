@@ -93,7 +93,7 @@ export function Chat() {
             messageWasDelivered = true;
           } catch (error) {
             console.error(error);
-            toast.error('Failed to load folder records into chat: ' + error);
+            toast.error(t('Failed to load folder records into chat: ') + error);
           }
         }        
       } 

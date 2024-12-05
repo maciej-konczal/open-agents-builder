@@ -7,6 +7,7 @@ import { EncryptionUtils, generatePassword, sha256 } from '@/lib/crypto';
 import { toast } from 'sonner';
 import { ZodIssue } from 'zod';
 import { SaaSContext } from './saas-context';
+import { useTranslation } from 'react-i18next';
 const argon2 = require("argon2-browser");
 
 // the salts are static as they're used as record locators in the DB - once changed the whole DB needs to be re-hashed
@@ -107,6 +108,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     const [refreshToken, setRefreshToken] = useState<string>('');
     const [authStatus, setAuthStatus] = useState<DatabaseAuthStatus>(DatabaseAuthStatus.NotAuthorized);
     const saasContext = useContext(SaaSContext);
+    const { t } = useTranslation();
 
     const setupApiClient = async (config: ConfigContextType | null) => {
         const client = new DbApiClient('');
@@ -160,7 +162,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
 
         return {
             success: apiResponse.status === 200,
-            message: apiResponse.message,
+            message: t(apiResponse.message),
             issues: apiResponse.issues ? apiResponse.issues : []
         }
     };
@@ -201,16 +203,16 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
             return {
                 success: true,
                 accessToken: (apiResponse as RefreshDbResponse).data.accessToken,
-                message: apiResponse.message,
+                message: t(apiResponse.message),
                 issues: apiResponse.issues ? apiResponse.issues : []
             }
         } else {
-            toast.error('Error refreshing the session. Please log in again.');
+            toast.error(t('Error refreshing the session. Please log in again.'));
             setAuthStatus(DatabaseAuthStatus.NotAuthorized);
             logout();
             return {
                 success: false,
-                message: apiResponse.message,
+                message: t(apiResponse.message),
                 issues: apiResponse.issues ? apiResponse.issues : []
             }
         }
@@ -304,7 +306,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
                 }
                 return {
                     success: true,
-                    message: authResponse.message,
+                    message: t(authResponse.message),
                     issues: authResponse.issues ? authResponse.issues : []
                 }
 
@@ -315,20 +317,20 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
                 setAuthStatus(DatabaseAuthStatus.AuthorizationError);
                 return {
                     success: false,
-                    message: authResponse.message,
+                    message: t(authResponse.message),
                     issues: authResponse.issues ? authResponse.issues : []
                 }
             }
         } else {
             disableKeepLoggedIn();
 
-            toast.error('Error in authorization challenge. Please try again.');
+            toast.error(t('Error in authorization challenge. Please try again.'));
             console.error('Error in authorize/challenge: ', authChallengResponse.message);
         }
 
         return {
             success: authChallengResponse.status === 200,
-            message: authChallengResponse.message,
+            message: t(authChallengResponse.message),
             issues: authChallengResponse.issues ? authChallengResponse.issues : []
         }        
     };

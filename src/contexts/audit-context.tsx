@@ -10,6 +10,7 @@ import { getCurrentTS } from '@/lib/utils';
 import assert from 'assert';
 import { AuditApiClient } from '@/data/client/audit-api-client';
 import { SaaSContext } from './saas-context';
+import { useTranslation } from 'react-i18next';
 const argon2 = require("argon2-browser");
 
 interface AuditContextProps {
@@ -54,6 +55,7 @@ export const AuditContextProvider: React.FC<PropsWithChildren> = ({ children }) 
     const [lastAudit, setLastAudit] = useState<AuditDTO | undefined>(undefined);
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
     const [currentAudit, setCurrentAudit] = useState<AuditDTO | undefined>(undefined);
+    const { t } = useTranslation();
 
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
@@ -71,11 +73,11 @@ export const AuditContextProvider: React.FC<PropsWithChildren> = ({ children }) 
                 console.log('Audit log saved', log);
                 setLastAudit(log);
             } else {
-                toast.error('Error saving audit log ' + response.message);
+                toast.error(t('Error saving audit log ') + response.message);
             }
         }).catch((error) => {
             console.error(error);
-            toast.error('Error saving audit log', error);
+            toast.error(t('Error saving audit log'), error);
         });        
     }
 

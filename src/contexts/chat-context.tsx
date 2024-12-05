@@ -15,6 +15,7 @@ import { jsonrepair } from 'jsonrepair';
 import { json } from 'stream/consumers';
 import showdown from 'showdown';
 import { set } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 export enum MessageDisplayMode {
     Text = 'text',
@@ -225,7 +226,7 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
     const [agentFinishedDialogOpen, setAgentFinishedDialogOpen] = useState(false);
     const [agentFinishMessage, setAgentFinishMessage] = useState('');
 
-
+    const { t } = useTranslation();
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
     const config = useContext(ConfigContext);
@@ -233,7 +234,7 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         const apiKey = await config?.getServerConfig('chatGptApiKey') as string;
         if (!apiKey) {
             config?.setConfigDialogOpen(true);
-            toast.info('Please enter Chat GPT API Key first');
+            toast.info(t(t('Please enter Chat GPT API Key first')));
             return false;
         } else return true;
     }
@@ -315,7 +316,7 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
             })
             return aiProvider.chat(modelName ? modelName : 'chatgpt-4o-latest')   //gpt-4o-2024-05-13
         } else {
-            toast.error('Unknown AI provider ' + providerName);
+            toast.error(t('Unknown AI provider ') + providerName);
             throw new Error('Unknown AI provider ' + providerName);
         }
     }
@@ -348,7 +349,7 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
                 resultMessage.content += delta;
             }
         } catch (e) {
-            const errMsg = 'Error while streaming AI Auto Check response: ' + e;
+            const errMsg = t('Error while streaming AI Auto Check response: ') + e;
             toast.error(errMsg);
         }
 
@@ -410,13 +411,13 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
 
         if (saasContext.userId) {
             if (saasContext.currentUsage.usedUSDBudget > saasContext.currentQuota.allowedUSDBudget) {
-                toast.error('You have exceeded your monthly budget. Please contact us to upgrade your plan');
+                toast.error(t('You have exceeded your monthly budget. Please contact us to upgrade your plan'));
                 return;
             }
         }
 
         if (isStreaming) {
-            toast.error('Please wait until the previous request is finished');
+            toast.error(t('Please wait until the previous request is finished'));
             return;
         }
         
@@ -470,7 +471,7 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
                             createdAt: new Date().toISOString(),
                         });
                     } catch (e) {
-                        toast.error(getErrorMessage(e));
+                        toast.error(t(getErrorMessage(e)));
                     }
                     if (e.text.indexOf('```json') > -1) {
                         resultMessage.displayMode = MessageDisplayMode.InternalJSONResponse 
@@ -509,7 +510,7 @@ export const ChatContextProvider: React.FC<PropsWithChildren> = ({ children }) =
             setMessages([...messagesToSend, resultMessage])
             setVisibleMessages(filterVisibleMessages([...messagesToSend, resultMessage]));
         } catch (e) {
-            const errMsg = 'Error while streaming AI response: ' + e;
+            const errMsg = t('Error while streaming AI response: ') + e;
             if (onResult) onResult(resultMessage, { finishReason: 'error', text: errMsg, usage: null });
             setIsStreaming(false);
             toast.error(errMsg);

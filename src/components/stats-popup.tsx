@@ -17,15 +17,17 @@ import { AggregatedStatsDTO } from "@/data/dto";
 import { toast } from "sonner";
 import { SaaSContext } from "@/contexts/saas-context";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 export function roundToTwoDigits(num: number): number {
   return Math.round(num * 100) / 100;
 }
-export default function FolderListPopup() {
+export default function StatsPopup() {
   const dbContext = useContext(DatabaseContext);
   const chatContext = useContext(ChatContext);
   const [aggregatedStats, setAggregatedStats] = useState<AggregatedStatsDTO>({});
   const saasContext = useContext(SaaSContext);
   const [availableBudget, setAvailableBudget] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const loadStats = async () => {
@@ -38,7 +40,7 @@ export default function FolderListPopup() {
           }
         } catch (e) {
           console.error(e);
-          toast.error("Error while loading aggregated stats");
+          toast.error(t("Error while loading aggregated stats"));
         }
       }
     }

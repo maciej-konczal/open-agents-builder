@@ -16,6 +16,7 @@ import { pdf, Document, Page } from '@react-pdf/renderer';
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
 import Link from 'next/link';
+import { useTranslation } from "react-i18next";
 
 const termsUrl = process.env.NEXT_PUBLIC_TERMS_URL ?? '/content/terms';
 const privacyUrl = process.env.NEXT_PUBLIC_PRIVACY_URL ?? '/content/privacy';
@@ -39,6 +40,7 @@ export function CreateDatabaseForm({
   const [printKey, setPrintKey] = useState<ReactElement | null>(null);
   const [keepLoggedIn, setKeepLoggedIn] = useState(typeof localStorage !== 'undefined' ? localStorage.getItem("keepLoggedIn") === "true" : false)
   const dbContext = useContext(DatabaseContext);
+  const { t } = useTranslation();
 
   useEffect(() => { 
     setOperationResult(null);
@@ -65,27 +67,27 @@ export function CreateDatabaseForm({
 
   if (operationResult?.success) {
     return (<div className="flex flex-col space-y-2 gap-2 mb-4">
-      <h2 className="text-green-500 text-bold">Congratulations!</h2>
-      <p className="text-sm">Your account has ben successfully created. Please store the credentials in safe place.</p>
+      <h2 className="text-green-500 text-bold">{t('Congratulations!')}</h2>
+      <p className="text-sm">{t('Your account has ben successfully created. Please store the credentials in safe place.')}</p>
       <div className="border-2 border-dashed border-green-400 p-5">
         <div className="text-sm mb-5">
-          <Label htmlFor="email">Email:</Label>
+          <Label htmlFor="email">{t('Email:')}</Label>
           <Input id="email" readOnly value={dbContext?.email} />
         </div>
         <div className="text-sm">
-          <Label htmlFor="password">Password:</Label>
+          <Label htmlFor="password">{t('Password:')}</Label>
           <Textarea id="password" readOnly value={dbContext?.password} />
         </div>
         <div className="flex gap-2 mt-5">
           <Button variant="outline" className="p-1 h-10 p-2" onClick={async (e) => {
             e.preventDefault();
-            const textToCopy = 'Email: '+ dbContext?.email + "\Password: " + dbContext?.password;
+            const textToCopy = t('Email: ') + dbContext?.email + "\""+ t('Password: ') + dbContext?.password;
             if ('clipboard' in navigator) {
               navigator.clipboard.writeText(textToCopy);
             } else {
               document.execCommand('copy', true, textToCopy);
             }                
-          }}><CopyIcon className="w-4 h-4" /> Copy to clipboard</Button>             
+          }}><CopyIcon className="w-4 h-4" /> {t('Copy to clipboard')}</Button>             
         </div>
       </div>
 
@@ -97,7 +99,7 @@ export function CreateDatabaseForm({
           key: dbContext?.password,
           keepLoggedIn: keepLoggedIn
         });
-      }}>Go to application</Button>
+      }}>{t('Go to application')}</Button>
     </div>)
   } else  {
     return (
@@ -105,7 +107,7 @@ export function CreateDatabaseForm({
         <div className="flex flex-col space-y-2 gap-2 mb-4">
           {operationResult ? (
             <div>
-              <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{operationResult.message}</p>
+              <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{t(operationResult.message)}</p>
               <ul>
                 {operationResult.issues.map((issue, index) => (
                   <li key={index}>{issue.message}</li>
@@ -113,25 +115,25 @@ export function CreateDatabaseForm({
               </ul>
             </div>
           ) : null}
-          <Label htmlFor="email">E-mail:</Label>
+          <Label htmlFor="email">{t('E-mail:')}</Label>
           <Input autoFocus 
             type="text"
             id="email"
             {...register("email", { required: true,
               pattern: {
                 value: /\S+@\S+\.\S+/,
-                message: "Entered value does not match email format"
+                message: t("Entered value does not match email format")
               }            
               })}
           />
-          {errors.email && <span className="text-red-500 text-sm">E-mail must be a valid e-mail address and unique</span>}
+          {errors.email && <span className="text-red-500 text-sm">{t('E-mail must be a valid e-mail address and unique')}</span>}
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Please enter your e-email adress which let us create an account and a database for You.
+              {t('Please enter your e-email adress which let us create an account and a database for You.')}
           </p>        
 
         </div>
         <div className="flex flex-col space-y-2 gap-2 mb-4">
-              <Label htmlFor="key">User Key</Label>
+              <Label htmlFor="key">{t('Password')}</Label>
               <div className="flex gap-2">
                 <div className="relative">
                   <PasswordInput autoComplete="new-password" id="password"
@@ -160,7 +162,7 @@ export function CreateDatabaseForm({
                           />
                           )}
                           <span className="sr-only">
-                          {showPassword ? "Hide password" : "Show password"}
+                          {showPassword ? t("Hide password") : t("Show password")}
                           </span>
                       </Button>
 
@@ -181,7 +183,7 @@ export function CreateDatabaseForm({
                 }}><WandIcon className="w-4 h-4" /></Button>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                   e.preventDefault();
-                  const textToCopy = 'E-mail: '+ getValues().email + "\nPassword: " + getValues().password;
+                  const textToCopy = t('E-mail: ') + getValues().email + "\n" + t('Password: ') + getValues().password;
                   if ('clipboard' in navigator) {
                     navigator.clipboard.writeText(textToCopy);
                   } else {
@@ -192,7 +194,7 @@ export function CreateDatabaseForm({
               <div>
                 {printKey}
               </div>
-              {errors.password && <span className="text-red-500 text-sm">Password must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
+              {errors.password && <span className="text-red-500 text-sm">{t('Password must be at least 8 characters length including digits, alpha, lower and upper letters.')}</span>}
         </div>
         <div className="text-sm justify-between gap-4 mt-4">
           <Checkbox
@@ -207,9 +209,9 @@ export function CreateDatabaseForm({
             })}             
              />
           <Label htmlFor="acceptTerms">
-            I hereby accept Agent Doodle <Link target="_blank" className="underline hover:text-blue-500" href={termsUrl}>Terms of Service</Link> and <Link target="_blank"  className="underline hover:text-blue-500" href={privacyUrl}>Privacy Policy</Link>.
+            {t('I hereby accept Agent Doodle ')}<Link target="_blank" className="underline hover:text-blue-500" href={termsUrl}>{t('Terms of Service')}</Link>{t(' and ')}<Link target="_blank"  className="underline hover:text-blue-500" href={privacyUrl}>{t('Privacy Policy')}</Link>.
           </Label>
-          {errors.acceptTerms && <p className="text-red-500 text-sm">Please read and accept terms of service and privacy policy.</p>}
+          {errors.acceptTerms && <p className="text-red-500 text-sm">{t('Please read and accept terms of service and privacy policy.')}</p>}
         </div>
         <div className="flex items-center justify-between gap-4 mt-4">
           <NoSSR>
@@ -222,11 +224,11 @@ export function CreateDatabaseForm({
                         localStorage.setItem("keepLoggedIn", checked.toString());
                       }}
               />
-              <label htmlFor="keepLoggedIn" className="text-sm">Keep me logged in</label>
+              <label htmlFor="keepLoggedIn" className="text-sm">{t('Keep me logged in')}</label>
             </div>      
           </NoSSR>
           <div className="items-center flex justify-center">
-              <Button type="submit">Create account</Button>
+              <Button type="submit">{t('Create account')}</Button>
           </div>
         </div>
       </form>

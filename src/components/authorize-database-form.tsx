@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useEffectOnce } from "react-use";
 import Link from "next/link";
 import { passwordValidator } from "@/data/client/models";
+import { useTranslation } from "react-i18next";
 
 const termsUrl = process.env.NEXT_PUBLIC_TERMS_URL ?? '/content/terms';
 const privacyUrl = process.env.NEXT_PUBLIC_PRIVACY_URL ?? '/content/privacy';
@@ -25,6 +26,7 @@ export function AuthorizeDatabaseForm({
 }: AuthorizeDatabaseFormProps) {
   const [operationResult, setOperationResult] = useState<AuthorizeDatabaseResult | null>(null);
 
+  const { t } = useTranslation();
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [showPassword, setShowPassword] = useState(false)
   const [keepLoggedIn, setKeepLoggedIn] = useState(typeof localStorage !== 'undefined' ? localStorage.getItem("keepLoggedIn") === "true" : false)
@@ -43,9 +45,9 @@ export function AuthorizeDatabaseForm({
     
     setOperationResult(result as AuthorizeDatabaseResult);
     if(result?.success) {
-      toast.success(result?.message);
+      toast.success(result?.message || t('Success'));
     } else {
-      toast.error(result?.message);
+      toast.error(result?.message || t('An error occurred'));
     }    
   });
 
@@ -54,10 +56,10 @@ export function AuthorizeDatabaseForm({
       <div className="flex flex-col space-y-2 gap-2 mb-4">
         {operationResult ? (
           <div>
-            <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{operationResult.message}</p>
+            <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{t(operationResult.message)}</p>
             <ul>
               {operationResult.issues.map((issue, index) => (
-                <li key={index}>{issue.message}</li>
+                <li key={index}>{t(issue.message)}</li>
               ))}
             </ul>
           </div>
@@ -70,14 +72,14 @@ export function AuthorizeDatabaseForm({
           {...register("email", { required: true,
             pattern: {
               value: /\S+@\S+\.\S+/,
-              message: "Entered value does not match email format"
+              message: t("Entered value does not match email format")
             }            
            })}
         />
-        {errors.email && <span className="text-red-500 text-sm">E-mail must be a valid email address</span>}
+        {errors.email && <span className="text-red-500 text-sm">{t('E-mail must be a valid email address')}</span>}
       </div>
       <div className="flex flex-col space-y-2 gap-2 mb-4">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{t('Password')}</Label>
             <div className="relative">
             <PasswordInput autoComplete="current-password webauthn" id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -105,7 +107,7 @@ export function AuthorizeDatabaseForm({
                     />
                     )}
                     <span className="sr-only">
-                    {showPassword ? "Hide password" : "Show password"}
+                    {showPassword ? t("Hide password") : t("Show password")}
                     </span>
                 </Button>
 
@@ -119,11 +121,11 @@ export function AuthorizeDatabaseForm({
                     }
                 `}</style>
                 </div>
-        {errors.password && <span className="text-red-500 text-sm">Password must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
+        {errors.password && <span className="text-red-500 text-sm">{t('Password must be at least 8 characters length including digits, alpha, lower and upper letters.')}</span>}
         </div>
         {termsUrl ? (
           <div className="items-center justify-between gap-4 mt-4 text-sm">
-           Logging in you accept Agent Doodle <Link className="underline hover:text-blue-500" target="_blank"  href={termsUrl}>Terms of Service</Link> and <Link className="underline hover:text-blue-500" target="_blank"  href={privacyUrl}>Privacy Policy</Link>.
+           {t('Logging in you accept Agent Doodle ')}<Link className="underline hover:text-blue-500" target="_blank"  href={termsUrl}>{t('Terms of Service')}</Link>{t(' and ')}<Link className="underline hover:text-blue-500" target="_blank"  href={privacyUrl}>{t('Privacy Policy')}</Link>.
           </div>
         ) : null}
         <div className="flex items-center justify-between gap-4 mt-4">
@@ -137,11 +139,11 @@ export function AuthorizeDatabaseForm({
                       localStorage.setItem("keepLoggedIn", checked.toString());
                     }}
                   />
-                  <label htmlFor="keepLoggedIn" className="text-sm">Keep me logged in</label>
+                  <label htmlFor="keepLoggedIn" className="text-sm">{t('Keep me logged in')}</label>
               </div>      
             </NoSSR>
             <div className="items-center flex justify-center">
-                <Button type="submit">Log in!</Button>
+                <Button type="submit">{t('Log in!')}</Button>
             </div>
         </div>
     </form>
