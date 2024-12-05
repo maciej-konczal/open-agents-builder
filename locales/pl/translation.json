@@ -1,3 +1,18 @@
+
 {
-    "Agent Doodle": "Agent Doodle"
+    "Agent Doodle": "Agent Doodle",
+    "Profile": "Profil",
+    "Agent Name": "Nazwa",
+    "Welcome Message": "Wiadomość powitalna",
+    "Terms and Conditions": "Warunki i zasady",
+    "Select project": "Wybierz projekt",
+    "Add Agent": "Dodaj Agenta",
+    "Result Email": "E-mail do wysyłania rezultatów",
+    "Must confirm terms and conditions": "Uzytkownik musi zaakceptować warunki i zasady",
+    "Collect user e-mail addresses and names": "Zbieraj adresy e-mail i nazwy użytkowników",
+    "Preview": "Podgląd",
+    "General": "Ogólne",
+    "Prompt": "Prompt",
+    "Safety Rules": "Zasady bezpieczeństwa",
+    "Results": "Rezultaty"
 }

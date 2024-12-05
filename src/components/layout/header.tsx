@@ -12,6 +12,7 @@ import { Bell, User } from 'lucide-react';
 import { useContext } from 'react';
 import { DatabaseContext } from '@/contexts/db-context';
 import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from './language-switcher';
 
 export function Header() {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ export function Header() {
           <Bell className="h-5 w-5" />
         </Button>
         <ThemeToggle />
+        <LanguageSwitcher />        
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -39,7 +41,7 @@ export function Header() {
             <DropdownMenuItem>{t('Settings')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => {
               dbContext?.logout();
-            }}>Sign out</DropdownMenuItem>
+            }}>{t('Sign out')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
