@@ -1,10 +1,8 @@
 
 import withBundleAnalyzer from '@next/bundle-analyzer';
-import { i18n } from './next-i18next.config.mjs'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    i18n,
     reactStrictMode: false,
     typescript: {
       ignoreBuildErrors: true,

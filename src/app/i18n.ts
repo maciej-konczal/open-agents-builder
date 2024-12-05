@@ -1,32 +1,40 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import { createInstance, i18n } from 'i18next';
+import { initReactI18next } from 'react-i18next/initReactI18next';
+import resourcesToBackend from 'i18next-resources-to-backend';
+import i18nConfig from '@/app/i18nConfig';
 
-import Backend from 'i18next-http-backend';
-import LanguageDetector from 'i18next-browser-languagedetector';
-// don't want to use this?
-// have a look at the Quick start guide 
-// for passing in lng and translations on init
+export default async function initTranslations(
+    locale: string,
+    namespaces: string[],
+    i18nInstance?: i18n,
+    resources?: any,
+) {
+    i18nInstance = i18nInstance || createInstance();
 
-i18n
-  // load translation using http -> see /public/locales (i.e. https://github.com/i18next/react-i18next/tree/master/example/react/public/locales)
-  // learn more: https://github.com/i18next/i18next-http-backend
-  // want your translations to be loaded from a professional CDN? => https://github.com/locize/react-tutorial#step-2---use-the-locize-cdn
-  .use(Backend)
-  // detect user language
-  // learn more: https://github.com/i18next/i18next-browser-languageDetector
-  .use(LanguageDetector)
-  // pass the i18n instance to react-i18next.
-  .use(initReactI18next)
-  // init i18next
-  // for all options read: https://www.i18next.com/overview/configuration-options
-  .init({
-    fallbackLng: 'en',
-    debug: true,
+    i18nInstance.use(initReactI18next);
 
-    interpolation: {
-      escapeValue: false, // not needed for react as it escapes by default
+    if (!resources) {
+        i18nInstance.use(
+            resourcesToBackend(
+                (language: string, namespace: string) => import(`../../locales/${language}/${namespace}.json`),
+            ),
+        );
     }
-  });
 
+    await i18nInstance.init({
+        lng: locale,
+        resources,
+        fallbackLng: i18nConfig.defaultLocale,
+        supportedLngs: i18nConfig.locales,
+        defaultNS: namespaces[0],
+        fallbackNS: namespaces[0],
+        ns: namespaces,
+        preload: resources ? [] : i18nConfig.locales,
+    });
 
-export default i18n;
+    return {
+        i18n: i18nInstance,
+        resources: i18nInstance.services.resourceStore.data,
+        t: i18nInstance.t,
+    };
+}

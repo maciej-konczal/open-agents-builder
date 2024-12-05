@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
+import i18nConfig from '@/app/i18nConfig';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,13 +13,15 @@ export const metadata: Metadata = {
 };
 
 
+
 export default function RootLayout({
-  children,
+  children, params: {locale}
 }: Readonly<{
   children: React.ReactNode;
+  params: {locale: string}
 }>) {
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <link rel="manifest" href="/manifest.webmanifest" />
         <meta name="format-detection" content="telephone=no" />

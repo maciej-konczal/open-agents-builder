@@ -11,17 +11,22 @@ import AuthorizationGuard from '@/components/authorization-guard';
 import { KeyContextProvider } from '@/contexts/key-context';
 import { AgentProvider } from '@/contexts/agent-context';
 import i18n from '@/app/i18n';
-import { I18nextProvider } from 'react-i18next';
+import initTranslations from '@/app/i18n';
+import TranslationProvider from '@/app/translation-provider';
 
-export default function AgentLayout({
+const i18nNamespaces = ['translation'];
+
+export default async function AgentLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
-  params: { id: string };
+  params: { id: string, locale: string };
 }) {
+  const { resources } = await initTranslations(params.locale, i18nNamespaces);
+
   return (
-    <I18nextProvider i18n={i18n} defaultNS={'translation'}>
+    <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
       <DatabaseContextProvider>
         <SaaSContextProvider>
           <ConfigContextProvider>
@@ -46,6 +51,6 @@ export default function AgentLayout({
           </ConfigContextProvider>
         </SaaSContextProvider>
       </DatabaseContextProvider>
-      </I18nextProvider>
+      </TranslationProvider>
   );
 }

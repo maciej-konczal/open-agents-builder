@@ -1,7 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import {SignJWT, jwtVerify, type JWTPayload} from 'jose'
+import { i18nRouter } from 'next-i18n-router';
+import i18nConfig from '@/app/i18nConfig';
 
 export async function middleware(request: NextRequest) {
+    return i18nRouter(request, i18nConfig);
+
     const authorizationHeader = request.headers.get('Authorization');
     const jwtToken = authorizationHeader?.replace('Bearer ', '');
 
@@ -23,9 +27,9 @@ export async function middleware(request: NextRequest) {
 
     }
 
-    return NextResponse.next();
 }
  
 export const config = {
-  matcher: ['/((?!api/db|agent|dashboard|chat|api/saas|_next/static|content|_next/image|img|onboarding|manifest|favicon.ico|$).*)'],
+  matcher: '/((?!api|static|.*\\..*|_next).*)',
+//  matcher: ['/((?!api/db|agent|dashboard|chat|api/saas|_next/static|content|_next/image|img|onboarding|manifest|favicon.ico|$).*)'],
 }
