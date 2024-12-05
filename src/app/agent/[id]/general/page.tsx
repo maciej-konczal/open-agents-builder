@@ -9,7 +9,7 @@ export default function GeneralPage() {
     <div className="space-y-6">
       <form className="space-y-4">
       <div>
-        <label htmlFor="projectName" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="projectName" className="block text-sm font-medium">
         Agent Name
         </label>
         <Input
@@ -20,7 +20,7 @@ export default function GeneralPage() {
         />
       </div>
       <div>
-        <label htmlFor="welcomeInfo" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="welcomeInfo" className="block text-sm font-medium">
           Welcome Message
         </label>
         <Textarea
@@ -31,7 +31,7 @@ export default function GeneralPage() {
         />
       </div>
       <div>
-        <label htmlFor="termsConditions" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="termsConditions" className="block text-sm font-medium">
           Terms and Conditions
         </label>
         <Textarea
@@ -42,7 +42,7 @@ export default function GeneralPage() {
         />
       </div>
       <div>
-        <label htmlFor="confirmTerms" className="flex items-center text-sm font-medium text-gray-700">
+        <label htmlFor="confirmTerms" className="flex items-center text-sm font-medium">
           <Input
         type="checkbox"
         id="confirmTerms"
@@ -53,7 +53,7 @@ export default function GeneralPage() {
         </label>
       </div>
       <div>
-        <label htmlFor="resultEmail" className="block text-sm font-medium text-gray-700">
+        <label htmlFor="resultEmail" className="block text-sm font-medium">
         Result Email
         </label>
         <Input
@@ -64,7 +64,7 @@ export default function GeneralPage() {
         />
       </div>
       <div>
-        <label htmlFor="collectUserInfo" className="flex items-center text-sm font-medium text-gray-700">
+        <label htmlFor="collectUserInfo" className="flex items-center text-sm font-medium">
           <Input
             type="checkbox"
             id="collectUserInfo"

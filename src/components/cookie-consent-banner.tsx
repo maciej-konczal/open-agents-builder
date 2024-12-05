@@ -32,7 +32,7 @@ export function CookieConsentBannerComponent() {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 md:flex md:items-center md:justify-between shadow-lg" role="alert" aria-live="polite">
       <div className="mb-4 md:mb-0 md:mr-4 flex-grow">
-        <p className="text-sm text-gray-700 dark:text-gray-300">
+        <p className="text-sm light:text-gray-900 dark:text-gray-300 dark:text-gray-300">
           We use cookies to enhance your browsing experience and analyze our traffic. By clicking &guot;Accept&quot;, you consent to our use of cookies. Read more about our <a href="/content/privacy" className="text-primary hover:underline">Privacy Policy</a>.
         </p>
       </div>
@@ -43,7 +43,7 @@ export function CookieConsentBannerComponent() {
       </div>
       <button 
         onClick={handleDecline} 
-        className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+        className="absolute top-2 right-2 text-gray-500 hover:light:text-gray-900 dark:text-gray-300 dark:text-gray-400 dark:hover:text-gray-200"
         aria-label="Close cookie consent banner"
       >
       </button>
