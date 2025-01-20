@@ -4,9 +4,40 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
+import { useAgentContext } from '@/contexts/agent-context';
+import { useEffect } from 'react';
 
 export default function GeneralPage() {
   const { t } = useTranslation();
+  import { useForm } from 'react-hook-form';
+
+  const { current: agent } = useAgentContext();
+  const { register, handleSubmit, setValue } = useForm({
+    defaultValues: {
+      displayName: agent?.displayName || '',
+      welcomeInfo: agent?. || '',
+      termsConditions: agent?.termsConditions || '',
+      confirmTerms: agent?. || false,
+      resultEmail: agent?.resultEmail || '',
+      collectUserInfo: agent?.collectUserInfo || false,
+    },
+  });
+
+  useEffect(() => {
+    if (agent) {
+      setValue('projectName', agent.name);
+      setValue('welcomeInfo', agent.welcomeMessage);
+      setValue('termsConditions', agent.termsConditions);
+      setValue('confirmTerms', agent.confirmTerms);
+      setValue('resultEmail', agent.resultEmail);
+      setValue('collectUserInfo', agent.collectUserInfo);
+    }
+  }, [agent, setValue]);
+
+  const onSubmit = (data) => {
+    console.log(data);
+  };
+   
   return (
     <div className="space-y-6">
       <form className="space-y-4">
@@ -16,8 +47,8 @@ export default function GeneralPage() {
         </label>
         <Input
         type="text"
-        id="projectName"
-        name="projectName"
+        id="displayName"
+        name="displayName"
         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
       </div>

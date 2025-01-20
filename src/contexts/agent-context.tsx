@@ -13,6 +13,7 @@ interface AgentContextType {
     current: Agent | null;
     agents: Agent[];
     updateAgent: (agent: Agent) => Promise<Agent>;
+    newAgent: () => Agent;
     listAgents: () => Promise<Agent[]>;
     setCurrent: (agent: Agent | null) => void;
     setAgents: (agents: Agent[]) => void;
@@ -66,6 +67,21 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
+    const newAgent = (): Agent => {
+        return new Agent(
+            {
+                id: 'new',
+                displayName: ('Add new agent ...'),
+                prompt: '',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                options: null,
+                exoectedResult: '',
+                safetyRules: null
+            }
+        )
+    }
+
     const listAgents = async (): Promise<Agent[]> => {
         const client = await setupApiClient();
         setLoaderStatus(DataLoadingStatus.Loading);
@@ -74,6 +90,11 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             const fetchedAgents = apiResponse.map((folderDTO: AgentDTO) => Agent.fromDTO(folderDTO));
             setAgents(fetchedAgents);
             setLoaderStatus(DataLoadingStatus.Success);
+
+            if (fetchedAgents.length === 0) {
+                fetchedAgents.push(newAgent());
+            }
+
             let defaultAgent:Agent|null = fetchedAgents.length > 0 ? fetchedAgents[0] : null;
             if (!current) {
                 if (typeof localStorage !== 'undefined') {
@@ -99,6 +120,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             setAgents,
             updateAgent,
             listAgents,
+            newAgent,
             loaderStatus
             }}>
             {children}

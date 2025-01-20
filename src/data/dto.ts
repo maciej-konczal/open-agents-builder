@@ -197,6 +197,7 @@ export const agentDTOSchema = z.object({
   displayName: z.string().min(1),
   options: z.string().optional().nullable(),
   prompt: z.string().min(1),
+  exoectedResult: z.string().optional().nullable(),
   safetyRules: z.string().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),

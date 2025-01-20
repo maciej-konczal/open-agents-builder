@@ -11,6 +11,7 @@ import {
 import { useAgentContext } from '@/contexts/agent-context';
 import { Plus, Play } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export function AgentHeader() {
@@ -19,6 +20,10 @@ export function AgentHeader() {
   const { t } = useTranslation();
   const currentId = params?.id as string;
   const agentContext = useAgentContext();
+
+  useEffect(() => {
+    agentContext.listAgents();
+  }, []);
 
   const handleAgentChange = (newId: string) => {
     router.push(`/agent/${newId}/general`);

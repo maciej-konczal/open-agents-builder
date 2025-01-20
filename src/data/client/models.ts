@@ -220,6 +220,7 @@ export class Agent {
     displayName: string;
     options?: AgentOptions | null;
     prompt: string;
+    exoectedResult?: string;
     safetyRules?: AgentSafetyRules | null;
     createdAt: string;
     updatedAt: string;
@@ -230,6 +231,7 @@ export class Agent {
         this.options = agentDTO instanceof Agent ? agentDTO.options :  (agentDTO.options ? JSON.parse(agentDTO.options) : null);
 
         this.prompt = agentDTO.prompt;
+        this.exoectedResult = agentDTO.exoectedResult ?? undefined;
         this.safetyRules = agentDTO instanceof Agent ? agentDTO.safetyRules :  (agentDTO.safetyRules ? JSON.parse(agentDTO.safetyRules) : null);
 
         this.createdAt = agentDTO.createdAt;
@@ -246,6 +248,7 @@ export class Agent {
             displayName: this.displayName,
             options: JSON.stringify(this.options),
             prompt: this.prompt,
+            exoectedResult: this.exoectedResult,
             safetyRules: JSON.stringify(this.safetyRules),
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,

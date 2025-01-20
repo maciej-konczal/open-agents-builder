@@ -5,9 +5,6 @@ import { useEffect } from 'react';
 
 export default function HomePage() {
   const agentContext = useAgentContext();
-  useEffect(() => {
-    agentContext.listAgents();
-  }, []);
 
   useEffect(() => {
     if (agentContext.agents.length > 0)
