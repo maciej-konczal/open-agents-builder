@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Agent Doodle',
     short_name: 'Agent Doodle',
-    description: 'Secure Data Folder folder with AI assistant',
+    description: 'Dynamic AI forms and questionaires',
     start_url: '/',
     display: 'standalone',
     background_color: '#000',

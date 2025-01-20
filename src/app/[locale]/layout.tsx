@@ -16,6 +16,7 @@ import TranslationProvider from '@/app/translation-provider';
 
 const i18nNamespaces = ['translation'];
 
+// eslint-disable-next-line @next/next/no-async-client-component
 export default async function AgentLayout({
   children,
   params,

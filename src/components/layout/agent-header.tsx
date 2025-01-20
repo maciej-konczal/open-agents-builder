@@ -8,9 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useAgentContext } from '@/contexts/agent-context';
 import { Plus, Play } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAgents } from '@/hooks/use-projects';
 import { useTranslation } from 'react-i18next';
 
 export function AgentHeader() {
@@ -18,7 +18,7 @@ export function AgentHeader() {
   const params = useParams();
   const { t } = useTranslation();
   const currentId = params?.id as string;
-  const { projects } = useAgents();
+  const agentContext = useAgentContext();
 
   const handleAgentChange = (newId: string) => {
     router.push(`/agent/${newId}/general`);
@@ -32,9 +32,9 @@ export function AgentHeader() {
             <SelectValue placeholder={t('Select project')} />
           </SelectTrigger>
           <SelectContent>
-            {projects.map((project) => (
+            {agentContext.agents.map((project) => (
               <SelectItem key={project.id} value={project.id}>
-                {project.name}
+                {project.displayName}
               </SelectItem>
             ))}
           </SelectContent>
