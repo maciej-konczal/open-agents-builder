@@ -58,7 +58,7 @@ export default function GeneralPage() {
     } as Agent);
     try {
       console.log(updatedAgent)
-      const response = await updateAgent(updatedAgent);
+      const response = await updateAgent(updatedAgent, true);
       toast.success(t('Agent updated successfully'));
     } catch (e) {
       console.error(e);

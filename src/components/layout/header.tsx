@@ -13,10 +13,13 @@ import { useContext } from 'react';
 import { DatabaseContext } from '@/contexts/db-context';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './language-switcher';
+import { useRouter } from 'next/navigation';
 
 export function Header() {
   const { t } = useTranslation();
   const dbContext = useContext(DatabaseContext);
+  const router = useRouter();
+
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
       <div className="flex-1">
@@ -37,8 +40,8 @@ export function Header() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem>{t('Profile')}</DropdownMenuItem>
-            <DropdownMenuItem>{t('Settings')}</DropdownMenuItem>
+            {/* <DropdownMenuItem>{t('Profile')}</DropdownMenuItem> */}
+            <DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Settings')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => {
               dbContext?.logout();
             }}>{t('Sign out')}</DropdownMenuItem>

@@ -24,6 +24,12 @@ export function coercedVal(val: any, defaultVal: any = ''): ConfigSupportedValue
 
 export const ENV_PROVIDED_CONFIG: Record<string, any> = {
   chatGptApiKey: process.env.NEXT_PUBLIC_CHAT_GPT_API_KEY,
+  ollamaUrl: process.env.NEXT_PUBLIC_OLLAMA_URL,
+  ollamaModel: process.env.NEXT_PUBLIC_OLLAMA_MODEL,
+  llmProviderChat: process.env.NEXT_PUBLIC_LLM_PROVIDER_CHAT,
+  llmModelChat: process.env.NEXT_PUBLIC_LLM_MODEL_CHAT,
+  llmProviderParse: process.env.NEXT_PUBLIC_LLM_PROVIDER_PARSE,
+  llmProviderRemovePII: process.env.NEXT_PUBLIC_LLM_PROVIDER_REMOVE_PII
 }
 
 type ConfigSupportedValueType = string | number | boolean | null | undefined;

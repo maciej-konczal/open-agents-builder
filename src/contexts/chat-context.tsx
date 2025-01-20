@@ -16,6 +16,7 @@ import { json } from 'stream/consumers';
 import showdown from 'showdown';
 import { set } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import { Attachment } from '@/data/client/models';
 
 export enum MessageDisplayMode {
     Text = 'text',
@@ -61,9 +62,6 @@ export type MessageEx = Message & {
 
     type?: MessageType,
     visibility?: MessageVisibility
-
-    recordRef?: Record
-    recordSaved?: boolean
 }
 
 export type CreateMessageEx = Omit<MessageEx, "id">;
