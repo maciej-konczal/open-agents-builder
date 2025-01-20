@@ -22,8 +22,8 @@ export function AgentHeader() {
   const agentContext = useAgentContext();
 
   useEffect(() => {
-    agentContext.listAgents();
-  }, []);
+    agentContext.listAgents(currentId);
+  }, [currentId]);
 
   const handleAgentChange = (newId: string) => {
     router.push(`/agent/${newId}/general`);
@@ -44,7 +44,7 @@ export function AgentHeader() {
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" onClick={() => router.push('/agent/new/general')}>
           <Plus className="mr-2 h-4 w-4" />
           {t('Add Agent')}
         </Button>

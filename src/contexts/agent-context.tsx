@@ -13,9 +13,9 @@ import { nanoid } from 'nanoid';
 interface AgentContextType {
     current: Agent | null;
     agents: Agent[];
-    updateAgent: (agent: Agent) => Promise<Agent>;
+    updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>;
     newAgent: () => Agent;
-    listAgents: () => Promise<Agent[]>;
+    listAgents: (currentAgentId?:string) => Promise<Agent[]>;
     setCurrent: (agent: Agent | null) => void;
     setAgents: (agents: Agent[]) => void;
     loaderStatus: DataLoadingStatus;
@@ -42,7 +42,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         return client;
     }        
 
-    const updateAgent = async (agent:Agent): Promise<Agent> => {
+    const updateAgent = async (agent:Agent, setAsCurrent: boolean = true): Promise<Agent> => {
         try {
             const client = await setupApiClient();
             const agentDTO = agent.toDTO(); // DTOs are common ground between client and server
@@ -62,6 +62,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                     newRecord ? [...agents, updatedAgent] :
                     agents.map(pr => pr.id === agent.id ?  agent : pr)
                 )
+                if (setAsCurrent) setCurrent(updatedAgent);
                 return updatedAgent;
             }
         } catch (error) {
@@ -86,7 +87,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         )
     }
 
-    const listAgents = async (): Promise<Agent[]> => {
+    const listAgents = async (currentAgentId?:string): Promise<Agent[]> => {
         const client = await setupApiClient();
         setLoaderStatus(DataLoadingStatus.Loading);
         try {
@@ -96,7 +97,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             setLoaderStatus(DataLoadingStatus.Success);
             fetchedAgents.push(newAgent());
 
-            let defaultAgent:Agent|null = fetchedAgents.length > 0 ? fetchedAgents[0] : null;
+            let defaultAgent:Agent|null = fetchedAgents.length > 0 ? fetchedAgents[fetchedAgents.length-1] : null;
             if (!current) {
                 if (typeof localStorage !== 'undefined') {
                     const agentId = localStorage.getItem('currentAgentId');
@@ -104,7 +105,10 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                         defaultAgent = fetchedAgents.find((f) => f.id === agentId) || null;
                     }
                 }
-            }  
+            }
+            if (currentAgentId) { // force to switch to this agent
+                defaultAgent = fetchedAgents.find((f) => f.id === currentAgentId) || null;
+            }
             setCurrent(defaultAgent) // we should store the current folder id and set to the current one
             return fetchedAgents;
         } catch(error) {

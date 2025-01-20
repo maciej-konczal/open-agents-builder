@@ -12,19 +12,19 @@ import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
 import { getCurrentTS } from '@/lib/utils';
 
-export default function PromptPage() {
+export default function ExpectedResultPage() {
   const { t } = useTranslation();
 
   const { current: agent, updateAgent } = useAgentContext();
   const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     defaultValues: {
-      prompt: agent?.prompt || '',
+      expectedResult: agent?.expectedResult || '',
     },
   });
 
   useEffect(() => {
     if (agent) {
-      setValue('prompt', agent.prompt || '');
+      setValue('expectedResult', agent.expectedResult || '');
     } else {
       toast.error(t('Failed to load agent. Please set the general info and save the agent first.'));
     }
@@ -33,7 +33,7 @@ export default function PromptPage() {
   const onSubmit = async (data) => {
     const updatedAgent = new Agent({
       ...agent,
-      prompt: data.prompt || '',
+      expectedResult: data.expectedResult || '',
     } as Agent);
 
     try {
@@ -51,15 +51,15 @@ export default function PromptPage() {
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="prompt" className="block text-sm font-medium">
-        {t('Agent prompt')}
+        {t('Agent expected result')}
         </label>
         <Textarea
-        id="prompt"
-        {...register('prompt', { required: t('Prompt is required') })}
+        id="expectedResult"
+        {...register('expectedResult', { required: t('Expected Result is required') })}
         rows={4}
         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
-        {errors.prompt && <p className="mt-2 text-sm text-red-600">{errors.prompt.message}</p>}
+        {errors.expectedResult && <p className="mt-2 text-sm text-red-600">{errors.expectedResult.message}</p>}
       </div>
       <div>
         <Button

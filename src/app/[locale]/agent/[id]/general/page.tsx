@@ -29,7 +29,7 @@ export default function GeneralPage() {
 
   useEffect(() => {
     if (agent) {
-      setValue('displayName', agent.displayName);
+      setValue('displayName', agent.id !== 'new' ? agent.displayName : '');
       setValue('welcomeInfo', agent.options?.welcomeMessage || '');
       setValue('termsConditions', agent.options?.termsAndConditions || '');
       setValue('confirmTerms', agent.options?.mustConfirmTerms || false);
@@ -42,7 +42,7 @@ export default function GeneralPage() {
     const updatedAgent = new Agent({
       id: agent?.id,
       displayName: data.displayName,
-      exoectedResult: agent?.exoectedResult,
+      expectedResult: agent?.expectedResult,
       prompt: agent?.prompt,
       createdAt: agent?.createdAt || getCurrentTS(),
       updatedAt: getCurrentTS(),
