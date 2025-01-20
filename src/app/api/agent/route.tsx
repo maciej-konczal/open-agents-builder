@@ -1,5 +1,5 @@
 import { AgentDTO, agentDTOSchema } from "@/data/dto";
-import ServerAgentRepository from "@/data/server/server-session-repository";
+import ServerAgentRepository from "@/data/server/server-agent-repository";
 import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { NextRequest, NextResponse } from "next/server";
 

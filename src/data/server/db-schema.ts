@@ -47,7 +47,7 @@ export const keys = sqliteTable('keys', {
 }); 
 
 
-export const Attachments = sqliteTable('Attachments', {
+export const Attachments = sqliteTable('attachments', {
     id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
     
     displayName: text('displayName'),

@@ -15,6 +15,13 @@
       "when": 1737373555576,
       "tag": "0001_naive_thor_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1737376216092,
+      "tag": "0002_flaky_mimic",
+      "breakpoints": true
     }
   ]
 }

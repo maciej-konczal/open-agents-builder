@@ -7,6 +7,7 @@ import { AgentApiClient } from '@/data/client/agent-api-client';
 import { SaaSContext } from './saas-context';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
+import { nanoid } from 'nanoid';
 
 
 interface AgentContextType {
@@ -45,8 +46,11 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         try {
             const client = await setupApiClient();
             const agentDTO = agent.toDTO(); // DTOs are common ground between client and server
+            const newRecord = typeof agent?.id  === 'undefined' || agent.id === 'new';
+
+            if (newRecord) agentDTO.id = nanoid();
             const response = await client.put(agentDTO);
-            const newRecord = typeof agent?.id  === 'undefined'
+
             if (response.status !== 200) {
                 console.error('Error adding agent:', response.message);
                 toast.error(t('Error adding agent'));
@@ -76,7 +80,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 options: null,
-                exoectedResult: '',
+                expectedResult: '',
                 safetyRules: null
             }
         )
@@ -90,10 +94,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             const fetchedAgents = apiResponse.map((folderDTO: AgentDTO) => Agent.fromDTO(folderDTO));
             setAgents(fetchedAgents);
             setLoaderStatus(DataLoadingStatus.Success);
-
-            if (fetchedAgents.length === 0) {
-                fetchedAgents.push(newAgent());
-            }
+            fetchedAgents.push(newAgent());
 
             let defaultAgent:Agent|null = fetchedAgents.length > 0 ? fetchedAgents[0] : null;
             if (!current) {

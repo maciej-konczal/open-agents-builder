@@ -216,23 +216,23 @@ export type AgentSafetyRules = [
 ]
 
 export class Agent {
-    id: string;
+    id?: string;
     displayName: string;
     options?: AgentOptions | null;
-    prompt: string;
-    exoectedResult?: string;
+    prompt?: string;
+    expectedResult?: string;
     safetyRules?: AgentSafetyRules | null;
     createdAt: string;
     updatedAt: string;
 
-    constructor(agentDTO: AgentDTO) {
+    constructor(agentDTO: AgentDTO | Agent) {
         this.id = agentDTO.id;
         this.displayName = agentDTO.displayName;
-        this.options = agentDTO instanceof Agent ? agentDTO.options :  (agentDTO.options ? JSON.parse(agentDTO.options) : null);
+        this.options = typeof agentDTO.options === 'string' ? JSON.parse(agentDTO.options as string) :  agentDTO.options;
 
         this.prompt = agentDTO.prompt;
-        this.exoectedResult = agentDTO.exoectedResult ?? undefined;
-        this.safetyRules = agentDTO instanceof Agent ? agentDTO.safetyRules :  (agentDTO.safetyRules ? JSON.parse(agentDTO.safetyRules) : null);
+        this.expectedResult = agentDTO.expectedResult ?? undefined;
+        this.safetyRules = typeof agentDTO.safetyRules === 'string' ? JSON.parse(agentDTO.safetyRules as string) :  agentDTO.safetyRules;
 
         this.createdAt = agentDTO.createdAt;
         this.updatedAt = agentDTO.updatedAt;
@@ -248,7 +248,7 @@ export class Agent {
             displayName: this.displayName,
             options: JSON.stringify(this.options),
             prompt: this.prompt,
-            exoectedResult: this.exoectedResult,
+            expectedResult: this.expectedResult,
             safetyRules: JSON.stringify(this.safetyRules),
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
