@@ -49,10 +49,13 @@ export function AgentHeader() {
           {t('Add Agent')}
         </Button>
       </div>
-      <Button variant="secondary" size="sm">
-        <Play className="mr-2 h-4 w-4" />
-        {t('Preview')}
-      </Button>
+      {(agentContext.current?.id !== 'new') ? (
+        <Button variant="secondary" size="sm" onClick={() => router.push(`/chat/${agentContext.current?.id}`)}>
+            <Play className="mr-2 h-4 w-4" />
+          {t('Preview')}
+        </Button>
+      ) : null}
+
     </div>
   );
 }
