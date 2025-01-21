@@ -44,7 +44,7 @@ export default function ExpectedResultPage() {
 
     try {
       console.log(updatedAgent)
-      const response = await updateAgent(updatedAgent);
+      const response = await updateAgent(updatedAgen, true);
       toast.success(t('Agent saved successfully'));
     } catch (e) {
       console.error(e);

@@ -44,7 +44,7 @@ export default function PromptPage() {
 
     try {
       console.log(updatedAgent)
-      const response = await updateAgent(updatedAgent);
+      const response = await updateAgent(updatedAgent, true);
       toast.success(t('Agent saved successfully'));
     } catch (e) {
       console.error(e);
