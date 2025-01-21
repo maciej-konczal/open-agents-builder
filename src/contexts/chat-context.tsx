@@ -13,7 +13,7 @@ import { ChatApiClient } from '@/data/client/chat-api-client';
 
 interface ChatContextType {
     agent: Agent | null;
-    loadAgent: (id: string, databaseIdHash: string) => void;
+    loadAgent: (id: string, databaseIdHash: string) => Promise<Agent>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -22,7 +22,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [agent, setAgent] = useState<Agent | null>(null);
     const { t } = useTranslation();
 
-    const loadAgent = async (id: string, databaseIdHash: string) => {
+    const loadAgent = async (id: string, databaseIdHash: string): Promise<Agent> => {
         const client = new ChatApiClient('', databaseIdHash);
         const dto = await client.agent(id);
         const agt = Agent.fromDTO(dto);

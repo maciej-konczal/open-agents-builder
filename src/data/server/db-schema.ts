@@ -12,7 +12,7 @@ export const config = sqliteTable('config', {
 export const agents = sqliteTable('agents', {
     id: text('id').primaryKey(),
     displayName: text('displayName'),
-    settings: text('options', { mode: 'json' }),
+    options: text('options', { mode: 'json' }),
     prompt: text('prompt').notNull(),
     expectedResult: text('expectedResult'),
     safetyRules: text('safetyRules', { mode: 'json' }),

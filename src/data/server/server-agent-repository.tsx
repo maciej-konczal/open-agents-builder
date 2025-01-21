@@ -16,10 +16,11 @@ export default class ServerAgentRepository extends BaseRepository<AgentDTO> {
     // update folder
     async upsert(query:Record<string, any>, item: AgentDTO): Promise<AgentDTO> { 
         const db = (await this.db());       
-        let existingRecord:AgentDTO | null = query.id ? db.select().from(agents).where(eq(agents.id, query.id)).get() as RecordDTO : null
+        let existingRecord:AgentDTO | null = query.id ? db.select().from(agents).where(eq(agents.id, query.id)).get() as AgentDTO : null
         if (!existingRecord) {
             existingRecord = await this.create(item);
        } else {
+        console.log(item);
             existingRecord = item
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
             db.update(agents).set(existingRecord).where(eq(agents.id, query.id)).run();

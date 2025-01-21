@@ -14,7 +14,6 @@ export default function ChatPage({children,
 
     useEffect(() => {
         try { 
-            console.log(params)
             chatContext.loadAgent(params.id, params.databaseIdHash);
         } catch (error) {
             console.error(error);

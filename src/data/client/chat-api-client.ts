@@ -32,14 +32,9 @@ export class ChatApiClient extends ApiClient {
     }
   
     async agent(agentId:string): Promise<GetAgentsResponse> {
-      const agents = await (this.request<GetAgentsResponse>('/api/chat/agent/' + encodeURIComponent(agentId) , 'GET', AgentDTOEncSettings, null, undefined, undefined, {
+      return await (this.request<GetAgentsResponse>('/api/chat/agent/' + encodeURIComponent(agentId) , 'GET', AgentDTOEncSettings, null, undefined, undefined, {
           'Database-Id-Hash': this.databaseIdHash,
-      }) as Promise<GetAgentsResponse[]>);
-      if (agents.length > 0) {
-        return agents[0];
-      } else {
-        throw new Error('Agent not found');
-      }
+      }) as Promise<GetAgentsResponse>);
     }
   
 }
