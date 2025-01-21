@@ -6,13 +6,13 @@ export const dynamic = 'force-dynamic' // defaults to auto
 
 export async function DELETE(request: Request, { params }: { params: { id: string }} ) {
     const requestContext = await authorizeRequestContext(request);
-    const storageService = new StorageService(requestContext.emailHash);
+    const storageService = new StorageService(requestContext.databaseIdHash);
 
     const recordLocator = params.id;
     if(!recordLocator){
         return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
     } else { 
-        const repo = new ServerAttachmentRepository(requestContext.emailHash)
+        const repo = new ServerAttachmentRepository(requestContext.databaseIdHash)
         const recordBeforeDelete = await repo.findOne({ storageKey: recordLocator });
         if (!recordBeforeDelete) {
             return Response.json({ message: "Record not found", status: 404 }, {status: 404});
@@ -27,7 +27,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
 
 export async function GET(request: Request, { params }: { params: { id: string }}) {
     const requestContext = await authorizeRequestContext(request);
-    const storageService = new StorageService(requestContext.emailHash);
+    const storageService = new StorageService(requestContext.databaseIdHash);
 
     const headers = new Headers();
     headers.append('Content-Type', 'application/octet-stream');

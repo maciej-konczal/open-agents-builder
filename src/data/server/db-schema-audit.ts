@@ -6,7 +6,7 @@ export const audit = sqliteTable('audit', {
     ip: text('ip'),
     ua: text('ua'),
     keyLocatorHash: text('keyLocatorHash'),
-    emailHash: text('emailHash'),
+    databaseIdHash: text('databaseIdHash'),
     recordLocator: text('recordLocator'),
     encryptedDiff: text('diff'),
     eventName: text('eventName'),

@@ -3,7 +3,7 @@ CREATE TABLE `audit` (
 	`ip` text,
 	`ua` text,
 	`keyHashId` text,
-	`databaseHashId` text,
+	`databaseIdHash` text,
 	`recordLocator` text,
 	`diff` text,
 	`eventName` text,

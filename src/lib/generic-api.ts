@@ -21,7 +21,7 @@ export type ApiResult = {
 }
 
 export type AuthorizedRequestContext = { 
-    emailHash: string;
+    databaseIdHash: string;
     keyHash: string;
     keyLocatorHash: string;
     acl: KeyACLDTO;
@@ -48,8 +48,8 @@ export async function authorizeSaasContext(request: NextRequest, forceNoCache: b
         
         const useCache = forceNoCache ? false : (request.nextUrl.searchParams.get('useCache') === 'false' ? false : true);
         const saasToken = request.headers.get('saas-token') !== null ? request.headers.get('saas-token') : request.nextUrl.searchParams.get('saasToken');
-        const emailHash = request.headers.get('database-id-hash') !== null ? request.headers.get('database-id-hash') : request.nextUrl.searchParams.get('emailHash');
-        if (!saasToken && !emailHash) {
+        const databaseIdHash = request.headers.get('database-id-hash') !== null ? request.headers.get('database-id-hash') : request.nextUrl.searchParams.get('databaseIdHash');
+        if (!saasToken && !databaseIdHash) {
              return {
                  saasContex: null,
                  isSaasMode: false,
@@ -58,7 +58,7 @@ export async function authorizeSaasContext(request: NextRequest, forceNoCache: b
                  error: 'No SaaS Token / Database Id Hash provided. Please register your account / apply for beta tests on official landing page.'
             }            
         }
-        const resp = useCache ? saasCtxCache.get(saasToken ?? '' + emailHash) : null;
+        const resp = useCache ? saasCtxCache.get(saasToken ?? '' + databaseIdHash) : null;
         if (!useCache) {
             console.log('Cache for SaasContext disabled');
         }
@@ -70,7 +70,7 @@ export async function authorizeSaasContext(request: NextRequest, forceNoCache: b
         } else {
             const client = new PlatformApiClient(saasToken ?? '');
             try {
-                const response = await client.account({ emailHash, apiKey: saasToken });
+                const response = await client.account({ databaseIdHash, apiKey: saasToken });
                 if(response.status !== 200) {
                     const resp = {
                         saasContex: null,
@@ -79,7 +79,7 @@ export async function authorizeSaasContext(request: NextRequest, forceNoCache: b
                         apiClient: null,
                         error: response.message
                     }
-                    saasCtxCache.set(saasToken ?? '' + emailHash, resp, 60 * 2); // errors cachef for 2s
+                    saasCtxCache.set(saasToken ?? '' + databaseIdHash, resp, 60 * 2); // errors cachef for 2s
                     return resp;
 
                 } else {
@@ -90,7 +90,7 @@ export async function authorizeSaasContext(request: NextRequest, forceNoCache: b
                         isSaasMode: true,
                         apiClient: client
                     }
-                    saasCtxCache.set(saasToken ?? '' + emailHash, resp, 60 * 60 * 10); // ok results cached for 10 min
+                    saasCtxCache.set(saasToken ?? '' + databaseIdHash, resp, 60 * 60 * 10); // ok results cached for 10 min
                     return resp;
                 }
             } catch (e) {
@@ -123,7 +123,7 @@ export async function authorizeRequestContext(request: Request, response?: NextR
         const decoded = await jwtVerify(jwtToken as string, new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
 
         const authResult = await authorizeKey({
-            emailHash: decoded.payload.emailHash as string,
+            databaseIdHash: decoded.payload.databaseIdHash as string,
             keyHash: decoded.payload.keyHash as string,
             keyLocatorHash: decoded.payload.keyLocatorHash as string
         });
@@ -134,7 +134,7 @@ export async function authorizeRequestContext(request: Request, response?: NextR
             const keyACL = (authResult as KeyDTO).acl ?? null;
             const aclDTO = keyACL ? JSON.parse(keyACL) : defaultKeyACL
             return {
-                emailHash: decoded.payload.emailHash as string,
+                databaseIdHash: decoded.payload.databaseIdHash as string,
                 keyHash: decoded.payload.keyHash as string,
                 keyLocatorHash: decoded.payload.keyLocatorHash as string,
                 acl: aclDTO as KeyACLDTO,

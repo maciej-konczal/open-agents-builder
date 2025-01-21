@@ -213,8 +213,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "emailHash": {
-          "name": "emailHash",
+        "databaseIdHash": {
+          "name": "databaseIdHash",
           "type": "text",
           "primaryKey": false,
           "notNull": true,

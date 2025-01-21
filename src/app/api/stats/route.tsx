@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function PUT(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
 
-    const statsRepo = new ServerStatRepository(requestContext.emailHash, 'stats');
+    const statsRepo = new ServerStatRepository(requestContext.databaseIdHash, 'stats');
     const validationResult = statsSchema.safeParse(await request.json());
     if(!validationResult.success) {
         return Response.json({
@@ -20,9 +20,9 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 
         const saasContext = await authorizeSaasContext(request);
         if (saasContext.apiClient) {
-            saasContext.apiClient.saveStats(requestContext.emailHash, {
+            saasContext.apiClient.saveStats(requestContext.databaseIdHash, {
                 ...result,
-                emailHash: requestContext.emailHash
+                databaseIdHash: requestContext.databaseIdHash
             });
        }        
         return Response.json({

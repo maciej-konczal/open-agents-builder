@@ -48,8 +48,8 @@ export type DatabaseContextType = {
     setACL: (acl: KeyACL | null) => void;
 
 
-    databaseHashId: string;
-    setDatabaseHashId: (hashId: string) => void;
+    databaseIdHash: string;
+    setDatabaseIdHash: (hashId: string) => void;
     keyLocatorHash: string;
     setKeyLocatorHash: (hash: string) => void;
 
@@ -93,7 +93,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     });
 
     const [acl, setACL] = useState<KeyACL|null>(null);
-    const [databaseHashId, setDatabaseHashId] = useState<string>('');
+    const [databaseIdHash, setDatabaseIdHash] = useState<string>('');
     const [keyLocatorHash, setKeyLocatorHash] = useState<string>('');
     const [keyHash, setKeyHash] = useState<string>('');
     const [keyHashParams, setKeyHashParams] = useState<KeyHashParamsDTO>({
@@ -132,7 +132,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
           hashLen: keyHashParams.hashLen,
           parallelism: keyHashParams.parallelism
         });
-        const emailHash = await sha256(createRequest.email, defaultDatabaseIdHashSalt);
+        const databaseIdHash = await sha256(createRequest.email, defaultDatabaseIdHashSalt);
         const keyLocatorHash = await sha256(createRequest.key + createRequest.email, defaultKeyLocatorHashSalt);
 
         const encryptionUtils = new EncryptionUtils(createRequest.key);
@@ -142,7 +142,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         const apiClient = await setupApiClient(null);
         apiClient.setSaasToken(localStorage.getItem('saasToken') || '');
         const apiRequest = {
-            emailHash,
+            databaseIdHash,
             encryptedMasterKey,
             keyHash: keyHash.encoded,
             keyHashParams: JSON.stringify(keyHashParams),
@@ -151,7 +151,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         const apiResponse = await apiClient.create(apiRequest);
 
         if(apiResponse.status === 200) { // user is virtually logged in
-            setDatabaseHashId(emailHash);
+            setDatabaseIdHash(databaseIdHash);
             setDatabaseId(createRequest.email);
             setKeyLocatorHash(keyLocatorHash);
             setKeyHash(keyHash.encoded);
@@ -172,7 +172,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         setACL(null);
         setMasterKey('');
         setPassword('');
-        setDatabaseHashId('');
+        setDatabaseIdHash('');
         setKeyLocatorHash('');
         setKeyHash('');
         setKeyHashParams({
@@ -237,12 +237,12 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
 
     const authorize = async (authorizeRequest: DatabaseAuthorizeRequest): Promise<AuthorizeDatabaseResult> => {
         setAuthStatus(DatabaseAuthStatus.InProgress);
-        const emailHash = await sha256(authorizeRequest.email, defaultDatabaseIdHashSalt);
+        const databaseIdHash = await sha256(authorizeRequest.email, defaultDatabaseIdHashSalt);
         const keyLocatorHash = await sha256(authorizeRequest.key + authorizeRequest.email, defaultKeyLocatorHashSalt);
         const apiClient = await setupApiClient(null);
 
         const authChallengResponse = await apiClient.authorizeChallenge({
-            emailHash,
+            databaseIdHash,
             keyLocatorHash
         });
         
@@ -260,7 +260,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
               });
 
             const authResponse = await apiClient.authorize({
-                emailHash,
+                databaseIdHash,
                 keyHash: keyHash.encoded,
                 keyLocatorHash
             });
@@ -274,7 +274,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
                     }
                 }
 
-                setDatabaseHashId(emailHash);
+                setDatabaseIdHash(databaseIdHash);
                 setDatabaseId(authorizeRequest.email);
                 setKeyLocatorHash(keyLocatorHash);
                 setKeyHash(keyHash.encoded);
@@ -344,8 +344,8 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         setKeyHash,        
         keyHashParams,
         setKeyHashParams,
-        databaseHashId,
-        setDatabaseHashId,
+        databaseIdHash,
+        setDatabaseIdHash,
         masterKey,
     setMasterKey,
         password,

@@ -8,7 +8,7 @@ import fs from 'fs';
 const rootPath = path.resolve(process.cwd())
 
 export type DatabaseManifest = {
-	emailHash: string,
+	databaseIdHash: string,
 	createdAt: string,
 
 	creator: {
@@ -24,8 +24,8 @@ export type DatabaseManifest = {
 }
 
 export const maintenance = { 
-	databaseDirectory: (email:string, databaseSchema:string = '', databasePartition: string = '') =>  path.join(rootPath, 'data', email, databasePartition ? databaseSchema + '-partitions' : ''),
-	databaseFileName: (email:string, databaseSchema:string = '', databasePartition: string = '') =>  path.join(maintenance.databaseDirectory(email, databaseSchema, databasePartition), `db${databaseSchema ? '-' + databaseSchema + (databasePartition ? '-' + databasePartition : '') : ''}.sqlite`),
+	databaseDirectory: (databaseIdHash:string, databaseSchema:string = '', databasePartition: string = '') =>  path.join(rootPath, 'data', databaseIdHash, databasePartition ? databaseSchema + '-partitions' : ''),
+	databaseFileName: (databaseIdHash:string, databaseSchema:string = '', databasePartition: string = '') =>  path.join(maintenance.databaseDirectory(databaseIdHash, databaseSchema, databasePartition), `db${databaseSchema ? '-' + databaseSchema + (databasePartition ? '-' + databasePartition : '') : ''}.sqlite`),
 	createDatabaseManifest: async (email: string, databaseManifest: DatabaseManifest) => {
 		const databaseDirectory = maintenance.databaseDirectory(email)
 		if (!fs.existsSync(databaseDirectory)) {
@@ -55,8 +55,8 @@ export const maintenance = {
 
 export const Pool = async (maxPool = 50) => {
 	const databaseInstances: Record<string, BetterSQLite3Database> = {}
-	return async (email: string, databaseSchema:string = '', databasePartition:string = '', createNewDb: boolean = false ) => {
-		const poolKey = `${email}-${databaseSchema}${databasePartition ? '-' + databasePartition : ''}` // TODO: maybe we should use different pools for different schemas? however as for now it makes no big difference
+	return async (databaseIdHash: string, databaseSchema:string = '', databasePartition:string = '', createNewDb: boolean = false ) => {
+		const poolKey = `${databaseIdHash}-${databaseSchema}${databasePartition ? '-' + databasePartition : ''}` // TODO: maybe we should use different pools for different schemas? however as for now it makes no big difference
 		if (databaseInstances[poolKey]) {
 			return databaseInstances[poolKey]
 		}
@@ -65,17 +65,17 @@ export const Pool = async (maxPool = 50) => {
 			delete databaseInstances[Object.keys(databaseInstances)[0]]
 		}
 
-		const databaseFile = maintenance.databaseFileName(email, databaseSchema, databasePartition)
+		const databaseFile = maintenance.databaseFileName(databaseIdHash, databaseSchema, databasePartition)
 		let requiresMigration = true
 
-		if(!maintenance.checkIfDatabaseExists(email)) {
+		if(!maintenance.checkIfDatabaseExists(databaseIdHash)) {
             if (!createNewDb) {
                 throw new Error('Database not found or inaccessible')
             }			
 		}
 
 		if (databasePartition) { // we store partitions in `audit-partitions` subfolder for example therefore we need to make sure the directory exists
-			const databaseDirectory = maintenance.databaseDirectory(email, databaseSchema, databasePartition)
+			const databaseDirectory = maintenance.databaseDirectory(databaseIdHash, databaseSchema, databasePartition)
 			if (!fs.existsSync(databaseDirectory)) {
 				fs.mkdirSync(databaseDirectory, { recursive: true })
 			}

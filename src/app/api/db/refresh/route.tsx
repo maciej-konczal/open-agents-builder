@@ -13,7 +13,7 @@ export async function POST(request: Request) {
             const jwtToken = validationResult.data.refreshToken;
             const tokenData = await jwtVerify<DatabaseAuthorizeRequestDTO>(jwtToken, new TextEncoder().encode(process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET || 'Am2haivu9teiseejai5Ao6engae8hiuw'))
             const authRequest = {
-                emailHash: tokenData.payload.emailHash,
+                databaseIdHash: tokenData.payload.databaseIdHash,
                 keyHash: tokenData.payload.keyHash,
                 keyLocatorHash: tokenData.payload.keyLocatorHash                
             };
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
             } else {
 
                 const alg = 'HS256'
-                const tokenPayload = { emailHash: authRequest.emailHash, keyHash: authRequest.keyHash, keyLocatorHash: authRequest.keyLocatorHash }
+                const tokenPayload = { databaseIdHash: authRequest.databaseIdHash, keyHash: authRequest.keyHash, keyLocatorHash: authRequest.keyLocatorHash }
                 const accessToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg })
                 .setIssuedAt()

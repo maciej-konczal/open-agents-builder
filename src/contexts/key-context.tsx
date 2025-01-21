@@ -78,7 +78,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
           hashLen: keyHashParams.hashLen,
           parallelism: keyHashParams.parallelism
         });
-        const emailHash = await sha256(email, defaultDatabaseIdHashSalt);
+        const databaseIdHash = await sha256(email, defaultDatabaseIdHashSalt);
         const keyLocatorHash = await sha256(sharedKey + email, defaultKeyLocatorHashSalt);
         const { t } = useTranslation();
 
@@ -96,7 +96,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
         
         const apiClient = await setupApiClient(null);
         const keyDTO: KeyDTO = {
-            emailHash,
+            databaseIdHash,
             encryptedMasterKey,
             keyHash: keyHash.encoded,
             keyHashParams: JSON.stringify(keyHashParams),

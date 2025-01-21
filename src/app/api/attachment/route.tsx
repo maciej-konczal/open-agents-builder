@@ -21,11 +21,11 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 async function handlePUTRequest(inputJson: any, request: NextRequest, response: NextResponse, file?: File) {
     const requestContext = await authorizeRequestContext(request, response);
 
-    const storageService = new StorageService(requestContext.emailHash);
+    const storageService = new StorageService(requestContext.databaseIdHash);
     let apiResult = await genericPUT<AttachmentDTO>(
         inputJson,
         AttachmentDTOSchema,
-        new ServerAttachmentRepository(requestContext.emailHash),
+        new ServerAttachmentRepository(requestContext.databaseIdHash),
         'id'
     );
     if (apiResult.status === 200) { // validation went OK, now we can store the file
@@ -46,5 +46,5 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
 
 export async function GET(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
-    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.emailHash)));
+    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.databaseIdHash)));
 }

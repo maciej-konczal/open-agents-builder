@@ -52,7 +52,7 @@ export function AgentHeader() {
         </Button>
       </div>
       {(agentContext.current?.id !== 'new') ? (
-        <Button variant="secondary" size="sm" onClick={() => window.open(`/chat/${dbContext?.databaseHashId}/${agentContext.current?.id}`)}>
+        <Button variant="secondary" size="sm" onClick={() => window.open(`/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`)}>
             <Play className="mr-2 h-4 w-4" />
           {t('Preview')}
         </Button>

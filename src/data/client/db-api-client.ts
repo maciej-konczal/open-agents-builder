@@ -6,7 +6,7 @@ import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
 export type CreateDbResponse = {
   message: string;
   data: {
-    emailHash: string;
+    databaseIdHash: string;
   }
   status: number;
   issues?: any[];
@@ -51,11 +51,11 @@ export class DbApiClient extends ApiClient {
     }
   
     async authorizeChallenge(authorizeChallengeRequest: DatabaseAuthorizeChallengeRequestDTO): Promise<AuthorizeDbChallengeResponse> {
-       return this.request<AuthorizeDbChallengeResponse>('/api/db/challenge?emailHash=' + encodeURIComponent(authorizeChallengeRequest.emailHash), 'POST', { ecnryptedFields: [] }, authorizeChallengeRequest) as Promise<AuthorizeDbChallengeResponse>;
+       return this.request<AuthorizeDbChallengeResponse>('/api/db/challenge?databaseIdHash=' + encodeURIComponent(authorizeChallengeRequest.databaseIdHash), 'POST', { ecnryptedFields: [] }, authorizeChallengeRequest) as Promise<AuthorizeDbChallengeResponse>;
     }
 
     async authorize(authorizeRequest: DatabaseAuthorizeRequestDTO): Promise<AuthorizeDbResponse> {
-      return this.request<AuthorizeDbResponse>('/api/db/authorize?emailHash=' + encodeURIComponent(authorizeRequest.emailHash), 'POST', { ecnryptedFields: [] }, authorizeRequest) as Promise<AuthorizeDbResponse>;
+      return this.request<AuthorizeDbResponse>('/api/db/authorize?databaseIdHash=' + encodeURIComponent(authorizeRequest.databaseIdHash), 'POST', { ecnryptedFields: [] }, authorizeRequest) as Promise<AuthorizeDbResponse>;
    }
 
    async refresh(refreshRequest: DatabaseRefreshRequestDTO): Promise<RefreshDbResponse> {

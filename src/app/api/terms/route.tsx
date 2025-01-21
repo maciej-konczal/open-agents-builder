@@ -24,7 +24,7 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     }
 
     if (saasContext.isSaasMode) {
-        saasContext.apiClient?.storeTerm(requestContext.emailHash, {
+        saasContext.apiClient?.storeTerm(requestContext.databaseIdHash, {
             content: valRes.data.content,
             signedAt: getCurrentTS(),
             email: valRes.data.email ?? '',
@@ -44,7 +44,7 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     termObj.email = await encUtils.encrypt(termObj.email ?? '');
     termObj.name = await encUtils.encrypt(termObj.name ?? '');
 
-    const apiResult = await genericPUT<TermDTO>(termObj, termsDTOSchema, new ServerTermRepository(requestContext.emailHash), 'key');
+    const apiResult = await genericPUT<TermDTO>(termObj, termsDTOSchema, new ServerTermRepository(requestContext.databaseIdHash), 'key');
     return Response.json(apiResult, { status: apiResult.status });
 }
 
@@ -52,7 +52,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
     const encUtils = new EncryptionUtils(process.env.TERMS_ENCRYPTION_KEY ?? 'qAyn0sLFmqxvJYj7X2vJeJzS');
 
-    const apiResult = (await genericGET<TermDTO>(request, new ServerTermRepository(requestContext.emailHash)));
+    const apiResult = (await genericGET<TermDTO>(request, new ServerTermRepository(requestContext.databaseIdHash)));
     for (const term of apiResult) {
         term.email = await encUtils.decrypt(term.email ?? ''),
         term.name = await encUtils.decrypt(term.name ?? '')

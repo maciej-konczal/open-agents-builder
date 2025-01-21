@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
     } else {
         try {
             const decoded = await jwtVerify(jwtToken, new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
-            const checkDbHeader = request.headers.get('database-id-hash') === decoded.payload.emailHash;
+            const checkDbHeader = request.headers.get('database-id-hash') === decoded.payload.databaseIdHash;
 
             if(!checkDbHeader) {
                 return NextResponse.json({ message: 'Unauthorized', status: 401 }, { status: 401 });

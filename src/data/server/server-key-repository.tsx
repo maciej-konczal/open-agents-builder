@@ -8,7 +8,7 @@ import { create } from "./generic-repository";
 
 
 export type KeysQuery = IQuery & { 
-    filter: { keyHash?: string, emailHash?: string }
+    filter: { keyHash?: string, databaseIdHash?: string }
 }
 export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
 
@@ -22,7 +22,7 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
     // update config
     async upsert(query:Record<string, any>, item: KeyDTO): Promise<KeyDTO> {        
         const db = (await this.db());
-        let existingKey = db.select({ keyLocatorHash: keys.keyLocatorHash, keyHash: keys.keyHash, emailHash: keys.emailHash, updatedAt: keys.updatedAt, extra: keys.extra, acl: keys.acl, expiryDate: keys.expiryDate}).from(keys).where(eq(keys.keyLocatorHash, query['keyLocatorHash'])).get() as KeyDTO
+        let existingKey = db.select({ keyLocatorHash: keys.keyLocatorHash, keyHash: keys.keyHash, databaseIdHash: keys.databaseIdHash, updatedAt: keys.updatedAt, extra: keys.extra, acl: keys.acl, expiryDate: keys.expiryDate}).from(keys).where(eq(keys.keyLocatorHash, query['keyLocatorHash'])).get() as KeyDTO
         if (!existingKey) {
             existingKey = await this.create(item)
         } else {
@@ -43,8 +43,8 @@ export default class ServerKeyRepository extends BaseRepository<KeyDTO> {
         let dbQuery = db.select().from(keys);
 
         if(query?.filter){
-            if(query.filter.emailHash){ 
-                dbQuery.where(eq(keys.emailHash, query.filter.emailHash))
+            if(query.filter.databaseIdHash){ 
+                dbQuery.where(eq(keys.databaseIdHash, query.filter.databaseIdHash))
 
             }
             if(query.filter.keyHash){

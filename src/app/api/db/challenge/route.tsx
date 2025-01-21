@@ -10,7 +10,7 @@ export async function POST(request: Request) {
         const validationResult = databaseAuthorizeChallengeRequestSchema.safeParse(jsonRequest); // validation
         if (validationResult.success === true) {
             const authChallengeRequest = validationResult.data;
-            const keyRepo = new ServerKeyRepository(authChallengeRequest.emailHash); // get the user key
+            const keyRepo = new ServerKeyRepository(authChallengeRequest.databaseIdHash); // get the user key
             const existingKeys = await keyRepo.findAll({  filter: { keyLocatorHash: authChallengeRequest.keyLocatorHash } }); // check if key already exists
 
             if(existingKeys.length === 0) { // this situation theoretically should not happen bc. if database file exists we return out of the function

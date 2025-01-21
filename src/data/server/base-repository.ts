@@ -25,17 +25,17 @@ export interface IWrite<T> {
 
 // that class only can be extended
 export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
-    email: string;
+    databaseIdHash: string;
     databaseSchema: string;
     databasePartition: string;
     constructor(email: string, databaseSchema: string = '', databasePartition: string ='') {
-        this.email = email
+        this.databaseIdHash = email
         this.databaseSchema = databaseSchema;
         this.databasePartition = databasePartition;
     }
 
     async db(): Promise<BetterSQLite3Database<Record<string, never>>> {
-        return (await pool)(this.email, this.databaseSchema, this.databasePartition, false);
+        return (await pool)(this.databaseIdHash, this.databaseSchema, this.databasePartition, false);
     }
 
     async create(item: T): Promise<T> {

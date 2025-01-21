@@ -36,7 +36,7 @@ export const sessions = sqliteTable('sessions', {
 export const keys = sqliteTable('keys', {
     keyLocatorHash: text('keyLocatorHash').primaryKey(),
     displayName: text('displayName'),
-    emailHash: text('emailHash', { mode: 'text' }).notNull(),
+    databaseIdHash: text('databaseIdHash', { mode: 'text' }).notNull(),
     keyHash: text('keyHash').notNull(),
     keyHashParams: text('keyHashParams').notNull(),
     encryptedMasterKey: text('encryptedMasterKey').notNull(),

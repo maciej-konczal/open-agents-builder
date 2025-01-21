@@ -92,7 +92,7 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
             setEmail(saasAccount.data.email || null);
             setUserId(saasAccount.data.userId || null);
             if(typeof localStorage !== 'undefined') {
-                localStorage.setItem('saasToken', saasAccount.data.saasToken); // if the context was loaded by emailHash this is important step
+                localStorage.setItem('saasToken', saasAccount.data.saasToken); // if the context was loaded by databaseIdHash this is important step
             }
         }
     

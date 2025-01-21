@@ -19,7 +19,7 @@ export const keyDTOSchema = z.object({
   keyLocatorHash: z.string().min(64).max(64),
   keyHash: z.string().min(32),
   keyHashParams: z.string().min(1),
-  emailHash: z.string().min(64).max(64),
+  databaseIdHash: z.string().min(64).max(64),
   encryptedMasterKey: z.string().min(1),
   acl: z.string().nullable().optional(),
   extra: z.string().nullable().optional(),
@@ -63,7 +63,7 @@ export const databaseCreateRequestSchema = z.object({
   keyLocatorHash: z.string().min(64).max(64),
   keyHash: z.string().min(32),
   keyHashParams: z.string().min(1),
-  emailHash: z.string().min(1).min(64).max(64),
+  databaseIdHash: z.string().min(1).min(64).max(64),
   encryptedMasterKey: z.string().min(1),
 });
 export type DatabaseCreateRequestDTO = z.infer<typeof databaseCreateRequestSchema>;
@@ -71,14 +71,14 @@ export type DatabaseCreateRequestDTO = z.infer<typeof databaseCreateRequestSchem
 
 export const databaseAuthorizeChallengeRequestSchema = z.object({
   keyLocatorHash: z.string().min(64).max(64),
-  emailHash: z.string().min(1).min(64).max(64),
+  databaseIdHash: z.string().min(1).min(64).max(64),
 });
 export type DatabaseAuthorizeChallengeRequestDTO = z.infer<typeof databaseAuthorizeChallengeRequestSchema>;
 
 export const databaseAuthorizeRequestSchema = z.object({
   keyLocatorHash: z.string().min(64).max(64),
   keyHash: z.string().min(32),
-  emailHash: z.string().min(1).min(64).max(64),
+  databaseIdHash: z.string().min(1).min(64).max(64),
 });
 export type DatabaseAuthorizeRequestDTO = z.infer<typeof databaseAuthorizeRequestSchema>;
 
@@ -157,7 +157,7 @@ export const auditDTOSchema = z.object({
   ip: z.string().optional(),
   ua: z.string().optional(),
   keyLocatorHash: z.string().optional(),
-  emailHash: z.string().optional(),
+  databaseIdHash: z.string().optional(),
   recordLocator: z.string().optional(),
   encryptedDiff: z.string().optional(),
   eventName: z.string().optional(),

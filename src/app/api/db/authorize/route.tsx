@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
             } else {
 
                 const alg = 'HS256'
-                const tokenPayload = { emailHash: authRequest.emailHash, keyHash: authRequest.keyHash, keyLocatorHash: authRequest.keyLocatorHash }
+                const tokenPayload = { databaseIdHash: authRequest.databaseIdHash, keyHash: authRequest.keyHash, keyLocatorHash: authRequest.keyLocatorHash }
                 const accessToken = await new SignJWT(tokenPayload)
                 .setProtectedHeader({ alg })
                 .setIssuedAt()

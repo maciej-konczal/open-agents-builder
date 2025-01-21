@@ -36,17 +36,17 @@ export async function POST(request: NextRequest) {
         if (validationResult.success === true) {
             const authCreateRequest = validationResult.data;
 
-            if (maintenance.checkIfDatabaseExists(authCreateRequest.emailHash)) { // to not avoid overriding database fiels
+            if (maintenance.checkIfDatabaseExists(authCreateRequest.databaseIdHash)) { // to not avoid overriding database fiels
                 return Response.json({
                     message: 'Account with given e-mail already exists. Please select different one or Log-In.',
                     data: { 
-                        emailHash: authCreateRequest.emailHash
+                        databaseIdHash: authCreateRequest.databaseIdHash
                     },
                     status: 409
                 });            
             } else {
-                await maintenance.createDatabaseManifest(authCreateRequest.emailHash, {
-                    emailHash: authCreateRequest.emailHash,
+                await maintenance.createDatabaseManifest(authCreateRequest.databaseIdHash, {
+                    databaseIdHash: authCreateRequest.databaseIdHash,
                     createdAt: getCurrentTS(),
                     creator: {
                         ip: request.ip,
@@ -54,14 +54,14 @@ export async function POST(request: NextRequest) {
                         geo: request.geo
                     }                
                 });
-                const keyRepo = new ServerKeyRepository(authCreateRequest.emailHash); // creating a first User Key
-                const existingKeys = await keyRepo.findAll({  filter: { emailHash: authCreateRequest.emailHash } }); // check if key already exists
+                const keyRepo = new ServerKeyRepository(authCreateRequest.databaseIdHash); // creating a first User Key
+                const existingKeys = await keyRepo.findAll({  filter: { databaseIdHash: authCreateRequest.databaseIdHash } }); // check if key already exists
 
                 if(existingKeys.length > 0) { // this situation theoretically should not happen bc. if database file exists we return out of the function
                     return Response.json({
                         message: 'User key already exists. Please select different Id.',
                         data: { 
-                            emailHash: authCreateRequest.emailHash
+                            databaseIdHash: authCreateRequest.databaseIdHash
                         },
                         status: 409               
                     });                    
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
                         keyHash: authCreateRequest.keyHash,
                         keyHashParams: authCreateRequest.keyHashParams,
                         encryptedMasterKey: authCreateRequest.encryptedMasterKey,
-                        emailHash: authCreateRequest.emailHash,                
+                        databaseIdHash: authCreateRequest.databaseIdHash,                
                         acl: JSON.stringify({
                             role: 'owner',
                             features: ['*']
@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
                     if (saasContext.isSaasMode) {
                         try {
                             saasContext.apiClient?.newDatabase({
-                                emailHash: authCreateRequest.emailHash,
+                                databaseIdHash: authCreateRequest.databaseIdHash,
                                 createdAt: getCurrentTS()
                             })
                         } catch (e) {

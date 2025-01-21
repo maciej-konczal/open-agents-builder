@@ -114,7 +114,7 @@ export class Key {
     keyLocatorHash: string;
     keyHash: string;
     keyHashParams: string;
-    emailHash: string;
+    databaseIdHash: string;
     encryptedMasterKey: string;
     acl: KeyACL | null;
     extra: string | null;
@@ -126,7 +126,7 @@ export class Key {
         this.keyLocatorHash = keyDTO.keyLocatorHash;
         this.keyHash = keyDTO.keyHash;
         this.keyHashParams = keyDTO.keyHashParams;
-        this.emailHash = keyDTO.emailHash;
+        this.databaseIdHash = keyDTO.databaseIdHash;
         this.encryptedMasterKey = keyDTO.encryptedMasterKey;
         this.acl = keyDTO instanceof Key ? keyDTO.acl :  (keyDTO.acl ? JSON.parse(keyDTO.acl) : null);
         this.extra = keyDTO.extra ?? null;
@@ -144,7 +144,7 @@ export class Key {
             keyLocatorHash: this.keyLocatorHash,
             keyHash: this.keyHash,
             keyHashParams: this.keyHashParams,
-            emailHash: this.emailHash,
+            databaseIdHash: this.databaseIdHash,
             encryptedMasterKey: this.encryptedMasterKey,
             acl: JSON.stringify(this.acl),
             extra: this.extra,

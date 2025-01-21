@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
 
-    const statsRepo = new ServerStatRepository(requestContext.emailHash, 'stats');
+    const statsRepo = new ServerStatRepository(requestContext.databaseIdHash, 'stats');
     try { 
         const statsAggregated = await statsRepo.thisAndLastMonth();
         return Response.json({

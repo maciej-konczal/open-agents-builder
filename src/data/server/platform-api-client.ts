@@ -9,10 +9,10 @@ type UniversalApiResult = {
     message?: string;
 }
 
-const qr = (emailHash?: string|null, apiKey?: string|null) => {
+const qr = (databaseIdHash?: string|null, apiKey?: string|null) => {
 
-    if (emailHash) {
-        return `?emailHash=${encodeURIComponent(emailHash)}`
+    if (databaseIdHash) {
+        return `?databaseIdHash=${encodeURIComponent(databaseIdHash)}`
     } else {
         if (apiKey) {
             return '?apiKey=' + encodeURIComponent(apiKey);
@@ -29,40 +29,40 @@ export class PlatformApiClient extends ApiClient {
         this.apiKey = saasToken;
     }
 
-    async account({ emailHash, apiKey}:{
-        emailHash?: string|null;
+    async account({ databaseIdHash, apiKey}:{
+        databaseIdHash?: string|null;
         apiKey?: string|null;
     }): Promise<GetSaasResponse> {
-        return this.request<GetSaasResponse>('/api/users/me' + qr(emailHash, apiKey), 'GET') as Promise<GetSaasResponse>;
+        return this.request<GetSaasResponse>('/api/users/me' + qr(databaseIdHash, apiKey), 'GET') as Promise<GetSaasResponse>;
     }
 
-    async storeTerm(emailHash:string, term: {
+    async storeTerm(databaseIdHash:string, term: {
         content: string;
         name: string;
         email: string;
         signedAt: string,
         code: string
     }): Promise<UniversalApiResult> {
-        return this.request<UniversalApiResult>('/api/terms' + qr(emailHash, this.apiKey), 'POST', { ecnryptedFields: [] }, term) as Promise<UniversalApiResult>;
+        return this.request<UniversalApiResult>('/api/terms' + qr(databaseIdHash, this.apiKey), 'POST', { ecnryptedFields: [] }, term) as Promise<UniversalApiResult>;
     }
 
-    async saveEvent(emailHash:string, event: {
-        emailHash: string;
+    async saveEvent(databaseIdHash:string, event: {
+        databaseIdHash: string;
         eventName: string;
         params?: any | null | undefined;
         createdAt?: Date | null | undefined;
     }): Promise<UniversalApiResult> {
-        return this.request<UniversalApiResult>('/api/events' + qr(emailHash, this.apiKey), 'POST', { ecnryptedFields: [] }, event) as Promise<UniversalApiResult>;
+        return this.request<UniversalApiResult>('/api/events' + qr(databaseIdHash, this.apiKey), 'POST', { ecnryptedFields: [] }, event) as Promise<UniversalApiResult>;
     }
 
-    async saveStats(emailHash:string, stat: StatDTO & {
-        emailHash: string;
+    async saveStats(databaseIdHash:string, stat: StatDTO & {
+        databaseIdHash: string;
     }): Promise<UniversalApiResult> {
-        return this.request<UniversalApiResult>('/api/stats?emailHash=' + encodeURIComponent(emailHash), 'POST', { ecnryptedFields: [] }, stat) as Promise<UniversalApiResult>;
+        return this.request<UniversalApiResult>('/api/stats?databaseIdHash=' + encodeURIComponent(databaseIdHash), 'POST', { ecnryptedFields: [] }, stat) as Promise<UniversalApiResult>;
     }
 
     async newDatabase(dbData: {
-        emailHash: string;
+        databaseIdHash: string;
         createdAt: string;
     }): Promise<UniversalApiResult> {
         return this.request<UniversalApiResult>('/api/db/new?apiKey=' + encodeURIComponent(this.apiKey), 'POST', { ecnryptedFields: [] }, dbData) as Promise<UniversalApiResult>;

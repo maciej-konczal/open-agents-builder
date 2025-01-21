@@ -8,6 +8,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     if(!recordLocator){
         return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
     } else { 
-        return Response.json(await genericDELETE(request, new ServerAgentRepository(requestContext.emailHash), { id: recordLocator}));
+        return Response.json(await genericDELETE(request, new ServerAgentRepository(requestContext.databaseIdHash), { id: recordLocator}));
     }
 }

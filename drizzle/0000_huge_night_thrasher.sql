@@ -22,7 +22,7 @@ CREATE TABLE `config` (
 CREATE TABLE `keys` (
 	`keyLocatorHash` text PRIMARY KEY NOT NULL,
 	`displayName` text,
-	`emailHash` text NOT NULL,
+	`databaseIdHash` text NOT NULL,
 	`keyHash` text NOT NULL,
 	`keyHashParams` text NOT NULL,
 	`encryptedMasterKey` text NOT NULL,

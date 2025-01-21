@@ -58,8 +58,8 @@ export class ApiClient {
       headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;
     }
 
-    if(this.dbContext?.databaseHashId) {
-      headers['Database-Id-Hash'] = this.dbContext?.databaseHashId;
+    if(this.dbContext?.databaseIdHash) {
+      headers['Database-Id-Hash'] = this.dbContext?.databaseIdHash;
     }
 
     if(this.saasToken) {
@@ -123,8 +123,8 @@ export class ApiClient {
       headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;
     }
 
-    if(this.dbContext?.databaseHashId) {
-      headers['Database-Id-Hash'] = this.dbContext?.databaseHashId;
+    if(this.dbContext?.databaseIdHash) {
+      headers['Database-Id-Hash'] = this.dbContext?.databaseIdHash;
     }
 
     if(this.saasToken) {
