@@ -115,9 +115,9 @@ export class ApiClient {
     encryptionSettings?: DTOEncryptionSettings,
     body?: any,
     formData?: FormData,
-    repeatedRequestAccessToken:string = ''
+    repeatedRequestAccessToken:string = '',
+    headers: Record<string, string> = {}
   ): Promise<T | T[]> {
-    const headers: Record<string, string> = {};
 
     if (this.dbContext?.accessToken || repeatedRequestAccessToken) {
       headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;

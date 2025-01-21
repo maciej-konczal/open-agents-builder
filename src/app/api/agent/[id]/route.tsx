@@ -1,7 +1,7 @@
-import ServerAgentRepository from "@/data/server/server-session-repository";
+import ServerAgentRepository from "@/data/server/server-agent-repository";
 import {  authorizeRequestContext, genericDELETE } from "@/lib/generic-api";
 
-export async function DELETE(request: Request, { params }: { params: { id: number }} ) {
+export async function DELETE(request: Request, { params }: { params: { id: string }} ) {
     const recordLocator = params.id;
     const requestContext = await authorizeRequestContext(request);
 

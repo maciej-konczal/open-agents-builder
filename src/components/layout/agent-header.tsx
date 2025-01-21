@@ -9,9 +9,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useAgentContext } from '@/contexts/agent-context';
+import { DatabaseContext } from "@/contexts/db-context";
 import { Plus, Play } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { use, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export function AgentHeader() {
@@ -20,6 +21,7 @@ export function AgentHeader() {
   const { t } = useTranslation();
   const currentId = params?.id as string;
   const agentContext = useAgentContext();
+  const dbContext = useContext(DatabaseContext);
 
   useEffect(() => {
     agentContext.listAgents(currentId);
@@ -50,7 +52,7 @@ export function AgentHeader() {
         </Button>
       </div>
       {(agentContext.current?.id !== 'new') ? (
-        <Button variant="secondary" size="sm" onClick={() => router.push(`/chat/${agentContext.current?.id}`)}>
+        <Button variant="secondary" size="sm" onClick={() => router.push(`/chat/${dbContext?.keyLocatorHash}/${agentContext.current?.id}`)}>
             <Play className="mr-2 h-4 w-4" />
           {t('Preview')}
         </Button>
