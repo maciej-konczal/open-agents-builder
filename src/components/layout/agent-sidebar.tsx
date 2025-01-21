@@ -53,7 +53,7 @@ export function AgentSidebar() {
         <div className="space-y-1 p-2">
           {sidebarItems.map((item) => {
             const href = item.href.replace('[id]', agentId);
-            const isActive = pathname.startsWith(href);
+            const isActive = pathname.endsWith(href);
             
             return (
               <Link key={item.href} href={href}>

@@ -23,7 +23,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const { t } = useTranslation();
 
     const loadAgent = async (id: string, databaseIdHash: string): Promise<Agent> => {
-        const client = new ChatApiClient();
+        const client = new ChatApiClient(databaseIdHash);
         const dto = await client.agent(id);
         const agt = Agent.fromDTO(dto);
         setAgent(agt);

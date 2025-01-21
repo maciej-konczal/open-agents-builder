@@ -18,7 +18,7 @@ export default function ChatPage({children,
         } catch (error) {
             console.error(error);
         }
-    }, [params.id]);
+    }, [params.id, params.databaseIdHash]);
 
     return (
         <>

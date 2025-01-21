@@ -11,12 +11,17 @@ import { nanoid } from 'nanoid';
 import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
 import { getCurrentTS } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export default function GeneralPage() {
-  const { t } = useTranslation();
 
+
+  const { t } = useTranslation();
+  const router = useRouter();
   const { current: agent, updateAgent } = useAgentContext();
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+
+
+  const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm({
     defaultValues: {
       displayName: agent?.displayName || '',
       welcomeInfo: agent?.options?.welcomeMessage || '',
@@ -25,7 +30,7 @@ export default function GeneralPage() {
       resultEmail: agent?.options?.resultEmail || '',
       collectUserInfo: agent?.options?.collectUserEmail || false,
     },
-  });
+  });  
 
   useEffect(() => {
     if (agent) {
@@ -57,9 +62,10 @@ export default function GeneralPage() {
       },
     } as Agent);
     try {
-      console.log(updatedAgent)
       const response = await updateAgent(updatedAgent, true);
       toast.success(t('Agent updated successfully'));
+
+      router.push(`/agent/${response.id}/general`);
     } catch (e) {
       console.error(e);
       toast.error(t('Failed to update agent'));
