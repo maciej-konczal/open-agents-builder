@@ -31,11 +31,13 @@ export class ApiClient {
   private dbContext?: DatabaseContextType | null = null;
   private saasContext?: SaaSContextType | null = null;
   private saasToken: string | null = null;
+  private databaseIdHash: string | null = null;
 
-  constructor(baseUrl: string, databaseContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl?: string, databaseContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
+    this.baseUrl = baseUrl || '';
     this.dbContext = databaseContext;
     this.saasContext = saasContext;
+    if (this.dbContext) this.databaseIdHash = this.dbContext.databaseIdHash;
     if (this.saasContext) this.setSaasToken(this.saasContext.saasToken ?? '');
     if (encryptionConfig?.useEncryption) {
       this.encryptionFilter = new DTOEncryptionFilter(encryptionConfig.secretKey as string);
@@ -48,6 +50,10 @@ export class ApiClient {
     this.saasToken = token;
   }
 
+  public setDatabaseIdHash(databaseIdHash: string) {
+    this.databaseIdHash = databaseIdHash;
+  }
+
   public async getArrayBuffer(
     endpoint: string,
     repeatedRequestAccessToken = ''
@@ -58,8 +64,8 @@ export class ApiClient {
       headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;
     }
 
-    if(this.dbContext?.databaseIdHash) {
-      headers['Database-Id-Hash'] = this.dbContext?.databaseIdHash;
+    if(this.databaseIdHash) {
+      headers['Database-Id-Hash'] = this.databaseIdHash;
     }
 
     if(this.saasToken) {
@@ -109,6 +115,39 @@ export class ApiClient {
     }
   }
 
+  public async simpleRequest<T>(
+    endpoint: string,
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    headers: Record<string, string> = {},
+    body?: any
+  ): Promise<T | T[]> {
+
+    if (body) {
+      headers['Content-Type'] = 'application/json';
+    }
+
+    if (this.databaseIdHash && !headers['Database-Id-Hash']) {
+      headers['Database-Id-Hash'] = this.databaseIdHash;
+    }
+
+    const config: AxiosRequestConfig = {
+      method,
+      url: `${this.baseUrl}${endpoint}`,
+      headers,
+      data: body ? JSON.stringify(body) : undefined,
+      validateStatus: (status) => status < 500,
+    };
+
+    try {
+      const response: AxiosResponse = await axios(config);
+      return response.data
+    } catch (error) {
+      console.log(error);
+      throw new ApiError('Request failed' + getErrorMessage(error) + ' [' + error.code + ']', error.code, error);
+    }
+  }
+
+
   public async request<T>(
     endpoint: string,
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
@@ -123,8 +162,8 @@ export class ApiClient {
       headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;
     }
 
-    if(this.dbContext?.databaseIdHash) {
-      headers['Database-Id-Hash'] = this.dbContext?.databaseIdHash;
+    if(this.databaseIdHash) {
+      headers['Database-Id-Hash'] = this.databaseIdHash;
     }
 
     if(this.saasToken) {

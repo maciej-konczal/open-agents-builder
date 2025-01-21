@@ -115,7 +115,7 @@ export function CreateDatabaseForm({
               </ul>
             </div>
           ) : null}
-          <Label htmlFor="email">{t('E-mail:')}</Label>
+          <Label htmlFor="email">{t('E-mail')}</Label>
           <Input autoFocus 
             type="text"
             id="email"

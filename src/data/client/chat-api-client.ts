@@ -25,16 +25,13 @@ export type PutAgentResponse = PutAgentResponseSuccess | PutAgentResponseError;
 
 
 export class ChatApiClient extends ApiClient {
-  databaseIdHash: string;
-    constructor(baseUrl: string, databaseIdHash: string) {
+    constructor(databaseIdHash: string, baseUrl?: string) {
       super(baseUrl, null, null, { useEncryption: false });
-      this.databaseIdHash = databaseIdHash;
+      this.setDatabaseIdHash(databaseIdHash);
     }
   
     async agent(agentId:string): Promise<GetAgentsResponse> {
-      return await (this.request<GetAgentsResponse>('/api/chat/agent/' + encodeURIComponent(agentId) , 'GET', AgentDTOEncSettings, null, undefined, undefined, {
-          'Database-Id-Hash': this.databaseIdHash,
-      }) as Promise<GetAgentsResponse>);
+      return await (this.simpleRequest<GetAgentsResponse>('/api/chat/agent/' + encodeURIComponent(agentId) , 'GET') as Promise<GetAgentsResponse>);
     }
   
 }
