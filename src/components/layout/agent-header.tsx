@@ -28,6 +28,7 @@ export function AgentHeader() {
   }, [currentId]);
 
   const handleAgentChange = (newId: string) => {
+    localStorage.setItem('currentAgentId', newId);
     router.push(`/agent/${newId}/general`);
   };
 
