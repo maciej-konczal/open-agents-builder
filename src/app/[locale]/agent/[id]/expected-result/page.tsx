@@ -11,10 +11,12 @@ import { nanoid } from 'nanoid';
 import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
 import { getCurrentTS } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export default function ExpectedResultPage() {
   const { t } = useTranslation();
 
+  const router = useRouter();
   const { current: agent, updateAgent } = useAgentContext();
   const { register, handleSubmit, setValue, formState: { errors } } = useForm({
     defaultValues: {
@@ -24,6 +26,10 @@ export default function ExpectedResultPage() {
 
   useEffect(() => {
     if (agent) {
+      if (agent?.id === 'new') {
+        toast.error(t('Please set the general info and save the agent first.'));
+        router.push(`/agent/new/general`);
+      }      
       setValue('expectedResult', agent.expectedResult || '');
     } else {
       toast.error(t('Failed to load agent. Please set the general info and save the agent first.'));
