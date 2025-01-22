@@ -13,16 +13,8 @@ export default function ChatPage({children,
     const chatContext = useChatContext();
 
     useEffect(() => {
-        try { 
-            chatContext.setDatabaseIdHash(params.databaseIdHash);
-        } catch (error) {
-            console.error(error);
-        }
+        chatContext.init(params.id, params.databaseIdHash);
     }, [params.id, params.databaseIdHash]);
-
-    useEffect(() => {
-        chatContext.loadAgent(params.id);
-    }, [params.id, chatContext.databaseIdHash]);
 
     return (
         <>
