@@ -19,34 +19,23 @@ export default function GeneralPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
-  const { current: agent, updateAgent } = useAgentContext();
+  const { current: agent, updateAgent, toForm } = useAgentContext();
+
 
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
-    defaultValues: {
-      displayName: agent?.displayName || '',
-      welcomeInfo: agent?.options?.welcomeMessage || '',
-      termsConditions: agent?.options?.termsAndConditions || '',
-      confirmTerms: agent?.options?.mustConfirmTerms || false,
-      resultEmail: agent?.options?.resultEmail || '',
-      collectUserInfo: agent?.options?.collectUserEmail || false,
-    },
+    defaultValues: toForm(agent)
   });  
 
 
   const { clear } = useFormPersist("agent-general", {
     watch, 
-    setValue
+    setValue,
   });
 
   useEffect(() => {
     if (agent) {
-      setValue('displayName', agent.id !== 'new' ? agent.displayName : '');
-      setValue('welcomeInfo', agent.options?.welcomeMessage || '');
-      setValue('termsConditions', agent.options?.termsAndConditions || '');
-      setValue('confirmTerms', agent.options?.mustConfirmTerms || false);
-      setValue('resultEmail', agent.options?.resultEmail || '');
-      setValue('collectUserInfo', agent.options?.collectUserEmail || false);
+      toForm(agent, setValue);
     }
   }, [agent, setValue]);
 
@@ -71,6 +60,7 @@ export default function GeneralPage() {
     try {
       const response = await updateAgent(updatedAgent, true);
       toast.success(t('Agent updated successfully'));
+      clear(); // clear local storage
 
       router.push(`/agent/${response.id}/general`);
     } catch (e) {
