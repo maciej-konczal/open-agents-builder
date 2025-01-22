@@ -12,17 +12,20 @@ import { ChatApiClient } from '@/data/client/chat-api-client';
 
 
 interface ChatContextType {
+    databaseIdHash: string;
+    setDatabaseIdHash: (databaseIdHash: string) => void;
     agent: Agent | null;
-    loadAgent: (id: string, databaseIdHash: string) => Promise<Agent>;
+    loadAgent: (id: string) => Promise<Agent>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [agent, setAgent] = useState<Agent | null>(null);
+    const [databaseIdHash, setDatabaseIdHash] = useState<string>('');
     const { t } = useTranslation();
 
-    const loadAgent = async (id: string, databaseIdHash: string): Promise<Agent> => {
+    const loadAgent = async (id: string): Promise<Agent> => {
         const client = new ChatApiClient(databaseIdHash);
         const dto = await client.agent(id);
         const agt = Agent.fromDTO(dto);
@@ -32,7 +35,9 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     return (
         <ChatContext.Provider value={{ 
             agent,
-            loadAgent
+            loadAgent,
+            databaseIdHash,
+            setDatabaseIdHash
             }}>
             {children}
         </ChatContext.Provider>

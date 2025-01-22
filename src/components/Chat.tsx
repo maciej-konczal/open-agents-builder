@@ -30,17 +30,6 @@ export function Chat() {
 
   useEffect(() => {
     if (chatContext.agent){
-      setMessages([...messages, {
-          id: nanoid(),
-          role: "assistant",
-          content: chatContext.agent?.options?.welcomeMessage || ''
-        }]);
-        append(
-        {
-          id: nanoid(),
-          role: "user",
-          content: chatContext.agent?.prompt || ''
-        })
     }
   }, [chatContext.agent]);
 
@@ -71,7 +60,14 @@ export function Chat() {
         </ScrollArea>
       </CardContent>
       <CardFooter>
-        <form onSubmit={handleSubmit} className="flex w-full space-x-2">
+        <form onSubmit={e=> {
+          handleSubmit(e, {
+            headers: {
+              'Database-Id-Hash': chatContext.databaseIdHash,
+              'Agent-Id': chatContext.agent?.id ?? ''
+            }
+          })
+        }} className="flex w-full space-x-2">
           <Input value={input} onChange={handleInputChange} placeholder="Type your message..." className="flex-grow" />
           <Button type="submit" disabled={isLoading}>
             Send

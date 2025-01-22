@@ -14,11 +14,15 @@ export default function ChatPage({children,
 
     useEffect(() => {
         try { 
-            chatContext.loadAgent(params.id, params.databaseIdHash);
+            chatContext.setDatabaseIdHash(params.databaseIdHash);
         } catch (error) {
             console.error(error);
         }
     }, [params.id, params.databaseIdHash]);
+
+    useEffect(() => {
+        chatContext.loadAgent(params.id);
+    }, [params.id, chatContext.databaseIdHash]);
 
     return (
         <>

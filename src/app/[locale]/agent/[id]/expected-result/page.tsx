@@ -30,7 +30,7 @@ export default function GeneralPage() {
         <Textarea
         id="expectedResult"
         {...register('expectedResult', { required: t('Expected result is required') })}
-        rows={4}
+        rows={20}
         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
         />
         {errors.expectedResult && <p className="mt-2 text-sm text-red-600">{errors.expectedResult.message}</p>}
