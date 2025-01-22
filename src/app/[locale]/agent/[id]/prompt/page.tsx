@@ -16,7 +16,7 @@ export default function PromptPage() {
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
-  const onSubmit = onAgentSubmit(agent, watch, setValue, updateAgent, t, router);
+  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, updateAgent, t, router);
    
   return (
     <div className="space-y-6">

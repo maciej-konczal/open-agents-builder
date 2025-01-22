@@ -5,57 +5,71 @@ import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useAgentContext } from '@/contexts/agent-context';
 import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormGetValues, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import useFormPersist from 'react-hook-form-persist'
 import { sha256 } from '@/lib/crypto';
 import { boolean } from 'drizzle-orm/mysql-core';
+import { TFunction } from 'i18next';
 
 
-export function onAgentSubmit(agent: Agent | null, watch, setValue, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t, router) {
-  const { clear } = useFormPersist(`agent-general-${agent?.id}`, {
-    watch,
-    setValue,
-  });
-
+export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance) {
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     if (agent) {
-      const savedFormState = sessionStorage.getItem(`agent-general-${agent.id}`);
-      console.log(agent.id)
-      console.log(savedFormState)
-      agent.toForm(setValue); // load the database values
-      (async () => {
-          const getSortedFormStateString = (formState: Record<string, any>) => {
-            const sortedFormState = Object.keys(formState).sort().reduce((acc, key) => {
-            acc[key] = formState[key];
-            return acc;
-            }, {});
-            return Object.entries(sortedFormState).map(([key, value]) => `${key}:${value}`).join(',');
-          };
+      //agent.toForm(setValue); // load the database values
+      watch((value) => {
+        (async () => {
+          const savedFormState = sessionStorage.getItem(`agent-general-${agent.id}`);
 
-          const savedFormStateString = getSortedFormStateString(JSON.parse(savedFormState));
-          const currentFormStateString = getSortedFormStateString(agent.toForm(null));
-          console.log(savedFormStateString);
-          console.log(currentFormStateString);
+            const compareForms =async (editableForm: Record<string, any>, savedForm: Record<string, any>) => {
+              const sortedSavedState = {}
+              const sortedEditableState = Object.keys(editableForm).sort().reduce((acc, key) => {
+                acc[key] = editableForm[key];
+                sortedSavedState[key] = savedForm[key];
+                return acc;
+              }, {});
 
-          const [savedFormStateHash, currentFormStateHash] = await Promise.all([
-            sha256(savedFormStateString, ''),
-            sha256(currentFormStateString, '')
-          ]);
+              console.log(1,sortedEditableState);
+              console.log(2, sortedSavedState);
 
-        console.log(savedFormStateHash, currentFormStateHash);
-        if (savedFormStateHash !== currentFormStateHash) {
-          setIsDirty(true);
-        } else {
-          setIsDirty(false);
-        }
-      })();
-    }
-    
+              const editableEntriesString = Object.entries(sortedEditableState).map(([key, value]) => `${key}:${value}`).join(',');
+              const savedEntriesString = Object.entries(sortedSavedState).map(([key, value]) => `${key}:${value}`).join(',');
+              const [editableEntriesHash, savedEntriesHash] = await Promise.all([
+                sha256(editableEntriesString, ''),
+                sha256(savedEntriesString, '')
+              ]);
+
+              console.log(agent);
+              console.log(editableEntriesHash);
+              console.log(savedEntriesHash);
+
+              return editableEntriesHash === savedEntriesHash;
+
+            };
+
+          const formChanged = !await compareForms(getValues(), agent.toForm(null)); 
+          if (formChanged) {
+            sessionStorage.setItem(`agent-${agent.id}`, JSON.stringify(getValues())); // save form values
+          } else {
+            sessionStorage.removeItem(`agent-${agent.id}`);
+          }
+          setIsDirty(formChanged);      
+        })();
+      });
+      const savedState = sessionStorage.getItem(`agent-${agent.id}`);
+      if (savedState) { // the form is dirty
+        const parsedState = JSON.parse(savedState);
+        Object.keys(parsedState).forEach((key) => {
+          setValue(key, parsedState[key]);
+        });
+      } else {
+        agent.toForm(setValue)
+      }
+    }   
   }, [agent, setValue]);
 
   const onSubmit = async (data: Record<string, any>) => {
@@ -64,7 +78,7 @@ export function onAgentSubmit(agent: Agent | null, watch, setValue, updateAgent:
     try {
       const response = await updateAgent(updatedAgent, true);
       toast.success(t('Agent updated successfully'));
-      clear(); // clear local storage
+      sessionStorage.removeItem(`agent-${updatedAgent.id}`);      
 
       router.push(`/agent/${response.id}/general`);
     } catch (e) {
@@ -83,11 +97,11 @@ export default function GeneralPage() {
   const router = useRouter();
   const { current: agent, updateAgent } = useAgentContext();
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
-  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, updateAgent, t, router);
+  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
    
   return (
     <div className="space-y-6">

@@ -42,33 +42,29 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     }        
 
     const updateAgent = async (agent:Agent, setAsCurrent: boolean = true): Promise<Agent> => {
-        try {
-            const client = await setupApiClient();
-            const agentDTO = agent.toDTO(); // DTOs are common ground between client and server
-            const newRecord = typeof agent?.id  === 'undefined' || agent.id === 'new';
 
-            if (newRecord) agentDTO.id = nanoid();
-            const response = await client.put(agentDTO);
+        const client = await setupApiClient();
+        const agentDTO = agent.toDTO(); // DTOs are common ground between client and server
+        const newRecord = typeof agent?.id  === 'undefined' || agent.id === 'new';
 
-            if (response.status !== 200) {
-                console.error('Error adding agent:', response.message);
-                toast.error(t('Error adding agent'));
+        if (newRecord) agentDTO.id = nanoid();
+        const response = await client.put(agentDTO);
 
-                return agent;
-            } else {
-                const updatedAgent = Object.assign(agent, { id: response.data.id });
-                setAgents(
-                    newRecord ? [...agents, updatedAgent] :
-                    agents.map(pr => pr.id === agent.id ?  agent : pr)
-                )
-                if (setAsCurrent) setCurrent(updatedAgent);
-                return updatedAgent;
-            }
-        } catch (error) {
-            console.error('Error adding folder record:', error);
-            toast.error(t('Error adding folder record'));
+        if (response.status !== 200) {
+            console.error('Error adding agent:', response.message);
+            toast.error(t('Error adding agent'));
+
             return agent;
+        } else {
+            const updatedAgent = Object.assign(agent, { id: response.data.id });
+            setAgents(
+                newRecord ? [...agents, updatedAgent] :
+                agents.map(pr => pr.id === agent.id ?  agent : pr)
+            )
+            if (setAsCurrent) setCurrent(updatedAgent);
+            return updatedAgent;
         }
+
     };
 
     const newAgent = (): Agent => {
