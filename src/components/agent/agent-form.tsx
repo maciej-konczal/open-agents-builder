@@ -1,61 +1,42 @@
 'use client'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useAgentContext } from '@/contexts/agent-context';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { nanoid } from 'nanoid';
 import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
+import { getCurrentTS } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import useFormPersist from 'react-hook-form-persist'
-import { sha256 } from '@/lib/crypto';
-import { boolean } from 'drizzle-orm/mysql-core';
 
 
-export function onAgentSubmit(agent: Agent | null, watch, setValue, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t, router) {
-  const { clear } = useFormPersist(`agent-general-${agent?.id}`, {
-    watch,
+export default function AgentForm({ props, children }: { props: any, children: React.ReactNode }) {
+
+
+  const { t } = useTranslation();
+  const router = useRouter();
+  const { current: agent, updateAgent } = useAgentContext();
+
+
+
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+  });  
+
+
+  const { clear } = useFormPersist(`agent-${agent?.id}`, {
+    watch, 
     setValue,
   });
 
-  const [isDirty, setIsDirty] = useState(false);
-
   useEffect(() => {
     if (agent) {
-      const savedFormState = sessionStorage.getItem(`agent-general-${agent.id}`);
-      console.log(agent.id)
-      console.log(savedFormState)
-      agent.toForm(setValue); // load the database values
-      (async () => {
-          const getSortedFormStateString = (formState: Record<string, any>) => {
-            const sortedFormState = Object.keys(formState).sort().reduce((acc, key) => {
-            acc[key] = formState[key];
-            return acc;
-            }, {});
-            return Object.entries(sortedFormState).map(([key, value]) => `${key}:${value}`).join(',');
-          };
-
-          const savedFormStateString = getSortedFormStateString(JSON.parse(savedFormState));
-          const currentFormStateString = getSortedFormStateString(agent.toForm(null));
-          console.log(savedFormStateString);
-          console.log(currentFormStateString);
-
-          const [savedFormStateHash, currentFormStateHash] = await Promise.all([
-            sha256(savedFormStateString, ''),
-            sha256(currentFormStateString, '')
-          ]);
-
-        console.log(savedFormStateHash, currentFormStateHash);
-        if (savedFormStateHash !== currentFormStateHash) {
-          setIsDirty(true);
-        } else {
-          setIsDirty(false);
-        }
-      })();
+      agent.toForm(setValue);
     }
-    
   }, [agent, setValue]);
 
   const onSubmit = async (data: Record<string, any>) => {
@@ -72,22 +53,6 @@ export function onAgentSubmit(agent: Agent | null, watch, setValue, updateAgent:
       toast.error(t('Failed to update agent'));
     }
   };
-  return { onSubmit, isDirty, setIsDirty }
-}
-
-
-export default function GeneralPage() {
-
-
-  const { t } = useTranslation();
-  const router = useRouter();
-  const { current: agent, updateAgent } = useAgentContext();
-
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
-    defaultValues: agent ? agent.toForm(null) : {},
-  });  
-
-  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, updateAgent, t, router);
    
   return (
     <div className="space-y-6">
@@ -171,10 +136,8 @@ export default function GeneralPage() {
         >
         {t('Save')}
         </Button>
-        {isDirty && <p className="mt-2 text-sm text-red-600">{t('You have unsaved changes')}</p>}
       </div>
       </form>
     </div>
   );
 }
-

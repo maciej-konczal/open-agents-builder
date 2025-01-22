@@ -1,56 +1,22 @@
 'use client'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useAgentContext } from '@/contexts/agent-context';
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { nanoid } from 'nanoid';
-import { Agent } from '@/data/client/models';
-import { toast } from 'sonner';
-import { getCurrentTS } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { onAgentSubmit } from '../general/page';
 
 export default function PromptPage() {
   const { t } = useTranslation();
-
   const router = useRouter();
   const { current: agent, updateAgent } = useAgentContext();
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
-    defaultValues: {
-      prompt: agent?.prompt || '',
-    },
-  });
 
-  useEffect(() => {
-    if (agent) {
-      if (agent?.id === 'new') {
-        toast.error(t('Please set the general info and save the agent first.'));
-        router.push(`/agent/new/general`);
-      }      
-      setValue('prompt', agent.prompt || '');
-    } else {
-      toast.error(t('Failed to load agent. Please set the general info and save the agent first.'));
-    }
-  }, [agent, setValue]);
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+    defaultValues: agent ? agent.toForm(null) : {},
+  });  
 
-  const onSubmit = async (data) => {
-    const updatedAgent = new Agent({
-      ...agent,
-      prompt: data.prompt || '',
-    } as Agent);
-
-    try {
-      console.log(updatedAgent)
-      const response = await updateAgent(updatedAgent, true);
-      toast.success(t('Agent saved successfully'));
-    } catch (e) {
-      console.error(e);
-      toast.error(t('Failed to update agent'));
-    }
-  };
+  const onSubmit = onAgentSubmit(agent, watch, setValue, updateAgent, t, router);
    
   return (
     <div className="space-y-6">

@@ -1,10 +1,8 @@
-import { AttachmentDTO, KeyACLDTO, KeyDTO, FolderDTO, RecordDTO, TermDTO, AgentDTO, SessionDTO } from "@/data/dto";
-import { z } from "zod";
+import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
-import { sha256 } from "@/lib/crypto";
-import { MessageEx } from "@/contexts/chat-context";
+import { Message } from "ai";
 
 
 export enum DataLoadingStatus {
@@ -254,6 +252,49 @@ export class Agent {
             updatedAt: this.updatedAt,
         };
     }
+
+
+    toForm(setValue: ((field: string, value: any) => void) | null = null): Record<string, any> {
+        const map: Record<string, any> = {
+            displayName: this?.displayName || '',
+            prompt: this?.prompt || '',
+            expectedResult: this?.expectedResult || '',
+            welcomeInfo: this?.options?.welcomeMessage || '',
+            termsConditions: this?.options?.termsAndConditions || '',
+            confirmTerms: this?.options?.mustConfirmTerms || false,
+            resultEmail: this?.options?.resultEmail || '',
+            collectUserInfo: this?.options?.collectUserEmail,
+        };
+        if (setValue !== null)
+        {
+            Object.keys(map).forEach((key) => {
+                setValue(key, map[key]);
+            });
+        }
+
+        return map;
+    }
+
+    static fromForm(data: Record<string, any>, agent?: Agent | null): Agent {
+        return new Agent({
+            ...agent,
+            id: agent?.id,
+            displayName: data.displayName ?? agent?.displayName,
+            expectedResult: data.expectedResult ?? agent?.expectedResult,
+            prompt: data.prompt ?? agent?.prompt,
+            createdAt: agent?.createdAt || getCurrentTS(),
+            updatedAt: getCurrentTS(),
+            options: {
+              ...agent?.options,
+              welcomeMessage: data.welcomeInfo ?? agent?.options?.welcomeMessage,
+              termsAndConditions: data.termsConditions ?? agent?.options?.termsAndConditions,
+              mustConfirmTerms: data.confirmTerms ?? agent?.options?.mustConfirmTerms,
+              resultEmail: data.resultEmail ?? agent?.options?.resultEmail,
+              collectUserEmail: data.collectUserInfo ?? agent?.options?.collectUserEmail,
+              collectUserName: data.collectUserInfo ?? agent?.options?.collectUserName
+            },
+          } as Agent);        
+    }
 }
 
 export type SessionUserInfo = {
@@ -265,7 +306,7 @@ export class Session {
     id: string;
     agentId: string;
     user?: SessionUserInfo | null;
-    messages?: [MessageEx] | null;
+    messages?: [Message] | null;
     result?: string | null;
     createdAt: string;
     updatedAt: string;

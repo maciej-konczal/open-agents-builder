@@ -18,9 +18,7 @@ interface AgentContextType {
     listAgents: (currentAgentId?:string) => Promise<Agent[]>;
     setCurrent: (agent: Agent | null) => void;
     setAgents: (agents: Agent[]) => void;
-    toForm: (agent: Agent | null, setValue: ((field: string, value: any) => void) | null) => Record<string, any>;
     loaderStatus: DataLoadingStatus;
-
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -118,26 +116,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         };        
     }
 
-    const toForm = (agent: Agent, setValue: ((field: string, value: any) => void) | null = null): Record<string, any> => {
-        const map: Record<string, any> = {
-            displayName: agent?.displayName || '',
-            prompt: agent?.prompt || '',
-            expectedResult: agent?.expectedResult || '',
-            welcomeInfo: agent?.options?.welcomeMessage || '',
-            termsConditions: agent?.options?.termsAndConditions || '',
-            confirmTerms: agent?.options?.mustConfirmTerms || false,
-            resultEmail: agent?.options?.resultEmail || '',
-            collectUserInfo: agent?.options?.collectUserEmail,
-        };
-        if (setValue !== null)
-        {
-            Object.keys(map).forEach((key) => {
-                setValue(key, map[key]);
-            });
-        }
 
-        return map;
-    }
 
 
     return (
@@ -149,8 +128,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 updateAgent,
                 listAgents,
                 newAgent,
-                loaderStatus,
-                toForm
+                loaderStatus
             }}>
             {children}
         </AgentContext.Provider>
