@@ -30,6 +30,16 @@ export function Chat() {
 
   useEffect(() => {
     if (chatContext.agent){
+      append({
+        id: nanoid(),
+        role: "user",
+        content: "Lets chat!"
+      }, {
+        headers: {
+          'Database-Id-Hash': chatContext.databaseIdHash,
+          'Agent-Id': chatContext.agent?.id ?? ''
+        }
+      })
     }
   }, [chatContext.agent]);
 
