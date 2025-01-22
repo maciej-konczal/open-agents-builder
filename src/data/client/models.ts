@@ -251,6 +251,7 @@ export class Agent {
 
     toForm(setValue: ((field: string, value: any) => void) | null = null): Record<string, any> {
         const map: Record<string, any> = {
+            id: this?.id || '',
             displayName: this?.displayName || '',
             prompt: this?.prompt || '',
             expectedResult: this?.expectedResult || '',
@@ -274,7 +275,7 @@ export class Agent {
     static fromForm(data: Record<string, any>, agent?: Agent | null): Agent {
         return new Agent({
             ...agent,
-            id: agent?.id,
+            id: data.id ?? agent?.id,
             displayName: data.displayName ?? agent?.displayName,
             expectedResult: data.expectedResult ?? agent?.expectedResult,
             safetyRules: data.safetyRules ?? agent?.safetyRules,

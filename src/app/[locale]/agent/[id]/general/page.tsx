@@ -21,10 +21,8 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
   useEffect(() => {
     if (agent) {
       //agent.toForm(setValue); // load the database values
-      watch((value) => {
+      const subscribeChanges = (agent: Agent) => watch((value) => {
         (async () => {
-          const savedFormState = sessionStorage.getItem(`agent-general-${agent.id}`);
-
             const compareForms =async (editableForm: Record<string, any>, savedForm: Record<string, any>) => {
               const sortedSavedState = {}
               const sortedEditableState = Object.keys(editableForm).sort().reduce((acc, key) => {
@@ -44,8 +42,8 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
               ]);
 
               console.log(agent);
-              console.log(editableEntriesHash);
-              console.log(savedEntriesHash);
+              console.log(editableEntriesString);
+              console.log(savedEntriesString);
 
               return editableEntriesHash === savedEntriesHash;
 
@@ -53,15 +51,18 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
 
           const formChanged = !await compareForms(getValues(), agent.toForm(null)); 
           if (formChanged) {
-            sessionStorage.setItem(`agent-${agent.id}`, JSON.stringify(getValues())); // save form values
+            sessionStorage.setItem(`agent-${value['id']}`, JSON.stringify(getValues())); // save form values
           } else {
-            sessionStorage.removeItem(`agent-${agent.id}`);
+            sessionStorage.removeItem(`agent-${value['id']}`);
           }
           setIsDirty(formChanged);      
         })();
       });
+      let subscription: { unsubscribe: () => void } = { unsubscribe: () => {} };
       const savedState = sessionStorage.getItem(`agent-${agent.id}`);
-      if (savedState) { // the form is dirty
+
+      subscription.unsubscribe();
+      if (savedState) { // the form is dirty - load state from session storage
         const parsedState = JSON.parse(savedState);
         Object.keys(parsedState).forEach((key) => {
           setValue(key, parsedState[key]);
@@ -69,8 +70,9 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
       } else {
         agent.toForm(setValue)
       }
+      subscription = subscribeChanges(agent);
     }   
-  }, [agent, setValue]);
+  }, [agent]);
 
   const onSubmit = async (data: Record<string, any>) => {
 
@@ -122,6 +124,7 @@ export default function GeneralPage() {
         <label htmlFor="displayName" className="block text-sm font-medium">
         {t('Agent Name')}
         </label>
+        <Input type='hidden' id="id" {...register('id')} />
         <Input
         type="text"
         id="displayName"

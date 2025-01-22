@@ -27,6 +27,7 @@ export default function GeneralPage() {
         <label htmlFor="expectedResult" className="block text-sm font-medium">
         {t('Expected result')}
         </label>
+        <Input type='hidden' id="id" {...register('id')} />
         <Textarea
         id="expectedResult"
         {...register('expectedResult', { required: t('Expected result is required') })}

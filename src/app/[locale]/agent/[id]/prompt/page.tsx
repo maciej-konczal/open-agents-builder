@@ -6,6 +6,7 @@ import { useAgentContext } from '@/contexts/agent-context';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
+import { Input } from '@/components/ui/input';
 
 export default function PromptPage() {
   const { t } = useTranslation();
@@ -25,6 +26,7 @@ export default function PromptPage() {
         <label htmlFor="prompt" className="block text-sm font-medium">
         {t('Agent prompt')}
         </label>
+        <Input type='hidden' id="id" {...register('id')} />
         <Textarea
         id="prompt"
         {...register('prompt', { required: t('Prompt is required') })}

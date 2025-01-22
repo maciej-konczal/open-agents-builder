@@ -27,6 +27,7 @@ export default function SafetyRulesPage() {
         <label htmlFor="safetyRules" className="block text-sm font-medium">
         {t('Safety rules')}
         </label>
+        <Input type='hidden' id="id" {...register('id')} />
         <Textarea
         id="safetyRules"
         {...register('safetyRules', { required: t('Safety Rules are required') })}
