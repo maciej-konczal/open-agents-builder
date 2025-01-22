@@ -1,3 +1,5 @@
+import { Agent } from '@/data/client/models';
+import { AgentDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
@@ -16,15 +18,15 @@ export async function POST(req: Request) {
 
   const repo = new ServerAgentRepository(datbaseIdHash);
 
-  const agent = await repo.findOne({
+  const agent = Agent.fromDTO(await repo.findOne({
     id: agentId
-  })
+  }) as AgentDTO);
 
   console.log('Agent:', agent);
   
   const result = streamText({
     model: openai('gpt-4o'),
-    system: 'You are a helpful assistant.',
+    system: 'You are a helpfull assistant gathering data. Ask one question after another. The topic is: ' + agent.prompt,
     messages,
   });
 
