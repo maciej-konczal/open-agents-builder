@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   const repo = new ServerAgentRepository(datbaseIdHash);
 
   const agent = Agent.fromDTO(await repo.findOne({
-    id: agentId
+    id: agentId // TODO: fix seearching as it always return the same record!
   }) as AgentDTO);
 
   console.log('Agent:', agent);
