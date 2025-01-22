@@ -8,60 +8,58 @@ import { useEffect, useState } from 'react';
 import { useForm, UseFormGetValues, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import useFormPersist from 'react-hook-form-persist'
 import { sha256 } from '@/lib/crypto';
 import { boolean } from 'drizzle-orm/mysql-core';
 import { TFunction } from 'i18next';
+import { dir } from 'console';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance) {
   const [isDirty, setIsDirty] = useState(false);
+  const params = useParams();
+  const agentContext = useAgentContext();
 
   useEffect(() => {
-    if (agent) {
+    if (agent && agent.id === params.id) { // bind the tracking changes only for the currently selected agent
       //agent.toForm(setValue); // load the database values
-      const subscribeChanges = (agent: Agent) => watch((value) => {
-        (async () => {
-            const compareForms =async (editableForm: Record<string, any>, savedForm: Record<string, any>) => {
-              const sortedSavedState = {}
-              const sortedEditableState = Object.keys(editableForm).sort().reduce((acc, key) => {
-                acc[key] = editableForm[key];
-                sortedSavedState[key] = savedForm[key];
-                return acc;
-              }, {});
+        const dirtyCheck = (async (originalRecord: Record<string, any>, value: Record<string, any>) => {
+          const compareForms =async (editableForm: Record<string, any>, savedForm: Record<string, any>) => {
+            const sortedSavedState:Record<string, any> = {}
+            const sortedEditableState = Object.keys(editableForm).sort().reduce((acc: Record<string, any>, key: string) => {
+              acc[key] = editableForm[key];
+              sortedSavedState[key] = savedForm[key];
+              return acc;
+            }, {});
 
-              console.log(1,sortedEditableState);
-              console.log(2, sortedSavedState);
+            const editableEntriesString = Object.entries(sortedEditableState).map(([key, value]) => `${key}:${value}`).join(',');
+            const savedEntriesString = Object.entries(sortedSavedState).map(([key, value]) => `${key}:${value}`).join(',');
+            const [editableEntriesHash, savedEntriesHash] = await Promise.all([
+              sha256(editableEntriesString, ''),
+              sha256(savedEntriesString, '')
+            ]);
 
-              const editableEntriesString = Object.entries(sortedEditableState).map(([key, value]) => `${key}:${value}`).join(',');
-              const savedEntriesString = Object.entries(sortedSavedState).map(([key, value]) => `${key}:${value}`).join(',');
-              const [editableEntriesHash, savedEntriesHash] = await Promise.all([
-                sha256(editableEntriesString, ''),
-                sha256(savedEntriesString, '')
-              ]);
+            return editableEntriesHash === savedEntriesHash;
+          };
 
-              console.log(agent);
-              console.log(editableEntriesString);
-              console.log(savedEntriesString);
+        const formChanged = !await compareForms(getValues(), originalRecord); 
+        if (formChanged) {
+          sessionStorage.setItem(`agent-${value['id']}`, JSON.stringify(getValues())); // save form values
+        } else {
+          sessionStorage.removeItem(`agent-${value['id']}`);
+        }
+        setIsDirty(formChanged);      
+      })
 
-              return editableEntriesHash === savedEntriesHash;
+      const subscribeChanges = (originalRecord: Record<string, any>) => {
+        dirtyCheck(originalRecord, getValues());
+          return watch((value) => {
+            dirtyCheck(originalRecord, value);
+          });
+      };
 
-            };
-
-          const formChanged = !await compareForms(getValues(), agent.toForm(null)); 
-          if (formChanged) {
-            sessionStorage.setItem(`agent-${value['id']}`, JSON.stringify(getValues())); // save form values
-          } else {
-            sessionStorage.removeItem(`agent-${value['id']}`);
-          }
-          setIsDirty(formChanged);      
-        })();
-      });
-      let subscription: { unsubscribe: () => void } = { unsubscribe: () => {} };
       const savedState = sessionStorage.getItem(`agent-${agent.id}`);
-
-      subscription.unsubscribe();
       if (savedState) { // the form is dirty - load state from session storage
         const parsedState = JSON.parse(savedState);
         Object.keys(parsedState).forEach((key) => {
@@ -70,7 +68,8 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
       } else {
         agent.toForm(setValue)
       }
-      subscription = subscribeChanges(agent);
+      subscribeChanges(agent.toForm(null));
+
     }   
   }, [agent]);
 
