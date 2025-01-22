@@ -24,7 +24,7 @@ export default function GeneralPage() {
 
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
-    defaultValues: toForm(agent)
+    defaultValues: toForm(agent, null)
   });  
 
 
