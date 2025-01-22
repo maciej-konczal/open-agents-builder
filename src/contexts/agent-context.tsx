@@ -9,6 +9,11 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 
+export type AgentStatusType = {
+    id: string;
+    message: string;
+    type: string;
+}
 
 interface AgentContextType {
     current: Agent | null;
@@ -19,6 +24,10 @@ interface AgentContextType {
     setCurrent: (agent: Agent | null) => void;
     setAgents: (agents: Agent[]) => void;
     loaderStatus: DataLoadingStatus;
+    status: AgentStatusType | null
+    setStatus: (status: AgentStatusType | null) => void;
+    removeStatus (id: string): void;
+
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -31,6 +40,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
+
+
+    const [status, setStatus] = useState<AgentStatusType | null>(null);
 
     const setupApiClient = async () => {
         const encryptionConfig: ApiEncryptionConfig = {
@@ -71,7 +83,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         return new Agent(
             {
                 id: 'new',
-                displayName: ('Add new agent ...'),
+                displayName: t('Add new agent ...'),
                 prompt: '',
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
@@ -83,6 +95,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const listAgents = async (currentAgentId?:string): Promise<Agent[]> => {
+        setStatus(null);
         const client = await setupApiClient();
         setLoaderStatus(DataLoadingStatus.Loading);
         try {
@@ -109,10 +122,16 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         } catch(error) {
             setLoaderStatus(DataLoadingStatus.Error);
             throw (error)
-        };        
+        }; 
+
+
     }
 
-
+    const removeStatus = (id: string) => {  
+        if (status?.id === id) {
+            setStatus(null);
+        }
+    }
 
 
     return (
@@ -124,7 +143,10 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 updateAgent,
                 listAgents,
                 newAgent,
-                loaderStatus
+                loaderStatus,
+                status,
+                setStatus,
+                removeStatus
             }}>
             {children}
         </AgentContext.Provider>

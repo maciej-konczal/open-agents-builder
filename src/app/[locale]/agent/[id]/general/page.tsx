@@ -9,11 +9,9 @@ import { useForm, UseFormGetValues, UseFormSetValue, UseFormWatch } from 'react-
 import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
 import { useParams, useRouter } from 'next/navigation';
-import useFormPersist from 'react-hook-form-persist'
 import { sha256 } from '@/lib/crypto';
-import { boolean } from 'drizzle-orm/mysql-core';
 import { TFunction } from 'i18next';
-import { dir } from 'console';
+import { AgentStatus } from '@/components/layout/agent-status';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance) {
@@ -49,7 +47,7 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
         } else {
           sessionStorage.removeItem(`agent-${value['id']}`);
         }
-        setIsDirty(formChanged);      
+        setIsDirty(formChanged);
       })
 
       const subscribeChanges = (originalRecord: Record<string, any>) => {
@@ -80,18 +78,36 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
     if (!updatedAgent.prompt) {
       router.push(`/agent/${updatedAgent.id}/prompt`);
       toast.error(t('Prompt is required'));
+      agentContext.setStatus({
+        id: 'prompt-required',
+        message: t('Prompt is required'),
+        type: 'error'
+      });
       return;
     }
     if (!updatedAgent.expectedResult) {
       router.push(`/agent/${updatedAgent.id}/expected-result`);
       toast.error(t('Expected result is required'));
+      agentContext.setStatus({
+        id: 'expected-result-required',
+        message: t('Expected result is required'),
+        type: 'error'
+      });      
       return;
     }
 
     try {
       const response = await updateAgent(updatedAgent, true);
       toast.success(t('Agent updated successfully'));
-      sessionStorage.removeItem(`agent-${updatedAgent.id}`);      
+      agentContext.setStatus({
+        id: 'agent-updated',
+        message: t('Agent updated successfully'),
+        type: 'success'
+      });
+      if (newAgent)
+        sessionStorage.removeItem(`agent-new`);
+      else
+        sessionStorage.removeItem(`agent-${updatedAgent.id}`);
 
       if (newAgent) router.push(`/agent/${response.id}/general`);
     } catch (e) {
@@ -108,16 +124,26 @@ export default function GeneralPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
-  const { current: agent, updateAgent } = useAgentContext();
+  const { setStatus, removeStatus, current: agent, updateAgent } = useAgentContext();
 
   const { register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
+
+  useEffect(() => {
+    if (isDirty) {
+      setStatus({ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' });
+    } else  {
+      removeStatus('dirty');
+    }
+  }, [isDirty]);
    
   return (
     <div className="space-y-6">
+      <AgentStatus />
+
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="displayName" className="block text-sm font-medium">
@@ -199,7 +225,6 @@ export default function GeneralPage() {
         >
         {t('Save')}
         </Button>
-        {isDirty && <p className="mt-2 text-sm text-red-600">{t('You have unsaved changes')}</p>}
       </div>
       </form>
     </div>

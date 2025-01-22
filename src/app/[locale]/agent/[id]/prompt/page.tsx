@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { Input } from '@/components/ui/input';
+import { AgentStatus } from '@/components/layout/agent-status';
 
 export default function PromptPage() {
   const { t } = useTranslation();
@@ -21,6 +22,8 @@ export default function PromptPage() {
    
   return (
     <div className="space-y-6">
+      <AgentStatus />
+      
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="prompt" className="block text-sm font-medium">
@@ -42,7 +45,6 @@ export default function PromptPage() {
         >
         {t('Save')}
         </Button>
-        {isDirty && <p className="mt-2 text-sm text-red-600">{t('You have unsaved changes')}</p>}
       </div>
       </form>
     </div>

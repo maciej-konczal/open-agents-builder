@@ -7,6 +7,7 @@ import { useAgentContext } from '@/contexts/agent-context';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
+import { AgentStatus } from '@/components/layout/agent-status';
 
 export default function SafetyRulesPage() {
 
@@ -22,6 +23,8 @@ export default function SafetyRulesPage() {
    
   return (
     <div className="space-y-6">
+      <AgentStatus />
+      
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="safetyRules" className="block text-sm font-medium">
@@ -43,7 +46,6 @@ export default function SafetyRulesPage() {
         >
         {t('Save')}
         </Button>
-        {isDirty && <p className="mt-2 text-sm text-red-600">{t('You have unsaved changes')}</p>}
       </div>
       </form>
     </div>
