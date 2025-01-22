@@ -12,6 +12,7 @@ import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
 import { getCurrentTS } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import useFormPersist from 'react-hook-form-persist'
 
 export default function GeneralPage() {
 
@@ -21,7 +22,7 @@ export default function GeneralPage() {
   const { current: agent, updateAgent } = useAgentContext();
 
 
-  const { register, handleSubmit, setValue, getValues, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
     defaultValues: {
       displayName: agent?.displayName || '',
       welcomeInfo: agent?.options?.welcomeMessage || '',
@@ -31,6 +32,12 @@ export default function GeneralPage() {
       collectUserInfo: agent?.options?.collectUserEmail || false,
     },
   });  
+
+
+  const { clear } = useFormPersist("agent-general", {
+    watch, 
+    setValue
+  });
 
   useEffect(() => {
     if (agent) {

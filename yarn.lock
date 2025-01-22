@@ -7303,6 +7303,11 @@ react-easy-sort@^1.6.0:
     array-move "^3.0.1"
     tslib "2.0.1"
 
+react-hook-form-persist@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-hook-form-persist/-/react-hook-form-persist-3.0.0.tgz#4aa1f7150d3f836408240cbfbfdb0fe4842f31a2"
+  integrity sha512-6nwW65JyFpBem9RjLYAWvIFxOLoCk0E13iB9e5yeF5jeHlwx1ua0M77FvwhPpD8eaCz7hG4ziCdOxRcnJVUSxQ==
+
 react-hook-form@^7.52.0:
   version "7.53.2"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.53.2.tgz#6fa37ae27330af81089baadd7f322cc987b8e2ac"
