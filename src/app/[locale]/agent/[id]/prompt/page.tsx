@@ -12,11 +12,11 @@ export default function PromptPage() {
   const router = useRouter();
   const { current: agent, updateAgent } = useAgentContext();
 
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
-  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, updateAgent, t, router);
+  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
    
   return (
     <div className="space-y-6">
@@ -40,6 +40,7 @@ export default function PromptPage() {
         >
         {t('Save')}
         </Button>
+        {isDirty && <p className="mt-2 text-sm text-red-600">{t('You have unsaved changes')}</p>}
       </div>
       </form>
     </div>

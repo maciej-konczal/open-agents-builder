@@ -207,11 +207,6 @@ export type AgentOptions = {
     collectUserName: boolean;
 }
 
-export type AgentSafetyRules = [
-    {
-        rule: string;
-    }
-]
 
 export class Agent {
     id?: string;
@@ -219,7 +214,7 @@ export class Agent {
     options?: AgentOptions | null;
     prompt?: string;
     expectedResult?: string;
-    safetyRules?: AgentSafetyRules | null;
+    safetyRules?: string;
     createdAt: string;
     updatedAt: string;
 
@@ -230,7 +225,7 @@ export class Agent {
 
         this.prompt = agentDTO.prompt;
         this.expectedResult = agentDTO.expectedResult ?? undefined;
-        this.safetyRules = typeof agentDTO.safetyRules === 'string' ? JSON.parse(agentDTO.safetyRules as string) :  agentDTO.safetyRules;
+        this.safetyRules = agentDTO.safetyRules ?? undefined;
 
         this.createdAt = agentDTO.createdAt;
         this.updatedAt = agentDTO.updatedAt;
@@ -247,7 +242,7 @@ export class Agent {
             options: JSON.stringify(this.options),
             prompt: this.prompt,
             expectedResult: this.expectedResult,
-            safetyRules: JSON.stringify(this.safetyRules),
+            safetyRules: this.safetyRules,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };
@@ -259,6 +254,7 @@ export class Agent {
             displayName: this?.displayName || '',
             prompt: this?.prompt || '',
             expectedResult: this?.expectedResult || '',
+            safetyRules: this?.safetyRules || '',
             welcomeInfo: this?.options?.welcomeMessage || '',
             termsConditions: this?.options?.termsAndConditions || '',
             confirmTerms: this?.options?.mustConfirmTerms || false,
@@ -281,6 +277,7 @@ export class Agent {
             id: agent?.id,
             displayName: data.displayName ?? agent?.displayName,
             expectedResult: data.expectedResult ?? agent?.expectedResult,
+            safetyRules: data.safetyRules ?? agent?.safetyRules,
             prompt: data.prompt ?? agent?.prompt,
             createdAt: agent?.createdAt || getCurrentTS(),
             updatedAt: getCurrentTS(),

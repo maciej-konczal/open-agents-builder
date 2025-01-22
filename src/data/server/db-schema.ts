@@ -15,7 +15,7 @@ export const agents = sqliteTable('agents', {
     options: text('options', { mode: 'json' }),
     prompt: text('prompt').notNull(),
     expectedResult: text('expectedResult'),
-    safetyRules: text('safetyRules', { mode: 'json' }),
+    safetyRules: text('safetyRules'),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 }); 
