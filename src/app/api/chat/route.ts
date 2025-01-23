@@ -15,8 +15,6 @@ export async function POST(req: Request) {
   const agentId = req.headers.get('Agent-Id');
   const locale = req.headers.get('Agent-Locale') || 'en';
 
-  console.log(req.headers)
-
   if(!datbaseIdHash || !agentId) {
     return Response.json('The required HTTP headers: Database-Id-Hash and Agent-Id missing', { status: 400 });
   }
@@ -28,16 +26,11 @@ export async function POST(req: Request) {
   }) as AgentDTO);
 
   const systemPrompt = await renderPrompt(locale, 'survey-agent', { agent });
-  console.log(systemPrompt);
-  console.log('Agent:', agent);
-
   messages.unshift( {
     role: 'system',
     content: systemPrompt
   })
 
-  console.log(messages);
-  
   const result = streamText({
     model: openai('gpt-4o'),
     messages,

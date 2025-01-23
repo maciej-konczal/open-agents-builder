@@ -20,7 +20,6 @@ export default class ServerAgentRepository extends BaseRepository<AgentDTO> {
         if (!existingRecord) {
             existingRecord = await this.create(item);
        } else {
-        console.log(item);
             existingRecord = item
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
             db.update(agents).set(existingRecord).where(eq(agents.id, query.id)).run();
@@ -41,8 +40,6 @@ export default class ServerAgentRepository extends BaseRepository<AgentDTO> {
                 dbQuery.where(eq(agents.id, query.filter['id'] as string));
             }
         }
-        console.log(query);
-        console.log(dbQuery.all());             
         return Promise.resolve(dbQuery.all() as AgentDTO[])
     }
 }
