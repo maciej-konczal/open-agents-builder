@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState, useTransition } from "react"
 import { useChat } from "ai/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -16,6 +16,7 @@ export function Chat() {
   })
 
   const chatContext = useChatContext();
+  const i18n = useTransition();
 
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
 
@@ -37,7 +38,8 @@ export function Chat() {
       }, {
         headers: {
           'Database-Id-Hash': chatContext.databaseIdHash,
-          'Agent-Id': chatContext.agent?.id ?? ''
+          'Agent-Id': chatContext.agent?.id ?? '',
+          'Agent-Locale': chatContext.locale
         }
       })
     }
@@ -46,7 +48,7 @@ export function Chat() {
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>Chat with AI</CardTitle>
+        <CardTitle>{chatContext.agent?.displayName}</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[60vh] pr-4">
@@ -74,7 +76,8 @@ export function Chat() {
           handleSubmit(e, {
             headers: {
               'Database-Id-Hash': chatContext.databaseIdHash,
-              'Agent-Id': chatContext.agent?.id ?? ''
+              'Agent-Id': chatContext.agent?.id ?? '',
+              'Agent-Locale': chatContext.locale
             }
           })
         }} className="flex w-full space-x-2">

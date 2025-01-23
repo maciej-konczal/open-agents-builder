@@ -6,9 +6,10 @@ import { ChatApiClient } from '@/data/client/chat-api-client';
 
 interface ChatContextType {
     databaseIdHash: string;
+    locale: string;
     setDatabaseIdHash: (databaseIdHash: string) => void;
     agent: Agent | null;
-    init: (id: string, databaseIdHash: string) => Promise<Agent>;
+    init: (id: string, databaseIdHash: string, locale: string) => Promise<Agent>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -16,11 +17,13 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [agent, setAgent] = useState<Agent | null>(null);
     const [databaseIdHash, setDatabaseIdHash] = useState<string>('');
+    const [locale, setLocale] = useState<string>('en');
     const { t } = useTranslation();
 
-    const init = async (id: string, databaseIdHash: string): Promise<Agent> => {
+    const init = async (id: string, databaseIdHash: string, locale: string): Promise<Agent> => {
         const client = new ChatApiClient(databaseIdHash);
         setDatabaseIdHash(databaseIdHash);
+        setLocale(locale);
 
         const dto = await client.agent(id);
         const agt = Agent.fromDTO(dto);
@@ -30,6 +33,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     return (
         <ChatContext.Provider value={{ 
             agent,
+            locale,
             init,
             databaseIdHash,
             setDatabaseIdHash

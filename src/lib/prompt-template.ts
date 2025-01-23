@@ -254,14 +254,16 @@ function renderTemplate(
  *      app root + '/prompts/' + localeName + '/' + promptName + '.md'
  *    and then render it using our extended templating system.
  */
-export async function loadAndRenderPrompt(
+export async function renderPrompt(
   localeName: string,
   promptName: string,
   context: any = {},
   customFilters: Record<string, (arg: any) => string> = {}
 ): Promise<string> {
+  console.log(localeName, promptName);
   const filePath = path.join(
-    process.cwd(), // or your app root logic
+    __dirname, // or your app root logic
+    '..',
     'prompts',
     localeName,
     `${promptName}.md`
