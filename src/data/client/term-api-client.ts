@@ -1,7 +1,7 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { TermDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
+import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { ZodIssue } from "zod";
 
 export type PutTermRequest = TermDTO;
@@ -20,7 +20,7 @@ export type PutTermResponseError = {
 
 export type PutTermResponse = PutTermResponseSuccess | PutTermResponseError;
 
-export class TermApiClient extends ApiClient {
+export class TermApiClient extends AdminApiClient {
     constructor(baseUrl: string, dbContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
       super(baseUrl, dbContext, saasContext, encryptionConfig);
     }

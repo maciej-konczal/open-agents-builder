@@ -1,4 +1,4 @@
-import { ApiEncryptionConfig } from '@/data/client/base-api-client';
+import { ApiEncryptionConfig } from '@/data/client/admin-api-client';
 import { Agent, DataLoadingStatus } from '@/data/client/models';
 import { AgentDTO } from '@/data/dto';
 import React, { createContext, useState, useContext, ReactNode } from 'react';

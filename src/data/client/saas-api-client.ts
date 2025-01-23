@@ -1,6 +1,6 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSDTO, TermDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
+import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { ZodIssue } from "zod";
 
 export type GetSaaSResponseSuccess = {
@@ -17,7 +17,7 @@ export type GetSaaSResponseError = {
 
 export type GetSaasResponse = GetSaaSResponseSuccess | GetSaaSResponseError;
 
-export class SaasApiClient extends ApiClient {
+export class SaasApiClient extends AdminApiClient {
     constructor(baseUrl: string, dbContext?: DatabaseContextType | null, encryptionConfig?: ApiEncryptionConfig) {
       super(baseUrl, dbContext, null, encryptionConfig);
     }

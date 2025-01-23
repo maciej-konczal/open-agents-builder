@@ -1,4 +1,4 @@
-import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
+import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { SessionDTO, SessionDTOEncSettings } from "../dto";
 import { DatabaseContextType } from "@/contexts/db-context";
@@ -26,7 +26,7 @@ export type PutSessionResponseError = {
 export type PutSessionResponse = PutSessionResponseSuccess | PutSessionResponseError;
 
 
-export class SessionApiClient extends ApiClient {
+export class SessionApiClient extends AdminApiClient {
     constructor(baseUrl: string, dbContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
       super(baseUrl, dbContext, saasContext, encryptionConfig);
     }

@@ -1,6 +1,6 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { StatDTO, AggregatedStatsDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
+import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
 
 export type AggregateStatRequest = StatDTO;
@@ -34,7 +34,7 @@ export type AggregatedStatsResponseError = {
 export type AggregateStatResponse = AggregateStatResponseSuccess | AggregateStatResponseError;
 export type AggregatedStatsResponse = AggregatedStatsResponseSuccess | AggregatedStatsResponseError;
 
-export class StatApiClient extends ApiClient {
+export class StatApiClient extends AdminApiClient {
     constructor(baseUrl: string, dbContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
       super(baseUrl, dbContext, saasContext, encryptionConfig);
     }

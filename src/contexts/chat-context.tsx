@@ -1,13 +1,6 @@
-import { ApiEncryptionConfig } from '@/data/client/base-api-client';
-import { Agent, DataLoadingStatus } from '@/data/client/models';
-import { AgentDTO } from '@/data/dto';
+import { Agent } from '@/data/client/models';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { DatabaseContext } from './db-context';
-import { AgentApiClient } from '@/data/client/agent-api-client';
-import { SaaSContext } from './saas-context';
-import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
-import { nanoid } from 'nanoid';
 import { ChatApiClient } from '@/data/client/chat-api-client';
 
 
@@ -28,7 +21,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const init = async (id: string, databaseIdHash: string): Promise<Agent> => {
         const client = new ChatApiClient(databaseIdHash);
         setDatabaseIdHash(databaseIdHash);
-        
+
         const dto = await client.agent(id);
         const agt = Agent.fromDTO(dto);
         setAgent(agt);

@@ -1,5 +1,5 @@
 'use client'
-import { ApiEncryptionConfig } from '@/data/client/base-api-client';
+import { ApiEncryptionConfig } from '@/data/client/admin-api-client';
 import { ConfigApiClient } from '@/data/client/config-api-client';
 import { getCurrentTS } from '@/lib/utils';
 import { useEffectOnce } from 'react-use';

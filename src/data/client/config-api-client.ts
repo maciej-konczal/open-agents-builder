@@ -1,6 +1,6 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { ConfigDTO, ConfigDTOEncSettings } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
+import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
 
 export type PutConfigRequest = ConfigDTO;
@@ -19,7 +19,7 @@ export type PutConfigResponseError = {
 
 export type PutConfigResponse = PutConfigResponseSuccess | PutConfigResponseError;
 
-export class ConfigApiClient extends ApiClient {
+export class ConfigApiClient extends AdminApiClient {
     constructor(baseUrl: string, dbContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
       super(baseUrl, dbContext, saasContext, encryptionConfig);
     }

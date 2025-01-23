@@ -1,4 +1,4 @@
-import { ApiClient } from "@/data/client/base-api-client";
+import { AdminApiClient } from "@/data/client/admin-api-client";
 import { GetSaasResponse, GetSaaSResponseSuccess } from "../client/saas-api-client";
 import { StatDTO } from "../dto";
 
@@ -21,7 +21,7 @@ const qr = (databaseIdHash?: string|null, apiKey?: string|null) => {
 
     return '';
 }
-export class PlatformApiClient extends ApiClient {
+export class PlatformApiClient extends AdminApiClient {
     apiKey: string;
     constructor(saasToken: string) {
         const saasPlatformUrl = process.env.SAAS_PLATFORM_URL || 'http://localhost:3001'

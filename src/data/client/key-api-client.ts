@@ -1,7 +1,7 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { ConfigDTO, ConfigDTOEncSettings, KeyDTO } from "../dto";
-import { ApiClient, ApiEncryptionConfig } from "./base-api-client";
+import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { ZodIssue } from "zod";
 
 export type PutKeyRequest = KeyDTO;
@@ -20,7 +20,7 @@ export type PutKeyResponseError = {
 
 export type PutKeyResponse = PutKeyResponseSuccess | PutKeyResponseError;
 
-export class KeyApiClient extends ApiClient {
+export class KeyApiClient extends AdminApiClient {
     constructor(baseUrl: string, dbContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
       super(baseUrl, dbContext, saasContext, encryptionConfig);
     }

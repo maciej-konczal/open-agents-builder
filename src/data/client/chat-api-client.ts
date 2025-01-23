@@ -1,5 +1,5 @@
-import { ApiClient } from "./base-api-client";
-import { AgentDTO, AgentDTOEncSettings } from "../dto";
+import { BaseApiClient } from "./base-api-client";
+import { AgentDTO } from "../dto";
 
 export type GetAgentsResponse = AgentDTO;
 export type PutAgentRequest = AgentDTO;
@@ -24,14 +24,12 @@ export type PutAgentResponseError = {
 export type PutAgentResponse = PutAgentResponseSuccess | PutAgentResponseError;
 
 
-export class ChatApiClient extends ApiClient {
+export class ChatApiClient extends BaseApiClient {
     constructor(databaseIdHash: string, baseUrl?: string) {
-      super(baseUrl, null, null, { useEncryption: false });
-      this.setDatabaseIdHash(databaseIdHash);
+      super(baseUrl, databaseIdHash);
     }
-  
     async agent(agentId:string): Promise<GetAgentsResponse> {
-      return await (this.simpleRequest<GetAgentsResponse>('/api/chat/agent/' + encodeURIComponent(agentId) , 'GET') as Promise<GetAgentsResponse>);
+      return await (this.request<GetAgentsResponse>('/api/chat/agent/' + encodeURIComponent(agentId) , 'GET') as Promise<GetAgentsResponse>);
     }
   
 }
