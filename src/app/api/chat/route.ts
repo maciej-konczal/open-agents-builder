@@ -1,8 +1,10 @@
 import { Agent } from '@/data/client/models';
 import { AgentDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
+import { renderPrompt } from '@/lib/prompt-template';
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
+import i18next from 'i18next';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -22,11 +24,13 @@ export async function POST(req: Request) {
     id: agentId // TODO: fix seearching as it always return the same record!
   }) as AgentDTO);
 
+  const systemPrompt = await renderPrompt(i18next.language, 'survey-agent', { agent });
+  console.log(systemPrompt);
   console.log('Agent:', agent);
   
   const result = streamText({
     model: openai('gpt-4o'),
-    system: 'You are a helpfull assistant gathering data. Ask one question after another. The topic is: ' + agent.prompt,
+    system: systemPrompt,
     messages,
   });
 
