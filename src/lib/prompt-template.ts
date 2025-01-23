@@ -262,8 +262,8 @@ export async function renderPrompt(
 ): Promise<string> {
   console.log(localeName, promptName);
   const filePath = path.join(
-    __dirname, // or your app root logic
-    '..',
+    process.cwd(), // or your app root logic
+    'src',
     'prompts',
     localeName,
     `${promptName}.md`

@@ -9,6 +9,9 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { useChatContext } from "@/contexts/chat-context"
 import { nanoid } from "nanoid"
 import Markdown from "react-markdown"
+import { useTranslation } from "react-i18next"
+import styles from './chat.module.css';
+
 
 export function Chat() {
   const { messages, append, input, setMessages, handleInputChange, handleSubmit, isLoading } = useChat({
@@ -16,7 +19,7 @@ export function Chat() {
   })
 
   const chatContext = useChatContext();
-  const i18n = useTransition();
+  const { t } = useTranslation();
 
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
 
@@ -34,7 +37,7 @@ export function Chat() {
       append({
         id: nanoid(),
         role: "user",
-        content: "Lets chat!"
+        content: t("Lets chat")
       }, {
         headers: {
           'Database-Id-Hash': chatContext.databaseIdHash,
@@ -52,6 +55,14 @@ export function Chat() {
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[60vh] pr-4">
+          <div key='welcomer-message' className={`mb-4 text-left`}>
+                <span
+                  className={`inline-block p-2 rounded-lg bg-muted`}
+                >
+                  <Markdown className={styles.markdown}>{chatContext.agent?.options?.welcomeMessage}</Markdown>
+                </span>
+              </div>
+
           {messages.map((m) => (
               <div key={m.id} className={`mb-4 ${m.role === "user" ? "text-right" : "text-left"}`}>
                 <span
@@ -59,7 +70,7 @@ export function Chat() {
                     m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                   }`}
                 >
-                  <Markdown>{m.content}</Markdown>
+                  <Markdown className={styles.markdown}>{m.content}</Markdown>
                 </span>
               </div>
           ))}
