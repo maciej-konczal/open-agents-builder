@@ -13,7 +13,7 @@ export default function SafetyRulesPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
-  const { current: agent, updateAgent } = useAgentContext();
+  const { current: agent, status, updateAgent } = useAgentContext();
 
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
@@ -23,8 +23,12 @@ export default function SafetyRulesPage() {
    
   return (
     <div className="space-y-6">
-      <AgentStatus />
-      
+      { isDirty ? (
+        <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
+      ) : (
+      <AgentStatus status={status} />
+      ) }
+            
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>
         <label htmlFor="safetyRules" className="block text-sm font-medium">

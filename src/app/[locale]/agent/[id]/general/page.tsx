@@ -124,7 +124,7 @@ export default function GeneralPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
-  const { setStatus, removeStatus, current: agent, updateAgent } = useAgentContext();
+  const { setStatus, status, removeStatus, current: agent, updateAgent } = useAgentContext();
 
   const { register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
@@ -142,7 +142,11 @@ export default function GeneralPage() {
    
   return (
     <div className="space-y-6">
-      <AgentStatus />
+      { isDirty ? (
+        <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
+      ) : (
+      <AgentStatus status={status} />
+      ) }
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
       <div>

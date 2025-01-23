@@ -3,8 +3,9 @@ import { AgentDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import { renderPrompt } from '@/lib/prompt-template';
 import { openai } from '@ai-sdk/openai';
-import { CoreMessage, Message, streamText } from 'ai';
+import { CoreMessage, Message, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
+import { z } from 'zod';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -33,6 +34,21 @@ export async function POST(req: Request) {
 
   const result = streamText({
     model: openai('gpt-4o'),
+    tools: {
+      saveResults: tool({
+        description: 'Save results',
+        parameters: z.object({
+          result: z.string().describe('The inquiry results - in different formats (requested by the user - could be JSON, markdown, text etc.)'),
+        }),
+        execute: async ({ result }) => {
+
+          console.log(result);
+
+          return 'Results saved!';
+
+        },
+      }),
+    },
     messages,
   });
 
