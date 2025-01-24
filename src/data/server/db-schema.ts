@@ -31,9 +31,8 @@ export const sessions = sqliteTable('sessions', {
 }); 
 
 export const results = sqliteTable('results', {
-    id: text('id').primaryKey(),   
     agentId: text('agentId').references(() => agents.id),
-    sessionId: text('sessionId').references(() => sessions.id),
+    sessionId: text('sessionId').references(() => sessions.id).primaryKey(),
     user: text('user', { mode: 'json' }),
     result: text('result'),
     format: text('format'),

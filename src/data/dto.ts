@@ -219,11 +219,11 @@ export const SessionDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [
 
 
 export const resultDTOSchema = z.object({
-  id: z.string().min(1),
   agentId: z.string().min(1),
   sessionId: z.string().min(1),
   user: z.string().optional().nullable(),
   result: z.string().optional().nullable(),
+  format: z.string().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),
   finalizedAt: z.string().optional().nullable(),

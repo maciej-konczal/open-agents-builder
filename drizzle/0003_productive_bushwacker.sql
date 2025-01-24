@@ -14,9 +14,8 @@ CREATE TABLE `attachments` (
 );
 --> statement-breakpoint
 CREATE TABLE `results` (
-	`id` text PRIMARY KEY NOT NULL,
 	`agentId` text,
-	`sessionId` text,
+	`sessionId` text PRIMARY KEY NOT NULL,
 	`user` text,
 	`result` text,
 	`format` text,

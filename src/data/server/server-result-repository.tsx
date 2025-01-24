@@ -15,7 +15,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
     // update folder
     async upsert(query:Record<string, any>, item: ResultDTO): Promise<ResultDTO> { 
         const db = (await this.db());       
-        let existingRecord:ResultDTO | null = query.id ? db.select().from(results).where(eq(results.id, query.id)).get() as ResultDTO : null
+        let existingRecord:ResultDTO | null = query.id ? db.select().from(results).where(eq(results.sessionId, query.sessionId)).get() as ResultDTO : null
         if (!existingRecord) {
             existingRecord = await this.create(item);
        } else {
