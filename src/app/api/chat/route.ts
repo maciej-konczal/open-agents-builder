@@ -1,6 +1,7 @@
 import { Agent } from '@/data/client/models';
 import { AgentDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
+import ServerResultRepository from '@/data/server/server-result-repository';
 import { renderPrompt } from '@/lib/prompt-template';
 import { openai } from '@ai-sdk/openai';
 import { CoreMessage, Message, streamText, tool } from 'ai';
@@ -13,15 +14,16 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   const { messages }: { messages: CoreMessage[] } = await req.json();
-  const datbaseIdHash = req.headers.get('Database-Id-Hash');
+  const databaseIdHash = req.headers.get('Database-Id-Hash');
+  const sessionId = req.headers.get('Agent-Session-Id') || nanoid();
   const agentId = req.headers.get('Agent-Id');
   const locale = req.headers.get('Agent-Locale') || 'en';
 
-  if(!datbaseIdHash || !agentId) {
-    return Response.json('The required HTTP headers: Database-Id-Hash and Agent-Id missing', { status: 400 });
+  if(!databaseIdHash || !agentId || !sessionId) {
+    return Response.json('The required HTTP headers: Database-Id-Hash, Agent-Session-Id and Agent-Id missing', { status: 400 });
   }
 
-  const repo = new ServerAgentRepository(datbaseIdHash);
+  const repo = new ServerAgentRepository(databaseIdHash);
 
   const agent = Agent.fromDTO(await repo.findOne({
     id: agentId // TODO: fix seearching as it always return the same record!
@@ -44,6 +46,10 @@ export async function POST(req: Request) {
         }),
         execute: async ({ result }) => {
 
+          const resultRepo = new ServerResultRepository(databaseIdHash);
+          resultRepo.findOne({
+
+          })
           console.log(result);
 
           return 'Results saved!';

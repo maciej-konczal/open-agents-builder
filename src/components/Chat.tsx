@@ -11,11 +11,12 @@ import { nanoid } from "nanoid"
 import Markdown from "react-markdown"
 import { useTranslation } from "react-i18next"
 import styles from './chat.module.css';
+import { get } from "http"
 
 
-export function Chat() {
+export function Chat({ apiUrl, headers }: { apiUrl: string; headers: Record<string, string> }) {
   const { messages, append, input, setMessages, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: "/api/chat",
+    api: apiUrl,
   })
 
   const chatContext = useChatContext();
@@ -39,11 +40,7 @@ export function Chat() {
         role: "user",
         content: t("Lets chat")
       }, {
-        headers: {
-          'Database-Id-Hash': chatContext.databaseIdHash,
-          'Agent-Id': chatContext.agent?.id ?? '',
-          'Agent-Locale': chatContext.locale
-        }
+        headers
       })
     }
   }, [chatContext.agent]);
@@ -85,11 +82,7 @@ export function Chat() {
       <CardFooter>
         <form onSubmit={e=> {
           handleSubmit(e, {
-            headers: {
-              'Database-Id-Hash': chatContext.databaseIdHash,
-              'Agent-Id': chatContext.agent?.id ?? '',
-              'Agent-Locale': chatContext.locale
-            }
+            headers
           })
         }} className="flex w-full space-x-2">
           <Input value={input} onChange={handleInputChange} placeholder="Type your message..." className="flex-grow" />
