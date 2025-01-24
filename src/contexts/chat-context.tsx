@@ -5,6 +5,9 @@ import { ChatApiClient } from '@/data/client/chat-api-client';
 
 
 interface ChatContextType {
+    initFormRequired: boolean;
+    initFormDone: boolean;
+    setInitFormDone: (done: boolean) => void;
     databaseIdHash: string;
     sessionId: string
     locale: string;
@@ -21,6 +24,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const [databaseIdHash, setDatabaseIdHash] = useState<string>('');
     const [sessionId, setSessionId] = useState<string>('');
     const [locale, setLocale] = useState<string>('en');
+    const [initFormRequired, setInitFormRequired] = useState<boolean>(false);
+    const [initFormDone, setInitFormDone] = useState<boolean>(false);
     const { t } = useTranslation();
 
     const init = async (id: string, databaseIdHash: string, locale: string, sessionId: string): Promise<Agent> => {
@@ -32,6 +37,13 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         const dto = await client.agent(id);
         const agt = Agent.fromDTO(dto);
         setAgent(agt);
+
+        if (agt.options?.collectUserEmail || agt.options?.mustConfirmTerms) {
+            setInitFormRequired(true);
+        } else {
+            setInitFormRequired(false);
+        }
+
         return agt;        
     }
     return (
@@ -42,7 +54,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             databaseIdHash,
             setDatabaseIdHash,
             sessionId,
-            setSessionId
+            setSessionId,
+            initFormRequired,
+            initFormDone,
+            setInitFormDone
             }}>
             {children}
         </ChatContext.Provider>

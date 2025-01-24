@@ -46,16 +46,21 @@ export default function ChatPage({children,
 
     return (
         <div className="pt-10">
-            <Chat 
-                headers={getSessionHeaders()} 
-                welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
-                messages={messages}
-                handleInputChange={handleInputChange}
-                isLoading={isLoading}
-                handleSubmit={handleSubmit}
-                input={input}
-                displayName={chatContext.agent?.displayName ?? ''}
-            />
+            { (chatContext.initFormRequired && !chatContext.initFormDone) ? (
+                <div className="flex justify-center">
+                </div>
+            ):(
+                <Chat 
+                    headers={getSessionHeaders()} 
+                    welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
+                    messages={messages}
+                    handleInputChange={handleInputChange}
+                    isLoading={isLoading}
+                    handleSubmit={handleSubmit}
+                    input={input}
+                    displayName={chatContext.agent?.displayName ?? ''}
+                />
+            )}
         </div>
     )
 }
