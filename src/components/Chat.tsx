@@ -31,7 +31,7 @@ export function Chat({ headers, welcomeMessage, displayName, messages, handleInp
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[60vh] pr-4">
-          <div key='welcomer-message' className={`mb-4 text-left`}>
+          <div key='welcome-message' className={`mb-4 text-left`}>
                 <span
                   className={`inline-block p-2 rounded-lg bg-muted`}
                 >

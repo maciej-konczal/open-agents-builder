@@ -1,6 +1,7 @@
 'use client'
 
 import { Chat } from "@/components/chat";
+import { ChatInitForm } from "@/components/chat-init-form";
 import { useChatContext } from "@/contexts/chat-context";
 import { useChat } from "ai/react";
 import { nanoid } from "nanoid";
@@ -47,8 +48,10 @@ export default function ChatPage({children,
     return (
         <div className="pt-10">
             { (chatContext.initFormRequired && !chatContext.initFormDone) ? (
-                <div className="flex justify-center">
-                </div>
+                <ChatInitForm
+                    welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
+                   displayName={chatContext.agent?.displayName ?? ''}
+                />
             ):(
                 <Chat 
                     headers={getSessionHeaders()} 
