@@ -78,7 +78,6 @@ export async function POST(req: Request) {
           } catch (e) {
             return 'Error saving results';
           }
-
         },
       }),
     },
