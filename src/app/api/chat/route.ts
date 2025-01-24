@@ -5,6 +5,7 @@ import { renderPrompt } from '@/lib/prompt-template';
 import { openai } from '@ai-sdk/openai';
 import { CoreMessage, Message, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
+import { format } from 'path';
 import { z } from 'zod';
 
 // Allow streaming responses up to 30 seconds
@@ -38,6 +39,7 @@ export async function POST(req: Request) {
       saveResults: tool({
         description: 'Save results',
         parameters: z.object({
+          format: z.string().describe('The format of the inquiry results (requested by the user - could be JSON, markdown, text etc.)'),
           result: z.string().describe('The inquiry results - in different formats (requested by the user - could be JSON, markdown, text etc.)'),
         }),
         execute: async ({ result }) => {

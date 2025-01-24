@@ -1,4 +1,4 @@
-import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO } from "@/data/dto";
+import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
@@ -305,7 +305,6 @@ export class Session {
     agentId: string;
     user?: SessionUserInfo | null;
     messages?: [Message] | null;
-    result?: string | null;
     createdAt: string;
     updatedAt: string;
     finalizedAt?: string | null;
@@ -315,7 +314,6 @@ export class Session {
         this.agentId = sessionDTO.agentId;
         this.user = sessionDTO instanceof Session ? sessionDTO.user :  (sessionDTO.user ? JSON.parse(sessionDTO.user) : null);
         this.messages = sessionDTO instanceof Session ? sessionDTO.messages :  (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
-        this.result = sessionDTO.result ?? null;
         this.createdAt = sessionDTO.createdAt;
         this.updatedAt = sessionDTO.updatedAt;
         this.finalizedAt = sessionDTO.finalizedAt ?? null;
@@ -331,7 +329,46 @@ export class Session {
             agentId: this.agentId,
             user: JSON.stringify(this.user),
             messages: JSON.stringify(this.messages),
-            result: this.result,
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+            finalizedAt: this.finalizedAt,
+        };
+    }
+}
+
+
+export class Result {
+    id: string;
+    agentId: string;
+    sessionId: string;
+    user?: SessionUserInfo | null;
+    messages?: [Message] | null;
+    createdAt: string;
+    updatedAt: string;
+    finalizedAt?: string | null;
+
+    constructor(resultDTO: ResultDTO) {
+        this.id = resultDTO.id;
+        this.agentId = resultDTO.agentId;
+        this.sessionId = resultDTO.sessionId;
+        this.user = resultDTO instanceof Result ? resultDTO.user :  (resultDTO.user ? JSON.parse(resultDTO.user) : null);
+        this.result = resultDTO.result;
+        this.format = resultDTO.format;
+        this.createdAt = resultDTO.createdAt;
+        this.updatedAt = resultDTO.updatedAt;
+        this.finalizedAt = resultDTO.finalizedAt ?? null;
+    }
+
+    static fromDTO(sessionDTO: SessionDTO): Session {
+        return new Session(sessionDTO);
+    }
+
+    toDTO(): SessionDTO {
+        return {
+            id: this.id,
+            agentId: this.agentId,
+            user: JSON.stringify(this.user),
+            messages: JSON.stringify(this.messages),
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             finalizedAt: this.finalizedAt,

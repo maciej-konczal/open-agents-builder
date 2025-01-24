@@ -210,10 +210,23 @@ export const sessionDTOSchema = z.object({
   agentId: z.string().min(1),
   user: z.string().optional().nullable(),
   messages: z.string().optional().nullable(),
-  result: z.string().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),
   finalizedAt: z.string().optional().nullable(),
 });
 export type SessionDTO = z.infer<typeof sessionDTOSchema>;
 export const SessionDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
+
+
+export const resultDTOSchema = z.object({
+  id: z.string().min(1),
+  agentId: z.string().min(1),
+  sessionId: z.string().min(1),
+  user: z.string().optional().nullable(),
+  result: z.string().optional().nullable(),
+  createdAt: z.string().default(() => getCurrentTS()),
+  updatedAt: z.string().default(() => getCurrentTS()),
+  finalizedAt: z.string().optional().nullable(),
+});
+export type ResultDTO = z.infer<typeof resultDTOSchema>;
+export const ResultDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
