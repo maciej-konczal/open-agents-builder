@@ -1,8 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "c6d8b425-0f43-4d78-98a5-ed406e857670",
-  "prevId": "2009605b-5fcd-46ca-aec9-97c080eef973",
+  "id": "d091e404-cc37-4394-9e86-77c1854f3d3a",
+  "prevId": "c6d8b425-0f43-4d78-98a5-ed406e857670",
   "tables": {
     "attachments": {
       "name": "attachments",
@@ -301,8 +301,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "result": {
-          "name": "result",
+        "content": {
+          "name": "content",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -530,7 +530,9 @@
   "_meta": {
     "schemas": {},
     "tables": {},
-    "columns": {}
+    "columns": {
+      "\"results\".\"result\"": "\"results\".\"content\""
+    }
   },
   "internal": {
     "indexes": {}

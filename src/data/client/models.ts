@@ -338,37 +338,37 @@ export class Session {
 
 
 export class Result {
-    id: string;
     agentId: string;
     sessionId: string;
     user?: SessionUserInfo | null;
-    messages?: [Message] | null;
+    content?: string | null;
+    format?: string | null;
     createdAt: string;
     updatedAt: string;
     finalizedAt?: string | null;
 
     constructor(resultDTO: ResultDTO) {
-        this.id = resultDTO.id;
         this.agentId = resultDTO.agentId;
         this.sessionId = resultDTO.sessionId;
         this.user = resultDTO instanceof Result ? resultDTO.user :  (resultDTO.user ? JSON.parse(resultDTO.user) : null);
-        this.result = resultDTO.result;
+        this.content = resultDTO.content;
         this.format = resultDTO.format;
         this.createdAt = resultDTO.createdAt;
         this.updatedAt = resultDTO.updatedAt;
         this.finalizedAt = resultDTO.finalizedAt ?? null;
     }
 
-    static fromDTO(sessionDTO: SessionDTO): Session {
-        return new Session(sessionDTO);
+    static fromDTO(resultDTO: ResultDTO): Result {
+        return new Result(resultDTO);
     }
 
-    toDTO(): SessionDTO {
+    toDTO(): ResultDTO {
         return {
-            id: this.id,
+            sessionId: this.sessionId,
             agentId: this.agentId,
             user: JSON.stringify(this.user),
-            messages: JSON.stringify(this.messages),
+            content: this.content,
+            format: this.format,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             finalizedAt: this.finalizedAt,

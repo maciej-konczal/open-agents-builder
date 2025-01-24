@@ -62,26 +62,20 @@ export async function POST(req: Request) {
         execute: async ({ result, format }) => {
           try {
             const resultRepo = new ServerResultRepository(databaseIdHash);
-            let existingResult = await resultRepo.findOne({ // there's only one result per session
-              sessionId
-            })
-            if(!existingResult) {
-              existingResult = {
-                sessionId,
-                agentId,
-                createdAt: new Date().toISOString()
-              } as ResultDTO;
-            }
-            console.log(existingResult)
-            existingResult.updatedAt = new Date().toISOString();
-            existingResult.finalizedAt = new Date().toISOString();
-            existingResult.result = result;
-            existingResult.format = format;          
-            await resultRepo.upsert({ sessionId }, existingResult);
-            console.log(existingResult)
+
+            const storedResult = {
+              sessionId,
+              agentId,
+              createdAt: new Date().toISOString()
+            } as ResultDTO;
+          
+            storedResult.updatedAt = new Date().toISOString();
+            storedResult.finalizedAt = new Date().toISOString();
+            storedResult.content = result;
+            storedResult.format = format;          
+            await resultRepo.upsert({ sessionId }, storedResult);
             return 'Results saved!';
           } catch (e) {
-            console.error(e);
             return 'Error saving results';
           }
 

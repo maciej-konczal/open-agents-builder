@@ -1,0 +1,1 @@
+ALTER TABLE `results` RENAME COLUMN `result` TO `content`;

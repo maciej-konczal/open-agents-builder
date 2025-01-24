@@ -222,7 +222,7 @@ export const resultDTOSchema = z.object({
   agentId: z.string().min(1),
   sessionId: z.string().min(1),
   user: z.string().optional().nullable(),
-  result: z.string().optional().nullable(),
+  content: z.string().optional().nullable(),
   format: z.string().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),

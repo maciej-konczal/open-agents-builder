@@ -34,7 +34,7 @@ export const results = sqliteTable('results', {
     agentId: text('agentId').references(() => agents.id),
     sessionId: text('sessionId').references(() => sessions.id).primaryKey(),
     user: text('user', { mode: 'json' }),
-    result: text('result'),
+    content: text('content'),
     format: text('format'),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
