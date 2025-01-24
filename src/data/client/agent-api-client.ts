@@ -1,8 +1,10 @@
 import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
-import { AgentDTO, AgentDTOEncSettings } from "../dto";
+import { AgentDTO, AgentDTOEncSettings, ResultDTO, SessionDTO } from "../dto";
 import { DatabaseContextType } from "@/contexts/db-context";
 
+export type GetResultResponse = ResultDTO[];
+export type GetSessionResponse = SessionDTO[];
 export type GetAgentsResponse = AgentDTO[];
 export type PutAgentRequest = AgentDTO;
 
@@ -37,7 +39,15 @@ export class AgentApiClient extends AdminApiClient {
     else 
         return this.request<GetAgentsResponse>('/api/agent' , 'GET', AgentDTOEncSettings) as Promise<GetAgentsResponse>;
     }
-  
+
+    async results(agentId:string): Promise<GetResultResponse> {
+      return this.request<GetResultResponse>('/api/agent/' + agentId + '/result' , 'GET', AgentDTOEncSettings) as Promise<GetResultResponse>;
+    }
+
+    async sessions(agentId:string): Promise<GetSessionResponse> {
+      return this.request<GetSessionResponse>('/api/agent/' + agentId + '/session', 'GET', AgentDTOEncSettings) as Promise<GetSessionResponse>;
+    }
+
     async put(record: PutAgentRequest): Promise<PutAgentResponse> {
       return this.request<PutAgentResponse>('/api/agent', 'PUT', AgentDTOEncSettings, record) as Promise<PutAgentResponse>;
     }

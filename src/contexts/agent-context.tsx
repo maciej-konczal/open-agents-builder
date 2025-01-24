@@ -1,5 +1,5 @@
 import { ApiEncryptionConfig } from '@/data/client/admin-api-client';
-import { Agent, DataLoadingStatus } from '@/data/client/models';
+import { Agent, DataLoadingStatus, Session, Result } from '@/data/client/models';
 import { AgentDTO } from '@/data/dto';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { DatabaseContext } from './db-context';
@@ -18,6 +18,10 @@ export type AgentStatusType = {
 interface AgentContextType {
     current: Agent | null;
     agents: Agent[];
+    results: Result[];
+    agentResults: (agentId: string) => Promise<Result[]>;
+    sessions: Session[];
+    agentSessions: (agentId: string) => Promise<Session[]>;
     updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>;
     newAgent: () => Agent;
     listAgents: (currentAgentId?:string) => Promise<Agent[]>;
@@ -35,6 +39,8 @@ const AgentContext = createContext<AgentContextType | undefined>(undefined);
 export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [current, setCurrent] = useState<Agent | null>(null);
     const [agents, setAgents] = useState<Agent[]>([]);
+    const [results, setResults] = useState<Result[]>([]);
+    const [sessions, setSessions] = useState<Session[]>([]);
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
     const { t } = useTranslation();
 
@@ -94,6 +100,23 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         )
     }
 
+    const agentResults = async (agentId: string): Promise<Result[]> => {
+        const client = await setupApiClient();
+        const response = await client.results(agentId);
+        const results = response.map((r: any) => Result.fromDTO(r));
+        setResults(results);
+
+        return results;
+    }
+    const agentSessions = async (agentId: string): Promise<Session[]> => {
+        const client = await setupApiClient();
+        const response = await client.results(agentId);
+        const sessions = response.map((r: any) => Session.fromDTO(r));
+        setSessions(sessions);
+        
+        return sessions
+    }    
+
     const listAgents = async (currentAgentId?:string): Promise<Agent[]> => {
         setStatus(null);
         const client = await setupApiClient();
@@ -146,7 +169,11 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 loaderStatus,
                 status,
                 setStatus,
-                removeStatus
+                removeStatus,
+                results,
+                agentResults,
+                sessions,
+                agentSessions
             }}>
             {children}
         </AgentContext.Provider>

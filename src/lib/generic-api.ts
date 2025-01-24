@@ -8,7 +8,7 @@ import { defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO } from "@/data/dto";
 import { Key } from "react";
 import { PlatformApiClient } from "@/data/server/platform-api-client";
 import NodeCache from "node-cache";
-import { ApiError } from "@/data/client/admin-api-client";
+import { ApiError } from "@/data/client/base-api-client";
 
 const saasCtxCache = new NodeCache({ stdTTL: 60 * 60 * 10 /* 10 min cache */});
 

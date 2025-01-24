@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { nanoid } from "nanoid"
+import remarkGfm from 'remark-gfm';
 import Markdown from "react-markdown"
 import { useTranslation } from "react-i18next"
 import styles from './chat.module.css';
@@ -35,7 +35,7 @@ export function Chat({ headers, welcomeMessage, displayName, messages, handleInp
                 <span
                   className={`inline-block p-2 rounded-lg bg-muted`}
                 >
-                  <Markdown className={styles.markdown}>{welcomeMessage}</Markdown>
+                  <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{welcomeMessage}</Markdown>
                 </span>
               </div>
 
@@ -46,7 +46,7 @@ export function Chat({ headers, welcomeMessage, displayName, messages, handleInp
                     m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                   }`}
                 >
-                  <Markdown className={styles.markdown}>{m.content}</Markdown>
+                  <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{m.content}</Markdown>
                 </span>
               </div>
           ))}
