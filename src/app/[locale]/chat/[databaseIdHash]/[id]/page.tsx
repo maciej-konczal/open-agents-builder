@@ -45,7 +45,7 @@ export default function ChatPage({children,
       }, [chatContext.agent]);
 
     return (
-        <>
+        <div className="pt-10">
             <Chat 
                 headers={getSessionHeaders()} 
                 welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
@@ -56,6 +56,6 @@ export default function ChatPage({children,
                 input={input}
                 displayName={chatContext.agent?.displayName ?? ''}
             />
-        </>
+        </div>
     )
 }
