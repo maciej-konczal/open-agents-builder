@@ -25,7 +25,7 @@ export default function ResultsPage() {
           </CardHeader>
           <CardContent>
             {result.format === 'JSON' ? (
-              <JsonView value={JSON.parse(result.content)} />
+              <JsonView value={JSON.parse(result.content ?? '{}')} />
             ) : null}
             {result.format === 'markdown' ? (
                   <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{result.content}</Markdown>
