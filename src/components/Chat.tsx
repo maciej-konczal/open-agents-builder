@@ -1,25 +1,16 @@
 "use client"
 
 import { useEffect, useRef, useState, useTransition } from "react"
-import { useChat } from "ai/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useChatContext } from "@/contexts/chat-context"
 import { nanoid } from "nanoid"
 import Markdown from "react-markdown"
 import { useTranslation } from "react-i18next"
 import styles from './chat.module.css';
-import { get } from "http"
 
-
-export function Chat({ apiUrl, headers }: { apiUrl: string; headers: Record<string, string> }) {
-  const { messages, append, input, setMessages, handleInputChange, handleSubmit, isLoading } = useChat({
-    api: apiUrl,
-  })
-
-  const chatContext = useChatContext();
+export function Chat({ headers, welcomeMessage, displayName, messages, handleInputChange, isLoading, handleSubmit, input  }: { headers: Record<string, string>; displayName: string; welcomeMessage: string; handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void; messages: any[]; isLoading: boolean; handleSubmit: (e: React.FormEvent<HTMLFormElement>, options: { headers: Record<string, string> }) => void; input: string }) {
   const { t } = useTranslation();
 
   const messagesEndRef = useRef<null | HTMLDivElement>(null)
@@ -33,22 +24,10 @@ export function Chat({ apiUrl, headers }: { apiUrl: string; headers: Record<stri
   }, [messages]);
 
 
-  useEffect(() => {
-    if (chatContext.agent){
-      append({
-        id: nanoid(),
-        role: "user",
-        content: t("Lets chat")
-      }, {
-        headers
-      })
-    }
-  }, [chatContext.agent]);
-
   return (
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
-        <CardTitle>{chatContext.agent?.displayName}</CardTitle>
+        <CardTitle>{displayName}</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-[60vh] pr-4">
@@ -56,7 +35,7 @@ export function Chat({ apiUrl, headers }: { apiUrl: string; headers: Record<stri
                 <span
                   className={`inline-block p-2 rounded-lg bg-muted`}
                 >
-                  <Markdown className={styles.markdown}>{chatContext.agent?.options?.welcomeMessage}</Markdown>
+                  <Markdown className={styles.markdown}>{welcomeMessage}</Markdown>
                 </span>
               </div>
 
@@ -73,7 +52,7 @@ export function Chat({ apiUrl, headers }: { apiUrl: string; headers: Record<stri
           ))}
           {isLoading && (
             <div className="text-left">
-              <span className="inline-block p-2 rounded-lg bg-muted">AI is typing...</span>
+              <span className="inline-block p-2 rounded-lg bg-muted">{t('AI is typing...')}</span>
             </div>
           )}
           <div ref={messagesEndRef} />
@@ -85,9 +64,9 @@ export function Chat({ apiUrl, headers }: { apiUrl: string; headers: Record<stri
             headers
           })
         }} className="flex w-full space-x-2">
-          <Input value={input} onChange={handleInputChange} placeholder="Type your message..." className="flex-grow" />
+          <Input value={input} onChange={handleInputChange} placeholder={t('Type your message...')} className="flex-grow" />
           <Button type="submit" disabled={isLoading}>
-            Send
+            {t('Send')}
           </Button>
         </form>
       </CardFooter>
