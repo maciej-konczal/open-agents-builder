@@ -26,7 +26,7 @@ export default function ResultsPage() {
   const { messages, handleInputChange, isLoading, append, handleSubmit, input} = useChat({
     api: "/api/agent/results-chat",
   });
-  const [isCredenzaOpen, setIsCredenzaOpen] = useState(false);
+  const [isResultsChatOpen, setResultsChatOpen] = useState(false);
   
   const getSessionHeaders = () => {
     return {
@@ -36,7 +36,7 @@ export default function ResultsPage() {
     }
   }
   useEffect(() => {
-    if (agentContext.current){
+    if (agentContext.current && isResultsChatOpen){
       append({
         id: nanoid(),
         role: "user",
@@ -45,20 +45,20 @@ export default function ResultsPage() {
         headers: getSessionHeaders()
       })
     }
-  }, [agentContext.current]);
+  }, [agentContext.current, isResultsChatOpen]);
 
   useEffect(() => {
     if (agentContext.current?.id)
-      agentContext.agentResults(agentContext.current.id);
+      agentContext.agentResults(agentContext.current.id, agentContext.resultsQuery);
   }, [agentContext.current]);
 
   return (
     <div className="space-y-6">
 
 
-      <Credenza open={isCredenzaOpen} onOpenChange={setIsCredenzaOpen}>
+      <Credenza open={isResultsChatOpen} onOpenChange={setResultsChatOpen}>
         <CredenzaTrigger asChild>
-          <Button onClick={() => setIsCredenzaOpen(true)}><MessageCircleIcon /> Chat about results ...</Button>
+          <Button onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> Chat about results ...</Button>
         </CredenzaTrigger>
         <CredenzaContent>
           {/* Add your chat component or content here */}
@@ -74,10 +74,10 @@ export default function ResultsPage() {
           />
         </CredenzaContent>
       </Credenza>
-      {agentContext.results.map((result) => (
+      {agentContext.results.rows.map((result) => (
         <Card key={result.sessionId}>
           <CardHeader>
-            <CardTitle>{new Date(result.createdAt).toLocaleString()}{result.userName ? result.userName : ''}{result.userEmail ? result.userEmail : ''}</CardTitle>
+            <CardTitle>{new Date(result.createdAt).toLocaleString()} {result.userName ? result.userName : ''} {result.userEmail ? result.userEmail : ''}</CardTitle>
           </CardHeader>
           <CardContent>
             {result.format === 'JSON' ? (

@@ -36,13 +36,15 @@ export async function POST(req: Request) {
     content: systemPrompt
   })
 
+  const sessionRepo = new ServerSessionRepository(databaseIdHash);
+  let existingSession = await sessionRepo.findOne({ id: sessionId });
+
   const result = streamText({
     model: openai('gpt-4o'),
     maxSteps: 10,  
     async onFinish({ response }) {
       const chatHistory = [...messages, ...response.messages]
-      const sessionRepo = new ServerSessionRepository(databaseIdHash);
-      const savedSession = await sessionRepo.upsert({
+      existingSession = await sessionRepo.upsert({
         id: sessionId
       }, {
         id: sessionId,
@@ -66,6 +68,8 @@ export async function POST(req: Request) {
             const storedResult = {
               sessionId,
               agentId,
+              userEmail: existingSession?.userEmail,
+              userName: existingSession?.userName,
               createdAt: new Date().toISOString()
             } as ResultDTO;
           

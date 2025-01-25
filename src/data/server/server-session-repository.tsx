@@ -47,7 +47,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
         return Promise.resolve(dbQuery.all() as SessionDTO[])
     }
 
-     async queryAll({ limit, offset, orderBy, query}: { query: string, offset: number, limit: number, orderBy: string }): Promise<PaginatedResult<SessionDTO[]>> {
+     async queryAll(agentId: string, { limit, offset, orderBy, query}: { query: string, offset: number, limit: number, orderBy: string }): Promise<PaginatedResult<SessionDTO[]>> {
         let orderColumn = desc(sessions.updatedAt);
         let notNullColumn:AnyColumn= sessions.updatedAt;
         const db = (await this.db());
@@ -69,8 +69,13 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
             orderColumn = desc(sessions.updatedAt);
             break;
         }
-        const records = await db.select().from(sessions).where(and(isNotNull(notNullColumn), or(like(sessions.userEmail, '%' + query + '%'), like(sessions.userName, '%' + query + '%')))).limit(limit).offset(offset).orderBy(orderColumn).execute();
-        const recordsCount = await db.select({ count: count() }).from(sessions).where(and(isNotNull(notNullColumn), or(like(sessions.userEmail, '%' + query + '%'), like(sessions.userName, '%' + query + '%')))).execute();
+        let where = and(eq(sessions.agentId, agentId), isNotNull(notNullColumn));
+        
+        if (query)
+            where = and(where, or(like(sessions.userEmail, '%' + query + '%'), like(sessions.userName, '%' + query + '%')));
+
+        const records = await db.select().from(sessions).where(where).limit(limit).offset(offset).orderBy(orderColumn).execute();
+        const recordsCount = await db.select({ count: count() }).from(sessions).where(where).execute();
         
         return {
           rows: records as SessionDTO[],

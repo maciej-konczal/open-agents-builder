@@ -42,14 +42,14 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
                 dbQuery.where(eq(results.sessionId, query.filter['sessionId'] as string));
             }
             if(query.filter['id']){
-                dbQuery.where(eq(results.id, query.filter['id'] as string));
+                dbQuery.where(eq(results.sessionId, query.filter['id'] as string));
             }
         }        
         return Promise.resolve(dbQuery.all() as ResultDTO[])
     }
 
 
-     async queryAll({ limit, offset, orderBy, query}: { query: string, offset: number, limit: number, orderBy: string }): Promise<PaginatedResult<ResultDTO[]>> {
+     async queryAll(agentId: string, { limit, offset, orderBy, query}: { query: string, offset: number, limit: number, orderBy: string }): Promise<PaginatedResult<ResultDTO[]>> {
         let orderColumn = desc(results.updatedAt);
         let notNullColumn:AnyColumn= results.updatedAt;
         const db = (await this.db());
@@ -71,9 +71,16 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
             orderColumn = desc(results.updatedAt);
             break;
         }
-        const records = await db.select().from(results).where(and(isNotNull(notNullColumn), or(like(results.userEmail, '%' + query + '%'), like(results.userName, '%' + query + '%')))).limit(limit).offset(offset).orderBy(orderColumn).execute();
-        const recordsCount = await db.select({ count: count() }).from(results).where(and(isNotNull(notNullColumn), or(like(results.userEmail, '%' + query + '%'), like(results.userName, '%' + query + '%')))).execute();
+        let where = and(eq(results.agentId, agentId), isNotNull(notNullColumn));
         
+        if (query) {
+            where = and(where
+                , or(like(results.userEmail, '%' + query + '%'), like(results.userName, '%' + query + '%')))
+        }
+        
+        const records = await db.select().from(results).where(where).limit(limit).offset(offset).orderBy(orderColumn).execute();
+        const recordsCount = await db.select({ count: count() }).from(results).where(where).execute();
+        console.log(records);
         return {
           rows: records as ResultDTO[],
           total: recordsCount[0].count,
