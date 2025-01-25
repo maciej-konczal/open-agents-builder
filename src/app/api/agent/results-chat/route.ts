@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   const resultMessages = results.map((result: ResultDTO) => {
     return {
       role: 'system',
-      content: result.content
+      content: `${result.userEmail} ${result.userName} [${result.createdAt}] - ${result.content}`
     } as CoreMessage
   })
 

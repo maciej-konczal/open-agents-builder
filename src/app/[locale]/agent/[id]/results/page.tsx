@@ -15,13 +15,24 @@ import { useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { DatabaseContext } from '@/contexts/db-context';
 import { get } from 'http';
-import { MessageCircleIcon } from 'lucide-react';
+import { Loader2, MessageCircleIcon } from 'lucide-react';
+import InfiniteScroll from '@/components/infinite-scroll';
 
 
 export default function ResultsPage() {
   const agentContext = useAgentContext();
   const dbContext = useContext(DatabaseContext);
   const { t, i18n  } = useTranslation();
+
+  const [hasMore, setHasMore] = useState(true);
+  const [resultsLoading, setResultsLoading] = useState(false);
+  const [resultsQuery, setResultsQuery] = useState({
+    limit: 4,
+    offset: 0,
+    orderBy: 'createdAt',
+    query: ''
+  });
+  const [pageSize, setPageSize] = useState(4);
 
   const { messages, handleInputChange, isLoading, append, handleSubmit, input} = useChat({
     api: "/api/agent/results-chat",
@@ -49,8 +60,13 @@ export default function ResultsPage() {
 
   useEffect(() => {
     if (agentContext.current?.id)
-      agentContext.agentResults(agentContext.current.id, agentContext.resultsQuery);
+      agentContext.agentResults(agentContext.current.id, resultsQuery);
   }, [agentContext.current]);
+
+  useEffect(() => {
+    setHasMore(agentContext.results.total > agentContext.results.offset);
+    setResultsLoading(false);
+  }, [agentContext.results]);
 
   return (
     <div className="space-y-6">
@@ -89,6 +105,23 @@ export default function ResultsPage() {
           </CardContent>
         </Card>
       ))}
+       <InfiniteScroll hasMore={hasMore} isLoading={resultsLoading} next={() => {
+        if ((resultsQuery.offset + resultsQuery.limit) < agentContext.results.total) {
+          const expandedQr = { ...resultsQuery, limit: resultsQuery.limit + pageSize };
+          setResultsQuery(expandedQr);
+          
+          if (agentContext.current?.id)
+            agentContext.agentResults(agentContext.current.id, expandedQr);
+          
+          setResultsLoading(true);
+          setHasMore(true);
+        } else {
+          setHasMore(false);
+        }
+          
+       }} threshold={1}>
+          {hasMore && <Loader2 className="my-4 h-8 w-8 animate-spin" />}
+        </InfiniteScroll>      
     </div>
   );
 }
