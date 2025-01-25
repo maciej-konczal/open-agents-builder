@@ -13,15 +13,15 @@ import { Credenza, CredenzaContent } from "./credenza";
 import { useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
 
-interface IFormInput {
-    userName: string;
-    userEmail: string;
-    acceptTerms: boolean;
-}
+
 
 export function ChatInitForm({ displayName, welcomeMessage }: { displayName: string; welcomeMessage: string }) {
-    const { register, handleSubmit, formState: { errors } } = useForm<IFormInput>();
-    const onSubmit: SubmitHandler<IFormInput> = data => console.log(data);
+    const { register, handleSubmit, setValue, formState: { errors } } = useForm<ChatInitFormType>();
+    const onSubmit: SubmitHandler<ChatInitFormType> = (data) => {
+        //console.log(data);
+        chatContext.saveInitForm(data);
+        chatContext.setInitFormDone(true);
+    }
     const [openTerms, setOpenTerms] = useState(false);
 
     const chatContext = useChatContext();
@@ -75,13 +75,19 @@ export function ChatInitForm({ displayName, welcomeMessage }: { displayName: str
                     <div className="mb-4">
                         <label htmlFor="acceptTerms" className="inline-flex items-center">
                             <Checkbox
+                                value="true"
                                 id="acceptTerms"
-                                {...register("acceptTerms", { required: t("You must accept the terms") })}
+                                onCheckedChange={ (e) => setValue("acceptTerms", !!e)}
+                                {...register("acceptTerms", { 
+                                  validate: {
+                                    acceptTerms: (value) => value === true
+                                  }
+                                })}
                                 className="form-checkbox"
                             />
                             <span className="ml-2">{t('I accept the ')}<a className="underline" href="#" onClick={(e) => setOpenTerms(true)}>{t('terms and conditions')}</a></span>
                         </label>
-                        {errors.acceptTerms && <span className="text-red-500 text-sm">{errors.acceptTerms.message}</span>}
+                        {errors.acceptTerms && <span className="text-red-500 text-sm block">{errors.acceptTerms.message}</span>}
                     </div>
                     ) : null}
                     <Button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">{t('Go')}</Button>

@@ -3,8 +3,13 @@ import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChatApiClient } from '@/data/client/chat-api-client';
 
+export type ChatInitFormType = {
+    userName: string;
+    userEmail: string;
+    acceptTerms: boolean;
+}
 
-interface ChatContextType {
+export interface ChatContextType {
     initFormRequired: boolean;
     initFormDone: boolean;
     setInitFormDone: (done: boolean) => void;
@@ -15,6 +20,7 @@ interface ChatContextType {
     setSessionId: (sessionId: string) => void;
     agent: Agent | null;
     init: (id: string, databaseIdHash: string, locale: string, sessionId: string) => Promise<Agent>;
+    saveInitForm: (formData: ChatInitFormType) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -46,6 +52,10 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
 
         return agt;        
     }
+
+    const saveInitForm = (formData: ChatInitFormType) => {
+        // save the form data
+    }
     return (
         <ChatContext.Provider value={{ 
             agent,
@@ -57,7 +67,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
             setSessionId,
             initFormRequired,
             initFormDone,
-            setInitFormDone
+            setInitFormDone,
+            saveInitForm
             }}>
             {children}
         </ChatContext.Provider>
