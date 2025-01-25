@@ -1,6 +1,6 @@
 import { ApiEncryptionConfig } from '@/data/client/admin-api-client';
 import { Agent, DataLoadingStatus, Session, Result } from '@/data/client/models';
-import { AgentDTO } from '@/data/dto';
+import { AgentDTO, PaginatedQuery, PaginatedResult } from '@/data/dto';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { DatabaseContext } from './db-context';
 import { AgentApiClient } from '@/data/client/agent-api-client';
@@ -18,10 +18,10 @@ export type AgentStatusType = {
 interface AgentContextType {
     current: Agent | null;
     agents: Agent[];
-    results: Result[];
-    agentResults: (agentId: string) => Promise<Result[]>;
-    sessions: Session[];
-    agentSessions: (agentId: string) => Promise<Session[]>;
+    results: PaginatedResult<Result[]>;
+    agentResults: (agentId: string) => Promise<PaginatedResult<Result[]>>;
+    sessions: PaginatedResult<Session[]>;
+    agentSessions: (agentId: string) => Promise<PaginatedResult<Session[]>>;
     updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>;
     newAgent: () => Agent;
     listAgents: (currentAgentId?:string) => Promise<Agent[]>;
@@ -39,8 +39,8 @@ const AgentContext = createContext<AgentContextType | undefined>(undefined);
 export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [current, setCurrent] = useState<Agent | null>(null);
     const [agents, setAgents] = useState<Agent[]>([]);
-    const [results, setResults] = useState<Result[]>([]);
-    const [sessions, setSessions] = useState<Session[]>([]);
+    const [results, setResults] = useState<PaginatedResult<Result[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
+    const [sessions, setSessions] = useState<PaginatedResult<Session[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
     const { t } = useTranslation();
 
@@ -100,19 +100,23 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         )
     }
 
-    const agentResults = async (agentId: string): Promise<Result[]> => {
+    const agentResults = async (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery): Promise<PaginatedResult<Result[]>> => {
         const client = await setupApiClient();
-        const response = await client.results(agentId);
-        const results = response.map((r: any) => Result.fromDTO(r));
-        setResults(results);
+        const response = await client.results(agentId, { limit, offset, orderBy, query });
+        setResults({
+            ...response,
+            rows: response.rows.map((r: any) => Result.fromDTO(r))
+        });
 
         return results;
     }
-    const agentSessions = async (agentId: string): Promise<Session[]> => {
+    const agentSessions = async (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery): Promise<PaginatedResult<Session[]>> => {
         const client = await setupApiClient();
-        const response = await client.results(agentId);
-        const sessions = response.map((r: any) => Session.fromDTO(r));
-        setSessions(sessions);
+        const response = await client.results(agentId, { limit, offset, orderBy,  query});
+        setSessions({
+            ...response,
+            rows: response.rows.map((r: any) => Session.fromDTO(r))
+        });
         
         return sessions
     }    

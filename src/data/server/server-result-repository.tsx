@@ -1,8 +1,8 @@
 import { BaseRepository, IQuery } from "./base-repository"
-import { ResultDTO } from "../dto";
+import { PaginatedResult, ResultDTO } from "../dto";
 import { getCurrentTS } from "@/lib/utils";
 import { results } from "./db-schema";
-import { eq } from "drizzle-orm";
+import { and, AnyColumn, asc, count, desc, eq, isNotNull, like, or } from "drizzle-orm";
 import { create } from "./generic-repository";
 
 export default class ServerResultRepository extends BaseRepository<ResultDTO> {
@@ -47,4 +47,40 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
         }        
         return Promise.resolve(dbQuery.all() as ResultDTO[])
     }
+
+
+     async queryAll({ limit, offset, orderBy, query}: { query: string, offset: number, limit: number, orderBy: string }): Promise<PaginatedResult<ResultDTO[]>> {
+        let orderColumn = desc(results.updatedAt);
+        let notNullColumn:AnyColumn= results.updatedAt;
+        const db = (await this.db());
+
+        switch (orderBy) {
+          case 'userName':
+            orderColumn = asc(results.userName);
+            notNullColumn = results.userName;
+            break;
+        case 'userEmail':
+            orderColumn = asc(results.userEmail);
+            notNullColumn = results.userEmail;
+            break;
+          case 'createdAt':
+            orderColumn = desc(results.createdAt);
+            notNullColumn = results.createdAt;
+            break;
+          case 'updatedAt':
+            orderColumn = desc(results.updatedAt);
+            break;
+        }
+        const records = await db.select().from(results).where(and(isNotNull(notNullColumn), or(like(results.userEmail, '%' + query + '%'), like(results.userName, '%' + query + '%')))).limit(limit).offset(offset).orderBy(orderColumn).execute();
+        const recordsCount = await db.select({ count: count() }).from(results).where(and(isNotNull(notNullColumn), or(like(results.userEmail, '%' + query + '%'), like(results.userName, '%' + query + '%')))).execute();
+        
+        return {
+          rows: records as ResultDTO[],
+          total: recordsCount[0].count,
+          limit,
+          offset,
+          orderBy,
+          query
+        }
+      }    
 }

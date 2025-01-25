@@ -208,7 +208,8 @@ export const AgentDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] 
 export const sessionDTOSchema = z.object({
   id: z.string().min(1),
   agentId: z.string().min(1),
-  user: z.string().optional().nullable(),
+  userName: z.string().optional().nullable(),
+  userEmail: z.string().optional().nullable(),
   acceptTerms: z.string().optional().nullable(),
   messages: z.string().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
@@ -222,7 +223,8 @@ export const SessionDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [
 export const resultDTOSchema = z.object({
   agentId: z.string().min(1),
   sessionId: z.string().min(1),
-  user: z.string().optional().nullable(),
+  userName: z.string().optional().nullable(),
+  userEmail: z.string().optional().nullable(),
   content: z.string().optional().nullable(),
   format: z.string().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
@@ -231,3 +233,14 @@ export const resultDTOSchema = z.object({
 });
 export type ResultDTO = z.infer<typeof resultDTOSchema>;
 export const ResultDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
+
+export type PaginatedResult<T> = {
+  rows: T;
+  total: number;
+  limit: number;
+  offset: number;
+  orderBy: string;
+  query: string;
+}
+
+export type PaginatedQuery = { limit: number, offset: number, orderBy: string, query: string}

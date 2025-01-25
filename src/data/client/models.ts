@@ -303,7 +303,8 @@ export type SessionUserInfo = {
 export class Session {
     id: string;
     agentId: string;
-    user?: SessionUserInfo | null;
+    userName?: string | null;
+    userEmail?: string | null;
     acceptTerms?: boolean | null;
     messages?: [Message] | null;
     createdAt: string;
@@ -313,7 +314,8 @@ export class Session {
     constructor(sessionDTO: SessionDTO | Session)  {
         this.id = sessionDTO.id;
         this.agentId = sessionDTO.agentId;
-        this.user = sessionDTO instanceof Session ? sessionDTO.user :  (sessionDTO.user ? JSON.parse(sessionDTO.user) : null);
+        this.userName = sessionDTO.userName ?? null;
+        this.userEmail = sessionDTO.userEmail ?? null;
         this.messages = sessionDTO instanceof Session ? sessionDTO.messages :  (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
         this.acceptTerms = !!(sessionDTO.acceptTerms ?? null);
         this.createdAt = sessionDTO.createdAt;
@@ -329,7 +331,8 @@ export class Session {
         return {
             id: this.id,
             agentId: this.agentId,
-            user: JSON.stringify(this.user),
+            userEmail: this.userEmail,
+            userName: this.userName,
             messages: JSON.stringify(this.messages),
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
@@ -342,7 +345,8 @@ export class Session {
 export class Result {
     agentId: string;
     sessionId: string;
-    user?: SessionUserInfo | null;
+    userName?: string | null;
+    userEmail?: string | null;
     content?: string | null;
     format?: string | null;
     createdAt: string;
@@ -352,7 +356,8 @@ export class Result {
     constructor(resultDTO: ResultDTO) {
         this.agentId = resultDTO.agentId;
         this.sessionId = resultDTO.sessionId;
-        this.user = resultDTO instanceof Result ? resultDTO.user :  (resultDTO.user ? JSON.parse(resultDTO.user) : null);
+        this.userName = resultDTO.userName ?? null;
+        this.userEmail = resultDTO.userEmail ?? null;
         this.content = resultDTO.content;
         this.format = resultDTO.format;
         this.createdAt = resultDTO.createdAt;
@@ -368,7 +373,8 @@ export class Result {
         return {
             sessionId: this.sessionId,
             agentId: this.agentId,
-            user: JSON.stringify(this.user),
+            userName: this.userName,
+            userEmail: this.userEmail,
             content: this.content,
             format: this.format,
             createdAt: this.createdAt,

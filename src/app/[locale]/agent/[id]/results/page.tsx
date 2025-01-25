@@ -77,7 +77,7 @@ export default function ResultsPage() {
       {agentContext.results.map((result) => (
         <Card key={result.sessionId}>
           <CardHeader>
-            <CardTitle>{new Date(result.createdAt).toLocaleString()}{result.user ? result.user.name : ''}</CardTitle>
+            <CardTitle>{new Date(result.createdAt).toLocaleString()}{result.userName ? result.userName : ''}{result.userEmail ? result.userEmail : ''}</CardTitle>
           </CardHeader>
           <CardContent>
             {result.format === 'JSON' ? (

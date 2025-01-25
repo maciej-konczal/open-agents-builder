@@ -1,5 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { getErrorMessage } from "@/lib/utils";
+import { PaginatedQuery } from '../dto';
 
 export class ApiError extends Error {
   public code: number|string;
@@ -10,6 +11,10 @@ export class ApiError extends Error {
     this.code = code;
     this.additionalData = additionalData;
   }
+}
+
+export function urlParamsForQuery({ query, limit, offset, orderBy }: PaginatedQuery): string {
+  return `query=${encodeURIComponent(query)}&limit=${limit}&offset=${offset}&orderBy=${encodeURIComponent(orderBy)}`;
 }
 
 

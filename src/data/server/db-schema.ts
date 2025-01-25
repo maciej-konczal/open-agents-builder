@@ -23,7 +23,8 @@ export const agents = sqliteTable('agents', {
 export const sessions = sqliteTable('sessions', {
     id: text('id').primaryKey(),   
     agentId: text('agentId').references(() => agents.id),
-    user: text('user', { mode: 'json' }),
+    userName: text('userName'),
+    userEmail: text('userEmail'),
     acceptTerms: text('acceptTerms'),
     messages: text('messages', { mode: 'json' }),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
@@ -34,7 +35,8 @@ export const sessions = sqliteTable('sessions', {
 export const results = sqliteTable('results', {
     agentId: text('agentId').references(() => agents.id),
     sessionId: text('sessionId').references(() => sessions.id).primaryKey(),
-    user: text('user', { mode: 'json' }),
+    userName: text('userName'),
+    userEmail: text('userEmail'),    
     content: text('content'),
     format: text('format'),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),

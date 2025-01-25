@@ -1,10 +1,11 @@
 import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
-import { AgentDTO, AgentDTOEncSettings, ResultDTO, SessionDTO } from "../dto";
+import { AgentDTO, AgentDTOEncSettings, PaginatedQuery, PaginatedResult, ResultDTO, SessionDTO } from "../dto";
 import { DatabaseContextType } from "@/contexts/db-context";
+import { urlParamsForQuery } from "./base-api-client";
 
-export type GetResultResponse = ResultDTO[];
-export type GetSessionResponse = SessionDTO[];
+export type GetResultResponse = PaginatedResult<ResultDTO[]>;
+export type GetSessionResponse = PaginatedResult<SessionDTO[]>;
 export type GetAgentsResponse = AgentDTO[];
 export type PutAgentRequest = AgentDTO;
 
@@ -40,12 +41,12 @@ export class AgentApiClient extends AdminApiClient {
         return this.request<GetAgentsResponse>('/api/agent' , 'GET', AgentDTOEncSettings) as Promise<GetAgentsResponse>;
     }
 
-    async results(agentId:string): Promise<GetResultResponse> {
-      return this.request<GetResultResponse>('/api/agent/' + agentId + '/result' , 'GET', AgentDTOEncSettings) as Promise<GetResultResponse>;
+    async results(agentId:string, { limit, offset, orderBy, query }: PaginatedQuery): Promise<GetResultResponse> {
+      return this.request<GetResultResponse>('/api/agent/' + agentId + '/result?' + urlParamsForQuery({limit, offset, orderBy, query}) , 'GET', AgentDTOEncSettings) as Promise<GetResultResponse>;
     }
 
-    async sessions(agentId:string): Promise<GetSessionResponse> {
-      return this.request<GetSessionResponse>('/api/agent/' + agentId + '/session', 'GET', AgentDTOEncSettings) as Promise<GetSessionResponse>;
+    async sessions(agentId:string, { limit, offset, orderBy, query }: PaginatedQuery): Promise<GetSessionResponse> {
+      return this.request<GetSessionResponse>('/api/agent/' + agentId + '/session?' + urlParamsForQuery({limit, offset, orderBy, query}), 'GET', AgentDTOEncSettings) as Promise<GetSessionResponse>;
     }
 
     async put(record: PutAgentRequest): Promise<PutAgentResponse> {

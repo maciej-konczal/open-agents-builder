@@ -10,7 +10,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
         const { id } = params;
         const { agentId, userName, userEmail, acceptTerms } = await request.json();
         const sessionRepo = new ServerSessionRepository(request.headers.get('Database-Id-Hash') || '');
-console.log(params, id)
 
         if(!id) {
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
@@ -29,10 +28,8 @@ console.log(params, id)
         const savedSession = await sessionRepo.create({
             id,
             agentId,
-            user: JSON.stringify({
-                name: userName,
-                email: userEmail
-            }),
+            userName,
+            userEmail,
             acceptTerms: acceptTerms === 'true' ? 'true' : 'false',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
