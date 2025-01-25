@@ -1,8 +1,8 @@
 import { BaseRepository, IQuery } from "./base-repository"
-import { SessionDTO } from "../dto";
+import { PaginatedResult, SessionDTO } from "../dto";
 import { getCurrentTS } from "@/lib/utils";
 import { sessions } from "./db-schema";
-import { eq } from "drizzle-orm";
+import { AnyColumn, desc, eq, isNotNull, or, and, like, count, asc  } from "drizzle-orm";
 import { create } from "./generic-repository";
 
 export default class ServerSessionRepository extends BaseRepository<SessionDTO> {
@@ -46,4 +46,39 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
         }        
         return Promise.resolve(dbQuery.all() as SessionDTO[])
     }
+
+     async queryAll({ limit, offset, orderBy, query}: { query: string, offset: number, limit: number, orderBy: string }): Promise<PaginatedResult<SessionDTO[]>> {
+        let orderColumn = desc(sessions.updatedAt);
+        let notNullColumn:AnyColumn= sessions.updatedAt;
+        const db = (await this.db());
+
+        switch (orderBy) {
+          case 'userName':
+            orderColumn = asc(sessions.userName);
+            notNullColumn = sessions.userName;
+            break;
+        case 'userEmail':
+            orderColumn = asc(sessions.userEmail);
+            notNullColumn = sessions.userEmail;
+            break;
+          case 'createdAt':
+            orderColumn = desc(sessions.createdAt);
+            notNullColumn = sessions.createdAt;
+            break;
+          case 'updatedAt':
+            orderColumn = desc(sessions.updatedAt);
+            break;
+        }
+        const records = await db.select().from(sessions).where(and(isNotNull(notNullColumn), or(like(sessions.userEmail, '%' + query + '%'), like(sessions.userName, '%' + query + '%')))).limit(limit).offset(offset).orderBy(orderColumn).execute();
+        const recordsCount = await db.select({ count: count() }).from(sessions).where(and(isNotNull(notNullColumn), or(like(sessions.userEmail, '%' + query + '%'), like(sessions.userName, '%' + query + '%')))).execute();
+        
+        return {
+          rows: records as SessionDTO[],
+          total: recordsCount[0].count,
+          limit,
+          offset,
+          orderBy,
+          query
+        }
+      }       
 }

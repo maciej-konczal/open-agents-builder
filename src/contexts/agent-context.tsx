@@ -19,9 +19,13 @@ interface AgentContextType {
     current: Agent | null;
     agents: Agent[];
     results: PaginatedResult<Result[]>;
-    agentResults: (agentId: string) => Promise<PaginatedResult<Result[]>>;
+    resultsQuery: PaginatedQuery
+    setResultsQuery: (query: PaginatedQuery) => void;
+    agentResults: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Result[]>>;
     sessions: PaginatedResult<Session[]>;
-    agentSessions: (agentId: string) => Promise<PaginatedResult<Session[]>>;
+    sessionsQuery: PaginatedQuery
+    setSessionsQuery: (query: PaginatedQuery) => void;
+    agentSessions: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Session[]>>;
     updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>;
     newAgent: () => Agent;
     listAgents: (currentAgentId?:string) => Promise<Agent[]>;
@@ -42,6 +46,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [results, setResults] = useState<PaginatedResult<Result[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [sessions, setSessions] = useState<PaginatedResult<Session[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
+    const [resultsQuery, setResultsQuery] = useState<PaginatedQuery>({ limit: 10, offset: 0, orderBy: '', query: '' });
+    const [sessionsQuery, setSessionsQuery] = useState<PaginatedQuery>({ limit: 10, offset: 0, orderBy: '', query: '' });
+
     const { t } = useTranslation();
 
     const dbContext = useContext(DatabaseContext);
@@ -176,8 +183,12 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 removeStatus,
                 results,
                 agentResults,
+                resultsQuery,
+                setResultsQuery,
                 sessions,
-                agentSessions
+                agentSessions,
+                sessionsQuery,
+                setSessionsQuery
             }}>
             {children}
         </AgentContext.Provider>
