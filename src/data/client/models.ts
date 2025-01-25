@@ -304,6 +304,7 @@ export class Session {
     id: string;
     agentId: string;
     user?: SessionUserInfo | null;
+    acceptTerms?: boolean | null;
     messages?: [Message] | null;
     createdAt: string;
     updatedAt: string;
@@ -314,6 +315,7 @@ export class Session {
         this.agentId = sessionDTO.agentId;
         this.user = sessionDTO instanceof Session ? sessionDTO.user :  (sessionDTO.user ? JSON.parse(sessionDTO.user) : null);
         this.messages = sessionDTO instanceof Session ? sessionDTO.messages :  (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
+        this.acceptTerms = !!(sessionDTO.acceptTerms ?? null);
         this.createdAt = sessionDTO.createdAt;
         this.updatedAt = sessionDTO.updatedAt;
         this.finalizedAt = sessionDTO.finalizedAt ?? null;

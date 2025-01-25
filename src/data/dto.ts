@@ -209,6 +209,7 @@ export const sessionDTOSchema = z.object({
   id: z.string().min(1),
   agentId: z.string().min(1),
   user: z.string().optional().nullable(),
+  acceptTerms: z.string().optional().nullable(),
   messages: z.string().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),

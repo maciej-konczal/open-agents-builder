@@ -24,6 +24,7 @@ export const sessions = sqliteTable('sessions', {
     id: text('id').primaryKey(),   
     agentId: text('agentId').references(() => agents.id),
     user: text('user', { mode: 'json' }),
+    acceptTerms: text('acceptTerms'),
     messages: text('messages', { mode: 'json' }),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
