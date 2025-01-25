@@ -1,3 +1,30 @@
+.markdown h2 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.3em;
+}
+
+.markdown h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+}
+
+.markdown h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+}
+
+.markdown h1 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    font-size: 1.5em;
+}
+
+
+
+
 .markdown p {
     margin-top: 6px;
     margin-top: 6px;
@@ -13,6 +40,7 @@
 
 .markdown ol {
     list-style:decimal;
+    padding-left: 6px;
 }
 
 .markdown table {
