@@ -8,7 +8,7 @@ import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
-import { useChatContext } from "@/contexts/chat-context";
+import { ChatInitFormType, useChatContext } from "@/contexts/chat-context";
 import { Credenza, CredenzaContent } from "./credenza";
 import { useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";
@@ -20,7 +20,8 @@ export function ChatInitForm({ displayName, welcomeMessage }: { displayName: str
     const onSubmit: SubmitHandler<ChatInitFormType> = (data) => {
         //console.log(data);
         chatContext.saveInitForm(data);
-        chatContext.setInitFormDone(true);
+        const response = chatContext.setInitFormDone(true);
+        console.log(response);
     }
     const [openTerms, setOpenTerms] = useState(false);
 

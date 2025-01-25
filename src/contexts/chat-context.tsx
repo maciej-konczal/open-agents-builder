@@ -7,6 +7,7 @@ export type ChatInitFormType = {
     userName: string;
     userEmail: string;
     acceptTerms: boolean;
+    agentId?: string;
 }
 
 export interface ChatContextType {
@@ -54,6 +55,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     }
 
     const saveInitForm = (formData: ChatInitFormType) => {
+        const client = new ChatApiClient(databaseIdHash);
+        return client.saveInitForm(sessionId, { ...formData, agentId: agent?.id ?? '' });
         // save the form data
     }
     return (

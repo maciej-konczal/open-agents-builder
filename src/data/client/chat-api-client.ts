@@ -1,5 +1,6 @@
 import { BaseApiClient } from "./base-api-client";
 import { AgentDTO } from "../dto";
+import { ChatInitFormType } from "@/contexts/chat-context";
 
 export type GetAgentsResponse = AgentDTO;
 export type PutAgentRequest = AgentDTO;
@@ -21,6 +22,12 @@ export type PutAgentResponseError = {
   issues?: any[];
 };
 
+export type SaveSessionResponse = {
+  message: string;
+  status: number;
+  id?: string
+};
+
 export type PutAgentResponse = PutAgentResponseSuccess | PutAgentResponseError;
 
 
@@ -31,5 +38,10 @@ export class ChatApiClient extends BaseApiClient {
     async agent(agentId:string): Promise<GetAgentsResponse> {
       return await (this.request<GetAgentsResponse>('/api/chat/agent/' + encodeURIComponent(agentId) , 'GET') as Promise<GetAgentsResponse>);
     }
+
+    async saveInitForm(sessionId: string, formData: ChatInitFormType): Promise<SaveSessionResponse> {
+      return await this.request<SaveSessionResponse>('/api/chat/session/' + encodeURIComponent(sessionId), 'POST', {}, formData) as SaveSessionResponse;
+    }
+
   
 }

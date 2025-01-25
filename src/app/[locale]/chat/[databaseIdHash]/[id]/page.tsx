@@ -35,6 +35,10 @@ export default function ChatPage({children,
 
     useEffect(() => {
         if (chatContext.agent){
+          if(chatContext.initFormRequired && !chatContext.initFormDone){
+            return; // wait until user fills the form
+          }
+
           append({
             id: nanoid(),
             role: "user",
@@ -43,7 +47,7 @@ export default function ChatPage({children,
             headers: getSessionHeaders()
           })
         }
-      }, [chatContext.agent]);
+      }, [chatContext.agent, chatContext.initFormRequired, chatContext.initFormDone]);
 
     return (
         <div className="pt-10">

@@ -310,7 +310,7 @@ export class Session {
     updatedAt: string;
     finalizedAt?: string | null;
 
-    constructor(sessionDTO: SessionDTO) {
+    constructor(sessionDTO: SessionDTO | Session)  {
         this.id = sessionDTO.id;
         this.agentId = sessionDTO.agentId;
         this.user = sessionDTO instanceof Session ? sessionDTO.user :  (sessionDTO.user ? JSON.parse(sessionDTO.user) : null);
