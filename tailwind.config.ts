@@ -4,11 +4,7 @@ const config: Config = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src-distro/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src-distro/components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src-distro/app/**/*.{js,ts,jsx,tsx,mdx}",
-
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}"
   ],
   theme: {        
     extend: {

@@ -32,6 +32,8 @@ import {
   ShowSandpackInfo
 } from '@mdxeditor/editor'
 import { ExtendedMDXEditorProps } from './markdown-editor'
+import styles from './markdown-editor.module.css'
+import { useTheme } from 'next-themes'
 
 
 
@@ -57,8 +59,13 @@ export default function InitializedMDXEditor({
   editorRef,
   ...props
 }: { editorRef: ForwardedRef<MDXEditorMethods> | null } & ExtendedMDXEditorProps) {
+  const { theme, systemTheme } = useTheme();
+  const currentTheme = (theme === 'system' ? systemTheme : theme)
+
+  
   return (
     <MDXEditor
+      className={theme === 'dark' ? styles['dark-editor'] : ''}
       plugins={[
         // Example Plugin Usage
         headingsPlugin(),

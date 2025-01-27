@@ -18,7 +18,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src-distro/*", "./src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/lib/pdf2js.js", "next-i18next.config.mjs"],

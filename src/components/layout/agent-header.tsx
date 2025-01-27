@@ -10,10 +10,12 @@ import {
 } from '@/components/ui/select';
 import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
-import { Plus, Play } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
+import { Plus, Play, DeleteIcon, Delete, MinusIcon, Trash2Icon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { use, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AlertDialogHeader, AlertDialogFooter } from '../ui/alert-dialog';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -41,7 +43,7 @@ export function AgentHeader() {
           </SelectTrigger>
           <SelectContent>
             {agentContext.agents.map((project) => (
-              <SelectItem key={project.id} value={project.id}>
+              <SelectItem key={project.id} value={project.id ?? ''}>
                 {project.displayName}
               </SelectItem>
             ))}
@@ -51,6 +53,31 @@ export function AgentHeader() {
           <Plus className="mr-2 h-4 w-4" />
           {t('Add Agent')}
         </Button>
+        
+        <AlertDialog>
+          <AlertDialogTrigger>
+          <Button variant={"secondary"} size="sm">
+            <Trash2Icon className="mr-2 h-4 w-4"  />
+            {t('Delete agent')}
+          </Button>        
+          </AlertDialogTrigger>
+          <AlertDialogContent className="w-[400px] bg-background text-sm p-4 rounded-lg shadow-lg border border-gray-200">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete your agent data
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>No</AlertDialogCancel>
+              <AlertDialogAction className='' onClick={(e) => 
+                {
+                }
+              }>YES</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>       
+
       </div>
       {(agentContext.current?.id !== 'new') ? (
         <Button variant="secondary" size="sm" onClick={() => window.open(`/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`)}>
