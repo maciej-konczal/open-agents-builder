@@ -167,19 +167,14 @@ export default function GeneralPage() {
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">
         {t('Welcome Message')}
         </label>
-        <MarkdownEditor markdown={agent?.options?.welcomeMessage ?? ''} onChange={(e) => setValue('welcomeInfo', e)} />
+        <MarkdownEditor markdown={agent?.options?.welcomeMessage ?? ''} onChange={(e) => setValue('welcomeInfo', e)} diffMarkdown={agent?.options?.welcomeMessage} />
         {errors.welcomeInfo && <p className="mt-2 text-sm text-red-600">{errors.welcomeInfo.message}</p>}
       </div>
       <div>
         <label htmlFor="termsConditions" className="block text-sm font-medium">
         {t('Terms and Conditions')}
         </label>
-        <Textarea
-        id="termsConditions"
-        {...register('termsConditions')}
-        rows={4}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        />
+        <MarkdownEditor markdown={agent?.options?.termsAndConditions ?? ''} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions} />
         {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{errors.termsConditions.message}</p>}
       </div>
       <div>

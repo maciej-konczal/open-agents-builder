@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { Input } from '@/components/ui/input';
 import { AgentStatus } from '@/components/layout/agent-status';
+import { MarkdownEditor } from '@/components/markdown-editor';
 
 export default function PromptPage() {
   const { t } = useTranslation();
@@ -19,6 +20,7 @@ export default function PromptPage() {
   });  
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
+  register('prompt', { required: t('Prompt is required') });
    
   return (
     <div className="space-y-6">
@@ -34,12 +36,7 @@ export default function PromptPage() {
         {t('Agent prompt')}
         </label>
         <Input type='hidden' id="id" {...register('id')} />
-        <Textarea
-        id="prompt"
-        {...register('prompt', { required: t('Prompt is required') })}
-        rows={20}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        />
+        <MarkdownEditor markdown={agent?.prompt ?? ''} onChange={(e) => setValue('prompt', e)} diffMarkdown={agent?.prompt ?? ''} />
         {errors.prompt && <p className="mt-2 text-sm text-red-600">{errors.prompt.message}</p>}
       </div>
       <div>
