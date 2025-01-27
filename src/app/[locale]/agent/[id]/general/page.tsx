@@ -12,6 +12,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { sha256 } from '@/lib/crypto';
 import { TFunction } from 'i18next';
 import { AgentStatus } from '@/components/layout/agent-status';
+import { MarkdownEditor } from '@/components/markdown-editor';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance) {
@@ -166,12 +167,7 @@ export default function GeneralPage() {
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">
         {t('Welcome Message')}
         </label>
-        <Textarea
-        id="welcomeInfo"
-        {...register('welcomeInfo')}
-        rows={4}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        />
+        <MarkdownEditor markdown={agent?.options?.welcomeMessage ?? ''} onChange={(e) => setValue('welcomeInfo', e)} />
         {errors.welcomeInfo && <p className="mt-2 text-sm text-red-600">{errors.welcomeInfo.message}</p>}
       </div>
       <div>
