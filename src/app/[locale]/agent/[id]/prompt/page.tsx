@@ -40,7 +40,7 @@ export default function PromptPage() {
         {t('Agent prompt')}
         </label>
         <Input type='hidden' id="id" {...register('id')} />
-        <MarkdownEditor ref={editors.prompt} markdown={agent?.prompt ?? ''} onChange={(e) => setValue('prompt', e)} diffMarkdown={agent?.prompt ?? ''} />
+        <MarkdownEditor ref={editors.prompt} markdown={getValues('prompt') ?? agent?.prompt ?? ''} onChange={(e) => setValue('prompt', e)} diffMarkdown={agent?.prompt ?? ''} />
         {errors.prompt && <p className="mt-2 text-sm text-red-600">{errors.prompt.message}</p>}
       </div>
       <div>

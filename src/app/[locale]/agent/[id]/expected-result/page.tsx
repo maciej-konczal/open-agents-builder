@@ -44,7 +44,7 @@ export default function GeneralPage() {
         </label>
         <Input type='hidden' id="id" {...register('id')} />
 
-        <MarkdownEditor ref={editors.expectedResult} markdown={agent?.expectedResult ?? ''} onChange={(e) => setValue('expectedResult', e)} diffMarkdown={agent?.expectedResult ?? ''} />
+        <MarkdownEditor ref={editors.expectedResult} markdown={getValues('expectedResult') ?? agent?.expectedResult ?? ''} onChange={(e) => setValue('expectedResult', e)} diffMarkdown={agent?.expectedResult ?? ''} />
         {errors.expectedResult && <p className="mt-2 text-sm text-red-600">{errors.expectedResult.message}</p>}
       </div>
       <div>

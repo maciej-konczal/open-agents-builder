@@ -41,7 +41,7 @@ export default function SafetyRulesPage() {
         {t('Safety rules')}
         </label>
         <Input type='hidden' id="id" {...register('id')} />
-        <MarkdownEditor ref={editors.safetyRules} markdown={agent?.safetyRules ?? ''} onChange={(e) => setValue('safetyRules', e)} diffMarkdown={agent?.safetyRules ?? ''} />
+        <MarkdownEditor ref={editors.safetyRules} markdown={getValues('safetyRules') ?? agent?.safetyRules ?? ''} onChange={(e) => setValue('safetyRules', e)} diffMarkdown={agent?.safetyRules ?? ''} />
         {errors.safetyRules && <p className="mt-2 text-sm text-red-600">{errors.safetyRules.message}</p>}
       </div>
       <div>
