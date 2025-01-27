@@ -28,7 +28,11 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
 
     async delete(query: Record<string, string>): Promise<boolean> {
         const db = (await this.db());
-        return db.delete(results).where(eq(results.id, query.id)).run().changes > 0
+        if(query.agentId) 
+            return db.delete(results).where(eq(results.agentId, query.agentId)).run().changes > 0
+        if(query.sessionId) 
+            return db.delete(results).where(eq(results.sessionId, query.sessionId)).run().changes > 0    
+        return false;
     }
 
     async findAll(query?: IQuery): Promise<ResultDTO[]> {

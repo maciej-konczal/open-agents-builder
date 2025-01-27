@@ -56,10 +56,12 @@ export function AgentHeader() {
         
         <AlertDialog>
           <AlertDialogTrigger>
-          <Button variant={"secondary"} size="sm">
-            <Trash2Icon className="mr-2 h-4 w-4"  />
-            {t('Delete agent')}
-          </Button>        
+            {agentContext.current?.id !== 'new' ? (
+            <Button variant={"secondary"} size="sm">
+              <Trash2Icon className="mr-2 h-4 w-4"  />
+              {t('Delete agent')}
+            </Button>        
+            ) : null}
           </AlertDialogTrigger>
           <AlertDialogContent className="w-[400px] bg-background text-sm p-4 rounded-lg shadow-lg border border-gray-200">
             <AlertDialogHeader>
@@ -70,8 +72,14 @@ export function AgentHeader() {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>No</AlertDialogCancel>
-              <AlertDialogAction className='' onClick={(e) => 
+              <AlertDialogAction className='' onClick={async (e) => 
                 {
+                  if(agentContext.current?.id  && agentContext.current?.id !== 'new') {
+                    const resp = await agentContext.deleteAgent(agentContext.current)
+                    localStorage.removeItem('currentAgentId');
+                    router.push(`/agent/new/general`);
+                  }
+
                 }
               }>YES</AlertDialogAction>
             </AlertDialogFooter>

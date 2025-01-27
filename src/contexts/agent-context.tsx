@@ -3,7 +3,7 @@ import { Agent, DataLoadingStatus, Session, Result } from '@/data/client/models'
 import { AgentDTO, PaginatedQuery, PaginatedResult } from '@/data/dto';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { DatabaseContext } from './db-context';
-import { AgentApiClient } from '@/data/client/agent-api-client';
+import { AgentApiClient, DeleteAgentResponse } from '@/data/client/agent-api-client';
 import { SaaSContext } from './saas-context';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
@@ -31,6 +31,7 @@ interface AgentContextType {
     status: AgentStatusType | null
     setStatus: (status: AgentStatusType | null) => void;
     removeStatus (id: string): void;
+    deleteAgent: (agent: Agent) => Promise<DeleteAgentResponse>;
 
 }
 
@@ -99,6 +100,20 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 safetyRules: null
             }
         )
+    }
+
+    const deleteAgent = async (agent: Agent): Promise<DeleteAgentResponse> => {
+        const client = await setupApiClient();
+        const response = await client.delete(agent.toDTO());
+        if (response.status !== 200) {
+            console.error('Error deleting agent:', response.message);
+            toast.error(t('Error deleting agent'));
+        } else {
+            setAgents(agents.filter(pr => pr.id !== agent.id));
+            toast.success(t('Agent deleted'));
+        }
+
+        return response;
     }
 
     const agentResults = async (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery): Promise<PaginatedResult<Result[]>> => {
@@ -178,7 +193,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 results,
                 agentResults,
                 sessions,
-                agentSessions
+                agentSessions,
+                deleteAgent
             }}>
             {children}
         </AgentContext.Provider>
