@@ -8,6 +8,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
+import { MarkdownEditor } from '@/components/markdown-editor';
 
 export default function GeneralPage() {
 
@@ -20,7 +21,8 @@ export default function GeneralPage() {
   });  
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
-   
+  register('expectedResult', { required: t('Expected result is required') })
+
   return (
     <div className="space-y-6">
       { isDirty ? (
@@ -35,12 +37,8 @@ export default function GeneralPage() {
         {t('Expected result')}
         </label>
         <Input type='hidden' id="id" {...register('id')} />
-        <Textarea
-        id="expectedResult"
-        {...register('expectedResult', { required: t('Expected result is required') })}
-        rows={20}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        />
+
+        <MarkdownEditor markdown={agent?.expectedResult ?? ''} onChange={(e) => setValue('expectedResult', e)} diffMarkdown={agent?.expectedResult ?? ''} />
         {errors.expectedResult && <p className="mt-2 text-sm text-red-600">{errors.expectedResult.message}</p>}
       </div>
       <div>

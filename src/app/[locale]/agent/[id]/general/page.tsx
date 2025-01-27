@@ -130,6 +130,8 @@ export default function GeneralPage() {
   const { register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
+  register('welcomeInfo');
+  register('termsAndConditions');
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
 
@@ -167,14 +169,14 @@ export default function GeneralPage() {
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">
         {t('Welcome Message')}
         </label>
-        <MarkdownEditor markdown={agent?.options?.welcomeMessage ?? ''} onChange={(e) => setValue('welcomeInfo', e)} diffMarkdown={agent?.options?.welcomeMessage} />
+        <MarkdownEditor markdown={getValues()['welcomeInfo'] ?? ''} onChange={(e) => setValue('welcomeInfo', e)} diffMarkdown={agent?.options?.welcomeMessage ?? ''} />
         {errors.welcomeInfo && <p className="mt-2 text-sm text-red-600">{errors.welcomeInfo.message}</p>}
       </div>
       <div>
         <label htmlFor="termsConditions" className="block text-sm font-medium">
         {t('Terms and Conditions')}
         </label>
-        <MarkdownEditor markdown={agent?.options?.termsAndConditions ?? ''} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions} />
+        <MarkdownEditor markdown={getValues()['termsConditions'] ?? ''} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
         {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{errors.termsConditions.message}</p>}
       </div>
       <div>
