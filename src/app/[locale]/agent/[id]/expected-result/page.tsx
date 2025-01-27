@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import { MarkdownEditor } from '@/components/markdown-editor';
+import React from 'react';
+import { MDXEditorMethods } from '@mdxeditor/editor';
 
 export default function GeneralPage() {
 
@@ -20,7 +22,11 @@ export default function GeneralPage() {
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
-  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
+    const editors = {
+      expectedResult: React.useRef<MDXEditorMethods>(null)
+    }
+
+  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, editors);
   register('expectedResult', { required: t('Expected result is required') })
 
   return (
@@ -38,7 +44,7 @@ export default function GeneralPage() {
         </label>
         <Input type='hidden' id="id" {...register('id')} />
 
-        <MarkdownEditor markdown={agent?.expectedResult ?? ''} onChange={(e) => setValue('expectedResult', e)} diffMarkdown={agent?.expectedResult ?? ''} />
+        <MarkdownEditor ref={editors.expectedResult} markdown={agent?.expectedResult ?? ''} onChange={(e) => setValue('expectedResult', e)} diffMarkdown={agent?.expectedResult ?? ''} />
         {errors.expectedResult && <p className="mt-2 text-sm text-red-600">{errors.expectedResult.message}</p>}
       </div>
       <div>

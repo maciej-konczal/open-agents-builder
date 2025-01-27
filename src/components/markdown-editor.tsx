@@ -7,7 +7,7 @@ import { forwardRef } from "react"
 import { type MDXEditorMethods, type MDXEditorProps } from '@mdxeditor/editor'
 
 export interface ExtendedMDXEditorProps extends MDXEditorProps {
-  diffMarkdown: string;
+  diffMarkdown?: string;
 }
 import dynamic from 'next/dynamic'
 

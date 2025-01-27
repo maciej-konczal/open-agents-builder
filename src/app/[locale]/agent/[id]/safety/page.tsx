@@ -8,6 +8,9 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
+import React from 'react';
+import { MDXEditorMethods } from '@mdxeditor/editor';
+import { MarkdownEditor } from '@/components/markdown-editor';
 
 export default function SafetyRulesPage() {
 
@@ -18,8 +21,11 @@ export default function SafetyRulesPage() {
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
-
-  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
+    const editors = {
+      safetyRules: React.useRef<MDXEditorMethods>(null)
+    }
+  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, editors);
+  register('safetyRules', { required: t('Safety rules are required') });
    
   return (
     <div className="space-y-6">
@@ -35,12 +41,7 @@ export default function SafetyRulesPage() {
         {t('Safety rules')}
         </label>
         <Input type='hidden' id="id" {...register('id')} />
-        <Textarea
-        id="safetyRules"
-        {...register('safetyRules', { required: t('Safety Rules are required') })}
-        rows={20}
-        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        />
+        <MarkdownEditor ref={editors.safetyRules} markdown={agent?.safetyRules ?? ''} onChange={(e) => setValue('safetyRules', e)} diffMarkdown={agent?.safetyRules ?? ''} />
         {errors.safetyRules && <p className="mt-2 text-sm text-red-600">{errors.safetyRules.message}</p>}
       </div>
       <div>

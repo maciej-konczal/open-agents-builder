@@ -13,9 +13,11 @@ import { sha256 } from '@/lib/crypto';
 import { TFunction } from 'i18next';
 import { AgentStatus } from '@/components/layout/agent-status';
 import { MarkdownEditor } from '@/components/markdown-editor';
+import React from 'react';
+import { MDXEditorMethods } from '@mdxeditor/editor';
 
 
-export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance) {
+export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
   const [isDirty, setIsDirty] = useState(false);
   const params = useParams();
   const agentContext = useAgentContext();
@@ -63,9 +65,17 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
         const parsedState = JSON.parse(savedState);
         Object.keys(parsedState).forEach((key) => {
           setValue(key, parsedState[key]);
+          if (editors.hasOwnProperty(key) && editors[key].current) {
+            editors[key].current?.setMarkdown(parsedState[key]);
+          }
         });
       } else {
-        agent.toForm(setValue)
+        agent.toForm((field, value) => {
+          if (editors.hasOwnProperty(field) && editors[field].current) {
+            editors[field].current?.setMarkdown(value);
+          }
+          setValue(field, value);
+        })
       }
       subscribeChanges(agent.toForm(null));
 
@@ -130,10 +140,13 @@ export default function GeneralPage() {
   const { register, handleSubmit, getValues, setValue, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
-  register('welcomeInfo');
-  register('termsAndConditions');
 
-  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router);
+  const editors = {
+    welcomeInfo: React.useRef<MDXEditorMethods>(null),
+    termsConditions: React.useRef<MDXEditorMethods>(null)
+  }
+
+  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, editors);
 
   useEffect(() => {
     if (isDirty) {
@@ -169,14 +182,14 @@ export default function GeneralPage() {
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">
         {t('Welcome Message')}
         </label>
-        <MarkdownEditor markdown={getValues()['welcomeInfo'] ?? ''} onChange={(e) => setValue('welcomeInfo', e)} diffMarkdown={agent?.options?.welcomeMessage ?? ''} />
+        <MarkdownEditor markdown={agent?.options?.welcomeMessage ?? ''} ref={editors.welcomeInfo} onChange={(e) => setValue('welcomeInfo', e)} diffMarkdown={agent?.options?.welcomeMessage ?? ''} />
         {errors.welcomeInfo && <p className="mt-2 text-sm text-red-600">{errors.welcomeInfo.message}</p>}
       </div>
       <div>
         <label htmlFor="termsConditions" className="block text-sm font-medium">
         {t('Terms and Conditions')}
         </label>
-        <MarkdownEditor markdown={getValues()['termsConditions'] ?? ''} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
+        <MarkdownEditor markdown={agent?.options?.termsAndConditions ?? ''} ref={editors.termsConditions} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
         {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{errors.termsConditions.message}</p>}
       </div>
       <div>
