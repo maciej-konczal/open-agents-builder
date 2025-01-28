@@ -430,8 +430,6 @@ export class DatabaseRefreshRequest {
     }
 }
 
-
-
 export const passwordValidator = (value:string) => {
     const passSchema = new PasswordValidator();
     passSchema.is().min(6).has().not().spaces();

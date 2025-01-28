@@ -4,15 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form";
-import { emailValidator, userKeyValidator } from "@/data/client/models";
+import { passwordValidator } from "@/data/client/models";
 import { PasswordInput } from "./ui/password-input";
-import { ReactElement, use, useContext, useEffect, useState } from "react"
+import { ReactElement, useContext, useEffect, useState } from "react"
 import { Checkbox } from "./ui/checkbox";
 import NoSSR  from "react-no-ssr"
 import { CreateDatabaseResult, DatabaseContext } from "@/contexts/db-context";
 import { generatePassword } from "@/lib/crypto";
-import { Check, CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
-import { pdf, Document, Page } from '@react-pdf/renderer';
+import { CopyIcon, EyeIcon, EyeOffIcon, WandIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
 import { KeyContext } from "@/contexts/key-context";
@@ -47,8 +46,8 @@ export function ChangeKeyForm({
     // Handle form submission
 
     if (dbContext?.password !== data.currentKey) {
-      setOperationResult({ success: false, message: t("Current key is incorrect"), issues: [] });
-      toast.error(t('Current key is incorrect'));
+      setOperationResult({ success: false, message: t("Current password is incorrect"), issues: [] });
+      toast.error(t('Current password is incorrect'));
     } else  {
 
       const newKeyResult = await keyContext.addKey(dbContext?.email, t('Owner Key'), data.key, null, {
@@ -61,12 +60,12 @@ export function ChangeKeyForm({
         const deleteOldKeyResult = await keyContext.removeKey(dbContext.keyLocatorHash)
 
         if(deleteOldKeyResult.status !== 200) {
-          setOperationResult({ success: false, message: "Error while changing key", issues: deleteOldKeyResult.issues ?? []});
+          setOperationResult({ success: false, message: "Error while changing password", issues: deleteOldKeyResult.issues ?? []});
           toast.error(t('Error while changing key'));
           return;
         } else {
-          setOperationResult({ success: true, message: "Key has been successfully changed", issues: [] });
-          toast.success(t('Key has been successfully changed'));
+          setOperationResult({ success: true, message: "Password has been successfully changed", issues: [] });
+          toast.success(t('Password has been successfully changed'));
 
           if (keepLoggedIn){
             localStorage.setItem("email", dbContext?.email);
@@ -74,8 +73,8 @@ export function ChangeKeyForm({
           }
         }
       } else {
-        setOperationResult({ success: false, message: "Error while changing key", issues: newKeyResult.issues ?? []});
-        toast.error(t('Error while changing key'));
+        setOperationResult({ success: false, message: "Error while changing password", issues: newKeyResult.issues ?? []});
+        toast.error(t('Error while changing password'));
         return;
       }
     }
@@ -92,7 +91,7 @@ export function ChangeKeyForm({
           <Input type="password" id="email" readOnly value={dbContext?.email} />
         </div>
         <div className="text-sm">
-          <Label htmlFor="password">User Key:</Label>
+          <Label htmlFor="password">User Password:</Label>
           <Textarea id="password" readOnly value={dbContext?.password} />
         </div>
         <div className="flex gap-2 mt-5">
@@ -132,31 +131,28 @@ export function ChangeKeyForm({
               </ul>
             </div>
           ) : null}
-          <Label htmlFor="currentKey">Current Key</Label>
+          <Label htmlFor="currentKey">Current Password</Label>
           <Input autoFocus 
             type="text"
             id="currentKey"
             {...register("currentKey", { required: true,
               validate: {
-                email: userKeyValidator
+                currentKey: passwordValidator
               }
             })}
           />
-          {errors.currentKey && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Enter your current encryption key which is required to re-encrypt your data with new key
-          </p>        
+          {errors.currentKey && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>} 
 
         </div>
         <div className="flex flex-col space-y-2 gap-2 mb-4">
-              <Label htmlFor="key">New User Key</Label>
+              <Label htmlFor="key">New User Password</Label>
               <div className="flex gap-2">
                 <div className="relative">
                   <PasswordInput autoComplete="new-password" id="password"
                       type={showPassword ? 'text' : 'password'}
                       {...register("key", { required: true,
                           validate: {
-                              key: userKeyValidator
+                              key: passwordValidator
                           }            
                           })}                        />
                       <Button
@@ -178,7 +174,7 @@ export function ChangeKeyForm({
                           />
                           )}
                           <span className="sr-only">
-                          {showPassword ? "Hide password" : "Show password"}
+                          {showPassword ? t("Hide password") : t("Show password")}
                           </span>
                       </Button>
 
@@ -199,7 +195,7 @@ export function ChangeKeyForm({
                 }}><WandIcon className="w-4 h-4" /></Button>
                 <Button variant="outline" className="p-1 h-10 w-10" onClick={async (e) => {
                   e.preventDefault();
-                  const textToCopy = 'Database Id: '+ dbContext?.email + "\nKey Id: " + getValues().key;
+                  const textToCopy = 'E-mail: '+ dbContext?.email + "\nPassword: " + getValues().key;
                   if ('clipboard' in navigator) {
                     navigator.clipboard.writeText(textToCopy);
                   } else {
@@ -210,10 +206,8 @@ export function ChangeKeyForm({
               <div>
                 {printKey}
               </div>
-              {errors.key && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>}
+              {errors.key && <span className="text-red-500 text-sm">{t('Password must be at least 8 characters length including digits, alpha, lower and upper letters.')}</span>}
               <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              Please save or print this master key. <strong>It&apos;s like crypto wallet.</strong> After losing it your medical records <strong className="text-red-500">WILL BE LOST FOREVER</strong>.
-              We&apos;re using strong AES256 end-to-end encryption.
           </p>        
         </div>
         <div className="flex items-center justify-between gap-4 mt-4">
@@ -227,11 +221,11 @@ export function ChangeKeyForm({
                   localStorage.setItem("keepLoggedIn", checked.toString());
                       }}
               />
-              <label htmlFor="keepLoggedIn" className="text-sm">Keep me logged in</label>
+              <label htmlFor="keepLoggedIn" className="text-sm">{t('Keep me logged in')}</label>
             </div>      
           </NoSSR>
           <div className="items-center flex justify-center">
-              <Button type="submit">Change Encryption Key</Button>
+              <Button type="submit">{t('Change password')}</Button>
           </div>
         </div>
       </form>

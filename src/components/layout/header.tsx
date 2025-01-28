@@ -14,10 +14,13 @@ import { DatabaseContext } from '@/contexts/db-context';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from './language-switcher';
 import { useRouter } from 'next/navigation';
+import { ChangeKeyPopup } from '../change-key-popup';
+import { KeyContext } from '@/contexts/key-context';
 
 export function Header() {
   const { t } = useTranslation();
   const dbContext = useContext(DatabaseContext);
+  const keysContext = useContext(KeyContext);
   const router = useRouter();
 
   return (
@@ -27,6 +30,7 @@ export function Header() {
       </div>
       <div className="flex-1"><h1 className="text-lg font-bold text-left">{t('Agent Doodle')}</h1>
       </div>
+      <ChangeKeyPopup />      
       <div className="flex items-center gap-4">
         <Button variant="ghost" size="icon">
           <Bell className="h-5 w-5" />
@@ -42,6 +46,7 @@ export function Header() {
           <DropdownMenuContent align="end">
             {/* <DropdownMenuItem>{t('Profile')}</DropdownMenuItem> */}
             <DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Settings')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => {
               dbContext?.logout();
             }}>{t('Sign out')}</DropdownMenuItem>

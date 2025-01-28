@@ -52,6 +52,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
     const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
+    const { t } = useTranslation();
 
     const setupApiClient = async (config: ConfigContextType | null, saasContext?: SaaSContextType | null) => {
         const client = new KeyApiClient('', dbContext, saasContext);
@@ -80,7 +81,6 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
         });
         const databaseIdHash = await sha256(email, defaultDatabaseIdHashSalt);
         const keyLocatorHash = await sha256(sharedKey + email, defaultKeyLocatorHashSalt);
-        const { t } = useTranslation();
 
         const existingKey = keys.find((key) => key.keyLocatorHash === keyLocatorHash);
         if (existingKey) {
@@ -110,7 +110,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
         const result = await apiClient.put(keyDTO);
         
         if(result.status === 200) {
-            toast(t('Shared Key succesfull added. Please send Database Id and Key value to the user you like to share date with.'))
+            toast(t('Authorization Key succesfull added.'))
         } else {
             toast.error(t((result as PutKeyResponseError).message));
         }
