@@ -1,13 +1,9 @@
-import { DataLoadingStatus, Key, KeyACL } from '@/data/client/models';
-import { EncryptionUtils, generatePassword, sha256 } from '@/lib/crypto';
+import { DataLoadingStatus } from '@/data/client/models';
 import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
-import { DatabaseContext, DatabaseContextType, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt } from './db-context';
+import { DatabaseContext } from './db-context';
 import { toast } from 'sonner';
-import { AuditDTO, KeyACLDTO, KeyDTO } from '@/data/dto';
-import { KeyApiClient, PutKeyResponse, PutKeyResponseError } from '@/data/client/key-api-client';
+import { AuditDTO } from '@/data/dto';
 import { ConfigContextType } from '@/contexts/config-context';
-import { getCurrentTS } from '@/lib/utils';
-import assert from 'assert';
 import { AuditApiClient } from '@/data/client/audit-api-client';
 import { SaaSContext } from './saas-context';
 import { useTranslation } from 'react-i18next';

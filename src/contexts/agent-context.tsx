@@ -8,6 +8,8 @@ import { SaaSContext } from './saas-context';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
+import { AuditContext } from './audit-context';
+import { diff, addedDiff, deletedDiff, updatedDiff, detailedDiff } from 'deep-object-diff';
 
 export type AgentStatusType = {
     id: string;
@@ -43,6 +45,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [results, setResults] = useState<PaginatedResult<Result[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [sessions, setSessions] = useState<PaginatedResult<Session[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
+    const auditContext = useContext(AuditContext);
 
     const { t } = useTranslation();
 
@@ -67,6 +70,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         const agentDTO = agent.toDTO(); // DTOs are common ground between client and server
         const newRecord = typeof agent?.id  === 'undefined' || agent.id === 'new';
 
+        const prevRecord = agents.find(r => r.id === agent.id);
+        const changes = prevRecord ?  detailedDiff(prevRecord, agent) : {};
+        
         if (newRecord) agentDTO.id = nanoid();
         const response = await client.put(agentDTO);
 
@@ -82,6 +88,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 agents.map(pr => pr.id === agent.id ?  agent : pr)
             )
             if (setAsCurrent) setCurrent(updatedAgent);
+
+            auditContext?.record({ eventName: newRecord ? 'addAgent' : 'updateAgent', recordLocator: JSON.stringify({ id: agent.id }), encryptedDiff: JSON.stringify(changes) })
+
             return updatedAgent;
         }
 
@@ -109,6 +118,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             console.error('Error deleting agent:', response.message);
             toast.error(t('Error deleting agent'));
         } else {
+            auditContext?.record({ eventName: 'deleteAgent', recordLocator: agent.id  })
+
             setAgents(agents.filter(pr => pr.id !== agent.id));
             toast.success(t('Agent deleted'));
         }

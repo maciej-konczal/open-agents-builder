@@ -23,12 +23,12 @@ export default function AuditLogItem({ audit, selected, onClick }: { audit: Audi
   const currentKey = keysContext.keys.find((key) => key.keyLocatorHash === audit.keyLocatorHash);
   return (
     <Link
-      className={`flex items-center gap-3 p-3 rounded-md ${selected ? " text-primary-foreground bg-zinc-100 dark:bg-zinc-800" : "" } transition-colors over:bg-zinc-100 dark:hover:bg-zinc-800`}
+      className={`flex items-center gap-3 p-3 rounded-md ${selected ? "bg-background border" : "" } transition-colors border-gray`}
       href=""
       onClick={onClick}
     >
       <div className="grid grid-cols-3 w-full block">
-        <div className="font-medium">{audit.eventName}</div>
+        <div className="font-medium text-zinc-500 dark:text-zinc-400">{audit.eventName}</div>
         <div className="text-xs text-zinc-500 dark:text-zinc-400">Key: {currentKey ? currentKey?.displayName : (audit.keyLocatorHash !== dbContext?.keyLocatorHash ? audit.keyLocatorHash?.slice(0, 8) + '...' : 'Your User Key')}</div>
         <div className="text-xs text-zinc-500 dark:text-zinc-400">Date: {audit.createdAt}</div>
         {selected ? (
