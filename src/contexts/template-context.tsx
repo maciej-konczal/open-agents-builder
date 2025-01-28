@@ -18,13 +18,19 @@ interface TemplateContextType {
     listTemplates: () => Promise<Agent[]>;
     setTemplates: (templates: Agent[]) => void;
     deleteTemplate: (agent: Agent) => Promise<DeleteAgentResponse>;
+    templatePopupOpen: boolean;
+    setTemplatePopupOpen: (value: boolean) => void;
+    lastTemplateAdded: Agent|null;
+    setLastTemplateAdded: (agent: Agent|null) => void;
 
 }
 
-const TemplateContext = createContext<TemplateContextType | undefined>(undefined);
+export const TemplateContext = createContext<TemplateContextType | undefined>(undefined);
 
 export const TemplateProvider = ({ children }: { children: ReactNode }) => {
     const [templates, setTemplates] = useState<Agent[]>([]);
+    const [templatePopupOpen, setTemplatePopupOpen] = useState<boolean>(false);
+    const [lastTemplateAdded, setLastTemplateAdded] = useState<Agent|null>(null);
     const auditContext = useContext(AuditContext);
 
     const { t } = useTranslation();
@@ -65,6 +71,7 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
                 newRecord ? [...templates, updatedAgent] :
                 templates.map(pr => pr.id === agent.id ?  agent : pr)
             )
+            setLastTemplateAdded(updatedAgent);
             auditContext?.record({ eventName: newRecord ? 'addTemplate' : 'updateTemplate', recordLocator: JSON.stringify({ id: agent.id }), encryptedDiff: JSON.stringify(changes) })
             return updatedAgent;
         }
@@ -106,7 +113,11 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
             listTemplates,
             deleteTemplate,
             updateTemplate,
-            setTemplates
+            setTemplates,
+            templatePopupOpen,
+            setTemplatePopupOpen,
+            lastTemplateAdded,
+            setLastTemplateAdded
             }}>
             {children}
         </TemplateContext.Provider>

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import FolderItem from "./folder-item";
+import FolderItem from "./template-item";
 import { FolderContext } from "@/contexts/folder-context";
 import { DatabaseAuthStatus, DataLoadingStatus } from "@/data/client/models";
 import DataLoader from "./data-loader";

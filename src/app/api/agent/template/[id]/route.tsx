@@ -24,7 +24,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
                    }
                });
             }            
-            return Response.json(await genericDELETE(request, new ServerAgentRepository(requestContext.databaseIdHash, '', 'templates'), { id: recordLocator}));
+            return Response.json(await genericDELETE(request, new ServerAgentRepository(requestContext.databaseIdHash, 'templates'), { id: recordLocator}));
         }
     } catch (error) {
         return Response.json({ message: getErrorMessage(error), status: 500 }, {status: 500});

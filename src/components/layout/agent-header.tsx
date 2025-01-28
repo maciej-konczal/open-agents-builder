@@ -16,6 +16,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { use, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertDialogHeader, AlertDialogFooter } from '../ui/alert-dialog';
+import TemplateListPopup from '../template-list-popup';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -84,7 +85,9 @@ export function AgentHeader() {
               }>YES</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog>       
+        </AlertDialog>    
+        <TemplateListPopup />
+
 
       </div>
       {(agentContext.current?.id !== 'new') ? (
