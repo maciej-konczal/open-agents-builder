@@ -1,18 +1,21 @@
 import { Agent } from '@/data/client/models';
-import { AgentDTO, ResultDTO, ResultDTOEncSettings, SessionDTO } from '@/data/dto';
+import { AgentDTO, ResultDTO, ResultDTOEncSettings, SessionDTO, StatDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import ServerResultRepository from '@/data/server/server-result-repository';
+import ServerStatRepository from '@/data/server/server-stat-repository';
+import { authorizeSaasContext } from '@/lib/generic-api';
 import { renderPrompt } from '@/lib/prompt-template';
 import { openai } from '@ai-sdk/openai';
 import { appendResponseMessages, CoreMessage, Message, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
+import { NextRequest } from 'next/server';
 import { format } from 'path';
 import { z } from 'zod';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   const { messages }: { messages: CoreMessage[] } = await req.json();
   const databaseIdHash = req.headers.get('Database-Id-Hash');
   const agentId = req.headers.get('Agent-Id');
@@ -54,6 +57,26 @@ export async function POST(req: Request) {
     model: openai('gpt-4o'),
     maxSteps: 10,  
     messages,
+    async onFinish({ response, usage }) {
+    
+      const usageData:StatDTO = {
+        eventName: 'chat',
+        completionTokens: usage.completionTokens,
+        promptTokens: usage.promptTokens,
+        createdAt: new Date().toISOString()
+    }
+      const statsRepo = new ServerStatRepository(databaseIdHash, 'stats');
+      const result = await statsRepo.aggregate(usageData)
+
+      const saasContext = await authorizeSaasContext(req);
+      if (saasContext.apiClient) {
+          saasContext.apiClient.saveStats(databaseIdHash, {
+              ...result,
+              databaseIdHash: databaseIdHash
+          });
+     }        
+
+    },    
   });
   return result.toDataStreamResponse();
 }

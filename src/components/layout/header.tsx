@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Bell, User } from 'lucide-react';
+import { Bell, DollarSign, User } from 'lucide-react';
 import { useContext } from 'react';
 import { DatabaseContext } from '@/contexts/db-context';
 import { useTranslation } from 'react-i18next';
@@ -17,16 +17,20 @@ import { useRouter } from 'next/navigation';
 import { ChangeKeyPopup } from '../change-key-popup';
 import { KeyContext } from '@/contexts/key-context';
 import FeedbackWidget from '../feedback-widget';
+import StatsPopup from '../stats-popup';
+import { StatsContext } from '@/contexts/stats-context';
 
 export function Header() {
   const { t } = useTranslation();
   const dbContext = useContext(DatabaseContext);
   const keysContext = useContext(KeyContext);
+  const statsContext = useContext(StatsContext);
   const router = useRouter();
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
       <FeedbackWidget />
+      <StatsPopup />
       <div className="flex-1">
         <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10"/>
       </div>
@@ -34,8 +38,8 @@ export function Header() {
       </div>
       <ChangeKeyPopup />      
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon">
-          <Bell className="h-5 w-5" />
+        <Button variant="ghost" size="icon" onClick={(e) => statsContext.setStatsPopupOpen(true)}>
+          <DollarSign className="h-5 w-5" />
         </Button>
         <ThemeToggle />
         <LanguageSwitcher />        
@@ -48,6 +52,7 @@ export function Header() {
           <DropdownMenuContent align="end">
             {/* <DropdownMenuItem>{t('Profile')}</DropdownMenuItem> */}
             <DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Your profile and settings')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => statsContext.setStatsPopupOpen(true)}>{t('Stats and token usage')}</DropdownMenuItem>
             <DropdownMenuItem>{t('Security and privacy')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => {

@@ -12,6 +12,7 @@ import { ConfigContextProvider } from '@/contexts/config-context';
 import { DatabaseContextProvider } from '@/contexts/db-context';
 import { KeyContextProvider } from '@/contexts/key-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
+import { StatsContextProvider } from '@/contexts/stats-context';
 
 const i18nNamespaces = ['translation'];
 
@@ -33,18 +34,20 @@ export default async function GeneralAgentLayout({
           <AuditContextProvider>
             <AuthorizationGuard>
               <KeyContextProvider>
-                <AgentProvider>
-                  <div className="flex h-screen flex-col">
-                    <Header />
-                    <AgentHeader />
-                    <div className="flex flex-1 overflow-hidden">
-                      <AgentSidebar />
-                      <main className="flex-1 overflow-auto p-6">
-                        {children}
-                      </main>
+                <StatsContextProvider>
+                  <AgentProvider>
+                    <div className="flex h-screen flex-col">
+                      <Header />
+                      <AgentHeader />
+                      <div className="flex flex-1 overflow-hidden">
+                        <AgentSidebar />
+                        <main className="flex-1 overflow-auto p-6">
+                          {children}
+                        </main>
+                      </div>
                     </div>
-                  </div>
-                </AgentProvider>
+                  </AgentProvider>
+                </StatsContextProvider>
               </KeyContextProvider>
             </AuthorizationGuard>
           </AuditContextProvider>

@@ -10,12 +10,13 @@ import { toast } from "sonner";
 import { SaaSContext } from "@/contexts/saas-context";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { StatsContext } from "@/contexts/stats-context";
 export function roundToTwoDigits(num: number): number {
   return Math.round(num * 100) / 100;
 }
 export default function StatsPopup() {
   const dbContext = useContext(DatabaseContext);
-  const chatContext = useContext(ChatContext);
+  const statsContext = useContext(StatsContext);
   const [aggregatedStats, setAggregatedStats] = useState<AggregatedStatsDTO>({});
   const saasContext = useContext(SaaSContext);
   const [availableBudget, setAvailableBudget] = useState(0);
@@ -28,7 +29,7 @@ export default function StatsPopup() {
           await saasContext.loadSaaSContext('');
           if (saasContext.currentQuota) {
             setAvailableBudget(roundToTwoDigits(saasContext.currentQuota.allowedUSDBudget - saasContext.currentUsage.usedUSDBudget));
-            setAggregatedStats(await chatContext.aggregatedStats());
+            setAggregatedStats(await statsContext.aggregatedStats());
           }
         } catch (e) {
           console.error(e);
@@ -37,15 +38,10 @@ export default function StatsPopup() {
       }
     }
     loadStats();
-  }, [chatContext.lastRequestStat]);
+  }, []);
 
   return (
-    <Credenza open={chatContext?.statsPopupOpen} onOpenChange={chatContext?.setStatsPopupOpen}>
-      <CredenzaTrigger asChild>
-        <Button variant="outline" size="icon">
-          <DollarSignIcon className="w-6 h-6" />
-        </Button>
-      </CredenzaTrigger>
+    <Credenza open={statsContext?.statsPopupOpen} onOpenChange={statsContext?.setStatsPopupOpen}>
       <CredenzaContent className="sm:max-w-[500px] bg-background">
         <CredenzaHeader>
           <CredenzaTitle>View token usage
@@ -54,7 +50,7 @@ export default function StatsPopup() {
             View current token usage and quotas
           </CredenzaDescription>
         </CredenzaHeader>
-        <div className="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
+        <div className="bg-background border-r border-zinc-200 dark:border-zinc-800">
           <div className="h-auto overflow-auto">
             {(dbContext?.authStatus == DatabaseAuthStatus.Authorized && aggregatedStats && aggregatedStats.thisMonth && aggregatedStats.today) ? (
               <div>
