@@ -54,7 +54,7 @@ export function Header() {
             <DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Your profile and settings')}</DropdownMenuItem>
             <DropdownMenuItem onClick={(e) => statsContext.setStatsPopupOpen(true)}>{t('Stats and token usage')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Contact Support')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={(e) => window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Support reuest for ' + dbContext?.databaseIdHash))}>{t('Contact Support')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => {
               dbContext?.logout();
             }}>{t('Sign out')}</DropdownMenuItem>
