@@ -34,7 +34,7 @@ export default function AuditLogPopup() {
 
   return (
     <Credenza open={auditContext.auditLogOpen} onOpenChange={auditContext.setAuditLogDialogOpen}>
-      <CredenzaContent className="sm:max-w-[700px] bg-white dark:bg-zinc-950" side="top">
+      <CredenzaContent className="sm:max-w-[700px] bg-background" side="top">
         <CredenzaHeader>
           <CredenzaTitle>Audit log
           </CredenzaTitle>
@@ -42,7 +42,7 @@ export default function AuditLogPopup() {
             Check which Keys had access and what was changed in your data. There could be a slight delay for new records to show. If you need inspect the last records please refresh the page.
           </CredenzaDescription>
         </CredenzaHeader>
-        <div className="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
+        <div className="bg-background border-r border-zinc-200 dark:border-zinc-800">
           <div className="h-auto overflow-auto">
             
             {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (

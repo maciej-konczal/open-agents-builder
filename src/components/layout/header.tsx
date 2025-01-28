@@ -16,6 +16,7 @@ import { LanguageSwitcher } from './language-switcher';
 import { useRouter } from 'next/navigation';
 import { ChangeKeyPopup } from '../change-key-popup';
 import { KeyContext } from '@/contexts/key-context';
+import FeedbackWidget from '../feedback-widget';
 
 export function Header() {
   const { t } = useTranslation();
@@ -25,6 +26,7 @@ export function Header() {
 
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
+      <FeedbackWidget />
       <div className="flex-1">
         <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10"/>
       </div>
@@ -45,7 +47,8 @@ export function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {/* <DropdownMenuItem>{t('Profile')}</DropdownMenuItem> */}
-            <DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Settings')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Your profile and settings')}</DropdownMenuItem>
+            <DropdownMenuItem>{t('Security and privacy')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => {
               dbContext?.logout();

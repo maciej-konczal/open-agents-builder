@@ -1,12 +1,6 @@
-import { DataLoadingStatus } from '@/data/client/models';
-import React, { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
 import { DatabaseContext } from './db-context';
-import { toast } from 'sonner';
 import { ConfigContextType } from '@/contexts/config-context';
-import { TermApiClient } from '@/data/client/term-api-client';
-import { TermDTO } from '@/data/dto';
-import { sha256 } from '@/lib/crypto';
-import { useSearchParams } from 'next/navigation';
 import { GetSaaSResponseSuccess, SaasApiClient } from '@/data/client/saas-api-client';
 
 
