@@ -50,7 +50,7 @@ export default function StatsPopup() {
             View current token usage and quotas
           </CredenzaDescription>
         </CredenzaHeader>
-        <div className="bg-background border-r border-zinc-200 dark:border-zinc-800">
+        <div className="bg-background border-zinc-200 dark:border-zinc-800">
           <div className="h-auto overflow-auto">
             {(dbContext?.authStatus == DatabaseAuthStatus.Authorized && aggregatedStats && aggregatedStats.thisMonth && aggregatedStats.today) ? (
               <div>
