@@ -1,6 +1,5 @@
+import { AgentStatus } from "@/data/client/models";
 import ServerAgentRepository from "@/data/server/server-agent-repository";
-import ServerResultRepository from "@/data/server/server-result-repository";
-import ServerSessionRepository from "@/data/server/server-session-repository";
 import {  authorizeRequestContext, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest } from "next/server";
@@ -24,7 +23,17 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
                    }
                });
             }            
-            return Response.json(await genericDELETE(request, new ServerAgentRepository(requestContext.databaseIdHash, 'templates'), { id: recordLocator}));
+            const templatesRepo =  new ServerAgentRepository(requestContext.databaseIdHash, 'templates');
+            const templateToDelete = await templatesRepo.findOne({ id: recordLocator });
+            if(!templateToDelete){
+                return Response.json({ message: "No template found with id: " + recordLocator, status: 404 }, {status: 404});
+            }
+
+            templateToDelete.status = AgentStatus.Deleted
+            templatesRepo.upsert({ id: recordLocator }, templateToDelete);
+
+
+            return Response.json({ message: 'Template deleted', status: 200 }, {status: 200});
         }
     } catch (error) {
         return Response.json({ message: getErrorMessage(error), status: 500 }, {status: 500});

@@ -1,3 +1,4 @@
+'use client'
 // InitializedMDXEditor.tsx
 import type { ForwardedRef } from 'react'
 import {
@@ -64,10 +65,14 @@ export default function InitializedMDXEditor({
   const currentTheme = (theme === 'system' ? systemTheme : theme)
 
   
+  if (typeof props.markdown === 'undefined') {
+    props.markdown = ''
+  }
+
   return (
     <MDXEditor
       className={theme === 'dark' ? styles['dark-editor'] : ''}
-      contentEditableClassName={markdownStyles['markdown']}
+      contentEditableClassName={markdownStyles['markdown']} 
       plugins={[
         // Example Plugin Usage
         headingsPlugin(),

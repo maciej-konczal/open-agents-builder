@@ -1,15 +1,15 @@
 import { ApiEncryptionConfig } from '@/data/client/admin-api-client';
-import { Agent, DataLoadingStatus, Session, Result } from '@/data/client/models';
-import { AgentDTO, PaginatedQuery, PaginatedResult } from '@/data/dto';
+import { Agent, AgentStatus } from '@/data/client/models';
+import { AgentDTO } from '@/data/dto';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { DatabaseContext } from './db-context';
-import { AgentApiClient, DeleteAgentResponse } from '@/data/client/agent-api-client';
+import { DeleteAgentResponse } from '@/data/client/agent-api-client';
 import { SaaSContext } from './saas-context';
 import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { AuditContext } from './audit-context';
-import { diff, addedDiff, deletedDiff, updatedDiff, detailedDiff } from 'deep-object-diff';
+import { detailedDiff } from 'deep-object-diff';
 import { TemplateApiClient } from '@/data/client/template-api-client';
 
 interface TemplateContextType {
@@ -33,7 +33,7 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
     const [lastTemplateAdded, setLastTemplateAdded] = useState<Agent|null>(null);
     const auditContext = useContext(AuditContext);
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
@@ -98,7 +98,7 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
         const client = await setupApiClient();
         try {
             const apiResponse = await client.get();
-            const fetchedAgents = apiResponse.map((folderDTO: AgentDTO) => Agent.fromDTO(folderDTO));
+            const fetchedAgents = apiResponse.filter(tpl => tpl.status === AgentStatus.Active && tpl.locale == i18n.language).map((folderDTO: AgentDTO) => Agent.fromDTO(folderDTO));
             setTemplates(fetchedAgents);
             return fetchedAgents;
         } catch(error) {

@@ -1,0 +1,20 @@
+{
+    "id": "pl_eQCo_3j9yM1kseXQYak3l",
+    "displayName": "Szablon zapytania przed wizytą",
+    "options": {
+      "welcomeMessage": "Witamy w **Little Fox Therapy.** Oto krótkie zapytanie, które pozwoli nam lepiej przygotować się na Twoją wizytę!&#x20;",
+      "termsAndConditions": "Poniżej znajduje się **skondensowany przykład** „Warunków Zapytania Przed Wizytą” zawierający informacje o przetwarzaniu danych. Jest to **tylko do celów ilustracyjnych** i **nie stanowi** porady prawnej. Zawsze konsultuj się z prawnikiem lub specjalistą ds. zgodności w celu uzyskania dokładnych wymagań.\n\n***\n\n## 1. Cel\n\nZbieramy pewne dane osobowe przed Twoją wizytą, aby zaplanować i przygotować się na Twoją wizytę.\n\n## 2. Zbierane Dane\n\n* **Dane osobowe**\n  : Imię i nazwisko, dane kontaktowe, data urodzenia oraz wszelkie dokumenty potrzebne do weryfikacji.\n* **Istotne zdrowotne/dostępność**\n  (jeśli to konieczne): Alergie, schorzenia lub specjalne wymagania.\n* **Szczegóły wizyty**\n  : Cel, preferowana data/godzina.\n\n## 3. Podstawa prawna\n\n* **Zgoda**\n  : Przesyłając swoje informacje, zgadzasz się na te warunki.\n* **Uzasadnione interesy**\n  : Dla bezpieczeństwa, zadań administracyjnych lub ulepszeń usług (tam, gdzie jest to stosowne).\n\n## 4. Wykorzystanie danych\n\n* **Umawianie i przygotowanie wizyty**\n  : Aby potwierdzić i zarządzać Twoją wizytą.\n* **Komunikacja**\n  : Aby wysyłać aktualizacje lub instrukcje.\n* **Bezpieczeństwo**\n  : Aby przestrzegać środków bezpieczeństwa lub obowiązków prawnych.\n* **Ulepszenia**\n  : Dane zbiorcze mogą być wykorzystane do ulepszania usług.\n\n## 5. Przechowywanie danych\n\nPrzechowujemy dane tylko tak długo, jak jest to potrzebne do powyższych celów lub aby spełnić wymagania prawne, a następnie bezpiecznie je usuwamy lub anonimizujemy.\n\n## 6. Bezpieczeństwo i udostępnianie\n\n* **Ochrona**\n  : Stosujemy zabezpieczenia, aby zapobiec nieautoryzowanemu dostępowi.\n* **Strony trzecie**\n  : Udostępniane tylko z zaufanymi dostawcami (np. systemy planowania, bezpieczeństwo) na podstawie ścisłych umów o ochronie danych.\n* **Zgodność prawna**\n  : Udostępniane, jeśli wymagane przez prawo.\n\n## 7. Twoje prawa\n\nGdy to ma zastosowanie (np. RODO), możesz żądać dostępu, poprawienia, usunięcia lub ograniczenia przetwarzania danych, a także sprzeciwu wobec przetwarzania lub żądania przenoszenia danych.\n\n## 8. Transfery międzynarodowe\n\nJeśli dane są przekazywane poza Twoją region, stosujemy legalne środki (np. standardowe klauzule umowne) w celu zapewnienia odpowiedniej ochrony.\n\n## 9. Kontakt\n\nW przypadku pytań lub żądań dotyczących praw, prosimy o kontakt z naszym Inspektorem Ochrony Prywatności:\n\n* **Email**\n  : [Contact Email]\n* **Address**\n  : [Mailing Address]\n\n## 10. Zmiany i akceptacja\n\nMożemy okresowo aktualizować te warunki i powiadomimy Cię o istotnych zmianach. Przekazując swoje informacje, potwierdzasz akceptację tych warunków.\n\n***\n\n**Zastrzeżenie**: Ten tekst jest **przykładem** i **nie stanowi** porady prawnej. Zawsze konsultuj się z wykwalifikowanym prawnikiem, aby zapewnić zgodność ze wszystkimi odpowiednimi przepisami i regulacjami.",
+      "mustConfirmTerms": true,
+      "resultEmail": "",
+      "collectUserEmail": true,
+      "collectUserName": true
+    },
+    "prompt": "To jest fizjoterapia **Little Fox**. Musimy zapytać pacjenta:\n\n* dlaczego nas odwiedza,\n* jak możemy pomóc - bądź dociekliwy, zadawaj głębsze pytania na podstawie odpowiedzi,\n* czy przyjmuje jakieś leki,\n* czy miał jakieś urazy itp.\n* jakie są ich oczekiwania po wizycie",
+    "expectedResult": "Oczekiwanym wynikiem jest raport, który nasz fizjoterapeuta otrzyma przed wizytą.&#x20;",
+    "safetyRules": "* Nie pytaj o informacje osobiste\n* Nie udzielaj żadnych konkretnych sugestii ani diagnoz\n* Nigdy nie sugeruj żadnych leków itp.",
+    "createdAt": "2025-01-29T11:52:30.374Z",
+    "updatedAt": "2025-01-29 15:23:52",
+    "locale": "pl",
+    "status": "active"
+  }
+  

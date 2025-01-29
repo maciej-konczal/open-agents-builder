@@ -190,14 +190,14 @@ export default function GeneralPage() {
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">
         {t('Welcome Message')}
         </label>
-        <MarkdownEditor markdown={getValues('welcomeInfo') ?? agent?.options?.welcomeMessage} ref={editors.welcomeInfo} onChange={(e) => setValue('welcomeInfo', e)} diffMarkdown={agent?.options?.welcomeMessage ?? ''} />
+        <MarkdownEditor markdown={getValues('welcomeInfo') ?? agent?.options?.welcomeMessage ?? ''} ref={editors.welcomeInfo} onChange={(e) => setValue('welcomeInfo', e)} diffMarkdown={agent?.options?.welcomeMessage ?? ''} />
         {errors.welcomeInfo && <p className="mt-2 text-sm text-red-600">{errors.welcomeInfo.message}</p>}
       </div>
       <div>
         <label htmlFor="termsConditions" className="block text-sm font-medium">
         {t('Terms and Conditions')}
         </label>
-        <MarkdownEditor markdown={getValues('termsConditions') ?? agent?.options?.termsAndConditions} ref={editors.termsConditions} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
+        <MarkdownEditor markdown={getValues('termsConditions') ?? agent?.options?.termsAndConditions} ref={editors.termsConditions ?? ''} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
         {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{t('If you require terms to be accepted by the user, you should provide them.')}</p>}
       </div>
       <div>
