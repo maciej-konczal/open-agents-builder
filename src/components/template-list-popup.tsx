@@ -50,7 +50,7 @@ export default function TemplateListPopup() {
                     ))
                     : (
                       <NoRecordsAlert title={t('No templates found')}>
-                        {t('No folders found in the database. You could save a current agent as a new template.')}
+                        {t('No templates found in the database. You could save a current agent as a new template.')}
                       </NoRecordsAlert>
                     )}
               </div>
