@@ -38,7 +38,7 @@ interface AgentContextType {
     agentDeleteDialogOpen: boolean;
     setAgentDeleteDialogOpen: (value: boolean) => void;
     exportAgent: (agent: Agent) => void;
-    importAgent: () => Promise<Agent>;
+    importAgent: (fileContent: string) => Promise<Agent>;
 
 }
 
@@ -220,8 +220,15 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         a.click();
     }
 
-    const importAgent = async (): Promise<Agent> => {
-        return new Agent({});
+    const importAgent = async (fileContent: string): Promise<Agent> => {
+        try {
+            const agentDTO = JSON.parse(fileContent) as AgentDTO;
+            const agent = Agent.fromDTO(agentDTO);
+            delete agent.id;
+            return updateAgent(agent, true);
+        } catch (e) {
+            throw new Error('Invalid file format');
+        }
     }
 
 

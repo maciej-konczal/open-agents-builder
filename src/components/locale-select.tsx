@@ -38,6 +38,7 @@ export function LocaleSelect() {
         </SelectTrigger>
 
         <SelectContent>
+          <SelectItem value="auto">{t("Not-set")}</SelectItem>
           <SelectItem value="en">{t("English")}</SelectItem>
           <SelectItem value="es">{t("Spanish")}</SelectItem>
           <SelectItem value="fr">{t("French")}</SelectItem>

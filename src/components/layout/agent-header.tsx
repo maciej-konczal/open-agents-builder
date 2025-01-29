@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
-import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon, ImportIcon } from 'lucide-react';
+import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon, ImportIcon, ShareIcon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -21,6 +21,7 @@ import { Agent } from '@/data/client/models';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 import { AgentDeleteDialog } from '../agent-delete-dialog';
+import { useFilePicker } from 'use-file-picker';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -30,6 +31,24 @@ export function AgentHeader() {
   const agentContext = useAgentContext();
   const templateContext = useContext(TemplateContext);
   const dbContext = useContext(DatabaseContext);
+
+
+  const { openFilePicker, filesContent, loading } = useFilePicker({
+    accept: '.json',
+    readAs: 'Text',
+    onFilesSuccessfullySelected: async () => {
+      filesContent.map(async (fileContent) => {
+        try {
+          const updatedAgent = await agentContext?.importAgent(fileContent.content);
+          toast.info(t('Agent imported successfully!'));
+          router.push(`/agent/${updatedAgent.id}/general`);
+        } catch (e) {
+          console.error(e);
+          toast.error(t('Failed to import agent. Check the file format.'));
+        }
+      });
+    }
+  });
 
   useEffect(() => {
     try {
@@ -104,10 +123,11 @@ export function AgentHeader() {
                   console.error(e);
                   toast.error(t('Failed to export agent'));
                 }
-              }}><PlusIcon className="mr-2 h-4 w-4"/> {t('Export agent to JSON ...')}</DropdownMenuItem>
+              }}><ShareIcon className="mr-2 h-4 w-4"/> {t('Export agent to JSON ...')}</DropdownMenuItem>
             ) : null}
             <DropdownMenuItem onSelect={() => {
-            }}><SaveIcon className="mr-2 h-4 w-4"/>{t('Import agent from JSON ...')}</DropdownMenuItem>
+              openFilePicker();
+            }}><ImportIcon className="mr-2 h-4 w-4"/>{t('Import agent from JSON ...')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>        
         <AgentDeleteDialog />
