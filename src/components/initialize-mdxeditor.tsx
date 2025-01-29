@@ -33,6 +33,7 @@ import {
 } from '@mdxeditor/editor'
 import { ExtendedMDXEditorProps } from './markdown-editor'
 import styles from './markdown-editor.module.css'
+import markdownStyles from './chat.module.css'
 import { useTheme } from 'next-themes'
 
 
@@ -66,6 +67,7 @@ export default function InitializedMDXEditor({
   return (
     <MDXEditor
       className={theme === 'dark' ? styles['dark-editor'] : ''}
+      contentEditableClassName={markdownStyles['markdown']}
       plugins={[
         // Example Plugin Usage
         headingsPlugin(),
