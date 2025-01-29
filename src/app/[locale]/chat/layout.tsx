@@ -14,7 +14,7 @@ export default async function GeneraChatlLayout({
   children: React.ReactNode;
   params: { id: string, locale: string };
 }) {
-  const { resources } = await initTranslations(params.locale, i18nNamespaces);
+  const { resources } =  await initTranslations(params.locale, i18nNamespaces);
 
   return (
     <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>

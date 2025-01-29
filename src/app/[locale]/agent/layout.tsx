@@ -2,12 +2,11 @@
 
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
-import { AgentDeleteDialog } from '@/components/agent-delete-dialog';
 import AuthorizationGuard from '@/components/authorization-guard';
 import { AgentHeader } from '@/components/layout/agent-header';
 import { AgentSidebar } from '@/components/layout/agent-sidebar';
 import { Header } from '@/components/layout/header';
-import { AgentProvider, useAgentContext } from '@/contexts/agent-context';
+import { AgentProvider } from '@/contexts/agent-context';
 import { AuditContextProvider } from '@/contexts/audit-context';
 import { ConfigContextProvider } from '@/contexts/config-context';
 import { DatabaseContextProvider } from '@/contexts/db-context';

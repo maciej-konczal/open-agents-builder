@@ -1,4 +1,4 @@
-CREATE TABLE `Attachments` (
+CREATE TABLE `attachments` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`displayName` text,
 	`type` text,

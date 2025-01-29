@@ -36,9 +36,6 @@ export async function GET(request: NextRequest, response: NextResponse) {
         'templates'
       );
 
-
-
-
     const locales = await fs.readdir(templatesPath);
     let templates: Record<string, any[]> = {};
     const templatesRepo = new ServerAgentRepository(requestContext.databaseIdHash, 'templates'); //TODO: add caching to not read the server folder every time it's requested
@@ -63,10 +60,12 @@ export async function GET(request: NextRequest, response: NextResponse) {
             }
         }
     
+        const existingTemplates = await templatesRepo.findAll({});
         for (const locale in templates) {
             for (const template of templates[locale]) {
-                console.log(template.id, template.displayName)
-                delete template.status; // not set if case user deleted a template
+                if (existingTemplates.find(t => t.id === template['id'])) 
+                    delete template.status; // do not update status for existing templates
+
                 await templatesRepo.upsert({ id: template['id'] }, { ...template, locale }); // re-import templates to database
             }
         }
