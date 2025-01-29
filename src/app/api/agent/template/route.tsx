@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from 'fs/promises';
 import { createCache } from 'simple-in-memory-cache';
-const { set, get } = createCache({ expiration: { minutes: 10 } });
+const { set, get } = createCache({ expiration: { minutes: 15 } });
 
 
 export async function PUT(request: NextRequest, response: NextResponse) {
@@ -42,9 +42,9 @@ export async function GET(request: NextRequest, response: NextResponse) {
     const locales = await fs.readdir(templatesPath);
     let templates: Record<string, any[]> = {};
     const templatesRepo = new ServerAgentRepository(requestContext.databaseIdHash, 'templates'); //TODO: add caching to not read the server folder every time it's requested
-    let responseCached = await get('templatesWholeResponse');
+    let templatesCached = await get('templatesCached');
 
-    if (!responseCached) {
+    if (!templatesCached) {
 
         for (const locale of locales) {
             const localePath = path.join(templatesPath, locale);
@@ -66,16 +66,16 @@ export async function GET(request: NextRequest, response: NextResponse) {
         for (const locale in templates) {
             for (const template of templates[locale]) {
                 console.log(template.id, template.displayName)
+                delete template.status; // not set if case user deleted a template
                 await templatesRepo.upsert({ id: template['id'] }, { ...template, locale }); // re-import templates to database
             }
         }
-        responseCached = await genericGET<AgentDTO>(request, templatesRepo);
-        set('templatesWholeResponse', responseCached);
+        set('templatesCached', templates);
 
     }  else {
         console.log('Using cache for system templates');
     }   
     
 
-    return Response.json(responseCached);
+    return Response.json(await genericGET<AgentDTO>(request, templatesRepo));
 }
