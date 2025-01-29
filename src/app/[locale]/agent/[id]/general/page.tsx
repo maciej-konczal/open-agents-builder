@@ -146,7 +146,11 @@ export default function GeneralPage() {
     termsConditions: React.useRef<MDXEditorMethods>(null)
   }
   register('welcomeInfo');
-  register('termsConditions');
+  register('termsConditions', {
+    validate: {
+      termsConditions: (v)  =>  (getValues('confirmTerms') === true && !v) ? false : true
+    }
+  });
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, editors);
 
@@ -192,7 +196,7 @@ export default function GeneralPage() {
         {t('Terms and Conditions')}
         </label>
         <MarkdownEditor markdown={getValues('termsConditions') ?? agent?.options?.termsAndConditions} ref={editors.termsConditions} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
-        {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{errors.termsConditions.message}</p>}
+        {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{t('If you require terms to be accepted by the user, you should provide them.')}</p>}
       </div>
       <div>
         <label htmlFor="confirmTerms" className="flex items-center text-sm font-medium">

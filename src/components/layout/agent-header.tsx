@@ -10,12 +10,10 @@ import {
 } from '@/components/ui/select';
 import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
-import { Plus, Play, DeleteIcon, Delete, MinusIcon, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon } from 'lucide-react';
+import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { use, useContext, useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertDialogHeader, AlertDialogFooter } from '../ui/alert-dialog';
 import TemplateListPopup from '../template-list-popup';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { TemplateContext } from '@/contexts/template-context';
