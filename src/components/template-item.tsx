@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Trash2Icon } from "lucide-react";
+import { PlusIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContext } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
@@ -23,6 +23,8 @@ export default function TemplateItem({ template, selected, onClick }: { template
       </Avatar>
       <div className="flex-1" onClick={(e) => { e.preventDefault(); }} >
         <div className="font-medium">{template.displayName}</div>
+        <div><Button size="sm" variant="outline"><PlusIcon /> {t('New agent')}
+          </Button></div>
       </div>
       <div className="w-10">
 

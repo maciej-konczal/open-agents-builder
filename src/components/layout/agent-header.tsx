@@ -11,12 +11,17 @@ import {
 import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
-import { Plus, Play, DeleteIcon, Delete, MinusIcon, Trash2Icon } from 'lucide-react';
+import { Plus, Play, DeleteIcon, Delete, MinusIcon, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { use, useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AlertDialogHeader, AlertDialogFooter } from '../ui/alert-dialog';
 import TemplateListPopup from '../template-list-popup';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { TemplateContext } from '@/contexts/template-context';
+import { Agent } from '@/data/client/models';
+import { nanoid } from 'nanoid';
+import { toast } from 'sonner';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -24,6 +29,7 @@ export function AgentHeader() {
   const { t } = useTranslation();
   const currentId = params?.id as string;
   const agentContext = useAgentContext();
+  const templateContext = useContext(TemplateContext);
   const dbContext = useContext(DatabaseContext);
 
   useEffect(() => {
@@ -54,41 +60,23 @@ export function AgentHeader() {
           <Plus className="mr-2 h-4 w-4" />
           {t('Add Agent')}
         </Button>
-        
-        <AlertDialog>
-          <AlertDialogTrigger>
-            {agentContext.current?.id !== 'new' ? (
-            <Button variant={"secondary"} size="sm">
-              <Trash2Icon className="mr-2 h-4 w-4"  />
-              {t('Delete agent')}
-            </Button>        
-            ) : null}
-          </AlertDialogTrigger>
-          <AlertDialogContent className="w-[400px] bg-background text-sm p-4 rounded-lg shadow-lg border border-gray-200">
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete your agent data
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>No</AlertDialogCancel>
-              <AlertDialogAction className='' onClick={async (e) => 
-                {
-                  if(agentContext.current?.id  && agentContext.current?.id !== 'new') {
-                    const resp = await agentContext.deleteAgent(agentContext.current)
-                    localStorage.removeItem('currentAgentId');
-                    router.push(`/agent/new/general`);
-                  }
-
-                }
-              }>YES</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>    
         <TemplateListPopup />
-
-
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" className="mr-2" size="sm">
+              <LayoutTemplateIcon className="h-4 w-4" /> {t('Templates')}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onSelect={() => templateContext?.setTemplatePopupOpen(true)}><PlusIcon className="mr-2 h-4 w-4"/> {t('New agent from template ...')}</DropdownMenuItem>
+            <DropdownMenuItem onClick={(e) => {
+                if (agentContext.current) {
+                  templateContext?.updateTemplate(new Agent({ ...agentContext.current, id: nanoid() } as Agent));
+                  toast.info(t('Current agent has been saved as a template'))
+                }              
+            }}><SaveIcon className="mr-2 h-4 w-4"/>{t('Save agent as template')}</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>   
       </div>
       {(agentContext.current?.id !== 'new') ? (
         <Button variant="secondary" size="sm" onClick={() => window.open(`/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`)}>

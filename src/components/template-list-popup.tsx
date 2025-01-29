@@ -13,6 +13,7 @@ import { useAgentContext } from "@/contexts/agent-context";
 import { toast } from "sonner";
 import { nanoid } from "nanoid";
 import { AgentDTO } from "@/data/dto";
+import { SaveAsTemplateButton } from "./save-as-template";
 
 export default function TemplateListPopup() {
   const dbContext = useContext(DatabaseContext);
@@ -26,25 +27,10 @@ export default function TemplateListPopup() {
 
   return (
     <Credenza open={templateContext?.templatePopupOpen} onOpenChange={templateContext?.setTemplatePopupOpen}>
-      <CredenzaTrigger asChild>
-        <Button variant="secondary" className="mr-2" size="sm">
-          <LayoutTemplateIcon className="h-4 w-4" /> {t('Templates')}
-        </Button>
-      </CredenzaTrigger>
       <CredenzaContent className="sm:max-w-[500px] bg-background">
         <CredenzaHeader>
-          <CredenzaTitle>{t('List templates')}
-            {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
-              <Button variant="outline" className="absolute right-5 top-7" size="sm" onClick={(e) => {
-                if (agentContext.current) {
-                  templateContext?.updateTemplate(new Agent({ ...agentContext.current, id: nanoid() } as Agent));
-                  toast.info(t('Current agent has been saved as a template'))
-                }
-
-              }}>
-                <SaveIcon className="w-6 h-6" />{t('Save current')}
-              </Button>
-            ) : (null)}
+          <CredenzaTitle>{t('Agent templates')}
+            <SaveAsTemplateButton />
           </CredenzaTitle>
           <CredenzaDescription>
             {t('Select a template to create a new agent with')}

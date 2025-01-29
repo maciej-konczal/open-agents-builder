@@ -43,6 +43,7 @@ export default async function GeneralAgentLayout({
                         <AgentHeader />
                         <div className="flex flex-1 overflow-hidden">
                           <AgentSidebar />
+                          <AgentDeleteDialog />
                           <main className="flex-1 overflow-auto p-6">
                             {children}
                           </main>
