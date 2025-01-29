@@ -2,6 +2,7 @@
 
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
+import { AgentDeleteDialog } from '@/components/agent-delete-dialog';
 import AuthorizationGuard from '@/components/authorization-guard';
 import { AgentHeader } from '@/components/layout/agent-header';
 import { AgentSidebar } from '@/components/layout/agent-sidebar';
@@ -43,7 +44,6 @@ export default async function GeneralAgentLayout({
                         <AgentHeader />
                         <div className="flex flex-1 overflow-hidden">
                           <AgentSidebar />
-                          <AgentDeleteDialog />
                           <main className="flex-1 overflow-auto p-6">
                             {children}
                           </main>

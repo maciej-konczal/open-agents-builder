@@ -22,6 +22,7 @@ import { TemplateContext } from '@/contexts/template-context';
 import { Agent } from '@/data/client/models';
 import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
+import { AgentDeleteDialog } from '../agent-delete-dialog';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -63,7 +64,7 @@ export function AgentHeader() {
         <TemplateListPopup />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" className="mr-2" size="sm">
+            <Button variant="secondary" className="" size="sm">
               <LayoutTemplateIcon className="h-4 w-4" /> {t('Templates')}
             </Button>
           </DropdownMenuTrigger>
@@ -76,7 +77,15 @@ export function AgentHeader() {
                 }              
             }}><SaveIcon className="mr-2 h-4 w-4"/>{t('Save agent as template')}</DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu>   
+        </DropdownMenu>
+        <AgentDeleteDialog />
+          {agentContext.current?.id !== 'new' ? (
+          <Button variant={"secondary"} size="sm" onClick={(e) => agentContext.setAgentDeleteDialogOpen(true)}>
+            <Trash2Icon className="mr-2 h-4 w-4"  />
+            {t('Delete agent')}
+          </Button>        
+          ) : null}
+
       </div>
       {(agentContext.current?.id !== 'new') ? (
         <Button variant="secondary" size="sm" onClick={() => window.open(`/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`)}>

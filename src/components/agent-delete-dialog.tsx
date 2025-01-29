@@ -1,25 +1,18 @@
-import { AlertDialog, AlertDialogTrigger, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@radix-ui/react-alert-dialog";
-import { t } from "i18next";
-import { Trash2Icon } from "lucide-react";
-import router from "next/router";
+'use client'
+import { AlertDialog, AlertDialogContent, AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
 import { useAgentContext } from "@/contexts/agent-context";
-import { Button } from "./ui/button";
+import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
 
 export function AgentDeleteDialog() {
 
     const agentContext = useAgentContext();
+    const router = useRouter();
+    const { t } = useTranslation();
     
     return (
-        <AlertDialog>
-        <AlertDialogTrigger>
-          {agentContext.current?.id !== 'new' ? (
-          <Button variant={"secondary"} size="sm">
-            <Trash2Icon className="mr-2 h-4 w-4"  />
-            {t('Delete agent')}
-          </Button>        
-          ) : null}
-        </AlertDialogTrigger>
+      <AlertDialog open={agentContext.agentDeleteDialogOpen} onOpenChange={agentContext.setAgentDeleteDialogOpen}>
         <AlertDialogContent className="w-[400px] bg-background text-sm p-4 rounded-lg shadow-lg border border-gray-200">
           <AlertDialogHeader>
             <AlertDialogTitle>{t('Are you sure')}</AlertDialogTitle>
@@ -38,7 +31,7 @@ export function AgentDeleteDialog() {
                 }
 
               }
-            }>YES</AlertDialogAction>
+            }>{t('YES')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog> 

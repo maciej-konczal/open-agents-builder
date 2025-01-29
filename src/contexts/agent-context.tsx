@@ -26,6 +26,7 @@ interface AgentContextType {
     agentSessions: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Session[]>>;
     updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>;
     newAgent: () => Agent;
+    newFromTemplate: (template: Agent) => Agent;
     listAgents: (currentAgentId?:string) => Promise<Agent[]>;
     setCurrent: (agent: Agent | null) => void;
     setAgents: (agents: Agent[]) => void;
@@ -34,6 +35,8 @@ interface AgentContextType {
     setStatus: (status: AgentStatusType | null) => void;
     removeStatus (id: string): void;
     deleteAgent: (agent: Agent) => Promise<DeleteAgentResponse>;
+    agentDeleteDialogOpen: boolean;
+    setAgentDeleteDialogOpen: (value: boolean) => void;
 
 }
 
@@ -45,6 +48,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [results, setResults] = useState<PaginatedResult<Result[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [sessions, setSessions] = useState<PaginatedResult<Session[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
+    const [agentDeleteDialogOpen, setAgentDeleteDialogOpen] = useState<boolean>(false);
     const auditContext = useContext(AuditContext);
 
     const { t } = useTranslation();
@@ -95,6 +99,23 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         }
 
     };
+
+    const newFromTemplate = (template: Agent): Promise<Agent> => {
+        const newAgent = new Agent(
+            {
+                id: 'new',
+                displayName: t('New from template: ') + template.displayName,
+                prompt: template.prompt,
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                options: template.options,
+                expectedResult: template.expectedResult,
+                safetyRules: template.safetyRules
+            } as Agent
+        )
+
+        return updateAgent(newAgent, true);
+    }
 
     const newAgent = (): Agent => {
         return new Agent(
@@ -205,7 +226,10 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 agentResults,
                 sessions,
                 agentSessions,
-                deleteAgent
+                deleteAgent,
+                agentDeleteDialogOpen,
+                setAgentDeleteDialogOpen,
+                newFromTemplate
             }}>
             {children}
         </AgentContext.Provider>
