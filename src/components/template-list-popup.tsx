@@ -1,8 +1,6 @@
 import { useContext, useEffect } from "react";
-import { Agent, DatabaseAuthStatus } from "@/data/client/models";
-import { LayoutTemplateIcon, SaveIcon } from "lucide-react";
-import { Credenza, CredenzaContent, CredenzaDescription, CredenzaHeader, CredenzaTitle, CredenzaTrigger } from "./credenza";
-import { Button } from "./ui/button";
+import { DatabaseAuthStatus } from "@/data/client/models";
+import { Credenza, CredenzaContent, CredenzaDescription, CredenzaHeader, CredenzaTitle } from "./credenza";
 import DatabaseLinkAlert from "./shared/database-link-alert";
 import { NoRecordsAlert } from "./shared/no-records-alert";
 import { DatabaseContext } from "@/contexts/db-context";
@@ -11,8 +9,6 @@ import { useTranslation } from "react-i18next";
 import TemplateItem from "./template-item";
 import { useAgentContext } from "@/contexts/agent-context";
 import { toast } from "sonner";
-import { nanoid } from "nanoid";
-import { AgentDTO } from "@/data/dto";
 import { SaveAsTemplateButton } from "./save-as-template";
 
 export default function TemplateListPopup() {
@@ -22,7 +18,12 @@ export default function TemplateListPopup() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    templateContext?.listTemplates();
+    try {
+      templateContext?.listTemplates();
+    } catch (e) {
+      console.error(e);
+      toast.error(t('Failed to load templates'));
+    }
   }, [templateContext?.lastTemplateAdded])
 
   return (

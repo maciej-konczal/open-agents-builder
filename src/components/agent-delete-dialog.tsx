@@ -4,6 +4,7 @@ import { AlertDialogHeader, AlertDialogFooter } from "./ui/alert-dialog";
 import { useAgentContext } from "@/contexts/agent-context";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export function AgentDeleteDialog() {
 
@@ -24,12 +25,16 @@ export function AgentDeleteDialog() {
             <AlertDialogCancel>{t('No')}</AlertDialogCancel>
             <AlertDialogAction className='' onClick={async (e) => 
               {
-                if(agentContext.current?.id  && agentContext.current?.id !== 'new') {
-                  const resp = await agentContext.deleteAgent(agentContext.current)
-                  localStorage.removeItem('currentAgentId');
-                  router.push(`/agent/new/general`);
+                try {
+                    if(agentContext.current?.id  && agentContext.current?.id !== 'new') {
+                    const resp = await agentContext.deleteAgent(agentContext.current)
+                    localStorage.removeItem('currentAgentId');
+                    router.push(`/agent/new/general`);
+                    }
+                } catch (e) {
+                    console.error(e);
+                    toast.error(t('Failed to delete agent'));
                 }
-
               }
             }>{t('YES')}</AlertDialogAction>
           </AlertDialogFooter>

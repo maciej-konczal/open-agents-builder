@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
-import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon } from 'lucide-react';
+import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon, ImportIcon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -32,7 +32,12 @@ export function AgentHeader() {
   const dbContext = useContext(DatabaseContext);
 
   useEffect(() => {
-    agentContext.listAgents(currentId);
+    try {
+      agentContext.listAgents(currentId);
+    } catch (e) {
+      console.error(e);
+      toast.error(t('Failed to load agents'));
+    }
   }, [currentId]);
 
   const handleAgentChange = (newId: string) => {
@@ -68,14 +73,43 @@ export function AgentHeader() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onSelect={() => templateContext?.setTemplatePopupOpen(true)}><PlusIcon className="mr-2 h-4 w-4"/> {t('New agent from template ...')}</DropdownMenuItem>
-            <DropdownMenuItem onClick={(e) => {
-                if (agentContext.current) {
-                  templateContext?.updateTemplate(new Agent({ ...agentContext.current, id: nanoid() } as Agent));
-                  toast.info(t('Current agent has been saved as a template'))
-                }              
+            <DropdownMenuItem onClick={async (e) => {
+              try {
+                  if (agentContext.current) {
+                    await templateContext?.updateTemplate(new Agent({ ...agentContext.current, id: nanoid() } as Agent));
+                    toast.info(t('Current agent has been saved as a template'))
+                  }              
+                } catch (e) {
+                  console.error(e);
+                  toast.error(t('Failed to save agent as a template'));
+                }
             }}><SaveIcon className="mr-2 h-4 w-4"/>{t('Save agent as template')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" className="" size="sm">
+              <ImportIcon className="h-4 w-4" /> {t('Export / Import')}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {agentContext.current?.id !== 'new' ? (
+              <DropdownMenuItem onSelect={async () => {
+                try {
+                  if (agentContext.current) {
+                    agentContext.exportAgent(agentContext.current);
+                    toast.info(t('Current agent has been exported'))
+                  }              
+                } catch (e) {
+                  console.error(e);
+                  toast.error(t('Failed to export agent'));
+                }
+              }}><PlusIcon className="mr-2 h-4 w-4"/> {t('Export agent to JSON ...')}</DropdownMenuItem>
+            ) : null}
+            <DropdownMenuItem onSelect={() => {
+            }}><SaveIcon className="mr-2 h-4 w-4"/>{t('Import agent from JSON ...')}</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>        
         <AgentDeleteDialog />
           {agentContext.current?.id !== 'new' ? (
           <Button variant={"secondary"} size="sm" onClick={(e) => agentContext.setAgentDeleteDialogOpen(true)}>

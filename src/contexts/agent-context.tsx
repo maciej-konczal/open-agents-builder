@@ -26,7 +26,7 @@ interface AgentContextType {
     agentSessions: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Session[]>>;
     updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>;
     newAgent: () => Agent;
-    newFromTemplate: (template: Agent) => Agent;
+    newFromTemplate: (template: Agent) => Promise<Agent>;
     listAgents: (currentAgentId?:string) => Promise<Agent[]>;
     setCurrent: (agent: Agent | null) => void;
     setAgents: (agents: Agent[]) => void;
@@ -37,6 +37,8 @@ interface AgentContextType {
     deleteAgent: (agent: Agent) => Promise<DeleteAgentResponse>;
     agentDeleteDialogOpen: boolean;
     setAgentDeleteDialogOpen: (value: boolean) => void;
+    exportAgent: (agent: Agent) => void;
+    importAgent: () => Promise<Agent>;
 
 }
 
@@ -208,6 +210,18 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
+    const exportAgent = (agent: Agent) => {
+        const a = document.createElement('a');
+        const file = new Blob([JSON.stringify(agent)], {type: 'application/json'});
+        a.href= URL.createObjectURL(file);
+        a.download = agent.displayName + '.json';
+        a.click();
+    }
+
+    const importAgent = async (): Promise<Agent> => {
+        return new Agent({});
+    }
+
 
     return (
         <AgentContext.Provider value={{ 
@@ -229,7 +243,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 deleteAgent,
                 agentDeleteDialogOpen,
                 setAgentDeleteDialogOpen,
-                newFromTemplate
+                newFromTemplate,
+                exportAgent,
+                importAgent
             }}>
             {children}
         </AgentContext.Provider>

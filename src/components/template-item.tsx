@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { Agent } from "@/data/client/models";
 import { useAgentContext } from "@/contexts/agent-context";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function TemplateItem({ template, selected, onClick }: { template: Agent, selected: boolean, onClick: (e: any) => void}) {
   const templateContext = useContext(TemplateContext);
@@ -36,10 +37,16 @@ export default function TemplateItem({ template, selected, onClick }: { template
         }><PlusIcon /> {t('New agent')}
           </Button>
           <Button className="ml-2" title={t('Rename template...')} size="sm" variant={"outline"} onClick={(e) => {
-            const newTemplateName = prompt(t('Enter new template name: '), template.displayName);
-            if(newTemplateName) {
-              templateContext?.updateTemplate(new Agent({...template, displayName: newTemplateName} as Agent));
-          }}}><TextCursorInputIcon /> </Button>
+            try {
+              const newTemplateName = prompt(t('Enter new template name: '), template.displayName);
+              if(newTemplateName) {
+                templateContext?.updateTemplate(new Agent({...template, displayName: newTemplateName} as Agent));
+              }
+            } catch (e) {
+              console.error(e);
+              toast.error(t('Failed to rename template'));
+            }
+        }}><TextCursorInputIcon /> </Button>
           </div>
       </div>
       <div className="w-10">
@@ -59,11 +66,16 @@ export default function TemplateItem({ template, selected, onClick }: { template
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t('No')}</AlertDialogCancel>
-              <AlertDialogAction onClick={(e) => 
+              <AlertDialogAction onClick={async (e) => 
                 {
-                  templateContext?.deleteTemplate(template);
+                  try {
+                    await templateContext?.deleteTemplate(template);
+                  } catch (e) {
+                    console.error(e);
+                    toast.error(t('Failed to delete template'));
+                  }
                 }
-              }>YES</AlertDialogAction>
+              }>{t('YES')}</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>       
