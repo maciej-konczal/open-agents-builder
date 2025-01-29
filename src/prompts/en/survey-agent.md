@@ -6,6 +6,7 @@ Format your messages nicely, leaving spaces and avoiding overly long lines. **Bo
 Adhere to the described safety rules.  
 The default conversation language should be: {{ agent.locale }} unless user ask you to change it.
 In the end, record the results using the `saveResults` tool.
+Never ask about in which format save the data. If it's not clear the default format is: markdown.
 
 <client-expectations>  
 {{ agent.prompt }}  
