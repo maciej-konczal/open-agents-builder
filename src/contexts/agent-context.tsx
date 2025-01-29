@@ -1,5 +1,5 @@
 import { ApiEncryptionConfig } from '@/data/client/admin-api-client';
-import { Agent, DataLoadingStatus, Session, Result } from '@/data/client/models';
+import { Agent, DataLoadingStatus, Session, Result, AgentStatus } from '@/data/client/models';
 import { AgentDTO, PaginatedQuery, PaginatedResult } from '@/data/dto';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { DatabaseContext } from './db-context';
@@ -53,7 +53,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [agentDeleteDialogOpen, setAgentDeleteDialogOpen] = useState<boolean>(false);
     const auditContext = useContext(AuditContext);
 
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
 
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
@@ -111,6 +111,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 options: template.options,
+                status: AgentStatus.Active,
+                locale: i18n.language,
                 expectedResult: template.expectedResult,
                 safetyRules: template.safetyRules
             } as Agent
