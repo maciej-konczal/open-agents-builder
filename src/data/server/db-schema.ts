@@ -16,6 +16,8 @@ export const agents = sqliteTable('agents', {
     prompt: text('prompt').notNull(),
     expectedResult: text('expectedResult'),
     safetyRules: text('safetyRules'),
+    status: text('status'),
+    locale: text('locale'),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 }); 

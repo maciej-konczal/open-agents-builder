@@ -207,6 +207,10 @@ export type AgentOptions = {
     collectUserName: boolean;
 }
 
+export enum AgentStatus {
+    Active = 'active',
+    Deleted = 'deleted',
+}
 
 export class Agent {
     id?: string;
@@ -215,6 +219,8 @@ export class Agent {
     prompt?: string;
     expectedResult?: string;
     safetyRules?: string;
+    locale: string;
+    status: AgentStatus;
     createdAt: string;
     updatedAt: string;
 
@@ -229,6 +235,9 @@ export class Agent {
 
         this.createdAt = agentDTO.createdAt;
         this.updatedAt = agentDTO.updatedAt;
+
+        this.locale = agentDTO.locale || 'en';
+        this.status = agentDTO.status === 'deleted' ? AgentStatus.Deleted : AgentStatus.Active;
     }
 
     static fromDTO(agentDTO: AgentDTO): Agent {
@@ -243,6 +252,8 @@ export class Agent {
             prompt: this.prompt,
             expectedResult: this.expectedResult,
             safetyRules: this.safetyRules,
+            locale: this.locale,
+            status: this.status,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };
@@ -261,6 +272,8 @@ export class Agent {
             confirmTerms: this?.options?.mustConfirmTerms || false,
             resultEmail: this?.options?.resultEmail || '',
             collectUserInfo: this?.options?.collectUserEmail,
+            status: this?.status || AgentStatus.Active,
+            locale: this?.locale || 'en'
         };
         if (setValue !== null)
         {
@@ -282,6 +295,8 @@ export class Agent {
             prompt: data.prompt ?? agent?.prompt,
             createdAt: agent?.createdAt || getCurrentTS(),
             updatedAt: getCurrentTS(),
+            locale: data.locale ?? agent?.locale,
+            status: data.status ?? agent?.status,
             options: {
               ...agent?.options,
               welcomeMessage: data.welcomeInfo ?? agent?.options?.welcomeMessage,
