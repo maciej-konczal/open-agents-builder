@@ -89,19 +89,21 @@ export default function ToolsPage() {
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {/* Tools Section */}
         <div>
-          <div className="mt-4">
+          <div className="mt-4 text-sm">
             <Button variant={"secondary"} size={"sm"} onClick={(e) => { e.preventDefault(); handleAddTool(); }}><PlusIcon className='w-4 h-4' /> {t('Add Tool')}</Button>
           </div>          
           {Object.entries(tools).map(([toolKey, config]) => (
-            <div key={toolKey} className="mt-4">
+            <div key={toolKey} className="mt-4 border p-3 mb-3 rounded">
               <ToolConfigurator
                 toolKey={toolKey}
                 configuration={config}
                 onChange={handleToolChange}
               />
-              <Button variant="destructive" size="sm" onClick={(e) => { e.preventDefault(); handleRemoveTool(toolKey); }}>
-                <Trash2Icon className='w-4 h-4'/> {t('Remove tool')}
-              </Button>
+              <div className="pt-4 flex justify-end">
+                <Button variant="secondary" size="sm" onClick={(e) => { e.preventDefault(); handleRemoveTool(toolKey); }}>
+                  <Trash2Icon className='w-4 h-4'/> {t('Remove tool')}
+                </Button>
+              </div>
             </div>
           ))}
         </div>

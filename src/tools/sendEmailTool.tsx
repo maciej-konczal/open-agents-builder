@@ -5,6 +5,7 @@ import React from 'react';
 import { z } from 'zod';
 // If you are using the 'tool' helper from @vercel/ai, import it:
 import { tool } from 'ai'; // Adjust the import based on your actual setup.
+import { useTranslation } from 'react-i18next';
 
 type SendEmailOptions = {
   email: string;
@@ -19,13 +20,14 @@ type SendEmailConfiguratorProps = {
 
 // The form UI for configuring the "sendEmail" tool:
 export function SendEmailConfigurator({ options, onChange }: SendEmailConfiguratorProps) {
+  const { t } = useTranslation();
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ ...options, email: e.target.value });
   };
 
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium">Recipient Email</label>
+      <label className="block text-sm font-medium">{t('Recipient Email')}</label>
       <input
         className="border p-2 rounded w-full"
         type="email"
@@ -39,6 +41,7 @@ export function SendEmailConfigurator({ options, onChange }: SendEmailConfigurat
 // The actual "tool" executor, matching the Vercel AI shape:
 export const sendEmailTool = {
   configurator: SendEmailConfigurator,
+  displayName: 'Send Email',
   executor: tool({
     description: 'Send an email to the provided address.',
     // zod ensures "email" is required:

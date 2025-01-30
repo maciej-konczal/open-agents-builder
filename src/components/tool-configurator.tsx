@@ -58,18 +58,18 @@ export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfi
   };
 
   return (
-    <div className="border p-3 mb-3 rounded">
+    <>
       {/* Choose Tool */}
       <div className="mb-3">
         <label className="block text-sm font-medium">{t('Tool Type')}</label>
         <select
-          className="border p-2 rounded w-full"
+          className="border p-2 rounded w-full text-sm"
           value={configuration.tool}
           onChange={handleToolChange}
         >
           {registryKeys.map((toolName) => (
             <option key={toolName} value={toolName}>
-              {toolName}
+              {toolRegistry[toolName as keyof typeof toolRegistry].displayName}
             </option>
           ))}
         </select>
@@ -91,6 +91,6 @@ export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfi
         options={configuration.options}
         onChange={handleOptionsChange}
       />
-    </div>
+    </>
   );
 }
