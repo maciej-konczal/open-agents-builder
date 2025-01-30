@@ -66,13 +66,13 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
         const parsedState = JSON.parse(savedState);
         Object.keys(parsedState).forEach((key) => {
           setValue(key, parsedState[key]);
-          if (editors.hasOwnProperty(key) && editors[key].current) {
+          if (editors && editors.hasOwnProperty(key) && editors[key].current) {
             editors[key].current?.setMarkdown(parsedState[key]);
           }
         });
       } else {
         agent.toForm((field, value) => {
-          if (editors.hasOwnProperty(field) && editors[field].current) {
+          if (editors && editors.hasOwnProperty(field) && editors[field].current) {
             editors[field].current?.setMarkdown(value);
           }
           setValue(field, value);
