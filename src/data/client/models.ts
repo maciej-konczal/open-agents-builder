@@ -219,6 +219,8 @@ export class Agent {
     prompt?: string;
     expectedResult?: string;
     safetyRules?: string;
+    events?: Record<string, EventConfiguration>;
+    tools?: Record<string, ToolConfiguration>;
     locale: string;
     status: AgentStatus;
     createdAt: string;
@@ -232,6 +234,9 @@ export class Agent {
         this.prompt = agentDTO.prompt;
         this.expectedResult = agentDTO.expectedResult ?? undefined;
         this.safetyRules = agentDTO.safetyRules ?? undefined;
+        this.events = typeof agentDTO.events === 'string' ? JSON.parse(agentDTO.events as string) :  agentDTO.events;
+        this.tools = typeof agentDTO.tools === 'string' ? JSON.parse(agentDTO.tools as string) :  agentDTO.tools;
+
 
         this.createdAt = agentDTO.createdAt;
         this.updatedAt = agentDTO.updatedAt;
@@ -252,6 +257,8 @@ export class Agent {
             prompt: this.prompt,
             expectedResult: this.expectedResult,
             safetyRules: this.safetyRules,
+            events: JSON.stringify(this.events),
+            tools: JSON.stringify(this.tools),
             locale: this.locale,
             status: this.status,
             createdAt: this.createdAt,
@@ -273,7 +280,9 @@ export class Agent {
             resultEmail: this?.options?.resultEmail || '',
             collectUserInfo: this?.options?.collectUserEmail,
             status: this?.status || AgentStatus.Active,
-            locale: this?.locale || 'en'
+            locale: this?.locale || 'en',
+            events: this?.events || {},
+            tools: this?.tools || {},
         };
         if (setValue !== null)
         {
@@ -297,6 +306,8 @@ export class Agent {
             updatedAt: getCurrentTS(),
             locale: data.locale ?? agent?.locale,
             status: data.status ?? agent?.status,
+            events: data.events ?? agent?.events,
+            tools: data.tools ?? agent?.tools,
             options: {
               ...agent?.options,
               welcomeMessage: data.welcomeInfo ?? agent?.options?.welcomeMessage,

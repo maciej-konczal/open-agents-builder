@@ -13,6 +13,8 @@ export const agents = sqliteTable('agents', {
     id: text('id').primaryKey(),
     displayName: text('displayName'),
     options: text('options', { mode: 'json' }),
+    events: text('events', { mode: 'json' }),
+    tools: text('tools', { mode: 'json' }),
     prompt: text('prompt').notNull(),
     expectedResult: text('expectedResult'),
     safetyRules: text('safetyRules'),
