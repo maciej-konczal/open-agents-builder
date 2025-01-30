@@ -161,7 +161,21 @@ function parseForBlocks(
 
         replacement += parsed;
       }
-    } else {
+    } else 
+    if (Object.values(arr).length > 0) {
+      for (const item of Object.values(arr)) {
+        // Extend context with current item
+        const newContext = { ...context, [itemVar]: item };
+
+        // Recursively parse if/for/variables in the loop content
+        let parsed = parseIfBlocks(innerContent, newContext, filters);
+        parsed = parseForBlocks(parsed, newContext, filters);
+        parsed = replaceVariables(parsed, newContext, filters);
+
+        replacement += parsed;
+      }      
+    }
+    else {
       // If array is empty, parse the else block
       let parsedElse = parseIfBlocks(elseContent, context, filters);
       parsedElse = parseForBlocks(parsedElse, context, filters);
