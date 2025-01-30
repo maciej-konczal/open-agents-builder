@@ -15,6 +15,13 @@
       "when": 1738149605546,
       "tag": "0001_polite_cable",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1738246338970,
+      "tag": "0002_peaceful_kulan_gath",
+      "breakpoints": true
     }
   ]
 }
