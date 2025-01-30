@@ -79,7 +79,7 @@ export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfi
       <div className="mb-3">
         <label className="block text-sm font-medium">{t('Description')}</label>
         <input
-          className="border p-2 rounded w-full"
+          className="border p-2 rounded w-full text-sm"
           type="text"
           value={configuration.description}
           onChange={handleDescriptionChange}

@@ -442,6 +442,12 @@ export type ToolConfiguration = {
     options: Record<string, any> // tool-specific options
   };
 
+export type EventConfiguration = {
+    condition: string;
+    action: string;
+ };
+  
+
 export class DatabaseRefreshRequest {
     refreshToken: string;
     keepLoggedIn?: boolean;

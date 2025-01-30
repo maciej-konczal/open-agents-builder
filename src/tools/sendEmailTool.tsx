@@ -29,7 +29,7 @@ export function SendEmailConfigurator({ options, onChange }: SendEmailConfigurat
     <div className="space-y-2">
       <label className="block text-sm font-medium">{t('Recipient Email')}</label>
       <input
-        className="border p-2 rounded w-full"
+        className="border p-2 rounded w-full text-sm"
         type="email"
         value={options.email}
         onChange={handleEmailChange}
