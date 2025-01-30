@@ -435,6 +435,13 @@ export class DatabaseAuthorizeRequest {
     }
 }
 
+
+export type ToolConfiguration = {
+    tool: string;                // e.g. "sendEmail" or "currentDate"
+    description: string;         // e.g. "contact support" or "get the current date"
+    options: Record<string, any> // tool-specific options
+  };
+
 export class DatabaseRefreshRequest {
     refreshToken: string;
     keepLoggedIn?: boolean;

@@ -1,5 +1,5 @@
 import { Agent } from '@/data/client/models';
-import { AgentDTO, ResultDTO, ResultDTOEncSettings, SessionDTO, StatDTO } from '@/data/dto';
+import { AgentDTO, ResultDTO, SessionDTO, StatDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import ServerResultRepository from '@/data/server/server-result-repository';
 import ServerSessionRepository from '@/data/server/server-session-repository';
@@ -7,10 +7,9 @@ import ServerStatRepository from '@/data/server/server-stat-repository';
 import { authorizeSaasContext } from '@/lib/generic-api';
 import { renderPrompt } from '@/lib/prompt-template';
 import { openai } from '@ai-sdk/openai';
-import { appendResponseMessages, CoreMessage, Message, streamText, tool } from 'ai';
+import { CoreMessage, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
 import { NextRequest } from 'next/server';
-import { format } from 'path';
 import { z } from 'zod';
 
 // Allow streaming responses up to 30 seconds
