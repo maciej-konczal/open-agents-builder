@@ -20,7 +20,8 @@ export function CurrentDateConfigurator({ options, onChange }: CurrentDateConfig
 export const currentDateTool = {
   configurator: CurrentDateConfigurator,
   displayName: 'Get current date',
-  executor: tool({
+  type: 'function',
+  tool: tool({
     description: 'Get the current date',
     parameters: z.object({}),
     execute: async () => {

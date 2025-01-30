@@ -6,6 +6,7 @@ import { z } from 'zod';
 // If you are using the 'tool' helper from @vercel/ai, import it:
 import { tool } from 'ai'; // Adjust the import based on your actual setup.
 import { useTranslation } from 'react-i18next';
+import { ToolDescriptor } from '.';
 
 type SendEmailOptions = {
   email: string;
@@ -39,10 +40,11 @@ export function SendEmailConfigurator({ options, onChange }: SendEmailConfigurat
 }
 
 // The actual "tool" executor, matching the Vercel AI shape:
-export const sendEmailTool = {
+export const sendEmailTool: ToolDescriptor = {
   configurator: SendEmailConfigurator,
   displayName: 'Send Email',
-  executor: tool({
+  tool: tool({
+    type: 'function',
     description: 'Send an email to the provided address.',
     // zod ensures "email" is required:
     parameters: z.object({
