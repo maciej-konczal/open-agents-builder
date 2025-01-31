@@ -19,7 +19,7 @@ export function ChatMessages({ messages }: { messages: Message[] }) {
                     {m.toolInvocations.map((tl) => (
                       <div key={tl.id} className="mb-2">
                         <span className="font-bold">{t('Tool response: ')}</span>
-                        <span className="ml-2">{tl.result}</span>
+                        <span className="ml-2">{t(tl.result)}</span>
                       </div>
                     ))}
                   </div>
