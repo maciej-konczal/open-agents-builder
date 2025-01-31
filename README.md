@@ -1,4 +1,4 @@
-<div style="text-align: center"><img align="center" src="./public//img/agent-doodle-logo.svg" alt="Logo" width="200"/></div>
+<p align="center"><img src="./public//img/agent-doodle-logo.svg" alt="Logo" width="200"/></p>
 
 ## Empathetic Chatbot Agents from a single prompt!
 
