@@ -10,7 +10,7 @@ import { openai } from '@ai-sdk/openai';
 import { CoreMessage, CoreTool, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
 import { NextRequest } from 'next/server';
-import { z } from 'zod';
+import { z, ZodObject } from 'zod';
 import { ToolDescriptor, toolRegistry } from '@/tools/registry'
 
 // Allow streaming responses up to 30 seconds
@@ -32,7 +32,6 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined)
         const preConfiguredOptionVal = toolConfig.options[preConfiguredOptionKey];
         paramsDefaults[preConfiguredOptionKey] = preConfiguredOptionVal;
       }
-
       // TODO we somehow must remove the parameters with defaults from parameters otherwise LLM will try to guess it
 
       mappedTools[toolKey] = tool({ // we are creating a wrapper tool of tool provided to fill the gaps wieh pre-configured parameters

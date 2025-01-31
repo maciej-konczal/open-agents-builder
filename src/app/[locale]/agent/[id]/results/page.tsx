@@ -10,13 +10,15 @@ import JsonView from '@uiw/react-json-view';
 import { useState } from 'react';
 import { Credenza, CredenzaContent, CredenzaTrigger } from '@/components/credenza';
 import { Button } from '@/components/ui/button';
-import { Chat } from '@/components/chat';
 import { useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { DatabaseContext } from '@/contexts/db-context';
-import { get } from 'http';
 import { Loader2, MessageCircleIcon } from 'lucide-react';
 import InfiniteScroll from '@/components/infinite-scroll';
+import { getErrorMessage } from '@/lib/utils';
+import { toast } from 'sonner';
+import { Chat } from '@/components/chat';
+import { NoRecordsAlert } from '@/components/shared/no-records-alert';
 
 
 export default function ResultsPage() {
@@ -60,7 +62,9 @@ export default function ResultsPage() {
 
   useEffect(() => {
     if (agentContext.current?.id)
-      agentContext.agentResults(agentContext.current.id, resultsQuery);
+      agentContext.agentResults(agentContext.current.id, resultsQuery).catch((e) => {
+        toast.error(getErrorMessage(e));
+      });
   }, [agentContext.current]);
 
   useEffect(() => {
@@ -72,24 +76,31 @@ export default function ResultsPage() {
     <div className="space-y-6">
 
 
-      <Credenza open={isResultsChatOpen} onOpenChange={setResultsChatOpen}>
-        <CredenzaTrigger asChild>
-          <Button onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> Chat about results ...</Button>
-        </CredenzaTrigger>
-        <CredenzaContent>
-          {/* Add your chat component or content here */}
-          <Chat
-            headers={getSessionHeaders()}
-            welcomeMessage={t('Lets chat')}
-            messages={messages}
-            handleInputChange={handleInputChange}
-            isLoading={isLoading}
-            handleSubmit={handleSubmit}
-            input={input}
-            displayName={t('Chat with results')}
-          />
-        </CredenzaContent>
-      </Credenza>
+      { agentContext.results.rows.length > 0 ? (
+        <Credenza open={isResultsChatOpen} onOpenChange={setResultsChatOpen}>
+          <CredenzaTrigger asChild>
+            <Button onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> Chat about results ...</Button>
+          </CredenzaTrigger>
+          <CredenzaContent>
+            {/* Add your chat component or content here */}
+            <Chat
+              headers={getSessionHeaders()}
+              welcomeMessage={t('Lets chat')}
+              messages={messages}
+              handleInputChange={handleInputChange}
+              isLoading={isLoading}
+              handleSubmit={handleSubmit}
+              input={input}
+              displayName={t('Chat with results')}
+            />
+          </CredenzaContent>
+        </Credenza>
+      ): null}
+      {agentContext.results.rows.length === 0 ? (
+        <NoRecordsAlert title={t('No results yet!')}>
+          {t('No results saved for this agent yet! Please send the agent link to get the results flow started!')}
+        </NoRecordsAlert>
+      ): null}
       {agentContext.results.rows.map((result) => (
         <Card key={result.sessionId}>
           <CardHeader>
