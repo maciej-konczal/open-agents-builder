@@ -82,7 +82,7 @@ export default function ResultsPage() {
       { agentContext.results.rows.length > 0 ? (
         <Credenza open={isResultsChatOpen} onOpenChange={setResultsChatOpen}>
           <CredenzaTrigger asChild>
-            <Button onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> Chat about results ...</Button>
+            <Button size="sm" variant="outline" onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> Chat about results ...</Button>
           </CredenzaTrigger>
           <CredenzaContent>
             {/* Add your chat component or content here */}
@@ -108,7 +108,7 @@ export default function ResultsPage() {
         <Card key={result.sessionId}>
           <CardHeader>
             <CardTitle>
-            <Button className="ml-auto right-20 mr-2" size={"sm"} variant="outline" onClick={() => {
+            <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
               router.push(`/agent/${result.agentId}/results/${result.sessionId}`);
             }}>
               <FolderOpenIcon className="w-4 h-4" />

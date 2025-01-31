@@ -95,7 +95,7 @@ export default function EventsPage() {
         {/* Events */}
         <div>
           <div className="text-sm">
-            <Button variant={"secondary"} size={"sm"} onClick={(e) => { e.preventDefault(); handleAddEvent(); }}><PlusIcon className="w-4 h-4" />{t('Add event based action')}</Button>
+            <Button variant={"outline"} size={"sm"} onClick={(e) => { e.preventDefault(); handleAddEvent(); }}><PlusIcon className="w-4 h-4" />{t('Add event based action')}</Button>
           </div>          
           {Object.entries(events).map(([eventKey, configuration]) => (
             <div key={eventKey} className="mt-4 border p-3 mb-3 rounded text-sm">

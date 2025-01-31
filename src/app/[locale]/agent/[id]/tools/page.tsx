@@ -90,7 +90,7 @@ export default function ToolsPage() {
         {/* Tools Section */}
         <div>
           <div className="text-sm">
-            <Button variant={"secondary"} size={"sm"} onClick={(e) => { e.preventDefault(); handleAddTool(); }}><PlusIcon className='w-4 h-4' /> {t('Add Tool')}</Button>
+            <Button variant={"outline"} size={"sm"} onClick={(e) => { e.preventDefault(); handleAddTool(); }}><PlusIcon className='w-4 h-4' /> {t('Add Tool')}</Button>
           </div>          
           {Object.entries(tools).map(([toolKey, config]) => (
             <div key={toolKey} className="mt-4 border p-3 mb-3 rounded">
