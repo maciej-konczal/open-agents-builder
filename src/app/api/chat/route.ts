@@ -69,14 +69,14 @@ export async function POST(req: NextRequest) {
     id: agentId // TODO: fix seearching as it always return the same record!
   }) as AgentDTO);
 
-  const systemPrompt = await renderPrompt(locale, 'survey-agent', { agent, events: agent.events });
+  const sessionRepo = new ServerSessionRepository(databaseIdHash);
+  let existingSession = await sessionRepo.findOne({ id: sessionId });
+
+  const systemPrompt = await renderPrompt(locale, 'survey-agent', { session: existingSession, agent, events: agent.events });
   messages.unshift( {
     role: 'system',
     content: systemPrompt
   })
-
-  const sessionRepo = new ServerSessionRepository(databaseIdHash);
-  let existingSession = await sessionRepo.findOne({ id: sessionId });
 
   const result = streamText({
     model: openai('gpt-4o'),

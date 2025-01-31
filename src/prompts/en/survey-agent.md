@@ -13,6 +13,11 @@ Never ask about in which format save the data. If it's not clear the default for
 {{ agent.prompt }}  
 </client-expectations>
 
+<client-information>
+{{ session.userName }}
+{{ session.userEmail }}
+</client-information>
+
 <actions>
     {% for event in events %}
         <when>{{ event.condition}}</when>
