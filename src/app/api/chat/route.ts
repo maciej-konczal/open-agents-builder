@@ -33,6 +33,8 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined)
         paramsDefaults[preConfiguredOptionKey] = preConfiguredOptionVal;
       }
 
+      // TODO we somehow must remove the parameters with defaults from parameters otherwise LLM will try to guess it
+
       mappedTools[toolKey] = tool({ // we are creating a wrapper tool of tool provided to fill the gaps wieh pre-configured parameters
           description: `${toolConfig.description} - ${toolDescriptor.tool.description}}`,
           parameters: toolDescriptor.tool.parameters,

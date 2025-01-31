@@ -21,7 +21,14 @@ export const sendEmailTool: ToolDescriptor = {
       // Pseudocode for sending email:
       console.log('Sending email to', email);
       // Return a string for the LLM or handle logic as needed
-      return `Email to ${email} has been sent successfully.`;
+      console.log(`Email to ${email} has been sent successfully: 
+        <subject>
+          ${subject}
+        </subject>
+        <body>
+          ${body}
+        <body>`);
+        return 'Message delivered!'
     },
   }),
 };
