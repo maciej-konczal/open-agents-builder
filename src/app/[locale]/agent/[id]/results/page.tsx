@@ -13,12 +13,13 @@ import { Button } from '@/components/ui/button';
 import { useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { DatabaseContext } from '@/contexts/db-context';
-import { Loader2, MessageCircleIcon } from 'lucide-react';
+import { FolderOpen, FolderOpenIcon, Loader2, MessageCircleIcon } from 'lucide-react';
 import InfiniteScroll from '@/components/infinite-scroll';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Chat } from '@/components/chat';
 import { NoRecordsAlert } from '@/components/shared/no-records-alert';
+import Link from 'next/link';
 
 
 export default function ResultsPage() {
@@ -107,7 +108,13 @@ export default function ResultsPage() {
       {agentContext.results.rows.map((result) => (
         <Card key={result.sessionId}>
           <CardHeader>
-            <CardTitle>{new Date(result.createdAt).toLocaleString()} {result.userName ? result.userName : ''} {result.userEmail ? result.userEmail : ''}</CardTitle>
+            <CardTitle>
+            <Button className="ml-auto right-20 mr-2" size={"sm"} variant="outline">
+              <FolderOpenIcon className="w-4 h-4" />
+              {t('Open details ...')}
+            </Button>
+
+              <Link href={`/agent/${result.agentId}/results/${result.sessionId}`}>{new Date(result.createdAt).toLocaleString()} {result.userName ? result.userName : ''} {result.userEmail ? result.userEmail : ''}</Link></CardTitle>
           </CardHeader>
           <CardContent>
             {result.format === 'JSON' ? (

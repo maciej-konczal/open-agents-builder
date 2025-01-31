@@ -45,7 +45,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
             if(query.filter['sessionId']){
                 dbQuery.where(eq(results.sessionId, query.filter['sessionId'] as string));
             }
-            if(query.filter['id']){
+            if(query.filter['id']){ // id is our sessionId as only a single result might be attached to a session
                 dbQuery.where(eq(results.sessionId, query.filter['id'] as string));
             }
         }        

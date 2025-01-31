@@ -10,6 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { AuditContext } from './audit-context';
 import { diff, addedDiff, deletedDiff, updatedDiff, detailedDiff } from 'deep-object-diff';
+import { ResultApiClient } from '@/data/client/result-api-client';
+import { SessionApiClient } from '@/data/client/session-api-client';
 
 export type AgentStatusType = {
     id: string;
@@ -22,6 +24,8 @@ interface AgentContextType {
     agents: Agent[];
     results: PaginatedResult<Result[]>;
     agentResults: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Result[]>>;
+    singleResult: (resultId: string) => Promise<Result>
+    singleSession: (sessionid: string) => Promise<Session>
     sessions: PaginatedResult<Session[]>;
     agentSessions: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Session[]>>;
     updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>;
@@ -152,6 +156,27 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         return response;
     }
 
+    const singleResult = async (sessionId: string): Promise<Result> => {
+        const client = new ResultApiClient('', dbContext, saasContext);
+        const results = await client.get(sessionId)
+        if (results.length > 0) {
+            return Result.fromDTO(results[0]);
+        } else {
+            throw new Error('No results found for specified session');
+        }
+
+    }
+
+    const singleSession = async (sessionId: string): Promise<Session> => {
+        const client = new SessionApiClient('', dbContext, saasContext);
+        const results = await client.get(sessionId)
+        if (results.length > 0) {
+            return Session.fromDTO(results[0]);
+        } else {
+            throw new Error('No sessions found for specified session');
+        }
+    }
+
     const agentResults = async (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery): Promise<PaginatedResult<Result[]>> => {
         const client = await setupApiClient();
         const response = await client.results(agentId, { limit, offset, orderBy, query });
@@ -247,6 +272,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 removeStatus,
                 results,
                 agentResults,
+                singleResult,
                 sessions,
                 agentSessions,
                 deleteAgent,
