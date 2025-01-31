@@ -3,29 +3,28 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAgentContext } from '@/contexts/agent-context';
 import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import styles from '@/components/chat.module.css';
-import JsonView from '@uiw/react-json-view';
 import { useState } from 'react';
 import { Credenza, CredenzaContent, CredenzaTrigger } from '@/components/credenza';
 import { Button } from '@/components/ui/button';
 import { useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { DatabaseContext } from '@/contexts/db-context';
-import { FolderOpen, FolderOpenIcon, Loader2, MessageCircleIcon } from 'lucide-react';
+import {  FolderOpenIcon, Loader2, MessageCircleIcon } from 'lucide-react';
 import InfiniteScroll from '@/components/infinite-scroll';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import { Chat } from '@/components/chat';
 import { NoRecordsAlert } from '@/components/shared/no-records-alert';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { RenderResult } from '@/components/render-result';
 
 
 export default function ResultsPage() {
   const agentContext = useAgentContext();
   const dbContext = useContext(DatabaseContext);
   const { t, i18n  } = useTranslation();
+  const router = useRouter();
 
   const [hasMore, setHasMore] = useState(true);
   const [resultsLoading, setResultsLoading] = useState(false);
@@ -109,7 +108,9 @@ export default function ResultsPage() {
         <Card key={result.sessionId}>
           <CardHeader>
             <CardTitle>
-            <Button className="ml-auto right-20 mr-2" size={"sm"} variant="outline">
+            <Button className="ml-auto right-20 mr-2" size={"sm"} variant="outline" onClick={() => {
+              router.push(`/agent/${result.agentId}/results/${result.sessionId}`);
+            }}>
               <FolderOpenIcon className="w-4 h-4" />
               {t('Open details ...')}
             </Button>
@@ -117,12 +118,7 @@ export default function ResultsPage() {
               <Link href={`/agent/${result.agentId}/results/${result.sessionId}`}>{new Date(result.createdAt).toLocaleString()} {result.userName ? result.userName : ''} {result.userEmail ? result.userEmail : ''}</Link></CardTitle>
           </CardHeader>
           <CardContent>
-            {result.format === 'JSON' ? (
-              <JsonView value={JSON.parse(result.content ?? '{}')} />
-            ) : null}
-            {result.format === 'markdown' ? (
-                  <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{result.content}</Markdown>
-                ) : null}
+            <RenderResult result={result} />
           </CardContent>
         </Card>
       ))}
