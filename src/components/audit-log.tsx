@@ -18,6 +18,8 @@ import { SharedKeyEditPopup } from "./shared-key-edit-popup";
 import { AuditContext } from "@/contexts/audit-context";
 import { auditLog } from "@/lib/audit";
 import AuditLogItem from "./audit-log-item";
+import { toast } from "sonner";
+import { getErrorMessage } from "@/lib/utils";
 
 export default function AuditLogPopup() {
   const configContext = useContext(ConfigContext);
@@ -28,7 +30,9 @@ export default function AuditLogPopup() {
   const [offset, setOffset] = useState(0);
 
   useEffect(() => {
-    auditContext?.loadLogs(limit, offset);
+    auditContext?.loadLogs(limit, offset).catch((e) => {
+      toast.error(getErrorMessage(e));
+    });;
     keyContext.loadKeys();
   }, [limit, offset/*, auditContext?.lastAudit*/]); // we re not loading the records and keys each time new recod is added due to performance reasons
 

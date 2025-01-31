@@ -3,10 +3,12 @@
 import { Chat } from "@/components/chat";
 import { ChatInitForm } from "@/components/chat-init-form";
 import { useChatContext } from "@/contexts/chat-context";
+import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
 import { nanoid } from "nanoid";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 
 export default function ChatPage({children,
     params,
@@ -30,7 +32,9 @@ export default function ChatPage({children,
     }
     
     useEffect(() => {
-        chatContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */);
+        chatContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
+          toast.error(getErrorMessage(e));
+        });
     }, [params.id, params.databaseIdHash, params.locale]);
 
     useEffect(() => {
@@ -45,7 +49,9 @@ export default function ChatPage({children,
             content: t("Lets chat")
           }, {
             headers: getSessionHeaders()
-          })
+          }).catch((e) => {
+            toast.error(getErrorMessage(e));
+          });
         }
       }, [chatContext.agent, chatContext.initFormRequired, chatContext.initFormDone]);
 

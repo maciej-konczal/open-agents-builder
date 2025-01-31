@@ -22,6 +22,7 @@ import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 import { AgentDeleteDialog } from '../agent-delete-dialog';
 import { useFilePicker } from 'use-file-picker';
+import { getErrorMessage } from '@/lib/utils';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -51,12 +52,10 @@ export function AgentHeader() {
   });
 
   useEffect(() => {
-    try {
-      agentContext.listAgents(currentId);
-    } catch (e) {
+    agentContext.listAgents(currentId).catch((e)=> {
       console.error(e);
-      toast.error(t('Failed to load agents'));
-    }
+      toast.error(getErrorMessage(e))
+    });
   }, [currentId]);
 
   const handleAgentChange = (newId: string) => {

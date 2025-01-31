@@ -56,6 +56,9 @@ export default function ResultsPage() {
         content: t("Lets chat")
       }, {
         headers: getSessionHeaders()
+      }).catch((e) => {
+        console.error(e)
+        toast.error(getErrorMessage(e))
       })
     }
   }, [agentContext.current, isResultsChatOpen]);
