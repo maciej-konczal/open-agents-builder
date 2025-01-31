@@ -275,6 +275,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 singleResult,
                 sessions,
                 agentSessions,
+                singleSession,
                 deleteAgent,
                 agentDeleteDialogOpen,
                 setAgentDeleteDialogOpen,

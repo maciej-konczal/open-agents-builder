@@ -117,7 +117,7 @@ export default function ResultsPage() {
 
               <Link href={`/agent/${result.agentId}/results/${result.sessionId}`}>{new Date(result.createdAt).toLocaleString()} {result.userName ? result.userName : ''} {result.userEmail ? result.userEmail : ''}</Link></CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="text-sm">
             <RenderResult result={result} />
           </CardContent>
         </Card>
