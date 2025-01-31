@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { toolRegistry } from '@/tools'; // or wherever your registry is located
+import { toolConfigurators } from '@/tools/configurators'; // or wherever your registry is located
+import { toolRegistry } from '@/tools/registry'; // or wherever your registry is located
 import { ToolConfiguration } from '@/data/client/models';
 import { useTranslation } from 'react-i18next';
 
@@ -14,12 +15,12 @@ type ToolConfiguratorProps = {
 export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfiguratorProps) {
   // The registry object looks like: { sendEmail: {...}, currentDate: {...}, ... }
   // We'll get its keys for the select.
-  const registryKeys = Object.keys(toolRegistry);
+  const registryKeys = Object.keys(toolConfigurators);
   const { t } = useTranslation();
 
   // If the current tool doesn't exist in the registry, show an error
-  const toolDef = toolRegistry[configuration.tool as keyof typeof toolRegistry];
-  if (!toolDef) {
+  const toolConfigurator = toolConfigurators[configuration.tool as keyof typeof toolConfigurators];
+  if (!toolConfigurator) {
     return (
       <div className="border p-3 mb-3 rounded">
         <p className="text-red-500">{t('Unknown tool type')}: {configuration.tool}</p>
@@ -28,7 +29,7 @@ export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfi
   }
 
   // This is the specific React component (configurator UI) for the chosen tool
-  const Configurator = toolDef.configurator as unknown as React.ComponentType<{
+  const Configurator = toolConfigurator as unknown as React.ComponentType<{
     options: Record<string, any>;
     onChange: (updated: Record<string, any>) => void;
   }>;

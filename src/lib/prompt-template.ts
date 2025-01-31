@@ -148,7 +148,6 @@ function parseForBlocks(
     // Resolve array from context
     const arr = getValueFromContext(arrayVar, context) || [];
     let replacement = '';
-
     if (Array.isArray(arr) && arr.length > 0) {
       for (const item of arr) {
         // Extend context with current item

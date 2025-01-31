@@ -11,7 +11,7 @@ import { CoreMessage, CoreTool, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
 import { NextRequest } from 'next/server';
 import { z } from 'zod';
-import { ToolDescriptor, toolRegistry } from '@/tools'
+import { ToolDescriptor, toolRegistry } from '@/tools/registry'
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -27,31 +27,26 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined)
       continue;
     } else {
 
-      const paramsWithNoDefaults = toolDescriptor.tool.parameters;
       const paramsDefaults: Record<string, any> = {}
       for(const preConfiguredOptionKey in toolConfig.options){
         const preConfiguredOptionVal = toolConfig.options[preConfiguredOptionKey];
-        delete paramsWithNoDefaults[preConfiguredOptionKey]; // delete this from tool descriptors
-
         paramsDefaults[preConfiguredOptionKey] = preConfiguredOptionVal;
       }
 
       mappedTools[toolKey] = tool({ // we are creating a wrapper tool of tool provided to fill the gaps wieh pre-configured parameters
           description: `${toolConfig.description} - ${toolDescriptor.tool.description}}`,
-          parameters: z.object(paramsWithNoDefaults),
+          parameters: toolDescriptor.tool.parameters,
           execute: async (params, options) => {
             if (toolDescriptor.tool.execute)
-              return toolDescriptor.tool.execute({...paramsDefaults, ...params}, options);
+              return toolDescriptor.tool.execute({ ...params, ...paramsDefaults}, options); // we override the params with defaults provided in the configuration
             else {
               throw new Error(`Tool executor has no execute method defined, tool: ${toolKey} - ${toolConfig.tool}`);
             }
           }
         });
-
-      console.log(mappedTools);
-      return mappedTools;
     }
   }
+  return mappedTools;
 }
 
 
@@ -72,7 +67,7 @@ export async function POST(req: NextRequest) {
     id: agentId // TODO: fix seearching as it always return the same record!
   }) as AgentDTO);
 
-  const systemPrompt = await renderPrompt(locale, 'survey-agent', { agent });
+  const systemPrompt = await renderPrompt(locale, 'survey-agent', { agent, events: agent.events });
   messages.unshift( {
     role: 'system',
     content: systemPrompt

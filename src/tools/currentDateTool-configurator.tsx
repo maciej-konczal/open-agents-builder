@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { z } from 'zod';
-import { tool } from 'ai';
 import { useTranslation } from 'react-i18next';
+import { tool } from 'ai';
 
 type CurrentDateConfiguratorProps = {
   // This tool needs no special options, but we keep the shape for consistency:
@@ -17,15 +17,3 @@ export function CurrentDateConfigurator({ options, onChange }: CurrentDateConfig
   return <p className="text-sm text-gray-600">{t('No configuration required for currentDate tool.')}</p>;
 }
 
-export const currentDateTool = {
-  configurator: CurrentDateConfigurator,
-  displayName: 'Get current date',
-  type: 'function',
-  tool: tool({
-    description: 'Get the current date',
-    parameters: z.object({}),
-    execute: async () => {
-      return new Date().toISOString();
-    },
-  }),
-};

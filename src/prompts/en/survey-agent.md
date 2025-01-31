@@ -13,10 +13,10 @@ Never ask about in which format save the data. If it's not clear the default for
 {{ agent.prompt }}  
 </client-expectations>
 
-    <actions>
-    {% for event in agent.events %}
-    <when>{{ event.condition}}</when>
-    <do>{{ event.action}}</do>
+<actions>
+    {% for event in events %}
+        <when>{{ event.condition}}</when>
+        <do>{{ event.action}}</do>
     {% endfor %}
 </actions>
 
