@@ -32,7 +32,7 @@ export default function EventsPage() {
     setValue,
     getValues,
     watch,
-    formState: { errors, isDirty },
+    formState: { errors },
   } = useForm({
     defaultValues,
   });
@@ -45,7 +45,7 @@ export default function EventsPage() {
   // We assume they're stored as a dictionary: Record<string, EventConfiguration>
   const events: Record<string, EventConfiguration> = watch('events') || {};
 
-  const { onSubmit } = onAgentSubmit(
+  const { onSubmit, isDirty } = onAgentSubmit(
     agent,
     watch,
     setValue,

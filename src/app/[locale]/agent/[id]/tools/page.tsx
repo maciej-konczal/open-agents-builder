@@ -29,7 +29,7 @@ export default function ToolsPage() {
     setValue,
     getValues,
     watch,
-    formState: { errors, isDirty }
+    formState: { errors }
   } = useForm({
     defaultValues,
   });
@@ -38,7 +38,7 @@ export default function ToolsPage() {
   const tools: Record<string, ToolConfiguration> = watch('tools') || {};
 
   // Hook up your existing onSubmit with references to the new tools
-  const { onSubmit } = onAgentSubmit(
+  const { onSubmit, isDirty } = onAgentSubmit(
     agent,
     watch,
     setValue,

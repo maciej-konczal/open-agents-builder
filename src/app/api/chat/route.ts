@@ -48,6 +48,7 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined)
           }
         });
 
+      console.log(mappedTools);
       return mappedTools;
     }
   }
