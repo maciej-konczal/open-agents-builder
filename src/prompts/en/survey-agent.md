@@ -14,8 +14,9 @@ Never ask about in which format save the data. If it's not clear the default for
 </client-expectations>
 
 <client-information>
-{{ session.userName }}
-{{ session.userEmail }}
+session id: {{ session.id }}
+user name: {{ session.userName }}
+user email: {{ session.userEmail }}
 </client-information>
 
 <actions>

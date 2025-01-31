@@ -34,9 +34,18 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined)
       }
       // TODO we somehow must remove the parameters with defaults from parameters otherwise LLM will try to guess it
 
+      let nonDefaultParameters = toolDescriptor.tool.parameters;
+      if (nonDefaultParameters instanceof ZodObject) {
+        const omitKeys: Record<string, true> = {}
+        for(const key in paramsDefaults){
+          omitKeys[key] = true;
+        }
+        nonDefaultParameters = nonDefaultParameters.omit(omitKeys);
+      }
+
       mappedTools[toolKey] = tool({ // we are creating a wrapper tool of tool provided to fill the gaps wieh pre-configured parameters
           description: `${toolConfig.description} - ${toolDescriptor.tool.description}}`,
-          parameters: toolDescriptor.tool.parameters,
+          parameters: nonDefaultParameters,
           execute: async (params, options) => {
             if (toolDescriptor.tool.execute)
               return toolDescriptor.tool.execute({ ...params, ...paramsDefaults}, options); // we override the params with defaults provided in the configuration
