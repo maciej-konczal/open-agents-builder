@@ -333,6 +333,8 @@ export class Session {
     userEmail?: string | null;
     acceptTerms?: boolean | null;
     messages?: [Message] | null;
+    completionTokens?: number | null;
+    promptTokens?: number | null;
     createdAt: string;
     updatedAt: string;
     finalizedAt?: string | null;
@@ -343,6 +345,8 @@ export class Session {
         this.userName = sessionDTO.userName ?? null;
         this.userEmail = sessionDTO.userEmail ?? null;
         this.messages = sessionDTO instanceof Session ? sessionDTO.messages :  (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
+        this.completionTokens = sessionDTO.completionTokens;
+        this.promptTokens = sessionDTO.promptTokens;
         this.acceptTerms = !!(sessionDTO.acceptTerms ?? null);
         this.createdAt = sessionDTO.createdAt;
         this.updatedAt = sessionDTO.updatedAt;
@@ -360,6 +364,8 @@ export class Session {
             userEmail: this.userEmail,
             userName: this.userName,
             messages: JSON.stringify(this.messages),
+            promptTokens: this.promptTokens,
+            completionTokens: this.completionTokens,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             finalizedAt: this.finalizedAt,

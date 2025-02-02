@@ -216,6 +216,8 @@ export const sessionDTOSchema = z.object({
   userEmail: z.string().optional().nullable(),
   acceptTerms: z.string().optional().nullable(),
   messages: z.string().optional().nullable(),
+  promptTokens: z.number().optional().nullable(),
+  completionTokens: z.number().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),
   finalizedAt: z.string().optional().nullable(),

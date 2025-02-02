@@ -30,6 +30,8 @@ export const sessions = sqliteTable('sessions', {
     userName: text('userName').default(''),
     userEmail: text('userEmail').default(''),
     acceptTerms: text('acceptTerms'),
+    completionTokens: integer('completionTokens'),
+    promptTokens: integer('promptTokens'),
     messages: text('messages', { mode: 'json' }),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
