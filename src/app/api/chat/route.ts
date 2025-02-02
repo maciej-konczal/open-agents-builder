@@ -96,6 +96,8 @@ export async function POST(req: NextRequest) {
       }, {
         id: sessionId,
         agentId,
+        completionTokens: existingSession && existingSession.completionTokens ? usage.completionTokens + existingSession.completionTokens : usage.completionTokens,
+        promptTokens: existingSession && existingSession.promptTokens ? usage.promptTokens + existingSession.promptTokens : usage.promptTokens,
         createdAt: existingSession ? existingSession.createdAt : new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         messages: JSON.stringify(chatHistory)
