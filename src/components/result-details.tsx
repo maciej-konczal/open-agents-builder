@@ -43,11 +43,13 @@ const ResultDetails: FC<ResultDetailsProps> = ({
       <CardContent className="p-4">
         <div className="grid grid-cols-2 gap-2 text-sm">
           <div className="col-span-2 flex justify-between items-center mb-2">
-            <h2 className="text-lg font-semibold">{userName}</h2>
-            <a href={`mailto:${userEmail}`} className="text-primary hover:underline flex items-center">
-              <Mail className="w-4 h-4 mr-1" />
-              {userEmail}
-            </a>
+            {userName ? (<h2 className="text-lg font-semibold">{userName}</h2>) : null}
+            {userEmail ? (
+              <a href={`mailto:${userEmail}`} className="text-primary hover:underline flex items-center">
+                <Mail className="w-4 h-4 mr-1" />
+                {userEmail}
+              </a>
+            ) : null}
           </div>
 
           <div>

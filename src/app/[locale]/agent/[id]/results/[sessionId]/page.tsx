@@ -55,15 +55,15 @@ export default function SingleResultPage() {
         </CardHeader>
         <CardContent>
           <ResultDetails 
+            userName={result?.userName || ''}
+            userEmail={result?.userEmail || ''}
             sessionStart={new Date(session?.createdAt ?? Date.now())}
             sessionEnd={new Date(result?.finalizedAt ?? Date.now())}
-            userName={result?.userName ?? t('N/A')}
-            userEmail={result?.userEmail ?? t('N/A')}
             messageCount={session?.messages?.length ?? 0}
             inputTokens={0} // TODO: implement inputTokens,
             outputTokens={0} // TODO: implement outputTokens,            
           /> 
-          <Tabs defaultValue="content">
+          <Tabs defaultValue="content" className="mt-4">
             <TabsList className="grid grid-cols-2">
                 <TabsTrigger value="content" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Result')}</TabsTrigger>
                 <TabsTrigger value="chat" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Message history')}</TabsTrigger>

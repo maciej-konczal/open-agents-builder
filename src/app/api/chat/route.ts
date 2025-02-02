@@ -96,7 +96,7 @@ export async function POST(req: NextRequest) {
       }, {
         id: sessionId,
         agentId,
-        createdAt: new Date().toISOString(),
+        createdAt: existingSession ? existingSession.createdAt : new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         messages: JSON.stringify(chatHistory)
       } as SessionDTO);
