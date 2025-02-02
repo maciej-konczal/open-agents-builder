@@ -78,6 +78,20 @@
       "when": 1738508519125,
       "tag": "0010_cultured_ozymandias",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "6",
+      "when": 1738521214198,
+      "tag": "0011_talented_sabretooth",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "6",
+      "when": 1738521613976,
+      "tag": "0012_conscious_fat_cobra",
+      "breakpoints": true
     }
   ]
 }

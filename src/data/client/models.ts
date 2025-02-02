@@ -222,6 +222,7 @@ export class Agent {
     events?: Record<string, EventConfiguration>;
     tools?: Record<string, ToolConfiguration>;
     locale: string;
+    promptTemplate?: string | null;
     status: AgentStatus;
     createdAt: string;
     updatedAt: string;
@@ -242,6 +243,7 @@ export class Agent {
         this.updatedAt = agentDTO.updatedAt;
 
         this.locale = agentDTO.locale || 'en';
+        this.promptTemplate = agentDTO.promptTemplate;
         this.status = agentDTO.status === 'deleted' ? AgentStatus.Deleted : AgentStatus.Active;
     }
 
@@ -260,6 +262,7 @@ export class Agent {
             events: JSON.stringify(this.events),
             tools: JSON.stringify(this.tools),
             locale: this.locale,
+            promptTemplate: this.promptTemplate,
             status: this.status,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
@@ -279,6 +282,7 @@ export class Agent {
             confirmTerms: this?.options?.mustConfirmTerms || false,
             resultEmail: this?.options?.resultEmail || '',
             collectUserInfo: this?.options?.collectUserEmail,
+            promptTemplate: this?.promptTemplate,
             status: this?.status || AgentStatus.Active,
             locale: this?.locale || 'en',
             events: this?.events || {},
@@ -305,6 +309,7 @@ export class Agent {
             createdAt: agent?.createdAt || getCurrentTS(),
             updatedAt: getCurrentTS(),
             locale: data.locale ?? agent?.locale,
+            promptTemplate: data.promptTemplate ?? agent?.promptTemplate,
             status: data.status ?? agent?.status,
             events: data.events ?? agent?.events,
             tools: data.tools ?? agent?.tools,

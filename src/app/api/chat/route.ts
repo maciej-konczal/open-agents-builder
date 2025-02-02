@@ -65,7 +65,6 @@ export async function POST(req: NextRequest) {
   const databaseIdHash = req.headers.get('Database-Id-Hash');
   const sessionId = req.headers.get('Agent-Session-Id') || nanoid();
   const agentId = req.headers.get('Agent-Id');
-  const locale = req.headers.get('Agent-Locale') || 'en';
 
   if(!databaseIdHash || !agentId || !sessionId) {
     return Response.json('The required HTTP headers: Database-Id-Hash, Agent-Session-Id and Agent-Id missing', { status: 400 });
@@ -77,10 +76,12 @@ export async function POST(req: NextRequest) {
     id: agentId // TODO: fix seearching as it always return the same record!
   }) as AgentDTO);
 
+  const locale = req.headers.get('Agent-Locale') || agent.locale || 'en';
+
   const sessionRepo = new ServerSessionRepository(databaseIdHash);
   let existingSession = await sessionRepo.findOne({ id: sessionId });
 
-  const systemPrompt = await renderPrompt(locale, 'survey-agent', { session: existingSession, agent, events: agent.events });
+  const systemPrompt = await renderPrompt(locale, agent.promptTemplate ? agent.promptTemplate : 'survey-agent', { session: existingSession, agent, events: agent.events });
   messages.unshift( {
     role: 'system',
     content: systemPrompt
