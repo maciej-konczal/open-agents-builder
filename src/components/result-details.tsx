@@ -1,7 +1,7 @@
 import type { FC } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Mail } from "lucide-react"
+import { CalendarIcon, Mail, MessageCircleIcon, TimerIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 export interface ResultDetailsProps {
@@ -39,9 +39,9 @@ const ResultDetails: FC<ResultDetailsProps> = ({
   }
 
   return (
-    <Card className="w-full max-w-2xl">
+    <Card className="w-full">
       <CardContent className="p-4">
-        <div className="grid grid-cols-2 gap-2 text-sm">
+        <div className="grid grid-cols-2 gap-2 text-sm w-full">
           <div className="col-span-2 flex justify-between items-center mb-2">
             {userName ? (<h2 className="text-lg font-semibold">{userName}</h2>) : null}
             {userEmail ? (
@@ -52,18 +52,20 @@ const ResultDetails: FC<ResultDetailsProps> = ({
             ) : null}
           </div>
 
-          <div>
-            {t('Started')}: <span className="font-medium">{formatDate(sessionStart)}</span>
+          <div className="flex">
+            <CalendarIcon className="w-4 h-4 mr-2" /> {t('Started')}: <span className="font-medium">{formatDate(sessionStart)}</span>
           </div>
-          <div>
-            {t('Ended')}: <span className="font-medium">{formatDate(sessionEnd)}</span>
+          
+          <div className="flex">
+            <CalendarIcon className="w-4 h-4 mr-2" /> {t('Ended')}: <span className="font-medium">{formatDate(sessionEnd)}</span>
           </div>
 
-          <div>
-            {t('Duration')}: <span className="font-medium">{durationInMinutes} {t('min')}</span>
+          <div className="flex">
+            <TimerIcon className="w-4 h-4 mr-2" /> {t('Duration')}: <span className="font-medium">{durationInMinutes} {t('min')}</span>
           </div>
-          <div>
-            {t('Messages')}: <span className="font-medium">{messageCount}</span>
+          
+          <div className="flex">
+            <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="font-medium">{messageCount}</span>
           </div>
 
           <div className="col-span-2 flex justify-between items-center mt-2">
