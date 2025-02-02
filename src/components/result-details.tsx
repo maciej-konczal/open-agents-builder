@@ -1,7 +1,7 @@
 import type { FC } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { CalendarIcon, Mail, MessageCircleIcon, TimerIcon } from "lucide-react"
+import { BarChartIcon, CalendarIcon, Mail, MessageCircleIcon, TimerIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 export interface ResultDetailsProps {
@@ -70,10 +70,10 @@ const ResultDetails: FC<ResultDetailsProps> = ({
 
           <div className="col-span-2 flex justify-between items-center mt-2">
             <Badge variant="outline" className="text-primary">
-              {t('Input Tokens')}: {inputTokens}
+              <BarChartIcon className="w-4 h-4 mr-2" /> {t('Input Tokens')}: {inputTokens}
             </Badge>
             <Badge variant="outline" className="text-primary">
-              {t('Output Tokens')}: {outputTokens}
+            <BarChartIcon className="w-4 h-4 mr-2" /> {t('Output Tokens')}: {outputTokens}
             </Badge>
           </div>
         </div>
