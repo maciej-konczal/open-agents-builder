@@ -1,4 +1,4 @@
-import type { FC } from "react"
+import { useState, type FC } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BarChartIcon, CalendarIcon, Mail, MessageCircleIcon, TimerIcon } from "lucide-react"
@@ -26,16 +26,12 @@ const ResultDetails: FC<ResultDetailsProps> = ({
   const duration = sessionEnd.getTime() - sessionStart.getTime()
   const durationInMinutes = Math.round(duration / 60000)
 
+  const [chatOpen, setChatOpen] = useState(false);
+
   const { t } = useTranslation()
 
   const formatDate = (date: Date) => {
-    return date.toLocaleString("en-US", {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    })
+    return date.toLocaleString()
   }
 
   return (
