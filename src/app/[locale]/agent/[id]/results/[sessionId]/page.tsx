@@ -148,6 +148,7 @@ export default function SingleResultPage() {
             </TabsContent>      
             <TabsContent value="chat" className="p-2 text-sm">
               <ChatMessages 
+                    displayTimestamps={true}
                     displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
                     messages={session?.messages ?? []}
                 />

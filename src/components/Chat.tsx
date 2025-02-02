@@ -42,7 +42,7 @@ export function Chat({ headers, welcomeMessage, displayName, messages, handleInp
                   </span>
                 </div>
           ): null}
-          <ChatMessages messages={messages} />
+          <ChatMessages messages={messages} displayTimestamps={false} />
           {isLoading && (
             <div className="text-left">
               <span className="inline-block p-2 rounded-lg bg-muted">{t('AI is typing...')}</span>
