@@ -1,7 +1,7 @@
 import { useState, type FC } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { BarChartIcon, CalendarIcon, Mail, MessageCircleIcon, TimerIcon } from "lucide-react"
+import { BarChartIcon, CalendarIcon, Mail, MessageCircleIcon, TagIcon, TimerIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 
 export interface ResultDetailsProps {
@@ -12,6 +12,7 @@ export interface ResultDetailsProps {
   messageCount: number
   inputTokens: number
   outputTokens: number
+  sessionId: string
 }
 
 const ResultDetails: FC<ResultDetailsProps> = ({
@@ -22,12 +23,10 @@ const ResultDetails: FC<ResultDetailsProps> = ({
   messageCount,
   inputTokens,
   outputTokens,
+  sessionId
 }) => {
   const duration = sessionEnd.getTime() - sessionStart.getTime()
   const durationInMinutes = Math.round(duration / 60000)
-
-  const [chatOpen, setChatOpen] = useState(false);
-
   const { t } = useTranslation()
 
   const formatDate = (date: Date) => {
@@ -63,6 +62,11 @@ const ResultDetails: FC<ResultDetailsProps> = ({
           <div className="flex">
             <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{messageCount}</span>
           </div>
+
+          <div className="flex">
+            <TagIcon className="w-4 h-4 mr-2" /> {t('Id')}: <span className="ml-2 font-medium">{sessionId}</span>
+          </div>
+
 
           <div className="col-span-2 flex justify-between items-center mt-2">
             <Badge variant="outline" className="text-primary">

@@ -1,12 +1,11 @@
 'use client'
 import { useAgentContext } from '@/contexts/agent-context';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DatabaseContext } from '@/contexts/db-context';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useParams } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Result, Session } from '@/data/client/models';
 import { RenderResult } from '@/components/render-result';
 import { Tabs } from '@/components/ui/tabs';
@@ -14,7 +13,7 @@ import { TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import { ChatMessages, DisplayToolResultsMode } from '@/components/chat-messages';
 import ResultDetails from '@/components/result-details';
 import { Button } from '@/components/ui/button';
-import { CopyIcon, MoveLeftIcon, SaveIcon, TextIcon, WandSparkles } from 'lucide-react';
+import { CopyIcon, MoveLeftIcon, SaveIcon, WandSparkles } from 'lucide-react';
 import { useCopyToClipboard } from 'react-use';
 
 
@@ -24,11 +23,11 @@ export default function SingleResultPage() {
   const agentContext = useAgentContext();
   const params = useParams();
 
-  const dbContext = useContext(DatabaseContext);
   const { t, i18n  } = useTranslation();
 
   const [result, setResult] = useState<Result>();
   const [session, setSession] = useState<Session>();
+  const [chatOpen, setChatOpen] = useState(false);
 
 
   useEffect(() => {
@@ -61,6 +60,7 @@ export default function SingleResultPage() {
         </CardHeader> */}
         <CardContent className="pt-6">
           <ResultDetails 
+            sessionId={result?.sessionId || ''}
             userName={result?.userName || ''}
             userEmail={result?.userEmail || ''}
             sessionStart={new Date(session?.createdAt ?? Date.now())}
@@ -86,10 +86,14 @@ export default function SingleResultPage() {
               }}>
                 <CopyIcon className="w-4 h-4" />{t('Copy')}
               </Button>              
-              <Button size="sm" variant="outline" className="mt-2">
+              <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
+                if (result) agentContext.exportSingleResult(result)
+              }}>
                 <SaveIcon className="w-4 h-4" />{t('Export to file')}
               </Button>
-              <Button size="sm" variant="outline" className="mt-2">
+              <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
+                setChatOpen(true);
+              }}>
                 <WandSparkles className="w-4 h-4" />{t('Transform with AI')}
               </Button>
             </TabsContent>      

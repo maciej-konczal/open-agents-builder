@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { AuditContext } from './audit-context';
-import { diff, addedDiff, deletedDiff, updatedDiff, detailedDiff } from 'deep-object-diff';
+import { detailedDiff } from 'deep-object-diff';
 import { ResultApiClient } from '@/data/client/result-api-client';
 import { SessionApiClient } from '@/data/client/session-api-client';
 
@@ -43,6 +43,7 @@ interface AgentContextType {
     setAgentDeleteDialogOpen: (value: boolean) => void;
     exportAgent: (agent: Agent) => void;
     importAgent: (fileContent: string) => Promise<Agent>;
+    exportSingleResult: (result: Result) => void;
 
 }
 
@@ -245,6 +246,20 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         a.click();
     }
 
+    const exportSingleResult = (result: Result) => {
+        const resultFormat = result.format?.toLowerCase();
+        
+        const mimeType = resultFormat === 'markdown' ? 'text/markdown' : 'application/json';
+        const extension = resultFormat === 'json' ? '.json' : '.md'; 
+        
+        const a = document.createElement('a');
+        const file = new Blob([result.content ?? ''], {type: mimeType});
+        a.href= URL.createObjectURL(file);
+        a.download = `result-${result.sessionId}${extension}`;
+        a.click();
+    }
+
+
     const importAgent = async (fileContent: string): Promise<Agent> => {
         try {
             const agentDTO = JSON.parse(fileContent) as AgentDTO;
@@ -281,7 +296,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 setAgentDeleteDialogOpen,
                 newFromTemplate,
                 exportAgent,
-                importAgent
+                importAgent,
+                exportSingleResult
             }}>
             {children}
         </AgentContext.Provider>
