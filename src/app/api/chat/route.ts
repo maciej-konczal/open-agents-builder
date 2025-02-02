@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid';
 import { NextRequest } from 'next/server';
 import { z, ZodObject } from 'zod';
 import { ToolDescriptor, toolRegistry } from '@/tools/registry'
+import { llmProviderSetup } from '@/lib/llm-provider';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
   })
 
   const result = streamText({
-    model: openai('gpt-4o'),
+    model: llmProviderSetup(),
     maxSteps: 10,  
     async onFinish({ response, usage }) {
       const chatHistory = [...messages, ...response.messages]

@@ -4,6 +4,7 @@ import ServerAgentRepository from '@/data/server/server-agent-repository';
 import ServerResultRepository from '@/data/server/server-result-repository';
 import ServerStatRepository from '@/data/server/server-stat-repository';
 import { authorizeSaasContext } from '@/lib/generic-api';
+import { llmProviderSetup } from '@/lib/llm-provider';
 import { renderPrompt } from '@/lib/prompt-template';
 import { openai } from '@ai-sdk/openai';
 import { appendResponseMessages, CoreMessage, Message, streamText, tool } from 'ai';
@@ -56,7 +57,7 @@ export async function POST(req: NextRequest) {
   console.log(messages)
 
   const result = streamText({
-    model: openai('gpt-4o'),
+    model: llmProviderSetup(),
     maxSteps: 10,  
     messages,
     async onFinish({ response, usage }) {
