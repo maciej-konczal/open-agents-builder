@@ -11,8 +11,7 @@ import { Result, Session } from '@/data/client/models';
 import { RenderResult } from '@/components/render-result';
 import { Tabs } from '@/components/ui/tabs';
 import { TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
-import { Chat } from '@/components/chat';
-import { ChatMessages } from '@/components/chat-messages';
+import { ChatMessages, DisplayToolResultsMode } from '@/components/chat-messages';
 
 
 export default function SingleResultPage() {
@@ -64,6 +63,7 @@ export default function SingleResultPage() {
             </TabsContent>      
           <TabsContent value="chat" className="p-2 text-sm">
             <ChatMessages 
+                  displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
                   messages={session?.messages ?? []}
               />
             </TabsContent>

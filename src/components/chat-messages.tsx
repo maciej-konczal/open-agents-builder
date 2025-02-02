@@ -4,7 +4,11 @@ import remarkGfm from "remark-gfm";
 import styles from './chat.module.css';
 import { useTranslation } from "react-i18next";
 
-export function ChatMessages({ messages }: { messages: Message[] }) {
+export enum DisplayToolResultsMode {
+    None = 'none',
+    AsTextMessage = 'textmessage'
+}
+export function ChatMessages({ messages, displayToolResultsMode = DisplayToolResultsMode.None  }: { messages: Message[], displayToolResultsMode?: DisplayToolResultsMode }) {
     const { t } = useTranslation();
     return (
         messages.filter(m => m.role !=='tool' && m.role !== 'system').map((m) => (
@@ -14,7 +18,7 @@ export function ChatMessages({ messages }: { messages: Message[] }) {
                   m.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                 }`}
               >
-                {m.toolInvocations ? (
+                {m.toolInvocations && displayToolResultsMode !== DisplayToolResultsMode.None ? (
                   <div className="mb-2">
                     {m.toolInvocations.map((tl) => (
                       <div key={tl.id} className="mb-2">
