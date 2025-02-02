@@ -15,9 +15,12 @@ import { ChatMessages, DisplayToolResultsMode } from '@/components/chat-messages
 import ResultDetails from '@/components/result-details';
 import { Button } from '@/components/ui/button';
 import { CopyIcon, MoveLeftIcon, SaveIcon, TextIcon, WandSparkles } from 'lucide-react';
+import { useCopyToClipboard } from 'react-use';
 
 
 export default function SingleResultPage() {
+
+  const [, copy] = useCopyToClipboard();
   const agentContext = useAgentContext();
   const params = useParams();
 
@@ -73,7 +76,14 @@ export default function SingleResultPage() {
             </TabsList>
             <TabsContent value="content" className="p-2 text-sm">
               <RenderResult result={result} />
-              <Button size="sm" variant="outline" className="mt-2">
+              <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
+                try {
+                  if(result?.content) copy(result?.content)
+                    toast.info(t('Copied to clipboard!'));
+                } catch (e){
+                  toast.error(getErrorMessage(e))
+                }
+              }}>
                 <CopyIcon className="w-4 h-4" />{t('Copy')}
               </Button>              
               <Button size="sm" variant="outline" className="mt-2">
