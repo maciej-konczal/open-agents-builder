@@ -13,6 +13,8 @@ import { Tabs } from '@/components/ui/tabs';
 import { TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import { ChatMessages, DisplayToolResultsMode } from '@/components/chat-messages';
 import ResultDetails from '@/components/result-details';
+import { Button } from '@/components/ui/button';
+import { CopyIcon, MoveLeftIcon, SaveIcon, TextIcon, WandSparkles } from 'lucide-react';
 
 
 export default function SingleResultPage() {
@@ -47,6 +49,7 @@ export default function SingleResultPage() {
 
   return (
     <div className="space-y-6">
+            <Button size="sm" variant="outline" onClick={() => history.back()}><MoveLeftIcon /> {t('Back')}</Button>
       <Card>
         {/* <CardHeader>
           <CardTitle>
@@ -70,7 +73,16 @@ export default function SingleResultPage() {
             </TabsList>
             <TabsContent value="content" className="p-2 text-sm">
               <RenderResult result={result} />
-              </TabsContent>      
+              <Button size="sm" variant="outline" className="mt-2">
+                <CopyIcon className="w-4 h-4" />{t('Copy')}
+              </Button>              
+              <Button size="sm" variant="outline" className="mt-2">
+                <SaveIcon className="w-4 h-4" />{t('Export to file')}
+              </Button>
+              <Button size="sm" variant="outline" className="mt-2">
+                <WandSparkles className="w-4 h-4" />{t('Transform with AI')}
+              </Button>
+            </TabsContent>      
             <TabsContent value="chat" className="p-2 text-sm">
               <ChatMessages 
                     displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}

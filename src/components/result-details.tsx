@@ -53,19 +53,19 @@ const ResultDetails: FC<ResultDetailsProps> = ({
           </div>
 
           <div className="flex">
-            <CalendarIcon className="w-4 h-4 mr-2" /> {t('Started')}: <span className="font-medium">{formatDate(sessionStart)}</span>
+            <CalendarIcon className="w-4 h-4 mr-2" /> {t('Started')}: <span className="ml-2 font-medium">{formatDate(sessionStart)}</span>
           </div>
           
           <div className="flex">
-            <CalendarIcon className="w-4 h-4 mr-2" /> {t('Ended')}: <span className="font-medium">{formatDate(sessionEnd)}</span>
+            <CalendarIcon className="w-4 h-4 mr-2" /> {t('Ended')}: <span className="ml-2 font-medium">{formatDate(sessionEnd)}</span>
           </div>
 
           <div className="flex">
-            <TimerIcon className="w-4 h-4 mr-2" /> {t('Duration')}: <span className="font-medium">{durationInMinutes} {t('min')}</span>
+            <TimerIcon className="w-4 h-4 mr-2" /> {t('Duration')}: <span className="ml-2 font-medium">{durationInMinutes} {t('min')}</span>
           </div>
           
           <div className="flex">
-            <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="font-medium">{messageCount}</span>
+            <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{messageCount}</span>
           </div>
 
           <div className="col-span-2 flex justify-between items-center mt-2">
