@@ -12,6 +12,7 @@ import { RenderResult } from '@/components/render-result';
 import { Tabs } from '@/components/ui/tabs';
 import { TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import { ChatMessages, DisplayToolResultsMode } from '@/components/chat-messages';
+import ResultDetails from '@/components/result-details';
 
 
 export default function SingleResultPage() {
@@ -53,20 +54,29 @@ export default function SingleResultPage() {
           </CardTitle>  
         </CardHeader>
         <CardContent>
-        <Tabs defaultValue="content">
-          <TabsList className="grid grid-cols-2">
-              <TabsTrigger value="content" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Result')}</TabsTrigger>
-              <TabsTrigger value="chat" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Message history')}</TabsTrigger>
-          </TabsList>
-          <TabsContent value="content" className="p-2 text-sm">
-            <RenderResult result={result} />
-            </TabsContent>      
-          <TabsContent value="chat" className="p-2 text-sm">
-            <ChatMessages 
-                  displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
-                  messages={session?.messages ?? []}
-              />
-            </TabsContent>
+          <ResultDetails 
+            sessionStart={new Date(session?.createdAt ?? Date.now())}
+            sessionEnd={new Date(result?.finalizedAt ?? Date.now())}
+            userName={result?.userName ?? t('N/A')}
+            userEmail={result?.userEmail ?? t('N/A')}
+            messageCount={session?.messages?.length ?? 0}
+            inputTokens={0} // TODO: implement inputTokens,
+            outputTokens={0} // TODO: implement outputTokens,            
+          /> 
+          <Tabs defaultValue="content">
+            <TabsList className="grid grid-cols-2">
+                <TabsTrigger value="content" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Result')}</TabsTrigger>
+                <TabsTrigger value="chat" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Message history')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="content" className="p-2 text-sm">
+              <RenderResult result={result} />
+              </TabsContent>      
+            <TabsContent value="chat" className="p-2 text-sm">
+              <ChatMessages 
+                    displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
+                    messages={session?.messages ?? []}
+                />
+              </TabsContent>
           </Tabs>                  
         </CardContent>
       </Card>
