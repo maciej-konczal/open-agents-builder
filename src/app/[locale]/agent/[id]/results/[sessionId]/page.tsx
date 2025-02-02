@@ -48,12 +48,12 @@ export default function SingleResultPage() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+        {/* <CardHeader>
           <CardTitle>
             {new Date(result?.createdAt ?? Date.now()).toLocaleString()} {result?.userName} {result?.userEmail ? `- ${result.userEmail}` : ''}
           </CardTitle>  
-        </CardHeader>
-        <CardContent>
+        </CardHeader> */}
+        <CardContent className="pt-6">
           <ResultDetails 
             userName={result?.userName || ''}
             userEmail={result?.userEmail || ''}
