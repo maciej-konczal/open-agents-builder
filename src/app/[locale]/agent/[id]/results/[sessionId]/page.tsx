@@ -1,6 +1,6 @@
 'use client'
 import { useAgentContext } from '@/contexts/agent-context';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -13,12 +13,18 @@ import { TabsContent, TabsList, TabsTrigger } from '@radix-ui/react-tabs';
 import { ChatMessages, DisplayToolResultsMode } from '@/components/chat-messages';
 import ResultDetails from '@/components/result-details';
 import { Button } from '@/components/ui/button';
-import { CopyIcon, MoveLeftIcon, SaveIcon, WandSparkles } from 'lucide-react';
+import { CopyIcon, MessageCircleIcon, MoveLeftIcon, SaveIcon, WandSparkles } from 'lucide-react';
 import { useCopyToClipboard } from 'react-use';
+import { DatabaseContext } from '@/contexts/db-context';
+import { useChat } from 'ai/react';
+import { nanoid } from 'nanoid';
+import { Chat } from '@/components/chat';
+import { Credenza, CredenzaTrigger, CredenzaContent } from '@/components/credenza';
 
 
 export default function SingleResultPage() {
 
+  const dbContext = useContext(DatabaseContext);
   const [, copy] = useCopyToClipboard();
   const agentContext = useAgentContext();
   const params = useParams();
@@ -29,7 +35,10 @@ export default function SingleResultPage() {
   const [session, setSession] = useState<Session>();
   const [chatOpen, setChatOpen] = useState(false);
 
-
+  const { messages, handleInputChange, isLoading, append, handleSubmit, input} = useChat({
+    api: "/api/agent/results-chat",
+  });
+  
   useEffect(() => {
     if (agentContext.current?.id)
       agentContext.singleResult(params.sessionId as string).catch((e) => {
@@ -48,10 +57,50 @@ export default function SingleResultPage() {
       });
   }, [agentContext.current]);
 
+  const getSessionHeaders = () => {
+    return {
+      'Database-Id-Hash': dbContext?.databaseIdHash ?? '',
+      'Agent-Id': agentContext.current?.id ?? '',
+      'Agent-Locale': i18n.language,
+      'Session-Id': result?.sessionId ?? ''
+    }
+  }
+  useEffect(() => {
+    if (agentContext.current && chatOpen){
+      append({
+        id: nanoid(),
+        role: "user",
+        content: t("Lets chat")
+      }, {
+        headers: getSessionHeaders()
+      }).catch((e) => {
+        console.error(e)
+        toast.error(getErrorMessage(e))
+      })
+    }
+  }, [agentContext.current, chatOpen]);
+
+
 
   return (
     <div className="space-y-6">
             <Button size="sm" variant="outline" onClick={() => history.back()}><MoveLeftIcon /> {t('Back')}</Button>
+            <Credenza open={chatOpen} onOpenChange={setChatOpen}>
+          <CredenzaContent>
+            {/* Add your chat component or content here */}
+            <Chat
+              headers={getSessionHeaders()}
+              welcomeMessage={t('Lets chat')}
+              messages={messages}
+              handleInputChange={handleInputChange}
+              isLoading={isLoading}
+              handleSubmit={handleSubmit}
+              input={input}
+              displayName={t('Modify result with chat')}
+            />
+          </CredenzaContent>
+        </Credenza>
+
       <Card>
         {/* <CardHeader>
           <CardTitle>

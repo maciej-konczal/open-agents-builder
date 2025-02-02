@@ -82,7 +82,7 @@ export default function ResultsPage() {
       { agentContext.results.rows.length > 0 ? (
         <Credenza open={isResultsChatOpen} onOpenChange={setResultsChatOpen}>
           <CredenzaTrigger asChild>
-            <Button size="sm" variant="outline" onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> Chat about results ...</Button>
+            <Button size="sm" variant="outline" onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> {t('Chat about results ...')}</Button>
           </CredenzaTrigger>
           <CredenzaContent>
             {/* Add your chat component or content here */}

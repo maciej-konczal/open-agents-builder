@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
   const databaseIdHash = req.headers.get('Database-Id-Hash');
   const agentId = req.headers.get('Agent-Id');
   const locale = req.headers.get('Agent-Locale') || 'en';
+  const sessionId = req.headers.get('Session-Id') || '';
 
   if(!databaseIdHash || !agentId) {
     return Response.json('The required HTTP headers: Database-Id-Hash and Agent-Id missing', { status: 400 });
@@ -32,10 +33,11 @@ export async function POST(req: NextRequest) {
   }) as AgentDTO);
 
   const resultsRepo = new ServerResultRepository(databaseIdHash);
-  const results = await resultsRepo.findAll({
-    filter: {
-      agentId
-    }
+  const filter = sessionId ? {
+      sessionId
+    } : { agentId };
+  const results = await await resultsRepo.findAll({
+    filter
   })
 
   const resultMessages = results.map((result: ResultDTO) => {
