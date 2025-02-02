@@ -110,7 +110,7 @@ export async function POST(req: NextRequest) {
         createdAt: new Date().toISOString()
     }
       const statsRepo = new ServerStatRepository(databaseIdHash, 'stats');
-      const result = await statsRepo.aggregate(usageData)
+    const result = await statsRepo.aggregate(usageData)
 
       const saasContext = await authorizeSaasContext(req);
       if (saasContext.apiClient) {

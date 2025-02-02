@@ -115,8 +115,8 @@ export default function SingleResultPage() {
             sessionStart={new Date(session?.createdAt ?? Date.now())}
             sessionEnd={new Date(result?.finalizedAt ?? Date.now())}
             messageCount={session?.messages?.length ?? 0}
-            inputTokens={0} // TODO: implement inputTokens,
-            outputTokens={0} // TODO: implement outputTokens,            
+            inputTokens={session?.promptTokens ?? 0} // TODO: implement inputTokens,
+            outputTokens={session?.completionTokens ?? 0} // TODO: implement outputTokens,            
           /> 
           <Tabs defaultValue="content" className="mt-4">
             <TabsList className="grid grid-cols-2">
