@@ -7,8 +7,7 @@ export function llmProviderSetup() {
         const olProvider = createOllama({
             baseURL: process.env.OLLAMA_URL
         });
-        console.log(olProvider);
-        return olProvider(process.env.LLM_MODEL || 'phi-4');
+        return olProvider.chat(process.env.LLM_MODEL || 'gpt-4o');
     } else {
         return openai(process.env.LLM_MODEL || 'gpt-4o');
     }
