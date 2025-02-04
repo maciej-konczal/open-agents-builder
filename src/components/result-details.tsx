@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { BarChartIcon, CalendarIcon, Mail, MessageCircleIcon, TagIcon, TimerIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
+import { formatDate } from "@/lib/utils"
 
 export interface ResultDetailsProps {
   sessionStart: Date
@@ -29,9 +30,6 @@ const ResultDetails: FC<ResultDetailsProps> = ({
   const durationInMinutes = Math.round(duration / 60000)
   const { t } = useTranslation()
 
-  const formatDate = (date: Date) => {
-    return date.toLocaleString()
-  }
 
   return (
     <Card className="w-full">

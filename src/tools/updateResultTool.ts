@@ -3,6 +3,7 @@ import { tool } from 'ai';
 import { ResultDTO } from '@/data/dto';
 import ServerResultRepository from '@/data/server/server-result-repository';
 import { ToolDescriptor } from './registry';
+import ServerSessionRepository from '@/data/server/server-session-repository';
 
 export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
 {
@@ -18,7 +19,8 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
           execute: async ({ sessionId, result, format }) => {
             try {
               const resultRepo = new ServerResultRepository(databaseIdHash);
-              const existingSession = await resultRepo.findOne({ sessionId });
+              const sessionsRepo = new ServerSessionRepository(databaseIdHash);
+              const existingSession = await sessionsRepo.findOne({ sessionId });
 
               if(!existingSession) {
                 return 'Session not found, please check the sessionId';
@@ -35,7 +37,8 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
               storedResult.updatedAt = new Date().toISOString();
               storedResult.finalizedAt = new Date().toISOString();
               storedResult.content = result;
-              storedResult.format = format;          
+              storedResult.format = format;      
+              await sessionsRepo.upsert({ id: sessionId }, { ...existingSession, finalizedAt: new Date().toISOString() });
               await resultRepo.upsert({ sessionId }, storedResult);
               return 'Results saved!';
             } catch (e) {

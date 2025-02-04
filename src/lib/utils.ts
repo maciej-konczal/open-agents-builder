@@ -142,3 +142,8 @@ export function findCodeBlocks(block: string, singleBlockMode = true) {
     blocks
   }
 }
+
+
+export function formatDate(date: Date) {
+  return date.toLocaleString()
+}
