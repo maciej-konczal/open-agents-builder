@@ -39,6 +39,10 @@ export class ResultApiClient extends AdminApiClient {
     else 
       return this.request<GetResultsResponse>('/api/result' , 'GET', ResultDTOEncSettings) as Promise<GetResultsResponse>;
     }
+
+    async export(agentId: string): Promise<any> {
+      return this.getArrayBuffer('/api/agent/' + encodeURIComponent(agentId) + '/result/export') as Promise<any>;
+    }
     
     async put(record: PutResultRequest): Promise<PutResultResponse> {
       return this.request<PutResultResponse>('/api/result', 'PUT', ResultDTOEncSettings, record) as Promise<PutResultResponse>;

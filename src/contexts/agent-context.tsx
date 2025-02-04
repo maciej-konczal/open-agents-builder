@@ -44,6 +44,7 @@ interface AgentContextType {
     exportAgent: (agent: Agent) => void;
     importAgent: (fileContent: string) => Promise<Agent>;
     exportSingleResult: (result: Result) => void;
+    exportResults: (agent: Agent) => void;
 
 }
 
@@ -259,6 +260,17 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         a.click();
     }
 
+    const exportResults = async (agent: Agent) => {        
+        if (agent.id && agent.id !== 'new') {
+            const apiClient = new ResultApiClient('', dbContext, saasContext);
+            const a = document.createElement('a');
+            const file = new Blob([await apiClient.export(agent.id) ?? ''], {type: 'application/zip'});
+            a.href= URL.createObjectURL(file);
+            a.download = `${agent.id}-results.zip`;
+            a.click();
+        }
+    }    
+
 
     const importAgent = async (fileContent: string): Promise<Agent> => {
         try {
@@ -297,7 +309,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 newFromTemplate,
                 exportAgent,
                 importAgent,
-                exportSingleResult
+                exportSingleResult,
+                exportResults
             }}>
             {children}
         </AgentContext.Provider>

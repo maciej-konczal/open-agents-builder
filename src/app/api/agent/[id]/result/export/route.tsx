@@ -5,7 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 import JSZip, { file } from 'jszip'
 import showdown from "showdown";
 import filenamify from 'filenamify';
-import * as json2html from 'json2html';
+import { render } from 'json2html';
+import fs from 'fs/promises';
 
 
 export async function GET(request: NextRequest, response: NextResponse) {
@@ -31,7 +32,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
             } 
 
             if (result.format?.toLowerCase() === 'json') {
-                html = json2html.render(result.content);
+                html = render(result.content);
                 zip.file(`${recordNiceName}.json`, JSON.stringify(result.content));
             }
                 
@@ -46,6 +47,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
 
     headers.set("Content-Type", "application/zip");
     const zipFileContent = await zip.generateAsync({type:"blob"});
+    headers.set("Content-Length", zipFileContent.size.toString());
 
     // or just use new Response ❗️
     return new NextResponse(zipFileContent, { status: 200, statusText: "OK", headers });

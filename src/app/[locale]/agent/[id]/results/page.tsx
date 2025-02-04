@@ -100,6 +100,17 @@ export default function ResultsPage() {
           </CredenzaContent>
         </Credenza>
         <Button size="sm" variant="outline" onClick={() => {
+          try {
+            if (agentContext.current) {
+              agentContext.exportResults(agentContext.current);
+              toast.info(t('Exported results'))
+            } else {
+              toast.error('No agent selected, unable to export results')
+            }
+          } catch (e) {
+            console.error(e);
+            toast.error(getErrorMessage(e));
+          }
         }}><ShareIcon className='w-4 h-4' /> {t('Export results ...')}</Button>
         </div>
       ): null}
