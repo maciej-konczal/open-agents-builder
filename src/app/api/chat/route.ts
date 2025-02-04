@@ -7,7 +7,7 @@ import ServerStatRepository from '@/data/server/server-stat-repository';
 import { authorizeSaasContext } from '@/lib/generic-api';
 import { renderPrompt } from '@/lib/prompt-template';
 import { openai } from '@ai-sdk/openai';
-import { CoreMessage, CoreTool, streamText, tool } from 'ai';
+import { CoreMessage, Tool, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
 import { NextRequest } from 'next/server';
 import { z, ZodObject } from 'zod';
@@ -18,9 +18,9 @@ import { getErrorMessage } from '@/lib/utils';
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined): Record<string, CoreTool> {
+function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined): Record<string, Tool> {
   if (!tools) return {}
-  const mappedTools: Record<string, CoreTool> = {};
+  const mappedTools: Record<string, Tool> = {};
   for(const toolKey in tools) {
     const toolConfig = tools[toolKey];
     const toolDescriptor:ToolDescriptor = toolRegistry[toolConfig.tool];
