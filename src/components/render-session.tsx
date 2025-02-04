@@ -6,7 +6,8 @@ import remarkGfm from "remark-gfm";
 import DataLoader from "./data-loader";
 import { useTranslation } from "react-i18next";
 import { formatDate } from "@/lib/utils";
-import { Mail, CalendarIcon, TimerIcon, MessageCircleIcon, TagIcon, Badge, BarChartIcon } from "lucide-react";
+import { Mail, CalendarIcon, TimerIcon, MessageCircleIcon, TagIcon, BarChartIcon } from "lucide-react";
+import { Badge } from "./ui/badge";
 
 export function RenderSession({ session }: { session: Session | undefined}) {
 
@@ -41,7 +42,7 @@ export function RenderSession({ session }: { session: Session | undefined}) {
           </div>
           
           <div className="flex">
-            <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{session.messages?.length}</span>
+            <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{session.messages ? session.messages?.length : t('no messages yet')}</span>
           </div>
 
           <div className="flex">
