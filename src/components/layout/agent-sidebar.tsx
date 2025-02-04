@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -45,6 +45,12 @@ const sidebarItems = [
     label: 'Safety Rules', 
     href: '/agent/[id]/safety',
     pattern: '/agent/[id]/safety'
+  },
+  { 
+    icon: MessageCircleMore, 
+    label: 'Sessions', 
+    href: '/agent/[id]/sessions',
+    pattern: '/agent/[id]/sessions'
   },
   { 
     icon: BookIcon, 
