@@ -21,7 +21,7 @@ import { RenderResult } from '@/components/render-result';
 import { RenderSession } from '@/components/render-session';
 
 
-export default function ResultsPage() {
+export default function SessionsPage() {
   const agentContext = useAgentContext();
   const dbContext = useContext(DatabaseContext);
   const { t, i18n  } = useTranslation();
@@ -36,8 +36,6 @@ export default function ResultsPage() {
     query: ''
   });
   const [pageSize, setPageSize] = useState(4);
-
-  const [isResultsChatOpen, setResultsChatOpen] = useState(false);
   
   const getSessionHeaders = () => {
     return {

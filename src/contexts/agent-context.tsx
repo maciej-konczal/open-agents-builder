@@ -191,7 +191,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     }
     const agentSessions = async (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery): Promise<PaginatedResult<Session[]>> => {
         const client = await setupApiClient();
-        const response = await client.results(agentId, { limit, offset, orderBy,  query});
+        const response = await client.sessions(agentId, { limit, offset, orderBy,  query});
         setSessions({
             ...response,
             rows: response.rows.map((r: any) => Session.fromDTO(r))

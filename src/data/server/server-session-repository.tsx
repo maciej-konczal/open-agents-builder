@@ -55,7 +55,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
 
      async queryAll(agentId: string, { limit, offset, orderBy, query}: { query: string, offset: number, limit: number, orderBy: string }): Promise<PaginatedResult<SessionDTO[]>> {
         let orderColumn = desc(sessions.updatedAt);
-        let notNullColumn:AnyColumn= sessions.updatedAt;
+        let notNullColumn:AnyColumn= sessions.createdAt;
         const db = (await this.db());
 
         switch (orderBy) {

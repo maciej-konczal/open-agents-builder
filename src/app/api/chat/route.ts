@@ -110,6 +110,8 @@ export async function POST(req: NextRequest) {
           messages: JSON.stringify(chatHistory)
         } as SessionDTO);
 
+        console.log(existingSession);
+
         const usageData:StatDTO = {
           eventName: 'chat',
           completionTokens: usage.completionTokens,

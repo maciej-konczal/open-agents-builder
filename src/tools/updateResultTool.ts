@@ -8,9 +8,9 @@ import ServerSessionRepository from '@/data/server/server-session-repository';
 export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
 {
   return {
-  displayName: 'Update result',
+  displayName: 'Sage result',
   tool:tool({
-          description: 'Update results',
+          description: 'Save results',
           parameters: z.object({
             sessionId: z.string().describe('The result/session ID to be updated'),
             format: z.string().describe('The format of the inquiry results (requested by the user - could be: JSON, markdown, text etc.)'),
@@ -20,7 +20,7 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
             try {
               const resultRepo = new ServerResultRepository(databaseIdHash);
               const sessionsRepo = new ServerSessionRepository(databaseIdHash);
-              const existingSession = await sessionsRepo.findOne({ sessionId });
+              const existingSession = await sessionsRepo.findOne({ id: sessionId });
 
               if(!existingSession) {
                 return 'Session not found, please check the sessionId';
@@ -33,6 +33,9 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
                 userName: existingSession?.userName,
                 createdAt: new Date().toISOString()
               } as ResultDTO;
+
+              console.log(existingSession);
+              console.log(storedResult);
             
               storedResult.updatedAt = new Date().toISOString();
               storedResult.finalizedAt = new Date().toISOString();
