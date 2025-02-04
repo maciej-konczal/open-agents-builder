@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
 
   const promptName = agent.promptTemplate ? agent.promptTemplate : 'survey-agent';
   const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events });
-  console.log(systemPrompt);
+
   messages.unshift( {
     role: 'system',
     content: systemPrompt

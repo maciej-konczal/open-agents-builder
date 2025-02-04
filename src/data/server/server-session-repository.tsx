@@ -9,7 +9,6 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
     
     
     async create(item: SessionDTO): Promise<SessionDTO> {
-        console.log(item);
         const db = (await this.db());
         return create(item, sessions, db); // generic implementation
     }

@@ -84,7 +84,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
         
         const records = await db.select().from(results).where(where).limit(limit).offset(offset).orderBy(orderColumn).execute();
         const recordsCount = await db.select({ count: count() }).from(results).where(where).execute();
-        console.log(records);
+
         return {
           rows: records as ResultDTO[],
           total: recordsCount[0].count,
