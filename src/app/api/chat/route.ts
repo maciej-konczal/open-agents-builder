@@ -96,6 +96,7 @@ export async function POST(req: NextRequest) {
     const result = await streamText({
       model: llmProviderSetup(),
       maxSteps: 10,  
+      toolChoice: 'auto',
       async onFinish({ response, usage }) {
         const chatHistory = [...messages, ...response.messages]
         existingSession = await sessionRepo.upsert({

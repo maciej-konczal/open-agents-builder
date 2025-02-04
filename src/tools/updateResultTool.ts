@@ -42,6 +42,7 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
               await resultRepo.upsert({ sessionId }, storedResult);
               return 'Results saved!';
             } catch (e) {
+              console.error(e);
               return 'Error saving results';
             }
           },
