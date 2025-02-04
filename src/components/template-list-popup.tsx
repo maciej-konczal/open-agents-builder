@@ -18,12 +18,10 @@ export default function TemplateListPopup() {
   const { t } = useTranslation();
 
   useEffect(() => {
-    try {
-      templateContext?.listTemplates();
-    } catch (e) {
+    templateContext?.listTemplates().catch((e) => {
       console.error(e);
       toast.error(t('Failed to load templates'));
-    }
+    });
   }, [templateContext?.lastTemplateAdded])
 
   return (
