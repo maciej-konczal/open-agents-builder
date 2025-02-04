@@ -90,8 +90,8 @@ export function AgentHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onSelect={() => templateContext?.setTemplatePopupOpen(true)}><PlusIcon className="mr-2 h-4 w-4"/> {t('New agent from template ...')}</DropdownMenuItem>
-            <DropdownMenuItem onClick={async (e) => {
+            <DropdownMenuItem className="text-xs" onSelect={() => templateContext?.setTemplatePopupOpen(true)}><PlusIcon className="mr-2 h-4 w-4"/> {t('New agent from template ...')}</DropdownMenuItem>
+            <DropdownMenuItem className="text-xs" onClick={async (e) => {
               try {
                   if (agentContext.current) {
                     await templateContext?.updateTemplate(new Agent({ ...agentContext.current, id: nanoid() } as Agent));
@@ -107,12 +107,12 @@ export function AgentHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" className="" size="sm">
-              <ImportIcon className="h-4 w-4" /> {t('Export / Import')}
+              <ShareIcon className="h-4 w-4" /> {t('Export / Import agent')}
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {agentContext.current?.id !== 'new' ? (
-              <DropdownMenuItem onSelect={async () => {
+              <DropdownMenuItem  className="text-xs"  onSelect={async () => {
                 try {
                   if (agentContext.current) {
                     agentContext.exportAgent(agentContext.current);
@@ -124,7 +124,7 @@ export function AgentHeader() {
                 }
               }}><ShareIcon className="mr-2 h-4 w-4"/> {t('Export agent to JSON ...')}</DropdownMenuItem>
             ) : null}
-            <DropdownMenuItem onSelect={() => {
+            <DropdownMenuItem  className="text-xs"  onSelect={() => {
               openFilePicker();
             }}><ImportIcon className="mr-2 h-4 w-4"/>{t('Import agent from JSON ...')}</DropdownMenuItem>
           </DropdownMenuContent>

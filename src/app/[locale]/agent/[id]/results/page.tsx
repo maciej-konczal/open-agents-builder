@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { DatabaseContext } from '@/contexts/db-context';
-import {  FolderOpenIcon, Loader2, MessageCircleIcon } from 'lucide-react';
+import {  FolderOpenIcon, Loader2, MessageCircleIcon, Share2Icon, ShareIcon } from 'lucide-react';
 import InfiniteScroll from '@/components/infinite-scroll';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -80,6 +80,7 @@ export default function ResultsPage() {
 
 
       { agentContext.results.rows.length > 0 ? (
+        <div className="flex space-x-2">
         <Credenza open={isResultsChatOpen} onOpenChange={setResultsChatOpen}>
           <CredenzaTrigger asChild>
             <Button size="sm" variant="outline" onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> {t('Chat about results ...')}</Button>
@@ -98,6 +99,9 @@ export default function ResultsPage() {
             />
           </CredenzaContent>
         </Credenza>
+        <Button size="sm" variant="outline" onClick={() => {
+        }}><ShareIcon className='w-4 h-4' /> {t('Export results ...')}</Button>
+        </div>
       ): null}
       {agentContext.results.rows.length === 0 ? (
         <NoRecordsAlert title={t('No results yet!')}>
