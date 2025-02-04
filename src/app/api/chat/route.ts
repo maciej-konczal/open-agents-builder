@@ -13,6 +13,7 @@ import { NextRequest } from 'next/server';
 import { z, ZodObject } from 'zod';
 import { ToolDescriptor, toolRegistry } from '@/tools/registry'
 import { llmProviderSetup } from '@/lib/llm-provider';
+import { getErrorMessage } from '@/lib/utils';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -88,74 +89,82 @@ export async function POST(req: NextRequest) {
     content: systemPrompt
   })
 
-  const result = streamText({
-    model: llmProviderSetup(),
-    maxSteps: 10,  
-    async onFinish({ response, usage }) {
-      const chatHistory = [...messages, ...response.messages]
-      existingSession = await sessionRepo.upsert({
-        id: sessionId
-      }, {
-        id: sessionId,
-        agentId,
-        completionTokens: existingSession && existingSession.completionTokens ? usage.completionTokens + existingSession.completionTokens : usage.completionTokens,
-        promptTokens: existingSession && existingSession.promptTokens ? usage.promptTokens + existingSession.promptTokens : usage.promptTokens,
-        createdAt: existingSession ? existingSession.createdAt : new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        messages: JSON.stringify(chatHistory)
-      } as SessionDTO);
+    try {
+    const result = await streamText({
+      model: llmProviderSetup(),
+      maxSteps: 10,  
+      async onFinish({ response, usage }) {
+        const chatHistory = [...messages, ...response.messages]
+        existingSession = await sessionRepo.upsert({
+          id: sessionId
+        }, {
+          id: sessionId,
+          agentId,
+          completionTokens: existingSession && existingSession.completionTokens ? usage.completionTokens + existingSession.completionTokens : usage.completionTokens,
+          promptTokens: existingSession && existingSession.promptTokens ? usage.promptTokens + existingSession.promptTokens : usage.promptTokens,
+          createdAt: existingSession ? existingSession.createdAt : new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          messages: JSON.stringify(chatHistory)
+        } as SessionDTO);
 
-      const usageData:StatDTO = {
-        eventName: 'chat',
-        completionTokens: usage.completionTokens,
-        promptTokens: usage.promptTokens,
-        createdAt: new Date().toISOString()
-    }
-      const statsRepo = new ServerStatRepository(databaseIdHash, 'stats');
-    const result = await statsRepo.aggregate(usageData)
+        const usageData:StatDTO = {
+          eventName: 'chat',
+          completionTokens: usage.completionTokens,
+          promptTokens: usage.promptTokens,
+          createdAt: new Date().toISOString()
+        }
+        const statsRepo = new ServerStatRepository(databaseIdHash, 'stats');
+        const result = await statsRepo.aggregate(usageData)
 
-      const saasContext = await authorizeSaasContext(req);
-      if (saasContext.apiClient) {
-          saasContext.apiClient.saveStats(databaseIdHash, {
-              ...result,
-              databaseIdHash: databaseIdHash
-          });
-     }        
+        const saasContext = await authorizeSaasContext(req);
+        if (saasContext.apiClient) {
+            saasContext.apiClient.saveStats(databaseIdHash, {
+                ...result,
+                databaseIdHash: databaseIdHash
+            });
+      }        
 
-    },
-    tools: {
-      ...prepareAgentTools(agent.tools),
-      saveResults: tool({
-        description: 'Save results',
-        parameters: z.object({
-          format: z.string().describe('The format of the inquiry results (requested by the user - could be: JSON, markdown, text etc.)'),
-          result: z.string().describe('The inquiry results - in different formats (requested by the user - could be JSON, markdown, text etc.)'),
+      },
+      tools: {
+        ...prepareAgentTools(agent.tools),
+        saveResults: tool({
+          description: 'Save results',
+          parameters: z.object({
+            format: z.string().describe('The format of the inquiry results (requested by the user - could be: JSON, markdown, text etc.)'),
+            result: z.string().describe('The inquiry results - in different formats (requested by the user - could be JSON, markdown, text etc.)'),
+          }),
+          execute: async ({ result, format }) => {
+            try {
+              const resultRepo = new ServerResultRepository(databaseIdHash);
+
+              const storedResult = {
+                sessionId,
+                agentId,
+                userEmail: existingSession?.userEmail,
+                userName: existingSession?.userName,
+                createdAt: new Date().toISOString()
+              } as ResultDTO;
+            
+              storedResult.updatedAt = new Date().toISOString();
+              storedResult.finalizedAt = new Date().toISOString();
+              storedResult.content = result;
+              storedResult.format = format;          
+              await resultRepo.upsert({ sessionId }, storedResult);
+              return 'Results saved!';
+            } catch (e) {
+              return 'Error saving results';
+            }
+          },
         }),
-        execute: async ({ result, format }) => {
-          try {
-            const resultRepo = new ServerResultRepository(databaseIdHash);
-
-            const storedResult = {
-              sessionId,
-              agentId,
-              userEmail: existingSession?.userEmail,
-              userName: existingSession?.userName,
-              createdAt: new Date().toISOString()
-            } as ResultDTO;
-          
-            storedResult.updatedAt = new Date().toISOString();
-            storedResult.finalizedAt = new Date().toISOString();
-            storedResult.content = result;
-            storedResult.format = format;          
-            await resultRepo.upsert({ sessionId }, storedResult);
-            return 'Results saved!';
-          } catch (e) {
-            return 'Error saving results';
-          }
-        },
-      }),
-    },
-    messages,
-  });
-  return result.toDataStreamResponse();
+      },
+      messages,
+    });
+    return result.toDataStreamResponse();
+  } catch (e) {
+    console.error(e);
+    return Response.json({
+      message: getErrorMessage(e),
+      status: 500
+    });
+  }
 }
