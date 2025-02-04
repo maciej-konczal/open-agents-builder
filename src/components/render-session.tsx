@@ -1,8 +1,4 @@
-import { Result, Session } from "@/data/client/models";
-import JsonView from "@uiw/react-json-view";
-import Markdown from "react-markdown";
-import styles from './chat.module.css'
-import remarkGfm from "remark-gfm";
+import { Session } from "@/data/client/models";
 import DataLoader from "./data-loader";
 import { useTranslation } from "react-i18next";
 import { formatDate } from "@/lib/utils";
@@ -12,7 +8,7 @@ import { Badge } from "./ui/badge";
 export function RenderSession({ session }: { session: Session | undefined}) {
 
     const { t } = useTranslation();
-    const duration = session?.createdAt && session?.finalizedAt ?  Math.round(new Date(session?.createdAt).getTime() - new Date(session?.finalizedAt).getTime() / 60000) + t(' min') : t('not finished')
+    const duration = session?.createdAt && session?.finalizedAt ?  Math.round((new Date(session?.finalizedAt).getTime() - new Date(session?.createdAt).getTime()) / 60000) + t(' min') : t('not finished')
     if (!session) {
         return <DataLoader />;
     }

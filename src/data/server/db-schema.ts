@@ -36,7 +36,7 @@ export const sessions = sqliteTable('sessions', {
     messages: text('messages', { mode: 'json' }),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
-    finalzedAt: text('finalizedAt')
+    finalizedAt: text('finalizedAt')
 }); 
 
 export const results = sqliteTable('results', {
@@ -48,7 +48,7 @@ export const results = sqliteTable('results', {
     format: text('format'),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
-    finalzedAt: text('finalizedAt')
+    finalizedAt: text('finalizedAt')
 }); 
 
 export const keys = sqliteTable('keys', {

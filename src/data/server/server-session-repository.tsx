@@ -16,6 +16,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
     // update folder
     async upsert(query:Record<string, any>, item: SessionDTO): Promise<SessionDTO> { 
         const db = (await this.db());       
+        console.log(item);
         let existingRecord:SessionDTO | null = query.id ? db.select().from(sessions).where(eq(sessions.id, query.id)).get() as SessionDTO : null
         if (!existingRecord) {
             existingRecord = await this.create(item);
