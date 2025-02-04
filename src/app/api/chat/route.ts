@@ -14,6 +14,7 @@ import { z, ZodObject } from 'zod';
 import { ToolDescriptor, toolRegistry } from '@/tools/registry'
 import { llmProviderSetup } from '@/lib/llm-provider';
 import { getErrorMessage } from '@/lib/utils';
+import { createUpdateResultTool } from '@/tools/updateResultTool';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -127,35 +128,7 @@ export async function POST(req: NextRequest) {
       },
       tools: {
         ...prepareAgentTools(agent.tools),
-        saveResults: tool({
-          description: 'Save results',
-          parameters: z.object({
-            format: z.string().describe('The format of the inquiry results (requested by the user - could be: JSON, markdown, text etc.)'),
-            result: z.string().describe('The inquiry results - in different formats (requested by the user - could be JSON, markdown, text etc.)'),
-          }),
-          execute: async ({ result, format }) => {
-            try {
-              const resultRepo = new ServerResultRepository(databaseIdHash);
-
-              const storedResult = {
-                sessionId,
-                agentId,
-                userEmail: existingSession?.userEmail,
-                userName: existingSession?.userName,
-                createdAt: new Date().toISOString()
-              } as ResultDTO;
-            
-              storedResult.updatedAt = new Date().toISOString();
-              storedResult.finalizedAt = new Date().toISOString();
-              storedResult.content = result;
-              storedResult.format = format;          
-              await resultRepo.upsert({ sessionId }, storedResult);
-              return 'Results saved!';
-            } catch (e) {
-              return 'Error saving results';
-            }
-          },
-        }),
+        saveResults: createUpdateResultTool(databaseIdHash).tool
       },
       messages,
     });

@@ -7,6 +7,7 @@ import { authorizeSaasContext } from '@/lib/generic-api';
 import { llmProviderSetup } from '@/lib/llm-provider';
 import { renderPrompt } from '@/lib/prompt-template';
 import { getErrorMessage } from '@/lib/utils';
+import { createUpdateResultTool } from '@/tools/updateResultTool';
 import { CoreMessage, streamText } from 'ai';
 import { NextRequest } from 'next/server';
 
@@ -41,7 +42,7 @@ export async function POST(req: NextRequest) {
   const resultMessages = results.map((result: ResultDTO) => {
     return {
       role: 'system',
-      content: `${result.userEmail} ${result.userName} [${result.createdAt}] - ${result.content}`
+      content: `Session Id: ${result.sessionId}, E-mail: ${result.userEmail} User name: ${result.userName} [created at: ${result.createdAt}] - ${result.content}`
     } as CoreMessage
   })
 
@@ -59,7 +60,7 @@ export async function POST(req: NextRequest) {
       maxSteps: 10,  
       messages,
       tools: {
-
+        updateResults: createUpdateResultTool(databaseIdHash).tool
       },
       async onFinish({ response, usage }) {
       
