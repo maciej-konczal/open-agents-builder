@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { formatDate } from "@/lib/utils";
 import { Mail, CalendarIcon, TimerIcon, MessageCircleIcon, TagIcon, BarChartIcon } from "lucide-react";
 import { Badge } from "./ui/badge";
+import Link from "next/link";
 
 export function RenderSession({ session }: { session: Session | undefined}) {
 
@@ -38,7 +39,9 @@ export function RenderSession({ session }: { session: Session | undefined}) {
           </div>
           
           <div className="flex">
-            <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{session.messages ? session.messages?.length : t('no messages yet')}</span>
+            <Link className="flex" href={`/agent/${session.agentId}/sessions/${session.id}`}>
+              <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{session.messages ? session.messages?.length : t('no messages yet')}</span>
+            </Link>
           </div>
 
           <div className="flex">

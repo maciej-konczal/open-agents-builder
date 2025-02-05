@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DatabaseContext } from '@/contexts/db-context';
-import {  FolderOpenIcon, Loader2 } from 'lucide-react';
+import {  BookIcon, FolderOpenIcon, Loader2 } from 'lucide-react';
 import InfiniteScroll from '@/components/infinite-scroll';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -67,8 +67,17 @@ export default function SessionsPage() {
               router.push(`/agent/${session.agentId}/sessions/${session.id}`);
             }}>
               <FolderOpenIcon className="w-4 h-4" />
-              {t('Open details ...')}
+              {t('Messages')}
             </Button>
+
+            {session.finalizedAt ? (
+              <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
+                router.push(`/agent/${session.agentId}/results/${session.id}`);
+              }}>
+                <BookIcon className="w-4 h-4" />
+                {t('Result')}
+              </Button>
+            ) : null}
 
               <Link href={`/agent/${session.agentId}/sessions/${session.id}`}>{new Date(session.createdAt).toLocaleString()} {session.userName ? session.userName : ''} {session.userEmail ? session.userEmail : ''}</Link></CardTitle>
           </CardHeader>
