@@ -2,7 +2,7 @@ import { Session } from "@/data/client/models";
 import DataLoader from "./data-loader";
 import { useTranslation } from "react-i18next";
 import { formatDate } from "@/lib/utils";
-import { Mail, CalendarIcon, TimerIcon, MessageCircleIcon, TagIcon, BarChartIcon } from "lucide-react";
+import { Mail, CalendarIcon, TimerIcon, MessageCircleIcon, TagIcon, BarChartIcon, BookIcon } from "lucide-react";
 import { Badge } from "./ui/badge";
 import Link from "next/link";
 
@@ -45,7 +45,15 @@ export function RenderSession({ session }: { session: Session | undefined}) {
           </div>
 
           <div className="flex">
-            <TagIcon className="w-4 h-4 mr-2" /> {t('Id')}: <span className="ml-2 font-medium">{session.id}</span>
+            <Link className="flex" href={`/agent/${session.agentId}/sessions/${session.id}`}>
+              <TagIcon className="w-4 h-4 mr-2" /> {t('Id')}: <span className="ml-2 font-medium">{session.id}</span>
+            </Link>
+          </div>
+          
+          <div className="flex">
+            <Link className="flex" href={`/agent/${session.agentId}/results/${session.id}`}>
+              <BookIcon className="w-4 h-4 mr-2"/> {t('Has saved result')}
+            </Link>
           </div>
 
 
