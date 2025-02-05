@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { BarChartIcon, CalendarIcon, Mail, MessageCircleIcon, TagIcon, TimerIcon } from "lucide-react"
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/utils"
+import Link from "next/link"
 
 export interface ResultDetailsProps {
   sessionStart: Date
@@ -62,7 +63,9 @@ const ResultDetails: FC<ResultDetailsProps> = ({
           </div>
 
           <div className="flex">
-            <TagIcon className="w-4 h-4 mr-2" /> {t('Id')}: <span className="ml-2 font-medium">{sessionId}</span>
+            <Link className="flex" href={`/agent/${sessionId}/sessions/${sessionId}`}>
+              <TagIcon className="w-4 h-4 mr-2" /> {t('Session Id')}: <span className="ml-2 font-medium">{sessionId}</span>
+            </Link>
           </div>
 
 

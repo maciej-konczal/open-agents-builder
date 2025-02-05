@@ -46,7 +46,7 @@ export function RenderSession({ session }: { session: Session | undefined}) {
 
           <div className="flex">
             <Link className="flex" href={`/agent/${session.agentId}/sessions/${session.id}`}>
-              <TagIcon className="w-4 h-4 mr-2" /> {t('Id')}: <span className="ml-2 font-medium">{session.id}</span>
+              <TagIcon className="w-4 h-4 mr-2" /> {t('Session Id')}: <span className="ml-2 font-medium">{session.id}</span>
             </Link>
           </div>
           
