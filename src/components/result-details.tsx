@@ -59,7 +59,9 @@ const ResultDetails: FC<ResultDetailsProps> = ({
           </div>
           
           <div className="flex">
-            <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{messageCount}</span>
+            <Link className="flex" href={`/agent/${sessionId}/sessions/${sessionId}`}>
+              <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{messageCount}</span>
+            </Link>
           </div>
 
           <div className="flex">
