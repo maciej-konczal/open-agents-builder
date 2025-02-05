@@ -18,6 +18,7 @@ import { NoRecordsAlert } from '@/components/shared/no-records-alert';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RenderResult } from '@/components/render-result';
+import { Input } from '@/components/ui/input';
 
 
 export default function ResultsPage() {
@@ -62,6 +63,14 @@ export default function ResultsPage() {
       })
     }
   }, [agentContext.current, isResultsChatOpen]);
+
+  useEffect(() => {
+    if (agentContext.current?.id)
+      agentContext.agentResults(agentContext.current.id, resultsQuery).catch((e) => {
+        toast.error(getErrorMessage(e));
+      });
+
+  }, [resultsQuery]);
 
   useEffect(() => {
     if (agentContext.current?.id)
@@ -114,6 +123,9 @@ export default function ResultsPage() {
         }}><ShareIcon className='w-4 h-4' /> {t('Export results ...')}</Button>
         </div>
       ): null}
+      <Input placeholder={t('Search results ...')} onChange={(e) => {
+        setResultsQuery({...resultsQuery, query: e.target.value})
+      }}  value={resultsQuery.query}/>
       {agentContext.results.rows.length === 0 ? (
         <NoRecordsAlert title={t('No results yet!')}>
           {t('No results saved for this agent yet! Please send the agent link to get the results flow started!')}
@@ -141,10 +153,6 @@ export default function ResultsPage() {
         if ((resultsQuery.offset + resultsQuery.limit) < agentContext.results.total) {
           const expandedQr = { ...resultsQuery, limit: resultsQuery.limit + pageSize };
           setResultsQuery(expandedQr);
-          
-          if (agentContext.current?.id)
-            agentContext.agentResults(agentContext.current.id, expandedQr);
-          
           setResultsLoading(true);
           setHasMore(true);
         } else {

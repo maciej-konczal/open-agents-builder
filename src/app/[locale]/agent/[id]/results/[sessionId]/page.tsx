@@ -34,7 +34,6 @@ export default function SingleResultPage() {
   const [result, setResult] = useState<Result>();
   const [session, setSession] = useState<Session>();
   const [chatOpen, setChatOpen] = useState(false);
-
   const { messages, handleInputChange, isLoading, append, handleSubmit, input} = useChat({
     api: "/api/agent/results-chat",
   });

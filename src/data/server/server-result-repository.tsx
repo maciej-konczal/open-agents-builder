@@ -79,7 +79,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
         
         if (query) {
             where = and(where
-                , or(like(results.userEmail, '%' + query + '%'), like(results.userName, '%' + query + '%')))
+                , or(like(results.userEmail, '%' + query + '%'), like(results.userName, '%' + query + '%'), like(results.sessionId, '%' + query + '%')));
         }
         
         const records = await db.select().from(results).where(where).limit(limit).offset(offset).orderBy(orderColumn).execute();
