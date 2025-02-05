@@ -4,20 +4,15 @@ import { useAgentContext } from '@/contexts/agent-context';
 import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
-import { Credenza, CredenzaContent, CredenzaTrigger } from '@/components/credenza';
 import { Button } from '@/components/ui/button';
-import { useChat } from 'ai/react';
-import { nanoid } from 'nanoid';
 import { DatabaseContext } from '@/contexts/db-context';
-import {  FolderOpenIcon, Loader2, MessageCircleIcon, Share2Icon, ShareIcon } from 'lucide-react';
+import {  FolderOpenIcon, Loader2 } from 'lucide-react';
 import InfiniteScroll from '@/components/infinite-scroll';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Chat } from '@/components/chat';
 import { NoRecordsAlert } from '@/components/shared/no-records-alert';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { RenderResult } from '@/components/render-result';
 import { RenderSession } from '@/components/render-session';
 
 
