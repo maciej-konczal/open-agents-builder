@@ -3,32 +3,88 @@ import { z } from 'zod';
 // If you are using the 'tool' helper from @vercel/ai, import it:
 import { tool } from 'ai'; // Adjust the import based on your actual setup.
 import { ToolDescriptor } from './registry';
+import axios from 'axios';
 
+/**
+ * Configuration options for creating the Email Tool.
+ */
+interface EmailToolOptions {
+  /**
+   * Your Resend.com API key.
+   * (Required)
+   */
+  apiKey: string
 
-// The actual "tool" executor, matching the Vercel AI shape:
-export const sendEmailTool: ToolDescriptor = {
-  displayName: 'Send Email',
-  tool: tool({
-    description: 'Send an email to the provided address.',
-    // zod ensures "email" is required:
-    parameters: z.object({
-      email: z.string().email().describe('The email address to send to'),
-      subject: z.string().describe('The subject of the email'),
-      body: z.string().describe('The body of the email'),
-    }),
-    // Called by the LLM or your own code to actually execute the tool:
-    execute: async ({ email, subject, body }: { email: string; subject: string; body: string; }) => {
-      // Pseudocode for sending email:
-      console.log('Sending email to', email);
-      // Return a string for the LLM or handle logic as needed
-      console.log(`Email to ${email} has been sent successfully: 
-        <subject>
-          ${subject}
-        </subject>
-        <body>
-          ${body}
-        <body>`);
-        return 'Message delivered!'
+  /**
+   * Optional override of the default Resend API endpoint.
+   * @default 'https://api.resend.com/emails'
+   */
+  url?: string
+}
+
+/**
+ * Default values for the Email Tool options.
+ */
+const defaults = {
+  url: 'https://api.resend.com/emails',
+}
+
+/**
+ * Factory function to create a "sendEmail" tool for sending messages via Resend.
+ */
+export const createEmailTool = (options: EmailToolOptions):ToolDescriptor => {
+  const config = {
+    ...defaults,
+    ...options,
+  } satisfies Required<EmailToolOptions>
+
+  // Setup any default headers (authorization, etc.)
+  const requestConfig = {
+    headers: {
+      Authorization: `Bearer ${config.apiKey}`,
+      'Content-Type': 'application/json',
     },
-  }),
+  }
+  
+  return {
+    tool: tool({
+      description: 'Sends an email using the Resend.com API. Provide "from", "to", "subject", etc.',
+      parameters: z.object({
+        from: z.string().describe('The "From" address, e.g. "Acme <onboarding@resend.dev>".'),
+        to: z
+          .array(z.string())
+          .describe('The list of recipient email addresses, e.g. ["user@example.com"].'),
+        subject: z.string().describe('The subject of the email.'),
+        text: z.string().describe('Plaintext body content of the email.'),
+        html: z.string().describe('HTML body content of the email.'),
+      }),
+      execute: async ({ from, to, subject, text, html }) => {
+        try {
+          const response = await axios.post(
+            config.url,
+            {
+              from,
+              to,
+              subject,
+              text,
+              html,
+            },
+            requestConfig
+          )
+          return typeof response.data === 'object'
+            ? JSON.stringify(response.data)
+            : (response.data as string)
+        } catch (error) {
+          if (axios.isAxiosError(error)) {
+            throw new Error(
+              `HTTP error ${error.response?.status}: ${error.response?.data || error.message}`
+            )
+          } else {
+            throw new Error(`Unknown error: ${error}`)
+          }
+        }
+      },
+    }),
+    displayName: 'Send Email'
+  }
 };

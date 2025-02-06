@@ -4,7 +4,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 type SendEmailOptions = {
-  email: string;
+  to: string;
+  from: string;
   subject: string;
   body: string;
 };
@@ -18,7 +19,10 @@ type SendEmailConfiguratorProps = {
 export function SendEmailConfigurator({ options, onChange }: SendEmailConfiguratorProps) {
   const { t } = useTranslation();
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...options, email: e.target.value });
+    onChange({ ...options, to: e.target.value });
+  };
+  const handleFromEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange({ ...options, to: e.target.value });
   };
 
   return (
@@ -27,9 +31,17 @@ export function SendEmailConfigurator({ options, onChange }: SendEmailConfigurat
       <input
         className="border p-2 rounded w-full text-sm"
         type="email"
-        value={options.email}
+        value={options.to}
         onChange={handleEmailChange}
       />
+      <label className="block text-sm font-medium">{t('From Email')}</label>
+      <input
+        className="border p-2 rounded w-full text-sm"
+        type="email"
+        value={options.from}
+        onChange={handleFromEmailChange}
+      />
+
     </div>
   );
 }
