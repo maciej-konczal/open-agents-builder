@@ -50,11 +50,13 @@ export function RenderSession({ session }: { session: Session | undefined}) {
             </Link>
           </div>
           
-          <div className="flex">
-            <Link className="flex" href={`/agent/${session.agentId}/results/${session.id}`}>
-              <BookIcon className="w-4 h-4 mr-2"/> {t('Has saved result')}
-            </Link>
-          </div>
+          { session.finalizedAt ? (
+            <div className="flex">
+              <Link className="flex" href={`/agent/${session.agentId}/results/${session.id}`}>
+                <BookIcon className="w-4 h-4 mr-2"/> {t('Has saved result')}
+              </Link>
+            </div>
+          ) : null}
 
 
           <div className="col-span-2 flex justify-between items-center mt-2">
