@@ -2,6 +2,9 @@ import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { ZodError, ZodIssue, string } from "zod"
 
+import chalk from 'chalk'
+import dedent from 'dedent'
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
@@ -146,4 +149,31 @@ export function findCodeBlocks(block: string, singleBlockMode = true) {
 
 export function formatDate(date: Date) {
   return date.toLocaleString()
+}
+
+/**
+ * Get API key from environment variables or prompt user for it.
+ */
+export function checkApiKey(name: string, key: string, value: string): string {
+  if (value) return value;
+
+  console.log(dedent`
+    ${chalk.bold(`Please provide your ${name} API key.`)}
+
+    Set ${chalk.bold(key)} env variable, and run again. 
+    
+    You can do it in three ways:
+    - by creating an ${chalk.bold('.env.local')} file (make sure to ${chalk.bold('.gitignore')} it)
+      ${chalk.gray(`\`\`\`
+        ${key}=<your-key>
+        \`\`\`
+      `)}
+    - by setting it as an env variable in your shell (e.g. in ~/.zshrc or ~/.bashrc):
+      ${chalk.gray(`\`\`\`
+        export ${key}=<your-key>
+        \`\`\`
+      `)},
+    `);
+
+  throw Error(`Please provide the ${name} in the environment variable ${key}`);
 }

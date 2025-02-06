@@ -17,6 +17,7 @@ export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfi
   // We'll get its keys for the select.
   const registryKeys = Object.keys(toolConfigurators);
   const { t } = useTranslation();
+  const availableTools = toolRegistry.init();
 
   // If the current tool doesn't exist in the registry, show an error
   const toolConfigurator = toolConfigurators[configuration.tool as keyof typeof toolConfigurators];
@@ -70,7 +71,7 @@ export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfi
         >
           {registryKeys.map((toolName) => (
             <option key={toolName} value={toolName}>
-              {toolRegistry[toolName as keyof typeof toolRegistry].displayName}
+              {availableTools[toolName as keyof typeof availableTools].displayName}
             </option>
           ))}
         </select>

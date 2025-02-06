@@ -22,7 +22,7 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined)
   const mappedTools: Record<string, Tool> = {};
   for(const toolKey in tools) {
     const toolConfig = tools[toolKey];
-    const toolDescriptor:ToolDescriptor = toolRegistry[toolConfig.tool];
+    const toolDescriptor:ToolDescriptor = toolRegistry.init()[toolConfig.tool];
     if (!toolDescriptor) {
       console.log(`Tool is not available ${toolConfig.tool}`);
       continue;
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
 
       },
       tools: {
-        ...prepareAgentTools(agent.tools),
+        ...await prepareAgentTools(agent.tools),
         saveResults: createUpdateResultTool(databaseIdHash).tool
       },
       messages,
