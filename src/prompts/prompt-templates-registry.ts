@@ -1,0 +1,5 @@
+return [
+    {
+        template: 'survey-agent'
+    }
+]
