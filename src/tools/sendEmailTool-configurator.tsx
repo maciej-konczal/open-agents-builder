@@ -22,7 +22,7 @@ export function SendEmailConfigurator({ options, onChange }: SendEmailConfigurat
     onChange({ ...options, to: e.target.value });
   };
   const handleFromEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange({ ...options, to: e.target.value });
+    onChange({ ...options, from: e.target.value });
   };
 
   return (
