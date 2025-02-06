@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RenderResult } from '@/components/render-result';
 import { Input } from '@/components/ui/input';
+import { useDebounce } from "use-debounce";
 
 
 export default function ResultsPage() {
@@ -35,6 +36,8 @@ export default function ResultsPage() {
     orderBy: 'createdAt',
     query: ''
   });
+  const [debouncedSearchQuery] = useDebounce(resultsQuery, 500);
+
   const [pageSize, setPageSize] = useState(4);
 
   const { messages, handleInputChange, isLoading, append, handleSubmit, input} = useChat({
@@ -66,11 +69,11 @@ export default function ResultsPage() {
 
   useEffect(() => {
     if (agentContext.current?.id)
-      agentContext.agentResults(agentContext.current.id, resultsQuery).catch((e) => {
+      agentContext.agentResults(agentContext.current.id, debouncedSearchQuery).catch((e) => {
         toast.error(getErrorMessage(e));
       });
 
-  }, [resultsQuery]);
+  }, [debouncedSearchQuery]);
 
   useEffect(() => {
     if (agentContext.current?.id)
