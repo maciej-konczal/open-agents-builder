@@ -73,14 +73,7 @@ export default function ResultsPage() {
         toast.error(getErrorMessage(e));
       });
 
-  }, [debouncedSearchQuery]);
-
-  useEffect(() => {
-    if (agentContext.current?.id)
-      agentContext.agentResults(agentContext.current.id, resultsQuery).catch((e) => {
-        toast.error(getErrorMessage(e));
-      });
-  }, [agentContext.current]);
+  }, [debouncedSearchQuery, agentContext.current]);
 
   useEffect(() => {
     setHasMore(agentContext.results.total > agentContext.results.offset);

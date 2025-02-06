@@ -14,6 +14,8 @@ import { NoRecordsAlert } from '@/components/shared/no-records-alert';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { RenderSession } from '@/components/render-session';
+import { useDebounce } from 'use-debounce';
+import { Input } from '@/components/ui/input';
 
 
 export default function SessionsPage() {
@@ -30,22 +32,17 @@ export default function SessionsPage() {
     orderBy: 'createdAt',
     query: ''
   });
+  const [debouncedSearchQuery] = useDebounce(sessionsQuery, 500);
+  
   const [pageSize, setPageSize] = useState(4);
   
-  const getSessionHeaders = () => {
-    return {
-      'Database-Id-Hash': dbContext?.databaseIdHash ?? '',
-      'Agent-Id': agentContext.current?.id ?? '',
-      'Agent-Locale': i18n.language
-    }
-  }
-
   useEffect(() => {
     if (agentContext.current?.id)
-      agentContext.agentSessions(agentContext.current.id, sessionsQuery).catch((e) => {
+      agentContext.agentSessions(agentContext.current.id, debouncedSearchQuery).catch((e) => {
         toast.error(getErrorMessage(e));
       });
-  }, [agentContext.current]);
+
+  }, [debouncedSearchQuery, agentContext.current]);
 
   useEffect(() => {
     setHasMore(agentContext.sessions.total > agentContext.sessions.offset);
@@ -54,6 +51,9 @@ export default function SessionsPage() {
 
   return (
     <div className="space-y-6">
+      <Input placeholder={t('Search sessions ...')} onChange={(e) => {
+        setSessionsQuery({...sessionsQuery, query: e.target.value})
+      }}  value={sessionsQuery.query}/>
       {agentContext.sessions.rows.length === 0 ? (
         <NoRecordsAlert title={t('No sessions yet!')}>
           {t('No sessions started for this agent yet! Please send the agent link to get the sessions flow started!')}
