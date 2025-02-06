@@ -2,7 +2,7 @@
 import { currentDateTool } from './currentDateTool';
 import { Tool } from 'ai';
 import { createEmailTool } from './sendEmailTool';
-import { checkApiKey, getApiKey } from '@/lib/utils';
+import { checkApiKey } from '@/lib/utils';
 
 
 export type ToolDescriptor = {
