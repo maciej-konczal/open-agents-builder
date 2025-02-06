@@ -60,7 +60,6 @@ export const createEmailTool = (options: EmailToolOptions):ToolDescriptor => {
       }),
       execute: async ({ from, to, subject, text, html }) => {
         try {
-          console.log(from,to,subject,text,html);
           const response = await axios.post(
             config.url,
             {
@@ -72,7 +71,6 @@ export const createEmailTool = (options: EmailToolOptions):ToolDescriptor => {
             },
             requestConfig
           )
-          console.log(response);
           return typeof response.data === 'object'
             ? JSON.stringify(response.data)
             : (response.data as string)

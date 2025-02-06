@@ -78,7 +78,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
         let where = and(eq(sessions.agentId, agentId), isNotNull(notNullColumn));
         
         if (query)
-            where = and(where, or(like(sessions.userEmail, '%' + query + '%'), like(sessions.userName, '%' + query + '%')));
+            where = and(where, or(like(sessions.userEmail, '%' + query + '%'), like(sessions.userName, '%' + query + '%'), like(sessions.id, '%' + query + '%')));
 
         const records = await db.select().from(sessions).where(where).limit(limit).offset(offset).orderBy(orderColumn).execute();
         const recordsCount = await db.select({ count: count() }).from(sessions).where(where).execute();
