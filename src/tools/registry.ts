@@ -14,6 +14,7 @@ let availableTools:Record<string, ToolDescriptor> | null = null;
 
 export const toolRegistry = {
   init: (): Record<string, ToolDescriptor> => {
+    console.log('RAK', process.env.RESEND_API_KEY);
     if (availableTools !== null) return availableTools;
     availableTools = {
       sendEmail: createEmailTool({
