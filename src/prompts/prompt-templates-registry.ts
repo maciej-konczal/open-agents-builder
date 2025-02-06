@@ -1,4 +1,4 @@
-export const templatesRegistry = [
+export const promptTemplatesRegistry = [
     {
         template: 'survey-agent',
         locale: 'pl',

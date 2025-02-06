@@ -16,6 +16,7 @@ import { MarkdownEditor } from '@/components/markdown-editor';
 import React from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { LocaleSelect } from '@/components/locale-select';
+import { AgentTypeSelect } from '@/components/agent-type-select';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
@@ -187,6 +188,12 @@ export default function GeneralPage() {
         {errors.displayName && <p className="mt-2 text-sm text-red-600">{errors.displayName.message}</p>}
       </div>
       <div>
+        <label htmlFor="promptTemplate" className="block text-sm font-medium">
+        {t('Agent type')}
+        </label>
+        <AgentTypeSelect fieldName='promptTemplate' register={register} />
+      </div>
+      <div>
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">
         {t('Welcome Message')}
         </label>
@@ -241,7 +248,6 @@ export default function GeneralPage() {
           {t('Default language')}
         </label>
         <LocaleSelect fieldName='locale' register={register} />
-        {errors.locale && <p className="mt-2 text-sm text-red-600">{errors.locale.message}</p>}
       </div>
       <div>
         <Button
