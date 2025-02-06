@@ -203,7 +203,7 @@ export const agentDTOSchema = z.object({
   tools: z.string().optional().nullable(),
   status: z.string().optional().nullable(),
   locale: z.string().optional().nullable(),
-  promptTemplate: z.string().optional().nullable(),
+  agentType: z.string().optional().nullable(),
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),
 });

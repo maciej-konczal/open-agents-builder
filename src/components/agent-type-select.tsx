@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { promptTemplatesRegistry } from "@/prompts/prompt-templates-registry";
+import { agentTypesRegistry } from "@/prompts/agent-types-registry";
 
 export function AgentTypeSelect() {
   const { t, i18n } = useTranslation();
@@ -21,7 +21,7 @@ export function AgentTypeSelect() {
     field: { onChange, onBlur, value, ref },
     fieldState: { error },
   } = useController({
-    name: "promptTemplate", 
+    name: "agentType", 
     control,
     rules: { required: t("This field is required") },
     // Optionally set a default value here or in the parent useForm({ defaultValues: { locale: ... } }).
@@ -39,7 +39,7 @@ export function AgentTypeSelect() {
         </SelectTrigger>
 
         <SelectContent>
-          {promptTemplatesRegistry.filter(at => at.locale === i18n.language).map((at) => (
+          {agentTypesRegistry.filter(at => at.locale === i18n.language).map((at) => (
             <SelectItem value={at.template}>{at.displayName}</SelectItem>
           ))}          
         </SelectContent>

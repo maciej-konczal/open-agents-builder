@@ -188,10 +188,10 @@ export default function GeneralPage() {
         {errors.displayName && <p className="mt-2 text-sm text-red-600">{errors.displayName.message}</p>}
       </div>
       <div>
-        <label htmlFor="promptTemplate" className="block text-sm font-medium">
+        <label htmlFor="agentType" className="block text-sm font-medium">
         {t('Agent type')}
         </label>
-        <AgentTypeSelect fieldName='promptTemplate' register={register} />
+        <AgentTypeSelect fieldName='agentType' register={register} />
       </div>
       <div>
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">

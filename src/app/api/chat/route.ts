@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
   const sessionRepo = new ServerSessionRepository(databaseIdHash);
   let existingSession = await sessionRepo.findOne({ id: sessionId });
 
-  const promptName = agent.promptTemplate ? agent.promptTemplate : 'survey-agent';
+  const promptName = agent.agentType ? agent.agentType : 'survey-agent';
   const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events });
 
   messages.unshift( {

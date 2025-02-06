@@ -20,7 +20,7 @@ export const agents = sqliteTable('agents', {
     safetyRules: text('safetyRules'),
     status: text('status'),
     locale: text('locale'),
-    promptTemplate: text('promptTemplate'),
+    agentType: text('agentType'),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 }); 
