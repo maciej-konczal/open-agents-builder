@@ -69,7 +69,7 @@ export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfi
         >
           {registryKeys.map((toolName) => (
             <option key={toolName} value={toolName}>
-              {toolConfiguratorDescriptor.displayName}
+              {toolConfigurators[toolName].displayName}
             </option>
           ))}
         </select>
