@@ -6,6 +6,10 @@ import { ToolDescriptor } from './registry';
 import ServerSessionRepository from '@/data/server/server-session-repository';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import { Agent } from '@/data/client/models';
+import { CreateResultEmailTemplateProps } from '@/email-templates/en/result-email-template';
+import { Resend } from 'resend';
+import i18next from 'i18next';
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
 {
@@ -15,16 +19,23 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
           description: 'Save results',
           parameters: z.object({
             sessionId: z.string().describe('The result/session ID to be updated'),
+            language: z.string().describe('Result language code for example "pl" or "en"'),
             format: z.string().describe('The format of the inquiry results (requested by the user - could be: JSON, markdown, text etc.)'),
             result: z.string().describe('The inquiry results - in different formats (requested by the user - could be JSON, markdown, text etc.)'),
           }),
-          execute: async ({ sessionId, result, format }) => {
+          execute: async ({ sessionId, result, format, language }) => {
             try {
               const resultRepo = new ServerResultRepository(databaseIdHash);
               const sessionsRepo = new ServerSessionRepository(databaseIdHash);
               const agentsRepo = new ServerAgentRepository(databaseIdHash);
               const existingSessionDTO = await sessionsRepo.findOne({ id: sessionId });
               const currentAgentDTO = await agentsRepo.findOne({ id: existingSessionDTO?.agentId });
+
+              i18next.init({
+                preload: [language]
+              });
+              i18next.loadLanguages([language]);
+            
 
               if(!existingSessionDTO) {
                 return 'Session not found, please check the sessionId';
@@ -41,7 +52,27 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
               if (currentAgentDTO) {
                 const currentAgent = Agent.fromDTO(currentAgentDTO);
                 if(currentAgent.options?.resultEmail) {
-                  
+                  (async function () {
+                    const ReactDOMServer = (await import('react-dom/server')).default
+                    const CreateResultEmailTemplate = (await import('@/email-templates/' + language + '/result-email-template')).default as React.FC<CreateResultEmailTemplateProps>
+                    const CreateResultEmailTemplatePlain = (await import('@/email-templates/' + language + '/result-email-template-plain')).default as React.FC<CreateResultEmailTemplateProps>
+
+                    const url = process.env.APP_URL + '/agent/' + currentAgent.id + '/results/' + sessionId;
+                    const renderedHtmlTemplate = ReactDOMServer.renderToStaticMarkup(CreateResultEmailTemplate({ agent: currentAgentDTO, result, resultFormat: format, url}))
+                    const renderedTextTemplate = ReactDOMServer.renderToStaticMarkup(CreateResultEmailTemplatePlain({ agent: currentAgentDTO, result, resultFormat: format, url}))
+        
+                    console.log(renderedTextTemplate);
+                    const { data, error } = await resend.emails.send({
+                      from: 'Agent Doodle <results@updates.agentdoodle.com>',
+                      to: [currentAgent.options?.resultEmail ?? ''],
+                      subject: i18next.t('Agent Doodle result', { lng: language }),
+                      text: renderedTextTemplate,
+                      html: renderedHtmlTemplate
+                    });
+                    console.error(error);
+                    console.log(data);
+                })();
+        
                 }
               }
             
