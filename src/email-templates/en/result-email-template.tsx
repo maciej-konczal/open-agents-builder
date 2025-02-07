@@ -39,6 +39,9 @@ import {
               Open result details
             </Button>
           </Section>
+          <Text style={paragraph}>
+            {showdnow}
+          </Text>
           <CodeBlock theme={dracula} language={resultFormat.toLowerCase() === 'markdown' ? 'markdown' : 'json'} style={code} code={result ?? ''} />
           <Hr style={hr} />
           <Link href="https://agentdoodle.com" style={reportLink}>

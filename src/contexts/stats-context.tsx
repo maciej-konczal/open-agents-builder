@@ -1,22 +1,8 @@
 import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
-import { CreateMessage, Message } from 'ai/react';
-import { nanoid } from 'nanoid';
-import { createOpenAI, openai } from '@ai-sdk/openai';
-import { ollama, createOllama } from 'ollama-ai-provider';
-import { CallWarning, convertToCoreMessages, FinishReason, streamText } from 'ai';
-import { ConfigContext } from '@/contexts/config-context';
-import { toast } from 'sonner';
-import { Record } from '@/data/client/models';
 import { StatDTO, AggregatedStatsDTO } from '@/data/dto';
 import { AggregatedStatsResponse, AggregateStatResponse, StatApiClient } from '@/data/client/stat-api-client';
 import { DatabaseContext } from './db-context';
-import { findCodeBlocks, getErrorMessage } from '@/lib/utils';
 import { SaaSContext } from './saas-context';
-import { prompts } from '@/data/ai/prompts';
-import { jsonrepair } from 'jsonrepair';
-import { json } from 'stream/consumers';
-import showdown from 'showdown';
-import { set } from 'date-fns';
 
 
 export type StatsContextType = {
