@@ -4,11 +4,11 @@ import { CreateResultEmailTemplateProps } from "./result-email-template";
   export default ({
     result, resultFormat, agent, url
   }: CreateResultEmailTemplateProps) => (
-          <>Nowy wynik został zapisany dla {agent.displayName}! 
+          <>New result has been saved for {agent.displayName}! 
         
-          Kliknij ten link, aby otworzyć szczegóły wyniku: {url}
+          Click this link to open the result details: {url}
 
-          Treść wyniku w formacie tekstowym:
+          Result content in plain text:
           {result}
           </> 
   );

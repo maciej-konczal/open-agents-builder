@@ -55,8 +55,10 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
                   (async function () {
                     const ReactDOMServer = (await import('react-dom/server')).default
 
-                    const CreateResultEmailTemplate = (await import('@/email-templates/' + language + '/result-email-template.tsx')).default as React.FC<CreateResultEmailTemplateProps>
-                    const CreateResultEmailTemplatePlain = (await import('@/email-templates/' + language + '/result-email-template-plain.tsx')).default as React.FC<CreateResultEmailTemplateProps>
+                    const templatePath = '@/email-templates/' + language + '/result-email-template.tsx';
+                    const templatePathPlain = '@/email-templates/' + language + '/result-email-template-plain.tsx';
+                    const CreateResultEmailTemplate = (await import(templatePath)).default as React.FC<CreateResultEmailTemplateProps>
+                    const CreateResultEmailTemplatePlain = (await import(templatePathPlain)).default as React.FC<CreateResultEmailTemplateProps>
 
                     const url = process.env.APP_URL + '/agent/' + currentAgent.id + '/results/' + sessionId;
                     const renderedHtmlTemplate = ReactDOMServer.renderToStaticMarkup(<CreateResultEmailTemplate agent={currentAgentDTO} result={result} resultFormat={format} url={url}/>)

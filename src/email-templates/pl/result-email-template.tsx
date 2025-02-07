@@ -17,8 +17,7 @@ import {
     dracula,
   } from "@react-email/components";
   import * as React from "react";
-import showdown from "showdown";
-  
+  import showdown from "showdown";
   
   export interface CreateResultEmailTemplateProps {
     result: string;
@@ -27,23 +26,26 @@ import showdown from "showdown";
     url: string;
   }
 
-  const converter = new showdown.Converter({ tables: true, completeHTMLDocument: true, openLinksInNewWindow: true });
-  converter.setFlavor('github');
+    const converter = new showdown.Converter({ tables: true, completeHTMLDocument: true, openLinksInNewWindow: true });
+    converter.setFlavor('github');
+  
   
   export default ({
     result, resultFormat, agent, url
   }: CreateResultEmailTemplateProps) => (
     <Html>
-      <Head />
-      <Preview>New result has been saved</Preview>
-      <Body style={main}>
-        <Container style={container}>
-          <Heading style={heading}>New result of {agent.displayName} has been saved</Heading>
-          <Section style={buttonContainer}>
-            <Button style={button} href={url}>
-              Open result details
-            </Button>
-          </Section>
+    <Head>
+      <title>Nowy wynik został zapisany</title>
+    </Head>
+    <Preview>Nowy wynik został zapisany</Preview>
+    <Body style={main}>
+      <Container style={container}>
+        <Heading style={heading}>Nowy wynik agenta {agent.displayName} został zapisany</Heading>
+        <Section style={buttonContainer}>
+          <Button style={button} href={url}>
+            Otwórz szczegóły wyniku
+          </Button>
+        </Section>
           {resultFormat === 'markdown' ? (
             <Text style={paragraph}>
               {converter.makeHtml(result)}
@@ -51,11 +53,11 @@ import showdown from "showdown";
           ) : (
             <CodeBlock theme={dracula} language={resultFormat.toLowerCase() === 'markdown' ? 'markdown' : 'json'} style={code} code={result ?? ''} />
           )}
-          <Hr style={hr} />
-          <Link href="https://agentdoodle.com" style={reportLink}>
-            Agent Doodle, provided by CatchTheTornado. For Privacy and Terms visit: https://agentdoodle.com
-          </Link>
-        </Container>
+        <Hr style={hr} />
+        <Link href="https://agentdoodle.com" style={reportLink}>
+          Agent Doodle, dostarczony przez CatchTheTornado. Polityka prywatności i warunki: https://agentdoodle.com
+        </Link>
+      </Container>
       </Body>
     </Html>
   );
