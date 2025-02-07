@@ -4,6 +4,8 @@ import { ResultDTO } from '@/data/dto';
 import ServerResultRepository from '@/data/server/server-result-repository';
 import { ToolDescriptor } from './registry';
 import ServerSessionRepository from '@/data/server/server-session-repository';
+import ServerAgentRepository from '@/data/server/server-agent-repository';
+import { Agent } from '@/data/client/models';
 
 export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
 {
@@ -20,28 +22,34 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
             try {
               const resultRepo = new ServerResultRepository(databaseIdHash);
               const sessionsRepo = new ServerSessionRepository(databaseIdHash);
-              const existingSession = await sessionsRepo.findOne({ id: sessionId });
+              const agentsRepo = new ServerAgentRepository(databaseIdHash);
+              const existingSessionDTO = await sessionsRepo.findOne({ id: sessionId });
+              const currentAgentDTO = await agentsRepo.findOne({ id: existingSessionDTO?.agentId });
 
-              if(!existingSession) {
+              if(!existingSessionDTO) {
                 return 'Session not found, please check the sessionId';
               }
 
               const storedResult = {
                 sessionId,
-                agentId: existingSession?.agentId,
-                userEmail: existingSession?.userEmail,
-                userName: existingSession?.userName,
+                agentId: existingSessionDTO?.agentId,
+                userEmail: existingSessionDTO?.userEmail,
+                userName: existingSessionDTO?.userName,
                 createdAt: new Date().toISOString()
               } as ResultDTO;
 
-              console.log(existingSession);
-              console.log(storedResult);
+              if (currentAgentDTO) {
+                const currentAgent = Agent.fromDTO(currentAgentDTO);
+                if(currentAgent.options?.resultEmail) {
+                  
+                }
+              }
             
               storedResult.updatedAt = new Date().toISOString();
               storedResult.finalizedAt = new Date().toISOString();
               storedResult.content = result;
               storedResult.format = format;      
-              await sessionsRepo.upsert({ id: sessionId }, { ...existingSession, finalizedAt: new Date().toISOString() });
+              await sessionsRepo.upsert({ id: sessionId }, { ...existingSessionDTO, finalizedAt: new Date().toISOString() });
               await resultRepo.upsert({ sessionId }, storedResult);
               return 'Results saved!';
             } catch (e) {
