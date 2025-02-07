@@ -39,9 +39,7 @@ import {
               Open result details
             </Button>
           </Section>
-          <Text style={paragraph}>
-            <CodeBlock theme={dracula} language={resultFormat.toLowerCase() === 'markdown' ? 'markdown' : 'json'} style={code} code={result ?? ''} />
-          </Text>
+          <CodeBlock theme={dracula} language={resultFormat.toLowerCase() === 'markdown' ? 'markdown' : 'json'} style={code} code={result ?? ''} />
           <Hr style={hr} />
           <Link href="https://agentdoodle.com" style={reportLink}>
             Agent Doodle, provided by CatchTheTornado. For Privacy and Terms visit: https://agentdoodle.com
