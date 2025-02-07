@@ -1,7 +1,7 @@
 import * as React from "react";
 import { CreateResultEmailTemplateProps } from "./result-email-template";
   
-  export const CreateUserEmailTemplatePlain = ({
+  export default ({
     result, resultFormat, agent, url
   }: CreateResultEmailTemplateProps) => (
           <>New result has been saved for {agent.displayName}! 

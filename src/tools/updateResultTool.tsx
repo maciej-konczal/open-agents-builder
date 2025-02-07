@@ -54,14 +54,14 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
                 if(currentAgent.options?.resultEmail) {
                   (async function () {
                     const ReactDOMServer = (await import('react-dom/server')).default
-                    const CreateResultEmailTemplate = (await import('@/email-templates/' + language + '/result-email-template')).default as React.FC<CreateResultEmailTemplateProps>
-                    const CreateResultEmailTemplatePlain = (await import('@/email-templates/' + language + '/result-email-template-plain')).default as React.FC<CreateResultEmailTemplateProps>
+
+                    const CreateResultEmailTemplate = (await import('@/email-templates/' + language + '/result-email-template.tsx')).default as React.FC<CreateResultEmailTemplateProps>
+                    const CreateResultEmailTemplatePlain = (await import('@/email-templates/' + language + '/result-email-template-plain.tsx')).default as React.FC<CreateResultEmailTemplateProps>
 
                     const url = process.env.APP_URL + '/agent/' + currentAgent.id + '/results/' + sessionId;
-                    const renderedHtmlTemplate = ReactDOMServer.renderToStaticMarkup(CreateResultEmailTemplate({ agent: currentAgentDTO, result, resultFormat: format, url}))
-                    const renderedTextTemplate = ReactDOMServer.renderToStaticMarkup(CreateResultEmailTemplatePlain({ agent: currentAgentDTO, result, resultFormat: format, url}))
+                    const renderedHtmlTemplate = ReactDOMServer.renderToStaticMarkup(<CreateResultEmailTemplate agent={currentAgentDTO} result={result} resultFormat={format} url={url}/>)
+                    const renderedTextTemplate = ReactDOMServer.renderToStaticMarkup(<CreateResultEmailTemplatePlain agent={currentAgentDTO} result={result} resultFormat={format} url={url}/>)
         
-                    console.log(renderedTextTemplate);
                     const { data, error } = await resend.emails.send({
                       from: 'Agent Doodle <results@updates.agentdoodle.com>',
                       to: [currentAgent.options?.resultEmail ?? ''],

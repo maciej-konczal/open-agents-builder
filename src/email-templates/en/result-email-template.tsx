@@ -25,7 +25,7 @@ import {
     url: string;
   }
   
-  export const CreateResultEmailTemplate = ({
+  export default ({
     result, resultFormat, agent, url
   }: CreateResultEmailTemplateProps) => (
     <Html>
@@ -40,7 +40,7 @@ import {
             </Button>
           </Section>
           <Text style={paragraph}>
-            <CodeBlock theme={dracula} language={resultFormat.toLowerCase() === 'markdown' ? 'markdown' : 'json'} style={code} code={result.content ?? ''} />
+            <CodeBlock theme={dracula} language={resultFormat.toLowerCase() === 'markdown' ? 'markdown' : 'json'} style={code} code={result ?? ''} />
           </Text>
           <Hr style={hr} />
           <Link href="https://agentdoodle.com" style={reportLink}>
