@@ -24,10 +24,12 @@ import {
     resultFormat: string;
     agent: AgentDTO;
     url: string;
+    userName: string;
+    userEmail: string;
   }
   
   export default ({
-    result, resultFormat, agent, url
+    result, resultFormat, agent, url, userName, userEmail
   }: CreateResultEmailTemplateProps) => (
     <Html>
     <Head>
@@ -42,6 +44,11 @@ import {
             Otwórz szczegóły wyniku
           </Button>
         </Section>
+          { userName && userEmail ? (
+            <Text style={paragraph}>
+              {userName} - {userEmail}
+            </Text>
+          ): null}
           {resultFormat === 'markdown' ? (
             <Markdown>
               {result}
