@@ -15,9 +15,9 @@ import {
     Section,
     Text,
     dracula,
+    Markdown,
   } from "@react-email/components";
   import * as React from "react";
-  import showdown from "showdown";
   
   export interface CreateResultEmailTemplateProps {
     result: string;
@@ -25,10 +25,6 @@ import {
     agent: AgentDTO;
     url: string;
   }
-
-    const converter = new showdown.Converter({ tables: true, completeHTMLDocument: true, openLinksInNewWindow: true });
-    converter.setFlavor('github');
-  
   
   export default ({
     result, resultFormat, agent, url
@@ -47,9 +43,9 @@ import {
           </Button>
         </Section>
           {resultFormat === 'markdown' ? (
-            <Text style={paragraph}>
-              {converter.makeHtml(result)}
-            </Text>
+            <Markdown>
+              {result}
+            </Markdown>
           ) : (
             <CodeBlock theme={dracula} language={resultFormat.toLowerCase() === 'markdown' ? 'markdown' : 'json'} style={code} code={result ?? ''} />
           )}

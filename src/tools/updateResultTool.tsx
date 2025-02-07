@@ -9,6 +9,23 @@ import { Agent } from '@/data/client/models';
 import { CreateResultEmailTemplateProps } from '@/email-templates/en/result-email-template';
 import { Resend } from 'resend';
 import i18next from 'i18next';
+
+import CreatePLResultTemplate from '@/email-templates/pl/result-email-template';
+import CreatePLResultTemplatePlain from '@/email-templates/pl/result-email-template-plain';
+import CreateENResultTemplate from '@/email-templates/en/result-email-template';
+import CreateENResultTemplatePlain from '@/email-templates/en/result-email-template-plain';
+
+const emailTemplatesLocalized: Record<string, any> = {
+  pl: {
+    html: CreatePLResultTemplate,
+    plain: CreatePLResultTemplatePlain
+  },
+  en: {
+    html: CreateENResultTemplate,
+    plain: CreateENResultTemplatePlain
+  }
+}
+
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
@@ -55,11 +72,9 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
                   (async function () {
                     const ReactDOMServer = (await import('react-dom/server')).default
 
-                    const templatePath = '@/email-templates/' + language + '/result-email-template.tsx';
-                    const templatePathPlain = '@/email-templates/' + language + '/result-email-template-plain.tsx';
-                    const CreateResultEmailTemplate = (await import(templatePath)).default as React.FC<CreateResultEmailTemplateProps>
-                    const CreateResultEmailTemplatePlain = (await import(templatePathPlain)).default as React.FC<CreateResultEmailTemplateProps>
-
+                    const CreateResultEmailTemplate = emailTemplatesLocalized[language].html;
+                    const CreateResultEmailTemplatePlain = emailTemplatesLocalized[language].plain;
+                    
                     const url = process.env.APP_URL + '/agent/' + currentAgent.id + '/results/' + sessionId;
                     const renderedHtmlTemplate = ReactDOMServer.renderToStaticMarkup(<CreateResultEmailTemplate agent={currentAgentDTO} result={result} resultFormat={format} url={url}/>)
                     const renderedTextTemplate = ReactDOMServer.renderToStaticMarkup(<CreateResultEmailTemplatePlain agent={currentAgentDTO} result={result} resultFormat={format} url={url}/>)
