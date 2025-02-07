@@ -52,8 +52,6 @@ export async function POST(req: NextRequest) {
     content: systemPrompt
   } as CoreMessage, ...resultMessages)
 
-  console.log(messages)
-
   try {
     const result = await streamText({
       model: llmProviderSetup(),
