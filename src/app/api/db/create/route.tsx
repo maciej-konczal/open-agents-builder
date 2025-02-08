@@ -1,5 +1,6 @@
 import { KeyDTO, DatabaseCreateRequestDTO, databaseCreateRequestSchema } from "@/data/dto";
 import { maintenance } from "@/data/server/db-provider";
+import { PlatformApiClient } from "@/data/server/platform-api-client";
 import ServerKeyRepository from "@/data/server/server-key-repository";
 import { authorizeSaasContext } from "@/lib/generic-api";
 import { getCurrentTS, getErrorMessage, getZedErrorMessage } from "@/lib/utils";
@@ -13,16 +14,27 @@ export async function POST(request: NextRequest) {
     try {
         const jsonRequest = await request.json();
         const saasContext = await authorizeSaasContext(request); // authorize SaaS context
-        if (!saasContext.hasAccess) {
-            return Response.json({
-                message: saasContext.error,
-                status: 403
-            });
-        }
 
         const validationResult = databaseCreateRequestSchema.safeParse(jsonRequest); // validation
         if (validationResult.success === true) {
+
             const authCreateRequest = validationResult.data;
+
+            if (!saasContext.hasAccess) {
+
+                const appId = process.env.SAAS_APP_ID || 'agent-doodle';
+    
+                // we need to register a new account in the SaaS platform
+                const apiClient = new PlatformApiClient(''); // no API key yet needed
+                apiClient.createAccount(authCreateRequest)
+                
+    
+                return Response.json({
+                    message: saasContext.error,
+                    status: 403
+                });
+            }
+
 
             if (maintenance.checkIfDatabaseExists(authCreateRequest.databaseIdHash)) { // to not avoid overriding database fiels
                 return Response.json({
@@ -71,7 +83,7 @@ export async function POST(request: NextRequest) {
                     })
 
                     if (saasContext.isSaasMode) {
-                        try {
+                        try { // create user account and register new database in SaaS platform
                             saasContext.apiClient?.newDatabase({
                                 databaseIdHash: authCreateRequest.databaseIdHash,
                                 createdAt: getCurrentTS()
