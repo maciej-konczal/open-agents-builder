@@ -159,6 +159,12 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
             setKeyHashParams(keyHashParams);
             setMasterKey(masterKey.trim());
             setPassword(createRequest.key);
+            
+            if (apiResponse.data.saasContext) {
+                if (typeof localStorage !== 'undefined') {
+                    localStorage.setItem('saasToken', apiResponse.data.saasContext.saasToken);
+                }
+            }
         }
 
         return {

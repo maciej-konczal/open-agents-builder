@@ -37,6 +37,15 @@ export type AuthorizedSaaSContext = {
 }
 
 export async function authorizeSaasContext(request: NextRequest, forceNoCache: boolean = false): Promise<AuthorizedSaaSContext> {
+    const useCache = forceNoCache ? false : (request.nextUrl.searchParams.get('useCache') === 'false' ? false : true);
+    const saasToken = request.headers.get('saas-token') !== null ? request.headers.get('saas-token') : request.nextUrl.searchParams.get('saasToken');
+    const databaseIdHash = request.headers.get('database-id-hash') !== null ? request.headers.get('database-id-hash') : request.nextUrl.searchParams.get('databaseIdHash');
+
+    return await authorizeSaasToken(databaseIdHash, saasToken, useCache);
+}
+
+
+export async function authorizeSaasToken(databaseIdHash?:string | null, saasToken?: string | null, useCache: boolean = false): Promise<AuthorizedSaaSContext> {
     if(!process.env.SAAS_PLATFORM_URL) {
         return {
             saasContex: null,
@@ -46,9 +55,6 @@ export async function authorizeSaasContext(request: NextRequest, forceNoCache: b
         }
     } else {
         
-        const useCache = forceNoCache ? false : (request.nextUrl.searchParams.get('useCache') === 'false' ? false : true);
-        const saasToken = request.headers.get('saas-token') !== null ? request.headers.get('saas-token') : request.nextUrl.searchParams.get('saasToken');
-        const databaseIdHash = request.headers.get('database-id-hash') !== null ? request.headers.get('database-id-hash') : request.nextUrl.searchParams.get('databaseIdHash');
         if (!saasToken && !databaseIdHash) {
              return {
                  saasContex: null,

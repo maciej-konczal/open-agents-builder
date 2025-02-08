@@ -7,6 +7,7 @@ export type CreateDbResponse = {
   message: string;
   data: {
     databaseIdHash: string;
+    saasContext?: SaaSDTO | null
   }
   status: number;
   issues?: any[];
