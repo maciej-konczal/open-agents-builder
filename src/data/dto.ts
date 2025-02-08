@@ -60,6 +60,7 @@ export const AttachmentDTOEncSettings = { ecnryptedFields: ['displayName', 'desc
 export type AttachmentDTO = z.infer<typeof AttachmentDTOSchema>;
 
 export const databaseCreateRequestSchema = z.object({
+  email: z.string().email(),
   keyLocatorHash: z.string().min(64).max(64),
   keyHash: z.string().min(32),
   keyHashParams: z.string().min(1),

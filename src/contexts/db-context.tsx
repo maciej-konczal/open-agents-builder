@@ -142,6 +142,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         const apiClient = await setupApiClient(null);
         apiClient.setSaasToken(localStorage.getItem('saasToken') || '');
         const apiRequest = {
+            email: createRequest.email,
             databaseIdHash,
             encryptedMasterKey,
             keyHash: keyHash.encoded,

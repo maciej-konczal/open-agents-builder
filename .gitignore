@@ -45,3 +45,4 @@ uploads/*
 
 .dev.sh
 .prod.sh
+run.sh

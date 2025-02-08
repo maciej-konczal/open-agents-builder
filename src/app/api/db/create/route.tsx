@@ -26,7 +26,10 @@ export async function POST(request: NextRequest) {
     
                 // we need to register a new account in the SaaS platform
                 const apiClient = new PlatformApiClient(''); // no API key yet needed
-                apiClient.createAccount(authCreateRequest)
+                apiClient.createAccount({
+                    databaseIdHash: authCreateRequest.databaseIdHash,
+                    email: authCreateRequest.email
+                })
                 
     
                 return Response.json({
