@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
 
             if (!saasContext.hasAccess) {
 
-                const appId = process.env.SAAS_APP_ID || 'agent-doodle';
+                const appId = process.env.SAAS_APP_ID || 'agentdoodle';
     
                 // we need to register a new account in the SaaS platform
                 const apiClient = new PlatformApiClient(''); // no API key yet needed

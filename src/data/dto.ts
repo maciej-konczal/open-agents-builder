@@ -69,6 +69,13 @@ export const databaseCreateRequestSchema = z.object({
 });
 export type DatabaseCreateRequestDTO = z.infer<typeof databaseCreateRequestSchema>;
 
+export const saasUserSchema = z.object({
+  userId: z.string().min(1),
+  email: z.string().email(),
+  appUrl: z.string().min(1),
+  activeApiKey: z.string().min(1)
+});
+export type SaaSUserDTO = z.infer<typeof saasUserSchema>;
 
 export const databaseAuthorizeChallengeRequestSchema = z.object({
   keyLocatorHash: z.string().min(64).max(64),
