@@ -20,18 +20,6 @@ export async function POST(request: NextRequest) {
             });
         }
 
-        if (saasContext.isSaasMode) {
-            if (saasContext.saasContex?.currentQuota) {
-                if(saasContext.saasContex?.currentQuota.allowedDatabases <= saasContext.saasContex?.currentUsage.usedDatabases) {
-                    return Response.json({
-                        message: 'You have reached the limit of databases you can create. Please upgrade your plan.',
-                        status: 403
-                    });
-                }
-            }
-        }
-
-
         const validationResult = databaseCreateRequestSchema.safeParse(jsonRequest); // validation
         if (validationResult.success === true) {
             const authCreateRequest = validationResult.data;
