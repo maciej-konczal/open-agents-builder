@@ -12,6 +12,7 @@ import { CookieConsentBannerComponent } from '@/components/cookie-consent-banner
 import { SaaSContextLoader } from './saas-context-loader';
 import FeedbackWidget from './feedback-widget';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'next/navigation';
 
 export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: boolean }) {
   const [applicationLoaded, setApplicationLoaded] = useState(false);
@@ -20,6 +21,9 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
   const currentTheme = (theme === 'system' ? systemTheme : theme)
   const saasContext = useContext(SaaSContext);
   const [currentTab, setCurrentTab] = useState('authorize');
+  const { i18n } = useTranslation();
+
+  const router = useRouter();
 
   useEffect(() => {
     setApplicationLoaded(true);
@@ -77,6 +81,10 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
             </Card>
           </TabsContent>
         </Tabs>
+        <div id="language-selector">
+          <button className="text-xs m-2" onClick={() => i18n.changeLanguage('en')}>🇺🇸 English</button>
+          <button className="text-xs m-2" onClick={() => i18n.changeLanguage('pl')}>🇵🇱 Polski</button>
+        </div>
       </div>
         )}
       <CookieConsentBannerComponent />
