@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
                 const apiClient = new PlatformApiClient(''); // no API key yet needed
                 const createUserResponse = await apiClient.createAccount({
                     databaseIdHash: authCreateRequest.databaseIdHash,
-                    email: authCreateRequest.email
+                    email: authCreateRequest.email,
+                    appId
                 })
 
                 if (createUserResponse.status === 200) { // new account created - let's try authroize it
