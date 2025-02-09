@@ -110,10 +110,11 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
             break;
         }
         let where = and(eq(results.agentId, agentId), isNotNull(notNullColumn));
-        
+        const encFieldQuery = this.encUtils ? await this.encUtils.encrypt(query) : query;
+
         if (query) {
             where = and(where
-                , or(like(results.userEmail, '%' + query + '%'), like(results.userName, '%' + query + '%'), like(results.sessionId, '%' + query + '%')));
+                , or(like(results.userEmail, '%' + encFieldQuery + '%'), like(results.userName, '%' + encFieldQuery + '%'), like(results.sessionId, '%' + query + '%')));
         }
         
         const records = await db.select().from(results).where(where).limit(limit).offset(offset).orderBy(orderColumn).execute();
