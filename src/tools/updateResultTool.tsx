@@ -28,7 +28,7 @@ const emailTemplatesLocalized: Record<string, any> = {
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
+export function createUpdateResultTool(databaseIdHash: string, storageKey: string | undefined | null): ToolDescriptor
 {
   return {
   displayName: 'Sage result',
@@ -42,8 +42,8 @@ export function createUpdateResultTool(databaseIdHash: string): ToolDescriptor
           }),
           execute: async ({ sessionId, result, format, language }) => {
             try {
-              const resultRepo = new ServerResultRepository(databaseIdHash);
-              const sessionsRepo = new ServerSessionRepository(databaseIdHash);
+              const resultRepo = new ServerResultRepository(databaseIdHash, storageKey);
+              const sessionsRepo = new ServerSessionRepository(databaseIdHash, storageKey);
               const agentsRepo = new ServerAgentRepository(databaseIdHash);
               const existingSessionDTO = await sessionsRepo.findOne({ id: sessionId });
               const currentAgentDTO = await agentsRepo.findOne({ id: existingSessionDTO?.agentId });

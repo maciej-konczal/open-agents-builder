@@ -13,7 +13,6 @@ import { ToolDescriptor, toolRegistry } from '@/tools/registry'
 import { llmProviderSetup } from '@/lib/llm-provider';
 import { getErrorMessage } from '@/lib/utils';
 import { createUpdateResultTool } from '@/tools/updateResultTool';
-import { EncryptionUtils } from '@/lib/crypto';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -79,23 +78,9 @@ export async function POST(req: NextRequest) {
   }) as AgentDTO);
 
   const locale = req.headers.get('Agent-Locale') || agent.locale || 'en';
-  let storageKey: string | null | undefined = null;
   const saasContext = await authorizeSaasContext(req, true);
 
-  // this is a data encyrption using the CTT stored encryption key (passed by SaaSContext)
-  // to achieve the end2end encryption, for user messages we need to:
-  // User - means Agent-Doodle user
-  // End User - meands Agent Doodle generated agent user (so use of our users's agent)
-  // - generate a dynamic per-session encryption key and store it with the agent End User
-  // - encrypt the message with the generated key
-  // - store the encrypted message in the database
-  // - store the per-session key - encrypted with the the User key
-  if (saasContext.isSaasMode && saasContext.saasContex?.storageKey) { // data owner's storage key
-    const encUtils = new EncryptionUtils(process.env.SAAS_ENCRYPTION_KEY || '')
-    storageKey = await encUtils.decrypt(saasContext.saasContex?.storageKey || '');
-  }
-
-  const sessionRepo = new ServerSessionRepository(databaseIdHash);
+  const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
   let existingSession = await sessionRepo.findOne({ id: sessionId });
 
   const promptName = agent.agentType ? agent.agentType : 'survey-agent';
@@ -146,7 +131,7 @@ export async function POST(req: NextRequest) {
       },
       tools: {
         ...await prepareAgentTools(agent.tools),
-        saveResults: createUpdateResultTool(databaseIdHash).tool
+        saveResults: createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
       },
       messages,
     });

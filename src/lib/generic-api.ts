@@ -9,6 +9,7 @@ import { Key } from "react";
 import { PlatformApiClient } from "@/data/server/platform-api-client";
 import NodeCache from "node-cache";
 import { ApiError } from "@/data/client/base-api-client";
+import { EncryptionUtils } from "./crypto";
 
 const saasCtxCache = new NodeCache({ stdTTL: 60 * 60 * 10 /* 10 min cache */});
 
@@ -89,9 +90,21 @@ export async function authorizeSaasToken(databaseIdHash?:string | null, saasToke
                     return resp;
 
                 } else {
-                    const saasContext = await response.data;
+                    const saasContext = await response.data as SaaSDTO;
+
+                    // this is a data encyrption using the CTT stored encryption key (passed by SaaSContext)
+                    // to achieve the end2end encryption, for user messages we need to:
+                    // User - means Agent-Doodle user
+                    // End User - meands Agent Doodle generated agent user (so use of our users's agent)
+                    // - generate a dynamic per-session encryption key and store it with the agent End User
+                    // - encrypt the message with the generated key
+                    // - store the encrypted message in the database
+                    // - store the per-session key - encrypted with the the User key
+                    const encUtils = new EncryptionUtils(process.env.SAAS_ENCRYPTION_KEY || '')
+                    saasContext.storageKey = await encUtils.decrypt(saasContext?.storageKey || '');
+                    
                     const resp = {
-                        saasContex: saasContext as SaaSDTO,
+                        saasContex: saasContext,
                         hasAccess: true,
                         isSaasMode: true,
                         apiClient: client

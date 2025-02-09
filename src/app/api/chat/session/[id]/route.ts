@@ -1,15 +1,19 @@
 import { Session } from "@/data/client/models";
 import { SessionDTO } from "@/data/dto";
 import ServerSessionRepository from "@/data/server/server-session-repository";
+import { authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
+import { NextRequest } from "next/server";
 
 
 // create new session or return the existing one - do not allow to override the session inital data if created
-export async function POST(request: Request, { params }: { params: { id: string }} ) {
+export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
     try {
         const { id } = params;
         const { agentId, userName, userEmail, acceptTerms } = await request.json();
-        const sessionRepo = new ServerSessionRepository(request.headers.get('Database-Id-Hash') || '');
+
+        const saasContex = await authorizeSaasContext(request);
+        const sessionRepo = new ServerSessionRepository(request.headers.get('Database-Id-Hash') || '', saasContex.isSaasMode ? saasContex.saasContex?.storageKey : null);
 
         if(!id) {
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});

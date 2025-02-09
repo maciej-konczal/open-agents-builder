@@ -9,9 +9,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     try {
         const recordLocator = params.id;
         const requestContext = await authorizeRequestContext(request);
+        const saasContext = await authorizeSaasContext(request);
 
-        const resultRepo = new ServerResultRepository(requestContext.databaseIdHash);
-        const sessionRepo = new ServerSessionRepository (requestContext.databaseIdHash);
+        const resultRepo = new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
+        const sessionRepo = new ServerSessionRepository (requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
 
         await resultRepo.delete({ agentId: recordLocator });
         await sessionRepo.delete({ agentId: recordLocator });
