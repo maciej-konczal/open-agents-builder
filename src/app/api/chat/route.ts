@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     storageKey = await encUtils.decrypt(saasContext.saasContex?.storageKey || '');
   }
 
-  const sessionRepo = new ServerSessionRepository(databaseIdHash, storageKey);
+  const sessionRepo = new ServerSessionRepository(databaseIdHash);
   let existingSession = await sessionRepo.findOne({ id: sessionId });
 
   const promptName = agent.agentType ? agent.agentType : 'survey-agent';

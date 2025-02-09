@@ -4,9 +4,21 @@ import { getCurrentTS } from "@/lib/utils";
 import { results } from "./db-schema";
 import { and, AnyColumn, asc, count, desc, eq, isNotNull, like, or } from "drizzle-orm";
 import { create } from "./generic-repository";
+import { EncryptionUtils } from "@/lib/crypto";
 
 export default class ServerResultRepository extends BaseRepository<ResultDTO> {
     
+    storageKey: string | null | undefined;
+    encUtils:EncryptionUtils | null = null;
+
+    constructor(databaseIdHash: string, storageKey: string | null | undefined, databaseSchema: string = '', databasePartition: string ='') {
+        super(databaseIdHash, databaseSchema, databasePartition);
+        this.storageKey = storageKey
+        if (storageKey){
+            this.encUtils = new EncryptionUtils(storageKey);
+        }
+    }
+        
     async create(item: ResultDTO): Promise<ResultDTO> {
         const db = (await this.db());
         return create(item, results, db); // generic implementation

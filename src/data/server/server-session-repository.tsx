@@ -4,9 +4,20 @@ import { getCurrentTS } from "@/lib/utils";
 import { sessions } from "./db-schema";
 import { AnyColumn, desc, eq, isNotNull, or, and, like, count, asc  } from "drizzle-orm";
 import { create } from "./generic-repository";
+import { EncryptionUtils } from "@/lib/crypto";
 
 export default class ServerSessionRepository extends BaseRepository<SessionDTO> {
     
+    storageKey: string | null | undefined;
+    encUtils:EncryptionUtils | null = null;
+
+    constructor(databaseIdHash: string, storageKey: string | null | undefined, databaseSchema: string = '', databasePartition: string ='') {
+        super(databaseIdHash, databaseSchema, databasePartition);
+        this.storageKey = storageKey
+        if (storageKey){
+            this.encUtils = new EncryptionUtils(storageKey);
+        }
+    }
     
     async create(item: SessionDTO): Promise<SessionDTO> {
         const db = (await this.db());
