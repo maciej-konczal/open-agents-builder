@@ -11,6 +11,26 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
     storageKey: string | null | undefined;
     encUtils:EncryptionUtils | null = null;
 
+    async encryptItem(item: ResultDTO): Promise<ResultDTO> {
+        if(this.encUtils){
+            if(item.userName) item.userName = await this.encUtils.encrypt(item.userName);
+            if (item.userEmail) item.userEmail = await this.encUtils.encrypt(item.userEmail);
+            if (item.content) item.content = await this.encUtils.encrypt(item.content);            
+        }
+        return item;
+    }
+
+    async decryptItems(items: ResultDTO[]): Promise<ResultDTO[]> {
+        if(this.encUtils){
+            for(let item of items){
+                if(item.userName) item.userName = await this.encUtils.decrypt(item.userName);
+                if (item.userEmail) item.userEmail = await this.encUtils.decrypt(item.userEmail);
+                if (item.content) item.content = await this.encUtils.decrypt(item.content);            
+            }
+        }
+        return items;
+    }
+
     constructor(databaseIdHash: string, storageKey: string | null | undefined, databaseSchema: string = '', databasePartition: string ='') {
         super(databaseIdHash, databaseSchema, databasePartition);
         this.storageKey = storageKey
@@ -21,12 +41,14 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
         
     async create(item: ResultDTO): Promise<ResultDTO> {
         const db = (await this.db());
+        item = await this.encryptItem(item);
         return create(item, results, db); // generic implementation
     }
 
     // update folder
     async upsert(query:Record<string, any>, item: ResultDTO): Promise<ResultDTO> { 
-        const db = (await this.db());       
+        const db = (await this.db());     
+        item = await this.encryptItem(item);  
         let existingRecord:ResultDTO | null = query.sessionId ? db.select().from(results).where(eq(results.sessionId, query.sessionId)).get() as ResultDTO : null
         if (!existingRecord) {
             existingRecord = await this.create(item);
@@ -61,7 +83,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
                 dbQuery.where(eq(results.sessionId, query.filter['id'] as string));
             }
         }        
-        return Promise.resolve(dbQuery.all() as ResultDTO[])
+        return Promise.resolve(await this.decryptItems(dbQuery.all() as ResultDTO[]))
     }
 
 
@@ -98,7 +120,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
         const recordsCount = await db.select({ count: count() }).from(results).where(where).execute();
 
         return {
-          rows: records as ResultDTO[],
+          rows: await this.decryptItems(records as ResultDTO[]),
           total: recordsCount[0].count,
           limit,
           offset,
