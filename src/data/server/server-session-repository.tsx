@@ -18,15 +18,38 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
             this.encUtils = new EncryptionUtils(storageKey);
         }
     }
+
+    async encryptItem(item: SessionDTO): Promise<SessionDTO> {
+        if(this.encUtils){
+            if(item.userName) item.userName = await this.encUtils.encrypt(item.userName);
+            if (item.userEmail) item.userEmail = await this.encUtils.encrypt(item.userEmail);
+            if (item.messages) item.messages = await this.encUtils.encrypt(item.messages);            
+        }
+        return item;
+    }
+
+    async decryptItems(items: SessionDTO[]): Promise<SessionDTO[]> {
+        if(this.encUtils){
+            for(let item of items){
+                if(item.userName) item.userName = await this.encUtils.decrypt(item.userName);
+                if (item.userEmail) item.userEmail = await this.encUtils.decrypt(item.userEmail);
+                if (item.messages) item.messages = await this.encUtils.decrypt(item.messages);            
+            }
+        }
+        return items;
+    }
+
     
     async create(item: SessionDTO): Promise<SessionDTO> {
         const db = (await this.db());
+        item = await this.encryptItem(item);
         return create(item, sessions, db); // generic implementation
     }
 
     // update folder
     async upsert(query:Record<string, any>, item: SessionDTO): Promise<SessionDTO> { 
-        const db = (await this.db());       
+        const db = (await this.db());    
+        item = await this.encryptItem(item);   
         let existingRecord:SessionDTO | null = query.id ? db.select().from(sessions).where(eq(sessions.id, query.id)).get() as SessionDTO : null
         if (!existingRecord) {
             existingRecord = await this.create(item);
@@ -61,7 +84,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
                 dbQuery.where(eq(sessions.id, query.filter['id'] as string));
             }
         }        
-        return Promise.resolve(dbQuery.all() as SessionDTO[])
+        return Promise.resolve(await this.decryptItems(dbQuery.all() as SessionDTO[]))
     }
 
      async queryAll(agentId: string, { limit, offset, orderBy, query}: { query: string, offset: number, limit: number, orderBy: string }): Promise<PaginatedResult<SessionDTO[]>> {
@@ -95,7 +118,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
         const recordsCount = await db.select({ count: count() }).from(sessions).where(where).execute();
         
         return {
-          rows: records as SessionDTO[],
+          rows: await this.decryptItems(records as SessionDTO[]),
           total: recordsCount[0].count,
           limit,
           offset,
