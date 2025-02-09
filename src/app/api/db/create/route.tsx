@@ -20,43 +20,6 @@ export async function POST(request: NextRequest) {
         if (validationResult.success === true) {
 
             const authCreateRequest = validationResult.data;
-
-            console.log(saasContext);
-            if (!saasContext.hasAccess && saasContext.isSaasMode) {
-
-                const appId = process.env.SAAS_APP_ID || 'agentdoodle';
-                const adminApiKey = process.env.SAAS_API_KEY;
-
-                // we need to register a new account in the SaaS platform
-                const apiClient = new PlatformApiClient(adminApiKey || ''); // no API key yet needed
-                const createUserResponse = await apiClient.createAccount({
-                    databaseIdHash: authCreateRequest.databaseIdHash,
-                    email: authCreateRequest.email,
-                    appId
-                })
-                console.log(createUserResponse);
-
-                if (createUserResponse.status === 200) { // new account created - let's try authroize it
-                    const newUserData = createUserResponse.data as SaaSUserDTO;
-                    saasContext = await authorizeSaasToken(authCreateRequest.databaseIdHash, newUserData.activeApiKey);
-                    console.log(saasContext);
-
-                    if (!saasContext.hasAccess)
-                    {
-                        return Response.json({
-                            message: saasContext.error,
-                            status: 403
-                        });
-                    }
-                } else {
-                    return Response.json({
-                        message: createUserResponse.message,
-                        status: 403
-                    });
-                }
-            }
-
-
             if (maintenance.checkIfDatabaseExists(authCreateRequest.databaseIdHash)) { // to not avoid overriding database fiels
                 return Response.json({
                     message: 'Account with given e-mail already exists. Please select different one or Log-In.',
@@ -66,6 +29,40 @@ export async function POST(request: NextRequest) {
                     status: 409
                 });            
             } else {
+                if (!saasContext.hasAccess && saasContext.isSaasMode) {
+    
+                    const appId = process.env.SAAS_APP_ID || 'agentdoodle';
+                    const adminApiKey = process.env.SAAS_API_KEY;
+    
+                    // we need to register a new account in the SaaS platform
+                    const apiClient = new PlatformApiClient(adminApiKey || ''); // no API key yet needed
+                    const createUserResponse = await apiClient.createAccount({
+                        databaseIdHash: authCreateRequest.databaseIdHash,
+                        email: authCreateRequest.email,
+                        appId
+                    })
+                    console.log(createUserResponse);
+    
+                    if (createUserResponse.status === 200) { // new account created - let's try authroize it
+                        const newUserData = createUserResponse.data as SaaSUserDTO;
+                        saasContext = await authorizeSaasToken(authCreateRequest.databaseIdHash, newUserData.activeApiKey);
+                        console.log(saasContext);
+    
+                        if (!saasContext.hasAccess)
+                        {
+                            return Response.json({
+                                message: saasContext.error,
+                                status: 403
+                            });
+                        }
+                    } else {
+                        return Response.json({
+                            message: createUserResponse.message,
+                            status: 403
+                        });
+                    }
+                }
+
                 await maintenance.createDatabaseManifest(authCreateRequest.databaseIdHash, {
                     databaseIdHash: authCreateRequest.databaseIdHash,
                     createdAt: getCurrentTS(),
