@@ -1,12 +1,14 @@
 import ServerResultRepository from "@/data/server/server-result-repository";
-import { authorizeRequestContext } from "@/lib/generic-api";
+import { authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { ApiError } from "next/dist/server/api-utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest, { params }: { params: { id: string }}, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
-    const repo = new ServerResultRepository(requestContext.databaseIdHash);
+    const saasContext = await authorizeSaasContext(request);
+
+    const repo = new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
 
     try {
         const limit = parseInt(request.nextUrl.searchParams.get('limit') ?? '');

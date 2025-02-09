@@ -1,6 +1,6 @@
 import { ResultDTO } from "@/data/dto";
 import ServerResultRepository from "@/data/server/server-result-repository";
-import { authorizeRequestContext, genericGET } from "@/lib/generic-api";
+import { authorizeRequestContext, authorizeSaasContext, genericGET } from "@/lib/generic-api";
 import { NextRequest, NextResponse } from "next/server";
 import JSZip, { file } from 'jszip'
 import showdown from "showdown";
@@ -11,7 +11,9 @@ import fs from 'fs/promises';
 
 export async function GET(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
-    const resultRepo = new ServerResultRepository(requestContext.databaseIdHash);
+    const saasContext = await authorizeSaasContext(request);
+    
+    const resultRepo = new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
     const allResults = await resultRepo.findAll();
 
     const zip = new JSZip();
