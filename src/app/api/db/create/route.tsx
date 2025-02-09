@@ -41,10 +41,20 @@ export async function POST(request: NextRequest) {
                         email: authCreateRequest.email,
                         appId
                     })
-                    console.log(createUserResponse);
     
                     if (createUserResponse.status === 200) { // new account created - let's try authroize it
                         const newUserData = createUserResponse.data as SaaSUserDTO;
+                        
+                        try { // create user account and register new database in SaaS platform
+                            const userAuthorizedApiClient = new PlatformApiClient(newUserData.activeApiKey);
+                            await userAuthorizedApiClient.newDatabase({
+                                databaseIdHash: authCreateRequest.databaseIdHash,
+                                createdAt: getCurrentTS()
+                            })
+                        } catch (e) {
+                            console.log(e)
+                        }
+
                         saasContext = await authorizeSaasToken(authCreateRequest.databaseIdHash, newUserData.activeApiKey);
                         console.log(saasContext);
     
@@ -99,17 +109,6 @@ export async function POST(request: NextRequest) {
                         expiryDate: null,
                         updatedAt: getCurrentTS(),
                     })
-
-                    if (saasContext.isSaasMode) {
-                        try { // create user account and register new database in SaaS platform
-                            saasContext.apiClient?.newDatabase({
-                                databaseIdHash: authCreateRequest.databaseIdHash,
-                                createdAt: getCurrentTS()
-                            })
-                        } catch (e) {
-                            console.log(e)
-                        }
-                    }
 
                     return Response.json({
                         message: 'Database created successfully. Now you can log in.',
