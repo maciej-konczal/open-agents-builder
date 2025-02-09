@@ -109,8 +109,6 @@ export async function POST(req: NextRequest) {
           messages: JSON.stringify(chatHistory)
         } as SessionDTO);
 
-        console.log(existingSession);
-
         const usageData:StatDTO = {
           eventName: 'chat',
           completionTokens: usage.completionTokens,
@@ -119,13 +117,15 @@ export async function POST(req: NextRequest) {
         }
         const statsRepo = new ServerStatRepository(databaseIdHash, 'stats');
         const result = await statsRepo.aggregate(usageData)
-
-        const saasContext = await authorizeSaasContext(req);
         if (saasContext.apiClient) {
+          try {
             saasContext.apiClient.saveStats(databaseIdHash, {
                 ...result,
                 databaseIdHash: databaseIdHash
             });
+          } catch (e) {
+            console.error(e);
+          }
       }        
 
       },

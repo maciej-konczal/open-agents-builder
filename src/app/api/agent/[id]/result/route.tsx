@@ -7,7 +7,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest, { params }: { params: { id: string }}, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
     const saasContext = await authorizeSaasContext(request);
-
     const repo = new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
 
     try {

@@ -15,6 +15,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
         super(databaseIdHash, databaseSchema, databasePartition);
         this.storageKey = storageKey
         if (storageKey){
+            console.log('SK', storageKey);
             this.encUtils = new EncryptionUtils(storageKey);
         }
     }
@@ -36,24 +37,24 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
                 if (item.messages) item.messages = await this.encUtils.decrypt(item.messages);            
             }
         }
+        console.log('DI', items);
         return items;
     }
 
     
     async create(item: SessionDTO): Promise<SessionDTO> {
         const db = (await this.db());
-        item = await this.encryptItem(item);
         return create(item, sessions, db); // generic implementation
     }
 
     // update folder
     async upsert(query:Record<string, any>, item: SessionDTO): Promise<SessionDTO> { 
         const db = (await this.db());    
-        item = await this.encryptItem(item);   
         let existingRecord:SessionDTO | null = query.id ? db.select().from(sessions).where(eq(sessions.id, query.id)).get() as SessionDTO : null
         if (!existingRecord) {
             existingRecord = await this.create(item);
        } else {
+            item = await this.encryptItem(item);
             existingRecord = item
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
             db.update(sessions).set(existingRecord).where(eq(sessions.id, query.id)).run();

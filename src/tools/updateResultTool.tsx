@@ -42,6 +42,7 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
           }),
           execute: async ({ sessionId, result, format, language }) => {
             try {
+              console.log('UPTO UK', storageKey)
               const resultRepo = new ServerResultRepository(databaseIdHash, storageKey);
               const sessionsRepo = new ServerSessionRepository(databaseIdHash, storageKey);
               const agentsRepo = new ServerAgentRepository(databaseIdHash);
@@ -87,7 +88,6 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
                       html: renderedHtmlTemplate
                     });
                     console.error(error);
-                    console.log(data);
                 })();
         
                 }

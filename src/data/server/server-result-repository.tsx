@@ -28,6 +28,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
                 if (item.content) item.content = await this.encUtils.decrypt(item.content);            
             }
         }
+        console.log('DIR', items);
         return items;
     }
 
@@ -35,6 +36,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
         super(databaseIdHash, databaseSchema, databasePartition);
         this.storageKey = storageKey
         if (storageKey){
+            console.log('SKR', storageKey)
             this.encUtils = new EncryptionUtils(storageKey);
         }
     }
@@ -48,11 +50,11 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
     // update folder
     async upsert(query:Record<string, any>, item: ResultDTO): Promise<ResultDTO> { 
         const db = (await this.db());     
-        item = await this.encryptItem(item);  
         let existingRecord:ResultDTO | null = query.sessionId ? db.select().from(results).where(eq(results.sessionId, query.sessionId)).get() as ResultDTO : null
         if (!existingRecord) {
             existingRecord = await this.create(item);
        } else {
+            item = await this.encryptItem(item);  
             existingRecord = item
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
             db.update(results).set(existingRecord).where(eq(results.sessionId, query.sessionId)).run();
