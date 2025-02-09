@@ -28,8 +28,8 @@ export abstract class BaseRepository<T> implements IWrite<T>, IRead<T> {
     databaseIdHash: string;
     databaseSchema: string;
     databasePartition: string;
-    constructor(email: string, databaseSchema: string = '', databasePartition: string ='') {
-        this.databaseIdHash = email
+    constructor(databaseIdHash: string, databaseSchema: string = '', databasePartition: string ='') {
+        this.databaseIdHash = databaseIdHash
         this.databaseSchema = databaseSchema;
         this.databasePartition = databasePartition;
     }

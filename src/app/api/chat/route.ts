@@ -13,6 +13,7 @@ import { ToolDescriptor, toolRegistry } from '@/tools/registry'
 import { llmProviderSetup } from '@/lib/llm-provider';
 import { getErrorMessage } from '@/lib/utils';
 import { createUpdateResultTool } from '@/tools/updateResultTool';
+import { EncryptionUtils } from '@/lib/crypto';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -89,11 +90,12 @@ export async function POST(req: NextRequest) {
   // - encrypt the message with the generated key
   // - store the encrypted message in the database
   // - store the per-session key - encrypted with the the User key
-  if (saasContext.isSaasMode) { // data owner's storage key
-    storageKey = saasContext.saasContex?.storageKey;
+  if (saasContext.isSaasMode && saasContext.saasContex?.storageKey) { // data owner's storage key
+    const encUtils = new EncryptionUtils(process.env.SAAS_ENCRYPTION_KEY || '')
+    storageKey = await encUtils.decrypt(saasContext.saasContex?.storageKey || '');
   }
 
-  const sessionRepo = new ServerSessionRepository(databaseIdHash);
+  const sessionRepo = new ServerSessionRepository(databaseIdHash, storageKey);
   let existingSession = await sessionRepo.findOne({ id: sessionId });
 
   const promptName = agent.agentType ? agent.agentType : 'survey-agent';
