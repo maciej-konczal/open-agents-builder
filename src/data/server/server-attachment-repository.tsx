@@ -26,7 +26,6 @@ export default class ServerAttachmentRepository extends BaseRepository<Attachmen
         if (!existingRecord) {
             existingRecord = await this.create(item);
        } else {
-            console.log(existingRecord);
             existingRecord = item
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
             db.update(Attachments).set(existingRecord).where(eq(Attachments.id, query.id)).run();

@@ -273,7 +273,6 @@ export async function renderPrompt(
   context: any = {},
   customFilters: Record<string, (arg: any) => string> = {}
 ): Promise<string> {
-  console.log(localeName, promptName);
   const filePath = path.join(
     process.cwd(), // or your app root logic
     'src',

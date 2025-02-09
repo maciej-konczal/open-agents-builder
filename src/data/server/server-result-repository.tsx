@@ -28,7 +28,6 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
                 if (item.content) item.content = await this.encUtils.decrypt(item.content);            
             }
         }
-        console.log('DIR', items);
         return items;
     }
 
@@ -36,7 +35,6 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
         super(databaseIdHash, databaseSchema, databasePartition);
         this.storageKey = storageKey
         if (storageKey){
-            console.log('SKR', storageKey)
             this.encUtils = new EncryptionUtils(storageKey);
         }
     }

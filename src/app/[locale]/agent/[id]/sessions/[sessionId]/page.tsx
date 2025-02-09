@@ -33,7 +33,6 @@ export default function SingleResultPage() {
       }).then((session) => {
         if (session) { 
           setSession(session);
-          console.log(session.messages)
         }
       });
   }, [agentContext.current]);

@@ -55,9 +55,7 @@ export async function POST(request: NextRequest) {
                             console.log(e)
                         }
 
-                        saasContext = await authorizeSaasToken(authCreateRequest.databaseIdHash, newUserData.activeApiKey);
-                        console.log(saasContext);
-    
+                        saasContext = await authorizeSaasToken(authCreateRequest.databaseIdHash, newUserData.activeApiKey);    
                         if (!saasContext.hasAccess)
                         {
                             return Response.json({

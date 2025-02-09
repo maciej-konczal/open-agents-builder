@@ -15,7 +15,6 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
         super(databaseIdHash, databaseSchema, databasePartition);
         this.storageKey = storageKey
         if (storageKey){
-            console.log('SK', storageKey);
             this.encUtils = new EncryptionUtils(storageKey);
         }
     }
@@ -37,7 +36,6 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
                 if (item.messages) item.messages = await this.encUtils.decrypt(item.messages);            
             }
         }
-        console.log('DI', items);
         return items;
     }
 
