@@ -349,7 +349,11 @@ export class Session {
         this.agentId = sessionDTO.agentId;
         this.userName = sessionDTO.userName ?? null;
         this.userEmail = sessionDTO.userEmail ?? null;
-        this.messages = sessionDTO instanceof Session ? sessionDTO.messages :  (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
+        try {
+            this.messages = sessionDTO instanceof Session ? sessionDTO.messages :  (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
+        } catch (e) {
+            this.messages = null
+        }
         this.completionTokens = sessionDTO.completionTokens;
         this.promptTokens = sessionDTO.promptTokens;
         this.acceptTerms = !!(sessionDTO.acceptTerms ?? null);
