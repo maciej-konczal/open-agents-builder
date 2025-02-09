@@ -78,6 +78,20 @@ export async function POST(req: NextRequest) {
   }) as AgentDTO);
 
   const locale = req.headers.get('Agent-Locale') || agent.locale || 'en';
+  let storageKey: string | null | undefined = null;
+  const saasContext = await authorizeSaasContext(req, true);
+
+  // this is a data encyrption using the CTT stored encryption key (passed by SaaSContext)
+  // to achieve the end2end encryption, for user messages we need to:
+  // User - means Agent-Doodle user
+  // End User - meands Agent Doodle generated agent user (so use of our users's agent)
+  // - generate a dynamic per-session encryption key and store it with the agent End User
+  // - encrypt the message with the generated key
+  // - store the encrypted message in the database
+  // - store the per-session key - encrypted with the the User key
+  if (saasContext.isSaasMode) { // data owner's storage key
+    storageKey = saasContext.saasContex?.storageKey;
+  }
 
   const sessionRepo = new ServerSessionRepository(databaseIdHash);
   let existingSession = await sessionRepo.findOne({ id: sessionId });
