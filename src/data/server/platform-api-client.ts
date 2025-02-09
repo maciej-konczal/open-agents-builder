@@ -41,7 +41,11 @@ export class PlatformApiClient extends AdminApiClient {
         email: string;
         appId: string;
     }):Promise<UniversalApiResult>  {
-        return this.request<UniversalApiResult>('/api/users/create', 'POST', { ecnryptedFields: [] }, {}) as Promise<UniversalApiResult>;
+        return this.request<UniversalApiResult>('/api/users/create?apiKey=' + this.apiKey, 'POST', { ecnryptedFields: [] }, {
+            databaseIdHash,
+            email,
+            appId
+        }) as Promise<UniversalApiResult>;
     }
 
     async storeTerm(databaseIdHash:string, term: {

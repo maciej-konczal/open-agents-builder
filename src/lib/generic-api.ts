@@ -59,7 +59,7 @@ export async function authorizeSaasToken(databaseIdHash?:string | null, saasToke
         if (!saasToken && !databaseIdHash) {
              return {
                  saasContex: null,
-                 isSaasMode: false,
+                 isSaasMode: true,
                  hasAccess: false,
                  apiClient: null,
                  error: 'No SaaS Token / Database Id Hash provided. Please register your account / apply for beta tests on official landing page.'
@@ -81,7 +81,7 @@ export async function authorizeSaasToken(databaseIdHash?:string | null, saasToke
                 if(response.status !== 200) {
                     const resp = {
                         saasContex: null,
-                        isSaasMode: false,
+                        isSaasMode: true,
                         hasAccess: false,
                         apiClient: null,
                         error: response.message

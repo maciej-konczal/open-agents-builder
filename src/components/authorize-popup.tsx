@@ -45,13 +45,9 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
         <FeedbackWidget />
         {saasContext?.email ? (
           <div className="text-xs w-96 p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500">
-            {t('Hello ')}{saasContext?.email}{t('! Welcome to Agent Doodle. You can spend ')}{saasContext.currentQuota.allowedUSDBudget}{t('$ for AI requests. Read ')}<a className="underline" target="_blank" href="/content/terms">terms</a>{t(' and ')}<a className="underline" target="_blank" href="/content/privacy">{t('privacy')}</a>{t(' before using the app.')}
+            {t('Hello ')}{saasContext?.email}{t('! Welcome to Agent Doodle. Read ')}<a className="underline" target="_blank" href="/content/terms">terms</a>{t(' and ')}<a className="underline" target="_blank" href="/content/privacy">{t('privacy')}</a>{t(' before using the app.')}
           </div>
-        ): ((process.env.NEXT_PUBLIC_SAAS_REGISTER_URL && process.env.NEXT_PUBLIC_SAAS) ? (
-          <div className="text-xs w-96 p-3 border-2 border-red-500 background-red-200 text-sm font-semibold text-red-500">
-            {t('This is a closed beta test period. ')}<a className="underline" href={process.env.NEXT_PUBLIC_SAAS_REGISTER_URL}>{t('Please apply')}</a>{t(' for the beta test to use the application.')}
-          </div>
-        ) : (null))}
+        ): (null)}
         
         <div className="flex">
           <img alt="Application logo" className="w-16 mr-5" src={currentTheme === 'dark' ? `/img/agent-doodle-logo-white.svg` : `/img/agent-doodle-logo.svg`} />
