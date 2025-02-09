@@ -86,12 +86,10 @@ export class AdminApiClient {
             return this.getArrayBuffer(endpoint, refreshResult.accessToken);
           } else {
             this.dbContext?.logout();
-            toast.error('Refresh token failed. Please try to log-in again.');
             throw new Error('Request failed. Refresh token failed. Try log-in again.');
           }
         } else {
           this.dbContext?.logout();
-          toast.error('Refresh token failed. Please try to log-in again.');
           throw new Error('Request failed. Refresh token failed. Try log-in again.');
         }
       }

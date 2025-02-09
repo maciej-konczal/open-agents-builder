@@ -88,7 +88,7 @@ export function ChatInitForm({ displayName, welcomeMessage }: { displayName: str
                             />
                             <span className="ml-2">{t('I accept the ')}<a className="underline" href="#" onClick={(e) => setOpenTerms(true)}>{t('terms and conditions')}</a></span>
                         </label>
-                        {errors.acceptTerms && <span className="text-red-500 text-sm block">{errors.acceptTerms.message}</span>}
+                        {errors.acceptTerms && <span className="text-red-500 text-sm block">{t('You must accept terms before starting the agent')}</span>}
                     </div>
                     ) : null}
                     <Button type="submit" className="px-4 py-2 bg-blue-500 text-white rounded-md">{t('Go')}</Button>
