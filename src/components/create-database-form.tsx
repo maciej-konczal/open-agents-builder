@@ -108,11 +108,6 @@ export function CreateDatabaseForm({
           {operationResult ? (
             <div>
               <p className={operationResult.success ? "p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500" : "background-red-200 p-3 border-red-500 border-2 text-sm font-semibold text-red-500"}>{t(operationResult.message)}</p>
-              <ul>
-                {operationResult.issues.map((issue, index) => (
-                  <li key={index}>{issue.message}</li>
-                ))}
-              </ul>
             </div>
           ) : null}
           <Label htmlFor="email">{t('E-mail')}</Label>
