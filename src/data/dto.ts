@@ -61,7 +61,7 @@ export type AttachmentDTO = z.infer<typeof AttachmentDTOSchema>;
 
 export const databaseCreateRequestSchema = z.object({
   email: z.string().email(),
-  language: z.string().email(),
+  language: z.string().optional().nullable(),
   keyLocatorHash: z.string().min(64).max(64),
   keyHash: z.string().min(32),
   keyHashParams: z.string().min(1),
