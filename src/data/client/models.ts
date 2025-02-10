@@ -429,10 +429,12 @@ export class Result {
 export class DatabaseCreateRequest {
     email: string;
     key: string;
+    language: string;
 
-    constructor(email: string, key: string) {
+    constructor(email: string, key: string, language: string) {
         this.email = email;
         this.key = key;
+        this.language = language;
     }
 }
 

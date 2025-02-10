@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { ZodIssue } from 'zod';
 import { SaaSContext } from './saas-context';
 import { useTranslation } from 'react-i18next';
+import language from 'react-syntax-highlighter/dist/esm/languages/hljs/1c';
 const argon2 = require("argon2-browser");
 
 // the salts are static as they're used as record locators in the DB - once changed the whole DB needs to be re-hashed
@@ -143,6 +144,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         apiClient.setSaasToken(localStorage.getItem('saasToken') || '');
         const apiRequest = {
             email: createRequest.email,
+            language: createRequest.language,
             databaseIdHash,
             encryptedMasterKey,
             keyHash: keyHash.encoded,

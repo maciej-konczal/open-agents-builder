@@ -12,7 +12,6 @@ import NoSSR  from "react-no-ssr"
 import { CreateDatabaseResult, DatabaseContext } from "@/contexts/db-context";
 import { generatePassword } from "@/lib/crypto";
 import { CopyIcon, EyeIcon, EyeOffIcon, PrinterIcon, WandIcon } from "lucide-react";
-import { pdf, Document, Page } from '@react-pdf/renderer';
 import { toast } from "sonner";
 import { Textarea } from "./ui/textarea";
 import Link from 'next/link';
@@ -40,7 +39,7 @@ export function CreateDatabaseForm({
   const [printKey, setPrintKey] = useState<ReactElement | null>(null);
   const [keepLoggedIn, setKeepLoggedIn] = useState(typeof localStorage !== 'undefined' ? localStorage.getItem("keepLoggedIn") === "true" : false)
   const dbContext = useContext(DatabaseContext);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   useEffect(() => { 
     setOperationResult(null);
@@ -50,7 +49,8 @@ export function CreateDatabaseForm({
     // Handle form submission
     const result = await dbContext?.create({
       email: data.email,
-      key: data.password
+      key: data.password,
+      language: i18n.language,
     });
 
     if (keepLoggedIn){
