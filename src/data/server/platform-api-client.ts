@@ -36,15 +36,17 @@ export class PlatformApiClient extends AdminApiClient {
         return this.request<GetSaasResponse>('/api/users/me' + qr(databaseIdHash, apiKey), 'GET') as Promise<GetSaasResponse>;
     }
 
-    async createAccount({ databaseIdHash, email, appId} : {
+    async createAccount({ databaseIdHash, email, appId, language } : {
         databaseIdHash: string;
         email: string;
         appId: string;
+        language: string;
     }):Promise<UniversalApiResult>  {
         return this.request<UniversalApiResult>('/api/users/create?apiKey=' + this.apiKey, 'POST', { ecnryptedFields: [] }, {
             databaseIdHash,
             email,
-            appId
+            appId,
+            language
         }) as Promise<UniversalApiResult>;
     }
 

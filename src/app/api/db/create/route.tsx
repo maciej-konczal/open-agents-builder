@@ -37,6 +37,7 @@ export async function POST(request: NextRequest) {
                     const createUserResponse = await apiClient.createAccount({
                         databaseIdHash: authCreateRequest.databaseIdHash,
                         email: authCreateRequest.email,
+                        language: authCreateRequest.language,
                         appId
                     })
     
