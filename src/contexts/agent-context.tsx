@@ -9,7 +9,6 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { AuditContext } from './audit-context';
-import { detailedDiff } from 'deep-object-diff';
 import { ResultApiClient } from '@/data/client/result-api-client';
 import { SessionApiClient } from '@/data/client/session-api-client';
 
@@ -81,9 +80,6 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         const client = await setupApiClient();
         const agentDTO = agent.toDTO(); // DTOs are common ground between client and server
         const newRecord = typeof agent?.id  === 'undefined' || agent.id === 'new';
-
-        const prevRecord = agents.find(r => r.id === agent.id);
-        const changes = prevRecord ?  detailedDiff(prevRecord, agent) : {};
         
         if (newRecord) agentDTO.id = nanoid();
         const response = await client.put(agentDTO);
@@ -100,9 +96,6 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 agents.map(pr => pr.id === agent.id ?  agent : pr)
             )
             if (setAsCurrent) setCurrent(updatedAgent);
-
-            auditContext?.record({ eventName: newRecord ? 'addAgent' : 'updateAgent', recordLocator: JSON.stringify({ id: agent.id }), encryptedDiff: JSON.stringify(changes) })
-
             return updatedAgent;
         }
 

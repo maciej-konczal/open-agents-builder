@@ -14,6 +14,7 @@ import CreatePLResultTemplate from '@/email-templates/pl/result-email-template';
 import CreatePLResultTemplatePlain from '@/email-templates/pl/result-email-template-plain';
 import CreateENResultTemplate from '@/email-templates/en/result-email-template';
 import CreateENResultTemplatePlain from '@/email-templates/en/result-email-template-plain';
+import { authorizeSaasContext, authorizeSaasToken } from '@/lib/generic-api';
 
 const emailTemplatesLocalized: Record<string, any> = {
   pl: {
@@ -58,6 +59,8 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
                 return 'Session not found, please check the sessionId';
               }
 
+              const existingResult = resultRepo.findOne({ sessionId });
+
               const storedResult = {
                 sessionId,
                 agentId: existingSessionDTO?.agentId,
@@ -98,6 +101,23 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
               storedResult.format = format;      
               await sessionsRepo.upsert({ id: sessionId }, { ...existingSessionDTO, finalizedAt: new Date().toISOString() });
               await resultRepo.upsert({ sessionId }, storedResult);
+
+              if (!existingResult) { // this is a new result not an update
+                const saasContext = await authorizeSaasToken(databaseIdHash); // authorize SaaS context
+                if (saasContext.apiClient) {
+                    saasContext.apiClient.saveEvent(databaseIdHash, {
+                      eventName: 'createResult',
+                      databaseIdHash: databaseIdHash,
+                      params: {
+                        sessionId,
+                        format,
+                        language
+                      }
+                  });
+                }
+              }
+
+
               return 'Results saved!';
             } catch (e) {
               console.error(e);

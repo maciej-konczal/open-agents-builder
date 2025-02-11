@@ -1,7 +1,7 @@
 import { Session } from "@/data/client/models";
 import { SessionDTO } from "@/data/dto";
 import ServerSessionRepository from "@/data/server/server-session-repository";
-import { authorizeSaasContext } from "@/lib/generic-api";
+import { authorizeSaasContext, authorizeSaasToken } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest } from "next/server";
 
@@ -9,11 +9,12 @@ import { NextRequest } from "next/server";
 // create new session or return the existing one - do not allow to override the session inital data if created
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
     try {
+        const databaseIdHash = request.headers.get('Database-Id-Hash') || '';
         const { id } = params;
         const { agentId, userName, userEmail, acceptTerms } = await request.json();
 
         const saasContex = await authorizeSaasContext(request);
-        const sessionRepo = new ServerSessionRepository(request.headers.get('Database-Id-Hash') || '', saasContex.isSaasMode ? saasContex.saasContex?.storageKey : null);
+        const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContex.isSaasMode ? saasContex.saasContex?.storageKey : null);
 
         if(!id) {
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
@@ -38,6 +39,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         } as SessionDTO);
+
+
+        if (!existingSession && saasContex.apiClient) {
+            saasContex.apiClient.saveEvent(databaseIdHash, {
+                eventName: 'createSession',
+                databaseIdHash: databaseIdHash,
+                params: {
+                sessionId: id,
+                }
+            });
+        }
+
 
         return Response.json({ message: "Session created", data: { id: savedSession.id }, status: 200 }); // do not return the session data as it contains personal information so getting the session id user would be able to retrieve it's personal data
 

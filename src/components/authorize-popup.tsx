@@ -31,7 +31,7 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
 
   useEffect(() => {
     if (saasContext?.email) {
-      const defaultTab = saasContext?.email && ((saasContext?.currentQuota.allowedDatabases - (saasContext?.currentUsage !== null ? saasContext.currentUsage.usedDatabases : 0)) > 0) ? `create` : `authorize`;
+      const defaultTab = saasContext?.email && ((saasContext?.currentUsage !== null ? saasContext.currentUsage.usedDatabases : 0) > 0) ? `authorize` : `create`;
       setCurrentTab(defaultTab);
     }
   }, [saasContext?.email]);

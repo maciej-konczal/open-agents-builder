@@ -11,10 +11,13 @@ const { set, get } = createCache({ expiration: { minutes: 15 } });
 export async function PUT(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
     const inputObj = (await request.json())
-    const apiResult = await genericPUT<AgentDTO>(inputObj, agentDTOSchema, new ServerAgentRepository(requestContext.databaseIdHash, 'templates'), 'id');
+
+    const repo = new ServerAgentRepository(requestContext.databaseIdHash, 'templates')
+    const apiResult = await genericPUT<AgentDTO>(inputObj, agentDTOSchema, repo, 'id');
+    const existingTemplate = repo.findOne(inputObj.id);
 
     const saasContext = await authorizeSaasContext(request); // authorize SaaS context
-    if (saasContext.apiClient) {
+    if (saasContext.apiClient && !existingTemplate) {
         saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
            eventName: 'createTemplate',
            databaseIdHash: requestContext.databaseIdHash,
