@@ -2,11 +2,12 @@
 
 import { Chat } from "@/components/chat";
 import { ChatInitForm } from "@/components/chat-init-form";
+import DataLoader from "@/components/data-loader";
 import { useChatContext } from "@/contexts/chat-context";
 import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
 import { nanoid } from "nanoid";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -16,6 +17,8 @@ export default function ChatPage({children,
     children: React.ReactNode;
     params: { id: string, databaseIdHash: string, locale: string };
   }) {
+    const [isInitializing, setIsInitializing] = useState(true);
+    const [generalError, setGeneralError] = useState<string | null>(null);
     const chatContext = useChatContext();
     const { t } = useTranslation();
     const { messages, append, input, handleInputChange, handleSubmit, isLoading } = useChat({
@@ -33,7 +36,11 @@ export default function ChatPage({children,
     
     useEffect(() => {
         chatContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
-          toast.error(getErrorMessage(e));
+          console.error(e);
+          setGeneralError(t("Failed to initialize Agent or Agent not found."));
+
+        }).then(() => {
+          setIsInitializing(false);
         });
     }, [params.id, params.databaseIdHash, params.locale]);
 
@@ -57,7 +64,19 @@ export default function ChatPage({children,
 
     return (
         <div className="pt-10">
-            { (chatContext.initFormRequired && !chatContext.initFormDone) ? (
+          {isInitializing ? (
+            <div className="text-center">
+              <div className="flex justify-center m-4"><DataLoader /></div>
+              <div className="text-gray-500 text-center">{t("Initializing agent...")}</div>
+            </div>
+          ) : (
+          generalError ? (
+            <div className="text-center">
+              <div className="flex justify-center m-4 text-red-400 text-2xl">{t('Error')}</div>
+              <div className="text-red-500 text-center">{generalError}</div>
+            </div>
+          ): (
+             (chatContext.initFormRequired && !chatContext.initFormDone) ? (
                 <ChatInitForm
                     welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
                    displayName={chatContext.agent?.displayName ?? ''}
@@ -73,7 +92,9 @@ export default function ChatPage({children,
                     input={input}
                     displayName={chatContext.agent?.displayName ?? ''}
                 />
-            )}
+            )
+          )
+        )}
         </div>
     )
 }
