@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { getCurrentTS } from "@/lib/utils";
+import { use } from 'react';
 
 export type DTOEncryptionSettings = {
   ecnryptedFields: string[]
@@ -130,11 +131,17 @@ export type TermDTO = z.infer<typeof termsDTOSchema>;
 
 export const saasDTOSchema = z.object({
   currentQuota: z.object({
+    allowedAgents: z.number().int(),
+    allowedResults: z.number().int(),
+    allowedSessions: z.number().int(),
     allowedDatabases: z.number().int(),
     allowedUSDBudget: z.number().int(),
     allowedTokenBudget: z.number().int()
   }),
   currentUsage: z.object({
+      usedAgents: z.number().int(),
+      usedResults: z.number().int(),
+      usedSessions: z.number().int(),
       usedDatabases: z.number().int(),
       usedUSDBudget: z.number().int(),
       usedTokenBudget: z.number().int()

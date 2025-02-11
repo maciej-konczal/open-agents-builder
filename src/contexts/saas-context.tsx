@@ -6,11 +6,17 @@ import { GetSaaSResponseSuccess, SaasApiClient } from '@/data/client/saas-api-cl
 
 export interface SaaSContextType {
     currentQuota: {
+        allowedAgents: number,
+        allowedResults: number,
+        allowedSessions: number,
         allowedDatabases: number,
         allowedUSDBudget: number,
         allowedTokenBudget: number
     },
     currentUsage: {
+        usedAgents: number,
+        usedResults: number,
+        usedSessions: number,
         usedDatabases: number,
         usedUSDBudget: number,
         usedTokenBudget: number
@@ -25,11 +31,17 @@ export interface SaaSContextType {
 
 export const SaaSContext = createContext<SaaSContextType>({
     currentQuota: {
+        allowedAgents: 0,
+        allowedResults: 0,
+        allowedSessions: 0,
         allowedDatabases: 0,
         allowedUSDBudget: 0,
         allowedTokenBudget: 0
     },
     currentUsage: {
+        usedAgents: 0,
+        usedResults: 0,
+        usedSessions: 0,
         usedDatabases: 0,
         usedUSDBudget: 0,
         usedTokenBudget: 0
@@ -44,11 +56,17 @@ export const SaaSContext = createContext<SaaSContextType>({
 export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
     const [saasToken, setSaasToken] = useState<string | null>(null);
     const [currentQuota, setCurrentQuota] = useState({
+        allowedAgents: 0,
+        allowedResults: 0,
+        allowedSessions: 0,
         allowedDatabases: 0,
         allowedUSDBudget: 0,
         allowedTokenBudget: 0
     });
     const [currentUsage, setCurrentUsage] = useState({
+        usedAgents: 0,
+        usedResults: 0,
+        usedSessions: 0,
         usedDatabases: 0,
         usedUSDBudget: 0,
         usedTokenBudget: 0

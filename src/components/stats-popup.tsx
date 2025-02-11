@@ -61,7 +61,7 @@ export default function StatsPopup() {
                     <div className="text-xs font-bold">available budget</div>
                     <div className={availableBudget<= 0 ? `text-red-500 text-xs` : `text-xs`}>{availableBudget}$ of {saasContext.currentQuota.allowedUSDBudget}$</div>
                     <div className="text-xs font-bold">available agents</div>
-                    <div className="text-xs">{saasContext?.currentQuota.allowedDatabases - saasContext.currentUsage.usedDatabases} of {saasContext.currentQuota.allowedDatabases}</div>
+                    <div className="text-xs">{saasContext?.currentQuota.al - saasContext.currentUsage.usedDatabases} of {saasContext.currentQuota.allowedDatabases}</div>
                   </div>
                   <div className="text-xs w-full"><Link className="underline hover-gray" href="mailto:info@catchthetornado.com">Contact us if you need more</Link></div>
                 </div>) : null}
