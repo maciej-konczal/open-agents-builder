@@ -6,7 +6,6 @@ import { ToolDescriptor } from './registry';
 import ServerSessionRepository from '@/data/server/server-session-repository';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import { Agent } from '@/data/client/models';
-import { CreateResultEmailTemplateProps } from '@/email-templates/en/result-email-template';
 import { Resend } from 'resend';
 import i18next from 'i18next';
 
