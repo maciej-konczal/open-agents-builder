@@ -308,6 +308,7 @@
   "You have reached the AI Tokens Limit": "Osiągnąłeś limit tokenów AI",
   "Error accessing audit partition ": "Błąd dostępu do partycji audytu ",
   "Record not found": "Nie znaleziono rekordu",
+  "Initializing agent...": "Inicjowanie agenta...",
   "You have reached the limit of allowed agents": "Osiągnąłeś limit dozwolonych agentów",
   "No template found with id: ": "Nie znaleziono szablonu o identyfikatorze: "
 }
