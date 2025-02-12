@@ -7,13 +7,20 @@ import DatabaseLinkAlert from "./shared/database-link-alert";
 import { DatabaseContext } from "@/contexts/db-context";
 import { AggregatedStatsDTO } from "@/data/dto";
 import { toast } from "sonner";
-import { SaaSContext } from "@/contexts/saas-context";
+import { SaaSContext, SaaSContextType } from "@/contexts/saas-context";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { StatsContext } from "@/contexts/stats-context";
+
 export function roundToTwoDigits(num: number): number {
   return Math.round(num * 100) / 100;
 }
+
+
+function calcAvailableBudget(saasContext: SaaSContextType) {
+  return roundToTwoDigits(saasContext.currentQuota.allowedUSDBudget - saasContext.currentUsage.usedUSDBudget);
+}
+
 export default function StatsPopup() {
   const dbContext = useContext(DatabaseContext);
   const statsContext = useContext(StatsContext);
@@ -28,7 +35,7 @@ export default function StatsPopup() {
         try { 
           await saasContext.loadSaaSContext('');
           if (saasContext.currentQuota) {
-            setAvailableBudget(roundToTwoDigits(saasContext.currentQuota.allowedUSDBudget - saasContext.currentUsage.usedUSDBudget));
+            setAvailableBudget(calcAvailableBudget(saasContext));
             setAggregatedStats(await statsContext.aggregatedStats());
           }
         } catch (e) {
@@ -59,9 +66,13 @@ export default function StatsPopup() {
                   <div className="text-sm font-bold w-full">Available funds</div>
                   <div className="grid grid-cols-2 w-full">
                     <div className="text-xs font-bold">available budget</div>
-                    <div className={availableBudget<= 0 ? `text-red-500 text-xs` : `text-xs`}>{availableBudget}$ of {saasContext.currentQuota.allowedUSDBudget}$</div>
+                    <div className={calcAvailableBudget(saasContext)<= 0 ? `text-red-500 text-xs` : `text-xs`}>{calcAvailableBudget(saasContext)}$ of {saasContext.currentQuota.allowedUSDBudget}$</div>
                     <div className="text-xs font-bold">available agents</div>
-                    <div className="text-xs">{saasContext?.currentQuota.al - saasContext.currentUsage.usedDatabases} of {saasContext.currentQuota.allowedDatabases}</div>
+                    <div className="text-xs">{saasContext?.currentQuota.allowedAgents - saasContext.currentUsage.usedAgents} of {saasContext.currentQuota.allowedAgents}</div>
+                    <div className="text-xs font-bold">available results</div>
+                    <div className="text-xs">{saasContext?.currentQuota.allowedResults - saasContext.currentUsage.usedResults} of {saasContext.currentQuota.allowedResults}</div>
+                    <div className="text-xs font-bold">available sessions</div>
+                    <div className="text-xs">{saasContext?.currentQuota.allowedSessions - saasContext.currentUsage.usedSessions} of {saasContext.currentQuota.allowedSessions}</div>
                   </div>
                   <div className="text-xs w-full"><Link className="underline hover-gray" href="mailto:info@catchthetornado.com">Contact us if you need more</Link></div>
                 </div>) : null}
@@ -106,3 +117,4 @@ export default function StatsPopup() {
     </Credenza>
   );
 }
+
