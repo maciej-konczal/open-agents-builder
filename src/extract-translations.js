@@ -8,8 +8,10 @@ const translationKeys = new Set();
 const extractTranslationKeys = (filePath, isApiRoute = false) => {
   const content = fs.readFileSync(filePath, 'utf8');
   const tRegex = /t\('([^']+)'\)/g;
-  const plainStringRegexSingle = /'([^']+)'/g;
-  const plainStringRegexDouble = /"([^"]+)"/g;
+  const apiMessageRegexSingle = /{ message: '([^']+)'/g;
+  const apiMessageRegexDouble = /{ message: "([^"]+)"}/g;
+  const apiMessageInlineRegexSingle = /message: '([^']+)'/g;
+  const apiMessageInlineRegexDouble = /message: "([^"]+)"/g;
   let match;
 
   // Extract keys from t('') function calls
@@ -17,12 +19,18 @@ const extractTranslationKeys = (filePath, isApiRoute = false) => {
     translationKeys.add(match[1]);
   }
 
-  // Extract plain strings if it's an API route
+  // Extract API messages if it's an API route
   if (isApiRoute) {
-    while ((match = plainStringRegexSingle.exec(content)) !== null) {
+    while ((match = apiMessageRegexSingle.exec(content)) !== null) {
       translationKeys.add(match[1]);
     }
-    while ((match = plainStringRegexDouble.exec(content)) !== null) {
+    while ((match = apiMessageRegexDouble.exec(content)) !== null) {
+      translationKeys.add(match[1]);
+    }
+    while ((match = apiMessageInlineRegexSingle.exec(content)) !== null) {
+      translationKeys.add(match[1]);
+    }
+    while ((match = apiMessageInlineRegexDouble.exec(content)) !== null) {
       translationKeys.add(match[1]);
     }
   }
@@ -30,8 +38,8 @@ const extractTranslationKeys = (filePath, isApiRoute = false) => {
 
 // Scan the codebase for translation keys
 const scanCodebase = (directory) => {
-  const tsxFiles = glob.sync(`${directory}/**/*.tsx`);
-  const apiFiles = glob.sync(`${directory}/api/**/*.js`);
+  const tsxFiles = glob.sync(`${directory}/**/*.ts*`);
+  const apiFiles = glob.sync(`${directory}/app/api/**/*.ts*`);
   
   tsxFiles.forEach(file => extractTranslationKeys(file));
   apiFiles.forEach(file => extractTranslationKeys(file, true));

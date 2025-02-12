@@ -62,7 +62,7 @@ export default function ResultsPage() {
         headers: getSessionHeaders()
       }).catch((e) => {
         console.error(e)
-        toast.error(getErrorMessage(e))
+        toast.error(t(getErrorMessage(e)))
       })
     }
   }, [agentContext.current, isResultsChatOpen]);
@@ -70,7 +70,7 @@ export default function ResultsPage() {
   useEffect(() => {
     if (agentContext.current?.id)
       agentContext.agentResults(agentContext.current.id, debouncedSearchQuery).catch((e) => {
-        toast.error(getErrorMessage(e));
+        toast.error(t(getErrorMessage(e)));
       });
 
   }, [debouncedSearchQuery, agentContext.current]);
@@ -114,7 +114,7 @@ export default function ResultsPage() {
             }
           } catch (e) {
             console.error(e);
-            toast.error(getErrorMessage(e));
+            toast.error(t(getErrorMessage(e)));
           }
         }}><ShareIcon className='w-4 h-4' /> {t('Export results ...')}</Button>
         </div>
