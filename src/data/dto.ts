@@ -148,6 +148,7 @@ export const saasDTOSchema = z.object({
   }),
   storageKey: z.string().nullable().optional(),
   email: z.string().nullable().optional(),
+  emailVerified: z.string().nullable().optional(),
   userId: z.string().nullable().optional(),
   saasToken: z.string(),
 });

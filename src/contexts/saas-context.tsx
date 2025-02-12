@@ -21,6 +21,7 @@ export interface SaaSContextType {
         usedUSDBudget: number,
         usedTokenBudget: number
     },
+    emailVerfied: string | null;
     email: string | null;
     userId: string | null;
     saasToken: string | null;
@@ -46,6 +47,7 @@ export const SaaSContext = createContext<SaaSContextType>({
         usedUSDBudget: 0,
         usedTokenBudget: 0
     },
+    emailVerfied: null,
     email: null,
     userId: null,
     saasToken: null,
@@ -73,6 +75,7 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
     });
     const [email, setEmail] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
+    const [emailVerfied, setEmailVerified] = useState<string | null>(null);
 
     const dbContext = useContext(DatabaseContext);
 
@@ -101,6 +104,7 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         } else {
             setCurrentQuota(saasAccount.data.currentQuota);
             setCurrentUsage(saasAccount.data.currentUsage);
+            setEmailVerified(saasAccount.data.emailVerified || null);
             setEmail(saasAccount.data.email || null);
             setUserId(saasAccount.data.userId || null);
             if(typeof localStorage !== 'undefined') {
