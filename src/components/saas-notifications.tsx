@@ -27,28 +27,28 @@ export function SaaSNotifications() {
 
     useEffect(() => {
         if (!saasContext.emailVerfied) {
-            setNotifications(addNotification(notifications, t('Please go to your Inbox and verify your email address to use all features of Agent Doodle'), 'warning', 'email-verification'));            
+            setNotifications(notifications => addNotification(notifications, t('Please go to your Inbox and verify your email address to use all features of Agent Doodle'), 'warning', 'email-verification'));            
         } else 
         {
-            setNotifications(removeNotification(notifications, 'email-verification'));
+            setNotifications(notifications => removeNotification(notifications, 'email-verification'));
         }
 
-        if (saasContext.currentUsage.usedAgents > saasContext.currentQuota.allowedAgents) {
-            setNotifications(addNotification(notifications, t('You have reached the maximum number of agents allowed by your plan'), 'error', 'agents-quota'));
+        if (saasContext.currentQuota.allowedAgents > 0 && saasContext.currentUsage.usedAgents > saasContext.currentQuota.allowedAgents) {
+            setNotifications(notifications => addNotification(notifications, t('You have reached the maximum number of agents allowed by your plan'), 'error', 'agents-quota'));
         } else {
-            setNotifications(removeNotification(notifications, 'agents-quota'));
+            setNotifications(notifications => removeNotification(notifications, 'agents-quota'));
         }
 
-        if (saasContext.currentUsage.usedSessions > saasContext.currentQuota.allowedSessions) {
-            setNotifications(addNotification(notifications, t('You have reached the maximum number of sessions allowed by your plan'), 'error', 'sessions-quota'));
+        if (saasContext.currentQuota.allowedSessions > 0 && saasContext.currentUsage.usedSessions > saasContext.currentQuota.allowedSessions) {
+            setNotifications(notifications => addNotification(notifications, t('You have reached the maximum number of sessions allowed by your plan'), 'error', 'sessions-quota'));
         } else {
-            setNotifications(removeNotification(notifications, 'sessions-quota'));
+            setNotifications(notifications => removeNotification(notifications, 'sessions-quota'));
         }
 
-        if (saasContext.currentUsage.usedUSDBudget > saasContext.currentQuota.allowedUSDBudget) {
-            setNotifications(addNotification(notifications, t('You have reached the maximum budget allowed by your plan'), 'error', 'budget-quota'));
+        if (saasContext.currentQuota.allowedUSDBudget > 0 && saasContext.currentUsage.usedUSDBudget > saasContext.currentQuota.allowedUSDBudget) {
+            setNotifications(notifications => addNotification(notifications, t('You have reached the maximum budget allowed by your plan'), 'error', 'budget-quota'));
         } else {
-            setNotifications(removeNotification(notifications, 'budget-quota'));
+            setNotifications(notifications => removeNotification(notifications, 'budget-quota'));
         }
         // Add your code here
     }, [saasContext.currentQuota, saasContext.currentUsage, agentContext.current, agentContext.agents]);
