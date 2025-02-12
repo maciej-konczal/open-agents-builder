@@ -26,6 +26,7 @@ export interface SaaSContextType {
     userId: string | null;
     saasToken: string | null;
     setSaasToken: (token: string) => void;
+    refreshDataSync: string;
     loadSaaSContext: (saasToken: string) => Promise<void>;
 }
 
@@ -51,6 +52,7 @@ export const SaaSContext = createContext<SaaSContextType>({
     email: null,
     userId: null,
     saasToken: null,
+    refreshDataSync: '',
     setSaasToken: (token: string) => {},
     loadSaaSContext: async (saasToken: string) => {}
 });
@@ -76,6 +78,7 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
     const [email, setEmail] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
     const [emailVerfied, setEmailVerified] = useState<string | null>(null);
+    const [refreshDataSync, setRefreshDataSync] = useState<string>('');
 
     const dbContext = useContext(DatabaseContext);
 
@@ -102,6 +105,9 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         if(saasAccount.status !== 200) {
 //            toast.error('Failed to load SaaS account. Your account may be disabled or the token is invalid.');
         } else {
+            setInterval(() => {
+                setRefreshDataSync(new Date().toISOString());
+            }, 1000 *  60 * 2); // refresh data every 2 minutes
             setCurrentQuota(saasAccount.data.currentQuota);
             setCurrentUsage(saasAccount.data.currentUsage);
             setEmailVerified(saasAccount.data.emailVerified || null);
@@ -122,7 +128,9 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
             email,
             userId,
             setSaasToken,
-            loadSaaSContext
+            loadSaaSContext,
+            emailVerfied,
+            refreshDataSync
          }}>
             {children}
         </SaaSContext.Provider>

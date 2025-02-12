@@ -11,6 +11,7 @@ import { SaaSContext, SaaSContextType } from "@/contexts/saas-context";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { StatsContext } from "@/contexts/stats-context";
+import { useAgentContext } from "@/contexts/agent-context";
 
 export function roundToTwoDigits(num: number): number {
   return Math.round(num * 100) / 100;
@@ -26,6 +27,7 @@ export default function StatsPopup() {
   const statsContext = useContext(StatsContext);
   const [aggregatedStats, setAggregatedStats] = useState<AggregatedStatsDTO>({});
   const saasContext = useContext(SaaSContext);
+  const agentContext = useAgentContext();
   const [availableBudget, setAvailableBudget] = useState(0);
   const { t } = useTranslation();
 
@@ -45,7 +47,7 @@ export default function StatsPopup() {
       }
     }
     loadStats();
-  }, []);
+  }, [agentContext.current, agentContext.sessions, saasContext.refreshDataSync]);
 
   return (
     <Credenza open={statsContext?.statsPopupOpen} onOpenChange={statsContext?.setStatsPopupOpen}>
