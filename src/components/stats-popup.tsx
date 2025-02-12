@@ -47,7 +47,7 @@ export default function StatsPopup() {
       }
     }
     loadStats();
-  }, [agentContext.current, agentContext.sessions, saasContext.refreshDataSync]);
+  }, [saasContext.refreshDataSync]);
 
   return (
     <Credenza open={statsContext?.statsPopupOpen} onOpenChange={statsContext?.setStatsPopupOpen}>

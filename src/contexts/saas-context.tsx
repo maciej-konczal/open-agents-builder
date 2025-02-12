@@ -3,6 +3,7 @@ import { DatabaseContext } from './db-context';
 import { ConfigContextType } from '@/contexts/config-context';
 import { GetSaaSResponseSuccess, SaasApiClient } from '@/data/client/saas-api-client';
 
+let syncHandler = null;
 
 export interface SaaSContextType {
     currentQuota: {
@@ -105,9 +106,14 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         if(saasAccount.status !== 200) {
 //            toast.error('Failed to load SaaS account. Your account may be disabled or the token is invalid.');
         } else {
-            setInterval(() => {
+
+
+            if (syncHandler) clearInterval(syncHandler);
+            syncHandler = setInterval(() => {
+                console.log('Refreshing SaaS data sync ...');
                 setRefreshDataSync(new Date().toISOString());
             }, 1000 *  60 * 2); // refresh data every 2 minutes
+
             setCurrentQuota(saasAccount.data.currentQuota);
             setCurrentUsage(saasAccount.data.currentUsage);
             setEmailVerified(saasAccount.data.emailVerified || null);
