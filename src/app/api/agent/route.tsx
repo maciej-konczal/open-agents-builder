@@ -6,14 +6,27 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
+    const saasContext = await authorizeSaasContext(request); // authorize SaaS context
+
     const inputObj = (await request.json())
 
+
     const agentsRepo = new ServerAgentRepository(requestContext.databaseIdHash);
-    const existingAgent = await agentsRepo.findOne(inputObj.id);
+    const existingAgent = inputObj.id ? await agentsRepo.findOne({
+        id: inputObj.id
+    }) : null;
+
+    if(saasContext.isSaasMode) {
+        if (!existingAgent && ((saasContext.saasContex?.currentQuota.allowedAgents || 0) > 0 && (saasContext.saasContex?.currentUsage.usedAgents || 0) > (saasContext.saasContex?.currentQuota.allowedAgents || 0))) {
+            return Response.json({
+                message: "You have reached the limit of allowed agents",
+                status: 403
+            }, { status: 403 });
+        }        
+    }
 
     const apiResult = await genericPUT<AgentDTO>(inputObj, agentDTOSchema, new ServerAgentRepository(requestContext.databaseIdHash), 'id');
 
-    const saasContext = await authorizeSaasContext(request); // authorize SaaS context
     if (saasContext.apiClient) {
         if (!existingAgent) {
             saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {

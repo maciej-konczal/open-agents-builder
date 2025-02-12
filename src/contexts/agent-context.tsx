@@ -86,7 +86,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 
         if (response.status !== 200) {
             console.error('Error adding agent:', response.message);
-            toast.error(t('Error adding agent'));
+            toast.error(t('Error adding agent') + ':' + t(response.message));
 
             return agent;
         } else {

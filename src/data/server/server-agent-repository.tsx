@@ -38,6 +38,7 @@ export default class ServerAgentRepository extends BaseRepository<AgentDTO> {
         if(query?.filter){
             if(query.filter['id']){
                 dbQuery.where(eq(agents.id, query.filter['id'] as string));
+                console.log('!!!', query.filter, dbQuery)
             }
         }
         return Promise.resolve(dbQuery.all() as AgentDTO[])
