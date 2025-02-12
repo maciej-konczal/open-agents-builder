@@ -18,7 +18,7 @@ export const agentTypesRegistry = [
         displayName: 'Inteligentny asystent'
     },
     {
-        template: 'survey-agent',
+        template: 'smart-assistant',
         locale: 'en',
         description: 'This agent is a smart assistant that helps users with daily tasks, answers questions, and provides information.',
         displayName: 'Smart assistant'
