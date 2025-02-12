@@ -39,7 +39,7 @@ export default function SessionsPage() {
   useEffect(() => {
     if (agentContext.current?.id)
       agentContext.agentSessions(agentContext.current.id, debouncedSearchQuery).catch((e) => {
-        toast.error(getErrorMessage(e));
+        toast.error(t(getErrorMessage(e)));
       });
 
   }, [debouncedSearchQuery, agentContext.current]);

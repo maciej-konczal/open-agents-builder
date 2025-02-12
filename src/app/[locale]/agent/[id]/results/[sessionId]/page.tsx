@@ -41,13 +41,13 @@ export default function SingleResultPage() {
   useEffect(() => {
     if (agentContext.current?.id)
       agentContext.singleResult(params.sessionId as string).catch((e) => {
-        toast.error(getErrorMessage(e));
+        toast.error(t(getErrorMessage(e)));
       }).then((result) => {
         if (result) setResult(result);
       });
 
       agentContext.singleSession(params.sessionId as string).catch((e) => {
-        toast.error(getErrorMessage(e));
+        toast.error(t(getErrorMessage(e)));
       }).then((session) => {
         if (session) { 
           setSession(session);
@@ -73,7 +73,7 @@ export default function SingleResultPage() {
         headers: getSessionHeaders()
       }).catch((e) => {
         console.error(e)
-        toast.error(getErrorMessage(e))
+        toast.error(t(getErrorMessage(e)))
       })
     }
   }, [agentContext.current, chatOpen]);
@@ -128,7 +128,7 @@ export default function SingleResultPage() {
                   if(result?.content) copy(result?.content)
                     toast.info(t('Copied to clipboard!'));
                 } catch (e){
-                  toast.error(getErrorMessage(e))
+                  toast.error(t(getErrorMessage(e)))
                 }
               }}>
                 <CopyIcon className="w-4 h-4" />{t('Copy')}

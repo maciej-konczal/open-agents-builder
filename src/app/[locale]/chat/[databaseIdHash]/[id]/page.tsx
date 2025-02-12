@@ -37,7 +37,7 @@ export default function ChatPage({children,
     useEffect(() => {
         chatContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
           console.error(e);
-          setGeneralError(getErrorMessage(e));
+          setGeneralError(t(getErrorMessage(e)));
         }).then(() => {
           setIsInitializing(false);
         });
@@ -56,7 +56,7 @@ export default function ChatPage({children,
           }, {
             headers: getSessionHeaders()
           }).catch((e) => {
-            toast.error(getErrorMessage(e));
+            toast.error(t(getErrorMessage(e)));
           });
         }
       }, [chatContext.agent, chatContext.initFormRequired, chatContext.initFormDone]);

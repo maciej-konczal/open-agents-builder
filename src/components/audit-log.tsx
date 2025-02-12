@@ -20,6 +20,7 @@ import { auditLog } from "@/lib/audit";
 import AuditLogItem from "./audit-log-item";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function AuditLogPopup() {
   const configContext = useContext(ConfigContext);
@@ -28,10 +29,11 @@ export default function AuditLogPopup() {
   const auditContext = useContext(AuditContext);
   const [limit, setLimit] = useState(5);
   const [offset, setOffset] = useState(0);
+  const { t } = useTranslation();
 
   useEffect(() => {
     auditContext?.loadLogs(limit, offset).catch((e) => {
-      toast.error(getErrorMessage(e));
+      toast.error(t(getErrorMessage(e)));
     });;
     keyContext.loadKeys();
   }, [limit, offset/*, auditContext?.lastAudit*/]); // we re not loading the records and keys each time new recod is added due to performance reasons

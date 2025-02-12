@@ -29,7 +29,7 @@ export default function SingleResultPage() {
   useEffect(() => {
     if (agentContext.current?.id)
       agentContext.singleSession(params.sessionId as string).catch((e) => {
-        toast.error(getErrorMessage(e));
+        toast.error(t(getErrorMessage(e)));
       }).then((session) => {
         if (session) { 
           setSession(session);
