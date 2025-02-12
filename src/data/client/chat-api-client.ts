@@ -2,7 +2,11 @@ import { BaseApiClient } from "./base-api-client";
 import { AgentDTO } from "../dto";
 import { ChatInitFormType } from "@/contexts/chat-context";
 
-export type GetAgentsResponse = AgentDTO;
+export type GetAgentsResponse = {
+  message: string;
+  data: AgentDTO;
+  status: 200;
+};;
 export type PutAgentRequest = AgentDTO;
 
 export type PutAgentResponseSuccess = {

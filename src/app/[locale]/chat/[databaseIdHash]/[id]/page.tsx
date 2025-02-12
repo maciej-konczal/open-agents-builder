@@ -37,8 +37,7 @@ export default function ChatPage({children,
     useEffect(() => {
         chatContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
           console.error(e);
-          setGeneralError(t("Failed to initialize Agent or Agent not found."));
-
+          setGeneralError(getErrorMessage(e));
         }).then(() => {
           setIsInitializing(false);
         });

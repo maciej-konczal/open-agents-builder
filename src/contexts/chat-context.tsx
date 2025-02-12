@@ -2,6 +2,7 @@ import { Agent } from '@/data/client/models';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChatApiClient } from '@/data/client/chat-api-client';
+import { error } from 'console';
 
 export type ChatInitFormType = {
     userName: string;
@@ -41,17 +42,22 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         setSessionId(sessionId);
         setLocale(locale);
 
-        const dto = await client.agent(id);
-        const agt = Agent.fromDTO(dto);
-        setAgent(agt);
+        const response = await client.agent(id);
 
-        if (agt.options?.collectUserEmail || agt.options?.mustConfirmTerms) {
-            setInitFormRequired(true);
+        if (response.status === 200) {
+            const agt = Agent.fromDTO(response.data);
+            setAgent(agt);
+
+            if (agt.options?.collectUserEmail || agt.options?.mustConfirmTerms) {
+                setInitFormRequired(true);
+            } else {
+                setInitFormRequired(false);
+            }
+
+            return agt;        
         } else {
-            setInitFormRequired(false);
+            throw new Error(t(response.message));
         }
-
-        return agt;        
     }
 
     const saveInitForm = (formData: ChatInitFormType) => {
