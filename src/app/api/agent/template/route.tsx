@@ -14,7 +14,9 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 
     const repo = new ServerAgentRepository(requestContext.databaseIdHash, 'templates')
     const apiResult = await genericPUT<AgentDTO>(inputObj, agentDTOSchema, repo, 'id');
-    const existingTemplate = repo.findOne(inputObj.id);
+    const existingTemplate = repo.findOne({
+        id: inputObj.id
+    });
 
     const saasContext = await authorizeSaasContext(request); // authorize SaaS context
     if (saasContext.apiClient && !existingTemplate) {
