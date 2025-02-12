@@ -54,7 +54,7 @@ export function AgentHeader() {
   useEffect(() => {
     agentContext.listAgents(currentId).catch((e)=> {
       console.error(e);
-      toast.error(getErrorMessage(e))
+      toast.error(t(getErrorMessage(e)))
     });
   }, [currentId]);
 
