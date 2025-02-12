@@ -207,5 +207,8 @@
   "offset": "offset",
   "orderBy": "orderBy",
   "query": "query",
-  "E-mail:": "E-mail:"
+  "E-mail:": "E-mail:",
+  "Tools": "Narzędzia",
+  "Events": "Wydarzenia",
+  "Sessions": "Sesje"
 }
