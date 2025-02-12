@@ -210,5 +210,21 @@
   "E-mail:": "E-mail:",
   "Tools": "Narzędzia",
   "Events": "Wydarzenia",
-  "Sessions": "Sesje"
+  "Sessions": "Sesje",
+  "View token usage": "Wyświetl użycie tokenów",
+  "View current token usage and quotas": "Wyświetl bieżące użycie tokenów i limity",
+  "Available funds": "Dostępne środki",
+  "available budget": "dostępny budżet",
+  "available agents": "dostępni agenci",
+  "of": "z",
+  "available results": "dostępne wyniki",
+  "available sessions": "dostępne sesje",
+  "Contact us if you need more": "Skontaktuj się z nami, jeśli potrzebujesz więcej",
+  "Today": "Dzisiaj",
+  "prompt tokens": "tokeny podpowiedzi",
+  "tokens": "tokeny",
+  "completion tokens": "tokeny generowania",
+  "overall usage": "całkowite użycie",
+  "This month": "W tym miesiącu",
+  "no. of requests": "liczba żądań"
 }
