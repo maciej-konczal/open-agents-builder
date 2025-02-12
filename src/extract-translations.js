@@ -7,7 +7,8 @@ const translationKeys = new Set();
 // Function to extract translation keys from a file
 const extractTranslationKeys = (filePath, isApiRoute = false) => {
   const content = fs.readFileSync(filePath, 'utf8');
-  const tRegex = /t\('([^']+)'\)/g;
+  const tRegexSingle = /t\('([^']+)'\)/g;
+  const tRegexDouble = /t\("([^"]+)"\)/g;
   const apiMessageRegexSingle = /{ message: '([^']+)'/g;
   const apiMessageRegexDouble = /{ message: "([^"]+)"}/g;
   const apiMessageInlineRegexSingle = /message: '([^']+)'/g;
@@ -15,7 +16,12 @@ const extractTranslationKeys = (filePath, isApiRoute = false) => {
   let match;
 
   // Extract keys from t('') function calls
-  while ((match = tRegex.exec(content)) !== null) {
+  while ((match = tRegexSingle.exec(content)) !== null) {
+    translationKeys.add(match[1]);
+  }
+
+  // Extract keys from t("") function calls
+  while ((match = tRegexDouble.exec(content)) !== null) {
     translationKeys.add(match[1]);
   }
 
