@@ -4,7 +4,6 @@ import { DatabaseAuthStatus } from '@/data/client/models';
 import React, { PropsWithChildren, useContext, useState } from 'react';
 import { AuthorizePopup } from './authorize-popup';
 import { useEffectOnce } from 'react-use';
-import { KeepLoggedinLoader } from './keep-loggedin-loader';
 
 const SharingGuard: React.FC<PropsWithChildren> = ({ children }) => {
     const dbContext = useContext(DatabaseContext);
@@ -33,4 +32,4 @@ const SharingGuard: React.FC<PropsWithChildren> = ({ children }) => {
         <>{children}</>) : (<AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
 };
 
-export default AuthorizationGuard;
+export default SharingGuard;
