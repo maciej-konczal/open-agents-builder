@@ -13,11 +13,11 @@ export async function POST(request: NextRequest, response: NextResponse) {
             });
         }
 
-        const response = authorizedContext.apiClient?.activateAccount({
+        const response = await authorizedContext.apiClient?.activateAccount({
             apiKey: authorizedContext.saasContex?.saasToken
         });
 
-        return Response.json(response, { status: 200 });   
+        return Response.json( { message: response?.message, status: response?.status }, { status: response?.status });   
     } catch (error) {
         console.error(error); 
         return Response.json({ message: getErrorMessage(error), status: 403 });

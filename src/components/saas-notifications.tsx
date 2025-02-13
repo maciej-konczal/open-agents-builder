@@ -51,7 +51,7 @@ export function SaaSNotifications() {
             setNotifications(notifications => removeNotification(notifications, 'budget-quota'));
         }
         // Add your code here
-    }, [saasContext.currentQuota, saasContext.currentUsage, agentContext.current, agentContext.agents]);
+    }, [saasContext.emailVerfied, saasContext.currentQuota, saasContext.currentUsage, agentContext.current, agentContext.agents]);
 
     return (
         <div className="p-4 text-sm text-white">

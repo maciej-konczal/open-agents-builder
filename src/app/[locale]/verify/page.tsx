@@ -20,6 +20,7 @@ export default function VerifyPage() {
             saasContext.activateAccount(saasContext.saasToken).then(() => {
                 setIsInitializing(false);
                 toast.info(t('You account has been activated!'));
+                if (saasContext.saasToken) saasContext.loadSaaSContext(saasContext.saasToken); // reload saas context
                 router.push('/');
             }).catch(() =>{
                 setGeneralError(t('Error while activating your account. Please contact support!'));

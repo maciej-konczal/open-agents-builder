@@ -143,7 +143,8 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
             setSaasToken,
             loadSaaSContext,
             emailVerfied,
-            refreshDataSync
+            refreshDataSync,
+            activateAccount
          }}>
             {children}
         </SaaSContext.Provider>
