@@ -19,6 +19,7 @@ import { KeyContext } from '@/contexts/key-context';
 import FeedbackWidget from '../feedback-widget';
 import StatsPopup from '../stats-popup';
 import { StatsContext } from '@/contexts/stats-context';
+import SharedKeysPopup from '../shared-keys-popup';
 
 export function Header() {
   const { t } = useTranslation();
@@ -31,6 +32,7 @@ export function Header() {
     <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
       <FeedbackWidget />
       <StatsPopup />
+      <SharedKeysPopup />
       <div className="flex-1">
         <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10"/>
       </div>
@@ -52,6 +54,7 @@ export function Header() {
           <DropdownMenuContent align="end">
             {/* <DropdownMenuItem>{t('Profile')}</DropdownMenuItem> */}
             <DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Your profile and settings')}</DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => { keysContext.setSharedKeysDialogOpen(true); } }>{t('Team & Sharing')}</DropdownMenuItem>
             <DropdownMenuItem onClick={(e) => statsContext.setStatsPopupOpen(true)}>{t('Stats and token usage')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Support reuest for ' + dbContext?.databaseIdHash))}>{t('Contact Support')}</DropdownMenuItem>

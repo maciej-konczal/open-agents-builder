@@ -9,9 +9,11 @@ import { DatabaseContext } from "@/contexts/db-context";
 import { KeyContext } from "@/contexts/key-context";
 import SharedKeyItem from "./shared-key-item";
 import { SharedKeyEditPopup } from "./shared-key-edit-popup";
+import { useTranslation } from "react-i18next";
 
 export default function SharedKeysPopup() {
   const configContext = useContext(ConfigContext);
+  const { t } = useTranslation();
   const dbContext = useContext(DatabaseContext);
   const keysContext = useContext(KeyContext);
 
@@ -23,13 +25,13 @@ export default function SharedKeysPopup() {
     <Credenza open={keysContext.sharedKeysDialogOpen} onOpenChange={keysContext.setSharedKeysDialogOpen}>
       <CredenzaContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950" side="top">
         <CredenzaHeader>
-          <CredenzaTitle>Shared keys
+          <CredenzaTitle>{t('Shared keys')}
             {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
               <SharedKeyEditPopup />
             ) : (null)}
           </CredenzaTitle>
           <CredenzaDescription>
-            Shared Keys let other users access your database. <br />You can revoke access at any time.
+            {t('Shared Keys let other users access your database.')} <br />{t('You can revoke access at any time.')}
           </CredenzaDescription>
         </CredenzaHeader>
         <div className="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
@@ -46,8 +48,8 @@ export default function SharedKeysPopup() {
                       <SharedKeyItem onClick={(e) => {}} key={index} sharedKey={key} selected={keysContext?.currentKey?.keyLocatorHash === key.keyLocatorHash} />
                     ))
                     : (
-                      <NoRecordsAlert title="Data is not shared">
-                        No Shared Keys found in the database. Please add a new Shared Key using <strong>+</strong> icon above.
+                      <NoRecordsAlert title={t('Data is not shared')}>
+                        {t('No Shared Keys found in the database. Please add a new Shared Key using')} <strong>+</strong> {t('icon above.')}
                       </NoRecordsAlert>
                     )
                 )}
