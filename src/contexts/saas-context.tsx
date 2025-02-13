@@ -94,7 +94,7 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
 
     const activateAccount = async (saasToken: string) => {
         const client = await setupApiClient(null);
-        const response = await client.post(saasToken, { emailVerified: 'true' }) as ActivationResponse;
+        const response = await client.activate(saasToken) as SaaSActivationResponse;
         return response;
     }
 
