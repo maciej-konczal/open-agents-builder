@@ -22,7 +22,8 @@ export async function GET(request: NextRequest, response: NextResponse) {
                 currentUsage: saasContext.currentUsage,
                 email: saasContext.email,
                 userId: saasContext.userId,
-                saasToken: saasContext.saasToken
+                saasToken: saasContext.saasToken,
+                emailVerified: saasContext.emailVerified
             },
             status: 200,
             message: 'Success'
