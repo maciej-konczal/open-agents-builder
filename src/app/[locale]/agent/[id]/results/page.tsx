@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { useDebounce } from "use-debounce";
 import { SaaSContext } from '@/contexts/saas-context';
 import { useCopyToClipboard } from 'react-use';
+import { ResultDeleteDialog } from '@/components/result-delete-dialog';
 
 
 export default function ResultsPage() {
