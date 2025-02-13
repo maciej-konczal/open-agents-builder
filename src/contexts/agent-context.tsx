@@ -313,7 +313,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 export const useAgentContext = (): AgentContextType => {
     const context = useContext(AgentContext);
     if (context === undefined) {
-        throw new Error(t('useAgentContext must be used within an AgentProvider'));
+        throw new Error('useAgentContext must be used within an AgentProvider');
     }
     return context;
 };

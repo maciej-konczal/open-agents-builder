@@ -62,7 +62,7 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
 
         if (response.status !== 200) {
             console.error('Error adding template:', response.message);
-            toast.error(t('Error adding template'));
+            toast.error(t('Error adding template') + ': ' + t(response.message));
 
             return agent;
         } else {
