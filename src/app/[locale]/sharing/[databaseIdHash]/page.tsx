@@ -8,7 +8,7 @@ import { Suspense, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-export default function VerifyPage() {
+export default function SharingPage() {
     const [isInitializing, setIsInitializing] = useState(true);
     const { t } = useTranslation();
     const [generalError, setGeneralError] = useState<string | null>(null);
@@ -20,7 +20,7 @@ export default function VerifyPage() {
 
 
     return (       
-      <></>
+      <>r</>
     )
 
 }

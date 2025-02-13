@@ -353,7 +353,7 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
         databaseIdHash,
         setDatabaseIdHash,
         masterKey,
-    setMasterKey,
+        setMasterKey,
         password,
         setPassword,
         authStatus,
