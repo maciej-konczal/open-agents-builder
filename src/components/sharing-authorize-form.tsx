@@ -20,9 +20,13 @@ const termsUrl = process.env.NEXT_PUBLIC_TERMS_URL ?? '/content/terms';
 const privacyUrl = process.env.NEXT_PUBLIC_PRIVACY_URL ?? '/content/privacy';
 
 interface SharingAuthorizeFormProps {
+  databaseIdHash: string;
+  email: string;
 }
 
 export function SharingAuthorizeForm({
+  databaseIdHash,
+  email
 }: SharingAuthorizeFormProps) {
   const [operationResult, setOperationResult] = useState<AuthorizeDatabaseResult | null>(null);
 
@@ -38,7 +42,7 @@ export function SharingAuthorizeForm({
   
   const handleAuthorizeDatabase = handleSubmit(async (data) => {
     const result = await dbContext?.authorize({
-      email: data.email,
+      email: email,
       key: data.password,
       keepLoggedIn: keepLoggedIn
     });

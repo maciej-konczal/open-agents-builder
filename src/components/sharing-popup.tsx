@@ -1,21 +1,15 @@
 "use client"
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader } from "./ui/card";
-import { AuthorizeDatabaseForm } from "./authorize-database-form";
-import { CreateDatabaseForm } from "./create-database-form";
-import { Suspense, useContext, useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader } from "./ui/card";
+import { useEffect, useState } from 'react';
 import DataLoader from './data-loader';
 import { useTheme } from 'next-themes';
-import { SaaSContext } from '@/contexts/saas-context';
 import { CookieConsentBannerComponent } from '@/components/cookie-consent-banner';
-import { SaaSContextLoader } from './saas-context-loader';
 import FeedbackWidget from './feedback-widget';
 import { useTranslation } from 'react-i18next';
-import { useParams, useRouter } from 'next/navigation';
 import { SharingAuthorizeForm } from './sharing-authorize-form';
 
-export function SharingPopup({ autoLoginInProgress }: { autoLoginInProgress: boolean }) {
+export function SharingPopup({ autoLoginInProgress, databaseIdHash, email }: { autoLoginInProgress: boolean, databaseIdHash: string, email: string }) {
   const [applicationLoaded, setApplicationLoaded] = useState(false);
   const { theme, systemTheme } = useTheme();
   const { t } = useTranslation();
@@ -40,7 +34,7 @@ export function SharingPopup({ autoLoginInProgress }: { autoLoginInProgress: boo
             {t('Enter the Password you have been provided by the data owner to Accept the invitation')}
           </CardHeader>
           <CardContent className="space-y-2">
-            <SharingAuthorizeForm />
+            <SharingAuthorizeForm email={email} databaseIdHash={databaseIdHash} />
           </CardContent>
         </Card>
         <div id="language-selector">

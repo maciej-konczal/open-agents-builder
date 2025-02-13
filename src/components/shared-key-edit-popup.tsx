@@ -8,12 +8,13 @@ import { useContext, useEffect, useRef, useState } from "react"
 import { Credenza, CredenzaClose, CredenzaContent, CredenzaDescription, CredenzaFooter, CredenzaHeader, CredenzaTitle, CredenzaTrigger } from "./credenza"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { KeyContext } from "@/contexts/key-context";
-import { DatabaseContext } from "@/contexts/db-context";
+import { DatabaseContext, keepLoggedInKeyPassword } from "@/contexts/db-context";
 import { PutKeyResponse } from "@/data/client/key-api-client";
 import { Textarea } from "./ui/textarea";
 import { CopyIcon } from "lucide-react";
 import assert from "assert";
 import { useTranslation } from "react-i18next";
+import { EncryptionUtils } from "@/lib/crypto";
 
 function getRandomSixDigit() {
   return Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
@@ -58,13 +59,15 @@ export function SharedKeyEditPopup() {
 
   const onSubmit = async (data) => {
 
+    const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword);
+    
     setSharedKey(data.sharedKey);
     const expDate = (parseInt(validFor) === 0) ? null : new Date(Date.now() + parseInt(validFor) * 3600 * 1000);
     assert(dbContext?.email, t("Database Id is required"));
     setApiResult(await keysContext.addKey(dbContext?.email, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }));
     keysContext.loadKeys();
 
-    setUniqueLink(process.env.NEXT_PUBLIC_APP_URL + '/' + i18n.language + '/sharing/' + dbContext.databaseIdHash)
+    setUniqueLink(process.env.NEXT_PUBLIC_APP_URL + '/' + i18n.language + '/sharing/' + dbContext.databaseIdHash + '/' + (await encryptionUtils.encrypt(dbContext.email)) )
 
     if(apiResult && apiResult.status === 200) {
       setOpen(false);
