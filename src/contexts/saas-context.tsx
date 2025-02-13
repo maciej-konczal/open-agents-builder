@@ -1,9 +1,10 @@
 import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
 import { DatabaseContext } from './db-context';
 import { ConfigContextType } from '@/contexts/config-context';
-import { GetSaaSResponseSuccess, SaasApiClient } from '@/data/client/saas-api-client';
+import { GetSaaSResponseSuccess, SaaSActivationResponse, SaasApiClient } from '@/data/client/saas-api-client';
 
 let syncHandler = null;
+
 
 export interface SaaSContextType {
     currentQuota: {
@@ -29,6 +30,7 @@ export interface SaaSContextType {
     setSaasToken: (token: string) => void;
     refreshDataSync: string;
     loadSaaSContext: (saasToken: string) => Promise<void>;
+    activateAccount: (saasToken: string) => Promise<SaaSActivationResponse>;
 }
 
 
@@ -55,7 +57,8 @@ export const SaaSContext = createContext<SaaSContextType>({
     saasToken: null,
     refreshDataSync: '',
     setSaasToken: (token: string) => {},
-    loadSaaSContext: async (saasToken: string) => {}
+    loadSaaSContext: async (saasToken: string) => {},
+    activateAccount: async (saasToken: string) => { return { message: '', status: 200 } }
 });
 
 export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -89,6 +92,12 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         return client;
     }
 
+    const activateAccount = async (saasToken: string) => {
+        const client = await setupApiClient(null);
+        const response = await client.post(saasToken, { emailVerified: 'true' }) as ActivationResponse;
+        return response;
+    }
+
     const loadSaaSContext = async (saasToken: string) => {
         if (!process.env.NEXT_PUBLIC_SAAS) return;
         if(saasToken || saasToken !== '') {
@@ -106,8 +115,6 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         if(saasAccount.status !== 200) {
 //            toast.error('Failed to load SaaS account. Your account may be disabled or the token is invalid.');
         } else {
-
-
             if (syncHandler) clearInterval(syncHandler);
             syncHandler = setInterval(() => {
                 console.log('Refreshing SaaS data sync ...');

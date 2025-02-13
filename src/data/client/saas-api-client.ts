@@ -15,11 +15,20 @@ export type GetSaaSResponseError = {
   issues?: ZodIssue[];
 };
 
+
+export type SaaSActivationResponse = {
+  message: string;
+  status: number;
+}
 export type GetSaasResponse = GetSaaSResponseSuccess | GetSaaSResponseError;
 
 export class SaasApiClient extends AdminApiClient {
     constructor(baseUrl: string, dbContext?: DatabaseContextType | null, encryptionConfig?: ApiEncryptionConfig) {
       super(baseUrl, dbContext, null, encryptionConfig);
+    }
+
+    async activate(saasToken: string): Promise<SaaSActivationResponse> {
+      return this.request<GetSaasResponse>('/api/saas/activate?saasToken=' + encodeURIComponent(saasToken), 'POST', { ecnryptedFields: [] }) as Promise<SaaSActivationResponse>;
     }
   
     async get(saasToken: string, useCache:boolean = true): Promise<GetSaasResponse> { // under the hood the request passes databaseIdHash from dbContext as soon as it gets it
