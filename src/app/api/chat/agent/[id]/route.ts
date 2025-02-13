@@ -1,5 +1,6 @@
 import ServerAgentRepository from "@/data/server/server-agent-repository";
-import { authorizeSaasToken, validateTokenQuotas } from "@/lib/generic-api";
+import { authorizeSaasToken } from "@/lib/generic-api";
+import { validateTokenQuotas } from "@/lib/quotas";
 
 export async function GET(request: Request, { params }: { params: { id: string }} ) {
     const recordLocator = { id: params.id };
@@ -18,6 +19,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
                 if (saasContext.saasContex) {
                     const resp = await validateTokenQuotas(saasContext.saasContex)
+                    console.log(resp)
                     if (resp?.status !== 200) {
                         return Response.json(resp)
                     }
