@@ -15,24 +15,14 @@ export async function POST(request: NextRequest, response: NextResponse) {
             });
         }
 
-        authorizedContext.apiClient?.activateAccount({})
+        const response = authorizedContext.apiClient?.activateAccount({
+            apiKey: authorizedContext.saasContex?.saasToken
+        });
 
-        const saasContext = authorizedContext.saasContex as SaaSDTO;
-        let response:GetSaaSResponseSuccess = {
-            data: {
-                currentQuota: saasContext.currentQuota,
-                currentUsage: saasContext.currentUsage,
-                email: saasContext.email,
-                userId: saasContext.userId,
-                saasToken: saasContext.saasToken
-            },
-            status: 200,
-            message: 'Success'
-        }
         return Response.json(response, { status: 200 });   
     } catch (error) {
         console.error(error); 
-        return Response.json({ message: 'Error accessing saas context ' + getErrorMessage(error), status: 400 });
+        return Response.json({ message: getErrorMessage(error), status: 403 });
     }
 }
 
