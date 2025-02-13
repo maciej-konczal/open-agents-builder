@@ -360,11 +360,11 @@
   "No logs found in database.": "Nie znaleziono dzienników w bazie danych.",
   "Prev": "Poprzedni",
   "No agent selected, unable to export results": "Nie wybrano agenta, nie można wyeksportować wyników",
-  "User Password:": "User Password:",
-  "Current Password": "Current Password",
-  "Key must be at least 8 characters length including digits, alpha, lower and upper letters.": "Key must be at least 8 characters length including digits, alpha, lower and upper letters.",
-  "You account has been activated!": "You account has been activated!",
-  "Error while activating your account. Please contact support!": "Error while activating your account. Please contact support!",
-  "Activating your account...": "Activating your account...",
-  "Please verify your E-mail address and AI budget to use all features of Agent Doodle": "Please verify your E-mail address and AI budget to use all features of Agent Doodle"
+  "User Password:": "Hasło:",
+  "Current Password": "Aktualne hasło",
+  "Key must be at least 8 characters length including digits, alpha, lower and upper letters.": "Klucz musi mieć co najmniej osiem znaków w długości i powinien zawierać cyfry, litery alfabetu (litery wielkie oraz małe)",
+  "You account has been activated!": "Twoje konto zostało aktywowane!",
+  "Error while activating your account. Please contact support!": "Błąd podczas aktywacji konta. Skontaktuj się z działem wsparcia!",
+  "Activating your account...": "Aktywowanie konta...",
+  "Please verify your E-mail address and AI budget to use all features of Agent Doodle": "Upewnij się, że zweryfikowałeś swoj adres e-mail i budżet na używanie wszystkich funkcji w Agent Doodle"
 }
