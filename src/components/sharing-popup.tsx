@@ -12,38 +12,43 @@ import { CookieConsentBannerComponent } from '@/components/cookie-consent-banner
 import { SaaSContextLoader } from './saas-context-loader';
 import FeedbackWidget from './feedback-widget';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
+import { SharingAuthorizeForm } from './sharing-authorize-form';
 
 export function SharingPopup({ autoLoginInProgress }: { autoLoginInProgress: boolean }) {
   const [applicationLoaded, setApplicationLoaded] = useState(false);
   const { theme, systemTheme } = useTheme();
   const { t } = useTranslation();
   const currentTheme = (theme === 'system' ? systemTheme : theme)
-  const saasContext = useContext(SaaSContext);
   const [currentTab, setCurrentTab] = useState('authorize');
   const { i18n } = useTranslation();
-
-  const router = useRouter();
 
   useEffect(() => {
     setApplicationLoaded(true);
   },[]);
 
-  useEffect(() => {
-    if (saasContext?.email) {
-      const defaultTab = saasContext?.email && ((saasContext?.currentUsage !== null ? saasContext.currentUsage.usedDatabases : 0) > 0) ? `authorize` : `create`;
-      setCurrentTab(defaultTab);
-    }
-  }, [saasContext?.email]);
   return (
     <div className="p-4 grid items-center justify-center h-screen">
      {!applicationLoaded || autoLoginInProgress ? (<div className="w-96 flex items-center justify-center flex-col"><div className="flex-row h-40 w-40"><img src="/img/agent-doodle-logo.svg" /></div><div><DataLoader /></div></div>):(
-      <div>
+      <div className="max-w-600">
+        <div className="flex">
+          <img alt="Application logo" className="w-16 mr-5" src={currentTheme === 'dark' ? `/img/agent-doodle-logo-white.svg` : `/img/agent-doodle-logo.svg`} />
+          <h1 className="text-5xl text-center p-8 pl-0">{t('Agent Doodle')}</h1>
+        </div>        
+        <Card>
+          <CardHeader className="text-sm">
+            {t('Enter the Password you have been provided by the data owner to Accept the invitation')}
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <SharingAuthorizeForm />
+          </CardContent>
+        </Card>
         <div id="language-selector">
           <button className="text-xs m-2" onClick={() => i18n.changeLanguage('en')}>🇺🇸 English</button>
           <button className="text-xs m-2" onClick={() => i18n.changeLanguage('pl')}>🇵🇱 Polski</button>
         </div>
       </div>)}
+      <FeedbackWidget />
       <CookieConsentBannerComponent />
      </div>
   )
