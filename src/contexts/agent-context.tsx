@@ -157,7 +157,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         if (results.length > 0) {
             return Result.fromDTO(results[0]);
         } else {
-            throw new Error('No results found for specified session');
+            throw new Error(t('No results found for specified session'));
         }
 
     }
@@ -168,7 +168,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         if (results.length > 0) {
             return Session.fromDTO(results[0]);
         } else {
-            throw new Error('No sessions found for specified session');
+            throw new Error(t('No sessions found for specified session'));
         }
     }
 
@@ -313,7 +313,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 export const useAgentContext = (): AgentContextType => {
     const context = useContext(AgentContext);
     if (context === undefined) {
-        throw new Error('useAgentContext must be used within an AgentProvider');
+        throw new Error(t('useAgentContext must be used within an AgentProvider'));
     }
     return context;
 };

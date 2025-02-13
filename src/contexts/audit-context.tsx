@@ -86,7 +86,7 @@ export const AuditContextProvider: React.FC<PropsWithChildren> = ({ children }) 
 
 
     return (
-        <AuditContext.Provider value={{ setAuditLogDialogOpen, loadLogs, auditLogOpen, limit, offset, setLimit, setOffset, logs, loaderStatus, currentAudit, setCurrentAudit, record, lastAudit }}>
+        <AuditContext.Provider value={{ setAuditLogDialogOpen, loadLogs, auditLogOpen, limit, offset, setLimit, setOffset, logs, loaderStatus, currentAudit, setCurrentAudit, record, lastAudit, setLastAudit }}>
             {children}
         </AuditContext.Provider>
     );
