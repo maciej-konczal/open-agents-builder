@@ -27,7 +27,7 @@ export function SharedKeyEditPopup() {
   const [sharedKey, setSharedKey] = useState(randomKey.current.toString());
   const [uniqueLink, setUniqueLink] = useState('')
   const [validFor, setValidFor] = useState("0");
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const {
     register,
@@ -63,6 +63,8 @@ export function SharedKeyEditPopup() {
     assert(dbContext?.email, t("Database Id is required"));
     setApiResult(await keysContext.addKey(dbContext?.email, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }));
     keysContext.loadKeys();
+
+    setUniqueLink(process.env.NEXT_PUBLIC_APP_URL + '/' + i18n.language + '/sharing/' + dbContext.databaseIdHash)
 
     if(apiResult && apiResult.status === 200) {
       setOpen(false);

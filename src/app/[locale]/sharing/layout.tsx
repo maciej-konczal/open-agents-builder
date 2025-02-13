@@ -2,6 +2,7 @@
 
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
+import AuthorizationGuard from '@/components/authorization-guard';
 import { ChatProvider } from '@/contexts/chat-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
 
@@ -20,7 +21,9 @@ export default async function GeneraChatlLayout({
   return (
     <SaaSContextProvider>
       <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
+        <AuthorizationGuard sharingView={true}>
           {children}
+        </AuthorizationGuard>
       </TranslationProvider>
     </SaaSContextProvider>
   );
