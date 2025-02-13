@@ -351,5 +351,13 @@
   "Select agent type": "Wybierz typ agenta",
   "Content-Type": "Content-Type",
   "attachmentDTO": "attachmentDTO",
-  "file": "file"
+  "file": "file",
+  "No results found for specified session": "Nie znaleziono wyników dla określonej sesji",
+  "No sessions found for specified session": "Nie znaleziono sesji dla określonej sesji",
+  "Error occured": "Wystąpił błąd",
+  "Check which Keys had access and what was changed in your data. There could be a slight delay for new records to show. If you need inspect the last records please refresh the page.": "Sprawdź, które klucze miały dostęp i co zostało zmienione w twoich danych. Może wystąpić lekkie opóźnienie w wyświetlaniu nowych rekordów. Jeśli chcesz sprawdzić ostatnie rekordy, odśwież stronę.",
+  "Data is not shared": "Dane nie są udostępniane",
+  "No logs found in database.": "Nie znaleziono dzienników w bazie danych.",
+  "Prev": "Poprzedni",
+  "No agent selected, unable to export results": "Nie wybrano agenta, nie można wyeksportować wyników"
 }

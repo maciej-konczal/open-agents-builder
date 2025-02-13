@@ -59,9 +59,9 @@ export function CreateDatabaseForm({
     }
     setOperationResult(result ?? null);
     if(result?.success) {
-      toast.success(result?.message);
+      toast.success(t(result?.message));
     } else {
-      toast.error(result?.message);
+      toast.error(result?.message ? t(result?.message) : t('Error occured'));
     }
   });
 

@@ -45,9 +45,9 @@ export function AuthorizeDatabaseForm({
     
     setOperationResult(result as AuthorizeDatabaseResult);
     if(result?.success) {
-      toast.success(result?.message || t('Success'));
+      toast.success(result?.message ? t(result?.message) : t('Success'));
     } else {
-      toast.error(result?.message || t('An error occurred'));
+      toast.error(result?.message ? t(result?.message) : t('An error occurred'));
     }    
   });
 

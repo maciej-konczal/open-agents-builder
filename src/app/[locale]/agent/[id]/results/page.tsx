@@ -110,7 +110,7 @@ export default function ResultsPage() {
               agentContext.exportResults(agentContext.current);
               toast.info(t('Exported results'))
             } else {
-              toast.error('No agent selected, unable to export results')
+              toast.error(t('No agent selected, unable to export results'))
             }
           } catch (e) {
             console.error(e);
