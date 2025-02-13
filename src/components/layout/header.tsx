@@ -32,17 +32,19 @@ export function Header() {
     <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
       <FeedbackWidget />
       <StatsPopup />
-      <SharedKeysPopup />
+      {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<SharedKeysPopup />) : (null)}
       <div className="flex-1">
         <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10"/>
       </div>
       <div className="flex-1"><h1 className="text-lg font-bold text-left">{t('Agent Doodle')}</h1>
       </div>
-      <ChangeKeyPopup />      
+      {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<ChangeKeyPopup />) : (null)}
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={(e) => statsContext.setStatsPopupOpen(true)}>
-          <DollarSign className="h-5 w-5" />
-        </Button>
+        {!dbContext?.acl || dbContext.acl.role === 'owner' ? (
+          <Button variant="ghost" size="icon" onClick={(e) => statsContext.setStatsPopupOpen(true)}>
+            <DollarSign className="h-5 w-5" />
+          </Button>
+        ) : (null)}
         <ThemeToggle />
         <LanguageSwitcher />        
         <DropdownMenu>
