@@ -42,10 +42,10 @@ export default function AuditLogPopup() {
     <Credenza open={auditContext.auditLogOpen} onOpenChange={auditContext.setAuditLogDialogOpen}>
       <CredenzaContent className="sm:max-w-[700px] bg-background" side="top">
         <CredenzaHeader>
-          <CredenzaTitle>Audit log
+          <CredenzaTitle>{t('Audit log')}
           </CredenzaTitle>
           <CredenzaDescription>
-            Check which Keys had access and what was changed in your data. There could be a slight delay for new records to show. If you need inspect the last records please refresh the page.
+            {t('Check which Keys had access and what was changed in your data. There could be a slight delay for new records to show. If you need inspect the last records please refresh the page.')}
           </CredenzaDescription>
         </CredenzaHeader>
         <div className="bg-background border-r border-zinc-200 dark:border-zinc-800">
@@ -63,8 +63,8 @@ export default function AuditLogPopup() {
                       <AuditLogItem onClick={(e) => { auditContext.setCurrentAudit(audit); }} key={index} audit={audit} selected={auditContext?.currentAudit?.id === audit.id} />
                     ))
                     : (
-                      <NoRecordsAlert title="Data is not shared">
-                        No logs found in database.
+                      <NoRecordsAlert title={t('Data is not shared')}>
+                        {t('No logs found in database.')}
                       </NoRecordsAlert>
                     )
                 )}
@@ -74,7 +74,7 @@ export default function AuditLogPopup() {
             )}
           </div>
           <div className="flex gap-2 items-right">
-            {(auditContext.logs.length >= limit) ? (<Button variant="ghost" className="m-2" onClick={(e) => { setOffset(offset + limit); }}>&lt; Prev</Button>) : null}            
+            {(auditContext.logs.length >= limit) ? (<Button variant="ghost" className="m-2" onClick={(e) => { setOffset(offset + limit); }}>&lt; {t('Prev')}</Button>) : null}            
             {(offset > 0) ? (<Button className="m-2" variant="ghost" onClick={(e) => { setOffset(offset - limit); }}>Next &gt;</Button>) : null}
             </div>
 
