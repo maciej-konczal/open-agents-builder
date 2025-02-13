@@ -20,6 +20,7 @@ import { useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { Chat } from '@/components/chat';
 import { Credenza, CredenzaTrigger, CredenzaContent } from '@/components/credenza';
+import { SaaSContext } from '@/contexts/saas-context';
 
 
 export default function SingleResultPage() {
@@ -30,7 +31,8 @@ export default function SingleResultPage() {
   const params = useParams();
 
   const { t, i18n  } = useTranslation();
-
+  const saasContext = useContext(SaaSContext);
+  
   const [result, setResult] = useState<Result>();
   const [session, setSession] = useState<Session>();
   const [chatOpen, setChatOpen] = useState(false);
@@ -85,17 +87,18 @@ export default function SingleResultPage() {
             <Button size="sm" variant="outline" onClick={() => history.back()}><MoveLeftIcon /> {t('Back')}</Button>
             <Credenza open={chatOpen} onOpenChange={setChatOpen}>
           <CredenzaContent>
-            {/* Add your chat component or content here */}
-            <Chat
-              headers={getSessionHeaders()}
-              welcomeMessage={t('Lets chat')}
-              messages={messages}
-              handleInputChange={handleInputChange}
-              isLoading={isLoading}
-              handleSubmit={handleSubmit}
-              input={input}
-              displayName={t('Modify result with chat')}
-            />
+            {saasContext.saasToken && (saasContext.checkQuotas()).status === 200 ? ( 
+              <Chat
+                headers={getSessionHeaders()}
+                welcomeMessage={t('Lets chat')}
+                messages={messages}
+                handleInputChange={handleInputChange}
+                isLoading={isLoading}
+                handleSubmit={handleSubmit}
+                input={input}
+                displayName={t('Modify result with chat')}
+              />
+            ): <div className='text-sm text-center text-red-500 p-4'>{t('Please verify your E-mail address and AI budget to use all features of Agent Doodle')}</div>}
           </CredenzaContent>
         </Credenza>
 

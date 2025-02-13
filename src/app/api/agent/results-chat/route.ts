@@ -9,7 +9,6 @@ import { renderPrompt } from '@/lib/prompt-template';
 import { getErrorMessage } from '@/lib/utils';
 import { createUpdateResultTool } from '@/tools/updateResultTool';
 import { CoreMessage, streamText } from 'ai';
-import { request } from 'http';
 import { NextRequest } from 'next/server';
 
 // Allow streaming responses up to 30 seconds

@@ -20,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { RenderResult } from '@/components/render-result';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from "use-debounce";
+import { SaaSContext } from '@/contexts/saas-context';
 
 
 export default function ResultsPage() {
@@ -44,6 +45,8 @@ export default function ResultsPage() {
     api: "/api/agent/results-chat",
   });
   const [isResultsChatOpen, setResultsChatOpen] = useState(false);
+
+  const saasContext = useContext(SaaSContext);
   
   const getSessionHeaders = () => {
     return {
@@ -91,17 +94,18 @@ export default function ResultsPage() {
             <Button size="sm" variant="outline" onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> {t('Chat about results ...')}</Button>
           </CredenzaTrigger>
           <CredenzaContent>
-            {/* Add your chat component or content here */}
-            <Chat
-              headers={getSessionHeaders()}
-              welcomeMessage={t('Lets chat')}
-              messages={messages}
-              handleInputChange={handleInputChange}
-              isLoading={isLoading}
-              handleSubmit={handleSubmit}
-              input={input}
-              displayName={t('Chat with results')}
-            />
+            {saasContext.saasToken && (saasContext.checkQuotas()).status === 200 ? ( 
+              <Chat
+                headers={getSessionHeaders()}
+                welcomeMessage={t('Lets chat')}
+                messages={messages}
+                handleInputChange={handleInputChange}
+                isLoading={isLoading}
+                handleSubmit={handleSubmit}
+                input={input}
+                displayName={t('Chat with results')}
+              />
+            ): <div className='text-sm text-center text-red-500 p-4'>{t('Please verify your E-mail address and AI budget to use all features of Agent Doodle')}</div>}
           </CredenzaContent>
         </Credenza>
         <Button size="sm" variant="outline" onClick={() => {

@@ -44,24 +44,6 @@ export async function authorizeSaasContext(request: NextRequest, forceNoCache: b
     return await authorizeSaasToken(databaseIdHash, saasToken, useCache);
 }
 
-export async function validateTokenQuotas(saasContext: SaaSDTO): Promise<{message: string; status: number} | null>  {
-    if(!saasContext?.emailVerified) {
-        return { message: "You must verify e-mail to use the AI features", status: 403 };
-    }
-
-    if (((saasContext.currentQuota.allowedResults || 0) > 0) && (saasContext?.currentUsage.usedResults ?? 0) > (saasContext?.currentQuota.allowedResults || 0))
-        return { message: "You have reached the limit of results", status: 403 }
-
-    if (((saasContext.currentQuota.allowedSessions || 0) > 0) && (saasContext.currentUsage.usedSessions ?? 0) > (saasContext.currentQuota.allowedSessions || 0))
-        return { message: "You have reached the limit of sessions", status: 403 }
-
-
-    if (((saasContext.currentQuota.allowedUSDBudget || 0) > 0) && (saasContext.currentUsage.usedUSDBudget ?? 0) > (saasContext.currentQuota.allowedUSDBudget || 0))
-        return { message: "You have reached the AI Tokens Limit", status: 403 }
-
-    return { message: 'All OK!', status: 200 };
-}
-
 export async function authorizeSaasToken(databaseIdHash?:string | null, saasToken?: string | null, useCache: boolean = false): Promise<AuthorizedSaaSContext> {
     if(!process.env.SAAS_PLATFORM_URL) {
         return {

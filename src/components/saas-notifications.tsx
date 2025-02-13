@@ -27,7 +27,7 @@ export function SaaSNotifications() {
 
     useEffect(() => {
         if (saasContext.saasToken && saasContext.email) {
-            if (!saasContext.emailVerfied) {
+            if (!saasContext.emailVerified) {
                 setNotifications(notifications => addNotification(notifications, t('Please go to your Inbox and verify your email address to use all features of Agent Doodle'), 'warning', 'email-verification'));            
             } else 
             {
@@ -52,7 +52,7 @@ export function SaaSNotifications() {
                 setNotifications(notifications => removeNotification(notifications, 'budget-quota'));
             }
         }
-    }, [saasContext.emailVerfied, saasContext.currentQuota, saasContext.currentUsage, agentContext.current, agentContext.agents]);
+    }, [saasContext.emailVerified, saasContext.currentQuota, saasContext.currentUsage, agentContext.current, agentContext.agents]);
 
     return (
         (notifications && notifications.length > 0) ? (

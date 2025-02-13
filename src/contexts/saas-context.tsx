@@ -2,6 +2,8 @@ import React, { createContext, PropsWithChildren, useContext, useState } from 'r
 import { DatabaseContext } from './db-context';
 import { ConfigContextType } from '@/contexts/config-context';
 import { GetSaaSResponseSuccess, SaaSActivationResponse, SaasApiClient } from '@/data/client/saas-api-client';
+import { SaaSDTO } from '@/data/dto';
+import { validateTokenQuotas } from '@/lib/quotas';
 
 let syncHandler = null;
 
@@ -23,14 +25,15 @@ export interface SaaSContextType {
         usedUSDBudget: number,
         usedTokenBudget: number
     },
-    emailVerfied: string | null;
+    emailVerified: string | null;
     email: string | null;
     userId: string | null;
     saasToken: string | null;
     setSaasToken: (token: string) => void;
     refreshDataSync: string;
     loadSaaSContext: (saasToken: string) => Promise<void>;
-    activateAccount: (saasToken: string) => Promise<SaaSActivationResponse>;
+    activateAccount: (saasToken: string) => Promise<SaaSActivationResponse>,
+    checkQuotas: () => { status: number; message: string}
 }
 
 
@@ -51,14 +54,15 @@ export const SaaSContext = createContext<SaaSContextType>({
         usedUSDBudget: 0,
         usedTokenBudget: 0
     },
-    emailVerfied: null,
+    emailVerified: null,
     email: null,
     userId: null,
     saasToken: null,
     refreshDataSync: '',
     setSaasToken: (token: string) => {},
     loadSaaSContext: async (saasToken: string) => {},
-    activateAccount: async (saasToken: string) => { return { message: '', status: 200 } }
+    activateAccount: async (saasToken: string) => { return { message: '', status: 200 } },
+    checkQuotas: () => { return { message: '', status: 200 }}
 });
 
 export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -81,7 +85,7 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
     });
     const [email, setEmail] = useState<string | null>(null);
     const [userId, setUserId] = useState<string | null>(null);
-    const [emailVerfied, setEmailVerified] = useState<string | null>(null);
+    const [emailVerified, setEmailVerified] = useState<string | null>(null);
     const [refreshDataSync, setRefreshDataSync] = useState<string>('');
 
     const dbContext = useContext(DatabaseContext);
@@ -96,6 +100,15 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
         const client = await setupApiClient(null);
         const response = await client.activate(saasToken) as SaaSActivationResponse;
         return response;
+    }
+
+    const checkQuotas =  (): {message: string, status: number} => {
+        return validateTokenQuotas({
+            currentQuota,
+            currentUsage,
+            emailVerified: emailVerified ?? null,
+            email
+        } as SaaSDTO);
     }
 
     const loadSaaSContext = async (saasToken: string) => {
@@ -142,9 +155,10 @@ export const SaaSContextProvider: React.FC<PropsWithChildren> = ({ children }) =
             userId,
             setSaasToken,
             loadSaaSContext,
-            emailVerfied,
+            emailVerified: emailVerified,
             refreshDataSync,
-            activateAccount
+            activateAccount,
+            checkQuotas
          }}>
             {children}
         </SaaSContext.Provider>
