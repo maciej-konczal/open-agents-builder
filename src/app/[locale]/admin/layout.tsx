@@ -24,10 +24,9 @@ export default async function GeneralAgentLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { id: string, locale: string };
+  params: { id: string, locale: string, databaseIdHash: string };
 }) {
   const { resources } = await initTranslations(params.locale, i18nNamespaces);
-
   return (
     <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
     <DatabaseContextProvider>

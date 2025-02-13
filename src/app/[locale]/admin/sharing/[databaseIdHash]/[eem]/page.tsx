@@ -22,36 +22,26 @@ export default function SharingPage({children,
     const { t } = useTranslation();
     const saasContext = useContext(SaaSContext)
     const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword)
-
-    const dbContext = useContext(DatabaseContext);
-    const [decodedEem, setDecodedEem] = useState<string>('');
     const router = useRouter();
 
-    useEffect(() => {
-        (async () => {
-          const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword)
-          setDecodedEem(await encryptionUtils.decrypt(params.eem))
-        })();
-
-    }, [params.eem, params.databaseIdHash]);
+    const dbContext = useContext(DatabaseContext);
 
     useEffect(() => {
 
       if(dbContext?.email) {
         // TODO: use client side redirection
+        router.push('/admin/agent');
       }
     }, [dbContext?.email]);
 
 
     return (       
-      <AuthorizationGuard email={decodedEem} databaseIdHash={params.databaseIdHash} sharingView={true}>
         <div className="pt-10">
           <div className="text-center">
             {/* <div className="flex justify-center m-4"><DataLoader /></div>
             <div className="text-gray-500 text-center">{t("Succesfully authorized, redirecting to app...")}</div> */}
           </div>
         </div>
-      </AuthorizationGuard>
     )
 
 }

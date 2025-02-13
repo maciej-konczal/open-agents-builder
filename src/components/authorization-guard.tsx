@@ -1,16 +1,30 @@
 'use client'
-import { DatabaseContext } from '@/contexts/db-context';
+import { DatabaseContext, keepLoggedInKeyPassword } from '@/contexts/db-context';
 import { DatabaseAuthStatus } from '@/data/client/models';
-import React, { PropsWithChildren, useContext, useState } from 'react';
+import React, { PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { AuthorizePopup } from './authorize-popup';
 import { useEffectOnce } from 'react-use';
 import { KeepLoggedinLoader } from './keep-loggedin-loader';
 import { SharingPopup } from './sharing-popup';
+import { useParams } from 'next/navigation';
+import { EncryptionUtils } from '@/lib/crypto';
 
-const AuthorizationGuard = ({ children, sharingView, email, databaseIdHash } : {children: React.ReactNode | undefined, sharingView?: boolean, email?: string, databaseIdHash?: string}) => {
+const AuthorizationGuard = ({ children } : {children: React.ReactNode | undefined }) => {
     const dbContext = useContext(DatabaseContext);
     const [keepLoggedIn, setKeepLoggedIn] = useState(typeof localStorage !== 'undefined' ? localStorage.getItem("keepLoggedIn") === "true" : false)
     const [autoLoginInProgress, setAutoLoginInProgress] = useState(false);
+    const params = useParams();
+
+    const [decodedEem, setDecodedEem] = useState<string>('');
+
+    useEffect(() => {
+        (async () => {
+          const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword)
+          setDecodedEem(await encryptionUtils.decrypt(params.eem as string))
+        })();
+
+    }, [params.eem, params.databaseIdHash]);
+
 
     useEffectOnce(() => {
         if(keepLoggedIn) {
@@ -31,7 +45,7 @@ const AuthorizationGuard = ({ children, sharingView, email, databaseIdHash } : {
         });
 
     return (dbContext?.authStatus === DatabaseAuthStatus.Authorized) ? (
-        <>{children}</>) : (sharingView ? <SharingPopup email={email ?? ''} databaseIdHash={databaseIdHash ?? ''}  autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
+        <>{children}</>) : (params.databaseIdHash ? <SharingPopup email={decodedEem} databaseIdHash={params.databaseIdHash as string}  autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
 };
 
 export default AuthorizationGuard;
