@@ -1,18 +1,12 @@
-import { useContext, useEffect, useState } from "react";
-import FolderItem from "./template-item";
-import { FolderContext } from "@/contexts/folder-context";
+import { useContext, useEffect } from "react";
 import { DatabaseAuthStatus, DataLoadingStatus } from "@/data/client/models";
 import DataLoader from "./data-loader";
 import { ConfigContext } from "@/contexts/config-context";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { ListIcon, PlusIcon, Share2Icon, Terminal } from "lucide-react";
-import { Credenza, CredenzaContent, CredenzaDescription, CredenzaHeader, CredenzaTitle, CredenzaTrigger } from "./credenza";
-import { Button } from "./ui/button";
+import { Credenza, CredenzaContent, CredenzaDescription, CredenzaHeader, CredenzaTitle } from "./credenza";
 import DatabaseLinkAlert from "./shared/database-link-alert";
-import { FolderEditPopup } from "./folder-edit-popup";
 import { NoRecordsAlert } from "./shared/no-records-alert";
 import { DatabaseContext } from "@/contexts/db-context";
-import { KeyContext, KeyContextProvider } from "@/contexts/key-context";
+import { KeyContext } from "@/contexts/key-context";
 import SharedKeyItem from "./shared-key-item";
 import { SharedKeyEditPopup } from "./shared-key-edit-popup";
 
