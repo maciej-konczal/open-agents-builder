@@ -3,12 +3,13 @@ import { AgentDTO, ResultDTO, StatDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import ServerResultRepository from '@/data/server/server-result-repository';
 import ServerStatRepository from '@/data/server/server-stat-repository';
-import { authorizeSaasContext } from '@/lib/generic-api';
+import { authorizeSaasContext, validateTokenQuotas } from '@/lib/generic-api';
 import { llmProviderSetup } from '@/lib/llm-provider';
 import { renderPrompt } from '@/lib/prompt-template';
 import { getErrorMessage } from '@/lib/utils';
 import { createUpdateResultTool } from '@/tools/updateResultTool';
 import { CoreMessage, streamText } from 'ai';
+import { request } from 'http';
 import { NextRequest } from 'next/server';
 
 // Allow streaming responses up to 30 seconds
@@ -25,13 +26,31 @@ export async function POST(req: NextRequest) {
     return Response.json('The required HTTP headers: Database-Id-Hash and Agent-Id missing', { status: 400 });
   }
 
+  const saasContext = await authorizeSaasContext(req);
+
+  if (saasContext?.isSaasMode) {
+      if (!saasContext.hasAccess) {
+          return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+      } else {
+
+          if (saasContext.saasContex) {
+              const resp = await validateTokenQuotas(saasContext.saasContex)
+              if (resp?.status !== 200) {
+                  return Response.json(resp)
+              }
+          } else {
+              return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+          }
+      }
+  }
+
   const repo = new ServerAgentRepository(databaseIdHash);
 
   const agent = Agent.fromDTO(await repo.findOne({
     id: agentId // TODO: fix seearching as it always return the same record!
   }) as AgentDTO);
 
-  const resultsRepo = new ServerResultRepository(databaseIdHash);
+  const resultsRepo = new ServerResultRepository(databaseIdHash, saasContext.saasContex?.storageKey);
   const filter = sessionId ? {
       sessionId
     } : { agentId };
@@ -58,7 +77,7 @@ export async function POST(req: NextRequest) {
       maxSteps: 10,  
       messages,
       tools: {
-        updateResults: createUpdateResultTool(databaseIdHash).tool
+        updateResults: createUpdateResultTool(databaseIdHash, saasContext.saasContex?.storageKey).tool
       },
       async onFinish({ response, usage }) {
       

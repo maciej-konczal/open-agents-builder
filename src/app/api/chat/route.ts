@@ -3,7 +3,7 @@ import { AgentDTO, SessionDTO, StatDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import ServerSessionRepository from '@/data/server/server-session-repository';
 import ServerStatRepository from '@/data/server/server-stat-repository';
-import { authorizeSaasContext } from '@/lib/generic-api';
+import { authorizeSaasContext, validateTokenQuotas } from '@/lib/generic-api';
 import { renderPrompt } from '@/lib/prompt-template';
 import { CoreMessage, Tool, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
@@ -79,6 +79,22 @@ export async function POST(req: NextRequest) {
 
   const locale = req.headers.get('Agent-Locale') || agent.locale || 'en';
   const saasContext = await authorizeSaasContext(req, true);
+
+  if (saasContext.isSaasMode) {
+      if (!saasContext.hasAccess) {
+          return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+      } else {
+
+          if (saasContext.saasContex) {
+              const resp = await validateTokenQuotas(saasContext.saasContex)
+              if (resp?.status !== 200) {
+                  return Response.json(resp)
+              }
+          } else {
+              return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+          }
+      }
+  }  
 
   const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
   let existingSession = await sessionRepo.findOne({ id: sessionId });
