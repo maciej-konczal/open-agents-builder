@@ -53,10 +53,10 @@ export function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {/* <DropdownMenuItem>{t('Profile')}</DropdownMenuItem> */}
-            <DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Your profile and settings')}</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => { keysContext.setSharedKeysDialogOpen(true); } }>{t('Team & Sharing')}</DropdownMenuItem>
+            {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Your profile and settings')}</DropdownMenuItem>) : (null)}
+            {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => { keysContext.setSharedKeysDialogOpen(true); } }>{t('Team & Sharing')}</DropdownMenuItem>) : (null)}
             <DropdownMenuItem onClick={(e) => statsContext.setStatsPopupOpen(true)}>{t('Stats and token usage')}</DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>
+            {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>) : (null)}
             <DropdownMenuItem onSelect={(e) => window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Support reuest for ' + dbContext?.databaseIdHash))}>{t('Contact Support')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => {
               dbContext?.logout();
