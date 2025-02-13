@@ -20,7 +20,12 @@ export default function SharingPage() {
 
 
     return (       
-      <>r</>
+      <div className="pt-10">
+        <div className="text-center">
+          <div className="flex justify-center m-4"><DataLoader /></div>
+          <div className="text-gray-500 text-center">{t("Succesfully authorized, redirecting to app...")}</div>
+        </div>
+      </div>
     )
 
 }
