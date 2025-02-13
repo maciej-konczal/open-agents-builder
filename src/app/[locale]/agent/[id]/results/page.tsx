@@ -21,6 +21,7 @@ import { RenderResult } from '@/components/render-result';
 import { Input } from '@/components/ui/input';
 import { useDebounce } from "use-debounce";
 import { SaaSContext } from '@/contexts/saas-context';
+import { useCopyToClipboard } from 'react-use';
 
 
 export default function ResultsPage() {
@@ -45,6 +46,7 @@ export default function ResultsPage() {
     api: "/api/agent/results-chat",
   });
   const [isResultsChatOpen, setResultsChatOpen] = useState(false);
+  const [, copy] = useCopyToClipboard();
 
   const saasContext = useContext(SaaSContext);
   
@@ -141,6 +143,13 @@ export default function ResultsPage() {
               <FolderOpenIcon className="w-4 h-4" />
               {t('Open details ...')}
             </Button>
+
+            <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
+              copy(process.env.NEXT_PUBLIC_APP_URL? + `/agent/${result.agentId}/results/${result.sessionId}`)
+              toast.info(t('Link copied to clipboard!'))
+            }}>
+              <Share2Icon className="w-4 h-4" />
+            </Button>            
 
               <Link href={`/agent/${result.agentId}/results/${result.sessionId}`}>{new Date(result.createdAt).toLocaleString()} {result.userName ? result.userName : ''} {result.userEmail ? result.userEmail : ''}</Link></CardTitle>
           </CardHeader>

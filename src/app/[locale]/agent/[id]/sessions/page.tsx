@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { DatabaseContext } from '@/contexts/db-context';
-import {  BookIcon, FolderOpenIcon, Loader2 } from 'lucide-react';
+import {  BookIcon, CopyIcon, FolderOpenIcon, Loader2, Share2Icon, ShareIcon } from 'lucide-react';
 import InfiniteScroll from '@/components/infinite-scroll';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { RenderSession } from '@/components/render-session';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
+import { useCopyToClipboard } from 'react-use';
 
 
 export default function SessionsPage() {
@@ -23,6 +24,7 @@ export default function SessionsPage() {
   const dbContext = useContext(DatabaseContext);
   const { t, i18n  } = useTranslation();
   const router = useRouter();
+  const [, copy] = useCopyToClipboard();
 
   const [hasMore, setHasMore] = useState(true);
   const [sessionsLoading, setSessionsLoading] = useState(false);
@@ -69,6 +71,14 @@ export default function SessionsPage() {
               <FolderOpenIcon className="w-4 h-4" />
               {t('Messages')}
             </Button>
+
+            <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
+              copy(process.env.NEXT_PUBLIC_APP_URL + `/agent/${session.agentId}/sessions/${session.id}`)
+              toast.info(t('Link copied to clipboard!'))
+            }}>
+              <Share2Icon className="w-4 h-4" />
+            </Button>
+
 
             {session.finalizedAt ? (
               <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
