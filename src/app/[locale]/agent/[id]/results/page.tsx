@@ -155,6 +155,9 @@ export default function ResultsPage() {
           </CardHeader>
           <CardContent className="text-sm">
             <RenderResult result={result} />
+            <div className="pt-4 flex justify-end">
+              <ResultDeleteDialog result={result} />
+            </div>
           </CardContent>
         </Card>
       ))}

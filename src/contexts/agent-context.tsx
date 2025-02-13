@@ -9,8 +9,8 @@ import { toast } from 'sonner';
 import { useTranslation } from 'react-i18next';
 import { nanoid } from 'nanoid';
 import { AuditContext } from './audit-context';
-import { ResultApiClient } from '@/data/client/result-api-client';
-import { SessionApiClient } from '@/data/client/session-api-client';
+import { DeleteResultResponse, ResultApiClient } from '@/data/client/result-api-client';
+import { DeleteSessionResponse, SessionApiClient } from '@/data/client/session-api-client';
 
 export type AgentStatusType = {
     id: string;
@@ -24,7 +24,9 @@ interface AgentContextType {
     results: PaginatedResult<Result[]>;
     agentResults: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Result[]>>;
     singleResult: (resultId: string) => Promise<Result>
+    deleteResult: (result: Result) => Promise<DeleteResultResponse>
     singleSession: (sessionid: string) => Promise<Session>
+    deleteSession: (session: Session) => Promise<DeleteSessionResponse>
     sessions: PaginatedResult<Session[]>;
     agentSessions: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Session[]>>;
     updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>;
@@ -149,6 +151,29 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         }
 
         return response;
+    }
+
+    const deleteSession = async (session: Session): Promise<DeleteSessionResponse> => {
+        const client = new SessionApiClient('', dbContext, saasContext);
+        
+        const resp = await client.delete(session.toDTO());
+
+        if (resp.status === 200)  {
+            setSessions({ ...sessions, rows: sessions.rows.filter(pr => pr.id !== session.id)});
+        }
+
+        return resp;
+
+    }
+    const deleteResult = async (result: Result): Promise<DeleteResultResponse> => {
+        const client = new ResultApiClient('', dbContext, saasContext);
+        const resp = await client.delete(result.toDTO());
+
+        if (resp.status === 200)  {
+            setResults({ ...results, rows: results.rows.filter(pr => pr.sessionId !== result.sessionId)});
+        }
+
+        return resp;
     }
 
     const singleResult = async (sessionId: string): Promise<Result> => {
@@ -303,7 +328,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 exportAgent,
                 importAgent,
                 exportSingleResult,
-                exportResults
+                exportResults,
+                deleteResult,
+                deleteSession
             }}>
             {children}
         </AgentContext.Provider>

@@ -17,6 +17,7 @@ import { RenderSession } from '@/components/render-session';
 import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
 import { useCopyToClipboard } from 'react-use';
+import { SessionDeleteDialog } from '@/components/session-delete-dialog';
 
 
 export default function SessionsPage() {
@@ -93,6 +94,9 @@ export default function SessionsPage() {
           </CardHeader>
           <CardContent className="text-sm">
             <RenderSession session={session} />
+            <div className="pt-4 flex justify-end">
+              <SessionDeleteDialog session={session} />
+            </div>
           </CardContent>
         </Card>
       ))}
