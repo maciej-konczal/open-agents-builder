@@ -5,12 +5,12 @@ import { useAgentContext } from "@/contexts/agent-context";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Session } from "@/data/client/models";
+import { Result, Session } from "@/data/client/models";
 import { AlertDialogTrigger } from "@radix-ui/react-alert-dialog";
 import { Button } from "./ui/button";
 import { Trash2Icon } from "lucide-react";
 
-export function SessionDeleteDialog({ session }: { session: Session}) {
+export function ResultDeleteDialog({ result }: { result: Result}) {
 
     const agentContext = useAgentContext();
     const router = useRouter();
@@ -21,7 +21,7 @@ export function SessionDeleteDialog({ session }: { session: Session}) {
         <AlertDialogTrigger>
           <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
           }}>
-            <Trash2Icon className="w-4 h-4 mr-2" />{t('Delete session')}
+            <Trash2Icon className="w-4 h-4 mr-2" />{t('Delete result')}
           </Button>
 
         </AlertDialogTrigger>
@@ -29,7 +29,7 @@ export function SessionDeleteDialog({ session }: { session: Session}) {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('Are you sure')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('This action cannot be undone. This will permanently delete your session data') }    
+              {t('This action cannot be undone. This will permanently delete your result data') }    
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -37,7 +37,7 @@ export function SessionDeleteDialog({ session }: { session: Session}) {
             <AlertDialogAction className='' onClick={async (e) => 
               {
                 try {
-                    const resp = await agentContext.deleteSession(session)
+                    const resp = await agentContext.deleteResult(result)
                     if (resp.status === 200 ) {
                       toast.info(resp.message)
                     } else {
@@ -45,7 +45,7 @@ export function SessionDeleteDialog({ session }: { session: Session}) {
                     }
                 } catch (e) {
                     console.error(e);
-                    toast.error(t('Failed to delete session'));
+                    toast.error(t('Failed to delete result'));
                 }
               }
             }>{t('YES')}</AlertDialogAction>
