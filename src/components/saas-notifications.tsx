@@ -55,12 +55,14 @@ export function SaaSNotifications() {
     }, [saasContext.emailVerfied, saasContext.currentQuota, saasContext.currentUsage, agentContext.current, agentContext.agents]);
 
     return (
-        <div className="p-4 text-sm text-white">
-            {notifications.map((notification, index) => (
-                <div key={index} className={`p-2 mb-2 rounded-lg bg-${notification.type === 'warning' ? 'orange' : notification.type === 'error' ? 'red' : 'blue'}-500`}>
-                   {notification.type === 'warning' ? ('🚨') : (notification.type ==='error' ? '⛔️' : '✅')} {notification.message}
-                </div>
-            ))}
-        </div>
+        (notifications && notifications.length > 0) ? (
+            <div className="p-4 text-sm text-white">
+                {notifications.map((notification, index) => (
+                    <div key={index} className={`p-2 mb-2 rounded-lg bg-${notification.type === 'warning' ? 'orange' : notification.type === 'error' ? 'red' : 'blue'}-500`}>
+                    {notification.type === 'warning' ? ('🚨') : (notification.type ==='error' ? '⛔️' : '✅')} {notification.message}
+                    </div>
+                ))}
+            </div>
+        ): <></>
     );
 }
