@@ -31,7 +31,7 @@ export default function VerifyPage() {
     }, [saasContext.saasToken]);
 
 
-    return (
+    return (       
         <div className="pt-10">
             <div className="text-center">
                 <Suspense fallback={<div>{t('Loading SaaSContext...')}</div>}>

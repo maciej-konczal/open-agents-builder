@@ -3,6 +3,7 @@
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
 import { ChatProvider } from '@/contexts/chat-context';
+import { SaaSContextProvider } from '@/contexts/saas-context';
 
 const i18nNamespaces = ['translation'];
 
@@ -17,8 +18,10 @@ export default async function GeneraChatlLayout({
   const { resources } =  await initTranslations(params.locale, i18nNamespaces);
 
   return (
-    <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
-        {children}
-    </TranslationProvider>
+    <SaaSContextProvider>
+      <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
+          {children}
+      </TranslationProvider>
+    </SaaSContextProvider>
   );
 }
