@@ -3,7 +3,7 @@ import { AgentDTO, SessionDTO, StatDTO } from '@/data/dto';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import ServerSessionRepository from '@/data/server/server-session-repository';
 import ServerStatRepository from '@/data/server/server-stat-repository';
-import { authorizeSaasContext, validateTokenQuotas } from '@/lib/generic-api';
+import { authorizeSaasContext } from '@/lib/generic-api';
 import { renderPrompt } from '@/lib/prompt-template';
 import { CoreMessage, Tool, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
@@ -13,6 +13,7 @@ import { ToolDescriptor, toolRegistry } from '@/tools/registry'
 import { llmProviderSetup } from '@/lib/llm-provider';
 import { getErrorMessage } from '@/lib/utils';
 import { createUpdateResultTool } from '@/tools/updateResultTool';
+import { validateTokenQuotas } from '@/lib/quotas';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
