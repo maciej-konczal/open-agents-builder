@@ -50,7 +50,7 @@ export default function PromptPage() {
   // };
    
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-6 w-full">
       <AuditLogPopup />
       <Card>
         <CardHeader className='text-xl'>{t('Security and privacy')}</CardHeader>      
