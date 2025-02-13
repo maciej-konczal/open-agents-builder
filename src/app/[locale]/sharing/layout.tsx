@@ -4,8 +4,10 @@ import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
 import AuthorizationGuard from '@/components/authorization-guard';
 import { ChatProvider } from '@/contexts/chat-context';
-import { DatabaseContextProvider } from '@/contexts/db-context';
+import { DatabaseContextProvider, keepLoggedInKeyPassword } from '@/contexts/db-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
+import { EncryptionUtils } from '@/lib/crypto';
+import { useParams } from 'next/navigation';
 
 const i18nNamespaces = ['translation'];
 
@@ -15,17 +17,16 @@ export default async function SharingLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { locale: string };
+  params: { locale: string};
 }) {
   const { resources } =  await initTranslations(params.locale, i18nNamespaces);
+
 
   return (
     <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
       <DatabaseContextProvider>
         <SaaSContextProvider>
-          <AuthorizationGuard sharingView={true}>
             {children}
-          </AuthorizationGuard>
         </SaaSContextProvider>
       </DatabaseContextProvider>
     </TranslationProvider>

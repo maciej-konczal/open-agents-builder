@@ -17,6 +17,7 @@ export function SharingPopup({ autoLoginInProgress, databaseIdHash, email }: { a
   const [currentTab, setCurrentTab] = useState('authorize');
   const { i18n } = useTranslation();
 
+
   useEffect(() => {
     setApplicationLoaded(true);
   },[]);

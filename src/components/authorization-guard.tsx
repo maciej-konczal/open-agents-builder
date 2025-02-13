@@ -31,7 +31,7 @@ const AuthorizationGuard = ({ children, sharingView, email, databaseIdHash } : {
         });
 
     return (dbContext?.authStatus === DatabaseAuthStatus.Authorized) ? (
-        <>{children}</>) : (sharingView ? <SharingPopup autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
+        <>{children}</>) : (sharingView ? <SharingPopup email={email ?? ''} databaseIdHash={databaseIdHash ?? ''}  autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
 };
 
 export default AuthorizationGuard;
