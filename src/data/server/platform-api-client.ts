@@ -1,5 +1,5 @@
 import { AdminApiClient } from "@/data/client/admin-api-client";
-import { GetSaasResponse } from "../client/saas-api-client";
+import { GetSaasResponse, SaaSActivationResponse } from "../client/saas-api-client";
 import { StatDTO } from "../dto";
 
 
@@ -27,6 +27,13 @@ export class PlatformApiClient extends AdminApiClient {
         const saasPlatformUrl = process.env.SAAS_PLATFORM_URL || 'http://localhost:3001'
         super(saasPlatformUrl);
         this.apiKey = saasToken;
+    }
+
+    async activateAccount({ databaseIdHash, apiKey}:{
+        databaseIdHash?: string|null;
+        apiKey?: string|null;
+    }): Promise<SaaSActivationResponse> {
+        return this.request<SaaSActivationResponse>('/api/users/verify' + qr(databaseIdHash, apiKey), 'POST') as Promise<SaaSActivationResponse>;
     }
 
     async account({ databaseIdHash, apiKey}:{

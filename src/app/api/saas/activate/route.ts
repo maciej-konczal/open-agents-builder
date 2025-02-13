@@ -3,7 +3,7 @@ import { SaaSDTO } from "@/data/dto";
 import { authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
-// TODO activate
+
 export async function POST(request: NextRequest, response: NextResponse) {
     try {
 
@@ -14,6 +14,8 @@ export async function POST(request: NextRequest, response: NextResponse) {
                 status: 403
             });
         }
+
+        authorizedContext.apiClient?.activateAccount({})
 
         const saasContext = authorizedContext.saasContex as SaaSDTO;
         let response:GetSaaSResponseSuccess = {
