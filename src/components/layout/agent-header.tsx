@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select';
 import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
-import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon, ImportIcon, ShareIcon } from 'lucide-react';
+import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon, ImportIcon, ShareIcon, Share2, Share2Icon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -23,6 +23,7 @@ import { toast } from 'sonner';
 import { AgentDeleteDialog } from '../agent-delete-dialog';
 import { useFilePicker } from 'use-file-picker';
 import { getErrorMessage } from '@/lib/utils';
+import { useCopyToClipboard } from 'react-use';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -32,6 +33,7 @@ export function AgentHeader() {
   const agentContext = useAgentContext();
   const templateContext = useContext(TemplateContext);
   const dbContext = useContext(DatabaseContext);
+  const [, copy] = useCopyToClipboard();
 
 
   const { openFilePicker, filesContent, loading } = useFilePicker({
@@ -138,13 +140,20 @@ export function AgentHeader() {
           ) : null}
 
       </div>
-      {(agentContext.current?.id !== 'new') ? (
-        <Button variant="secondary" size="sm" onClick={() => window.open(`/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`)}>
-            <Play className="mr-2 h-4 w-4" />
-          {t('Preview')}
-        </Button>
-      ) : null}
 
+      <div>
+        {(agentContext.current?.id !== 'new') ? (
+          <Button variant="secondary" className="mr-2" size="sm" onClick={() => window.open(`/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`)}>
+              <Play className="mr-2 h-4 w-4" />
+            {t('Preview')}
+          </Button>
+        ) : null}
+        {(agentContext.current?.id !== 'new') ? (
+          <Button title={t('Share link to agent with users')} variant="secondary" size="sm" onClick={() => { copy(process.env.NEXT_PUBLIC_APP_URL + `/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`); toast.info(t('Link has been copied to clipboard. Now you can share it with the users')) }}>
+              <Share2Icon className="mr-2 h-4 w-4" />
+          </Button>
+        ) : null}     
+      </div>
     </div>
   );
 }

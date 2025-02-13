@@ -33,6 +33,6 @@ export async function middleware(request: NextRequest) {
 }
  
 export const config = {
-  matcher: '/((?!api/db|static|.*\\..*|_next).*)',
+  matcher: '/((?!api/db|api/chat|static|.*\\..*|_next).*)',
   //matcher: ['/((?!api/db|agent|dashboard|chat|api/saas|_next/static|content|_next/image|img|onboarding|manifest|favicon.ico|$).*)'],
 }

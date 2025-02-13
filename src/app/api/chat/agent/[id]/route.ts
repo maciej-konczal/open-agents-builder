@@ -16,7 +16,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
             if (!saasContext.hasAccess) {
                 return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
             } else {
-
                 if (saasContext.saasContex) {
                     const resp = await validateTokenQuotas(saasContext.saasContex)
                     console.log(resp)
