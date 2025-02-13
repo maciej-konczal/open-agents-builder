@@ -83,7 +83,7 @@ export default function SessionsPage() {
 
             {session.finalizedAt ? (
               <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
-                router.push(/admin/agent/${session.agentId}/results/${session.id}`);
+                router.push(`/admin/agent/${session.agentId}/results/${session.id}`);
               }}>
                 <BookIcon className="w-4 h-4" />
                 {t('Result')}

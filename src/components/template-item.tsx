@@ -32,7 +32,7 @@ export default function TemplateItem({ template, selected, onClick }: { template
             const newAgent = await agentContext.newFromTemplate(template)
             templateContext?.setTemplatePopupOpen(false);
 
-            router.push(/admin/agent/${newAgent.id}/general`);
+            router.push(`/admin/agent/${newAgent.id}/general`);
           }
         }><PlusIcon /> {t('New agent')}
           </Button>
