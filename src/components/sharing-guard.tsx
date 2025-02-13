@@ -5,9 +5,8 @@ import React, { PropsWithChildren, useContext, useState } from 'react';
 import { AuthorizePopup } from './authorize-popup';
 import { useEffectOnce } from 'react-use';
 import { KeepLoggedinLoader } from './keep-loggedin-loader';
-import { SharingPopup } from './sharing-popup';
 
-const AuthorizationGuard = ({ children, sharingView } : {children: React.ReactNode | undefined, sharingView?: boolean}) => {
+const SharingGuard: React.FC<PropsWithChildren> = ({ children }) => {
     const dbContext = useContext(DatabaseContext);
     const [keepLoggedIn, setKeepLoggedIn] = useState(typeof localStorage !== 'undefined' ? localStorage.getItem("keepLoggedIn") === "true" : false)
     const [autoLoginInProgress, setAutoLoginInProgress] = useState(false);
@@ -31,7 +30,7 @@ const AuthorizationGuard = ({ children, sharingView } : {children: React.ReactNo
         });
 
     return (dbContext?.authStatus === DatabaseAuthStatus.Authorized) ? (
-        <>{children}</>) : (sharingView ? <SharingPopup autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
+        <>{children}</>) : (<AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
 };
 
 export default AuthorizationGuard;

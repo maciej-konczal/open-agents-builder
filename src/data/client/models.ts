@@ -452,7 +452,8 @@ export class DatabaseKeepLoggedInRequest {
 }
 
 export class DatabaseAuthorizeRequest {
-    email: string;
+    email?: string;
+    databaseIdHash?: string;
     key: string;
     keepLoggedIn: boolean;
 
