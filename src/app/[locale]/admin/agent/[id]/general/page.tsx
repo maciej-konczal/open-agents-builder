@@ -89,7 +89,7 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
     const newAgent = agent?.id === 'new';
     const updatedAgent = Agent.fromForm(data, agent);
     if (!updatedAgent.prompt) {
-      router.push(`/agent/${updatedAgent.id}/prompt`);
+      router.push(`/admin/agent/${updatedAgent.id}/prompt`);
       toast.error(t('Prompt is required'));
       agentContext.setStatus({
         id: 'prompt-required',
@@ -99,7 +99,7 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
       return;
     }
     if (!updatedAgent.expectedResult) {
-      router.push(`/agent/${updatedAgent.id}/expected-result`);
+      router.push(`/admin/agent/${updatedAgent.id}/expected-result`);
       toast.error(t('Expected result is required'));
       agentContext.setStatus({
         id: 'expected-result-required',
@@ -122,7 +122,7 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
       else
         sessionStorage.removeItem(`agent-${updatedAgent.id}`);
 
-      if (newAgent) router.push(`/agent/${response.id}/general`);
+      if (newAgent) router.push(`/admin/agent/${response.id}/general`);
     } catch (e) {
       console.error(e);
       toast.error(t('Failed to update agent'));

@@ -12,51 +12,51 @@ const sidebarItems = [
   { 
     icon: Settings2, 
     label: 'General', 
-    href: '/agent/[id]/general',
-    pattern: '/agent/[id]/general'
+    href: '/admin/agent/[id]/general',
+    pattern: '/admin/agent/[id]/general'
   },
   { 
     icon: FileText, 
     label: 'Prompt', 
-    href: '/agent/[id]/prompt',
-    pattern: '/agent/[id]/prompt'
+    href: '/admin/agent/[id]/prompt',
+    pattern: '/admin/agent/[id]/prompt'
   },
   { 
     icon: BookTemplateIcon, 
     label: 'Expected result', 
-    href: '/agent/[id]/expected-result',
-    pattern: '/agent/[id]/expected-result'
+    href: '/admin/agent/[id]/expected-result',
+    pattern: '/admin/agent/[id]/expected-result'
   },
   {
     icon: CogIcon,
     label: 'Tools',
-    href: '/agent/[id]/tools',
-    pattern: '/agent/[id]/tools'
+    href: '/admin/agent/[id]/tools',
+    pattern: '/admin/agent/[id]/tools'
   },
   {
     icon: FunctionSquareIcon,
     label: 'Events',
-    href: '/agent/[id]/events',
-    pattern: '/agent/[id]/events'
+    href: '/admin/agent/[id]/events',
+    pattern: '/admin/agent/[id]/events'
   },
 
   { 
     icon: Shield, 
     label: 'Safety Rules', 
-    href: '/agent/[id]/safety',
-    pattern: '/agent/[id]/safety'
+    href: '/admin/agent/[id]/safety',
+    pattern: '/admin/agent/[id]/safety'
   },
   { 
     icon: MessageCircleMore, 
     label: 'Sessions', 
-    href: '/agent/[id]/sessions',
-    pattern: '/agent/[id]/sessions'
+    href: '/admin/agent/[id]/sessions',
+    pattern: '/admin/agent/[id]/sessions'
   },
   { 
     icon: BookIcon, 
     label: 'Results', 
-    href: '/agent/[id]/results',
-    pattern: '/agent/[id]/results'
+    href: '/admin/agent/[id]/results',
+    pattern: '/admin/agent/[id]/results'
   },
 ];
 

@@ -11,6 +11,7 @@ import { Suspense, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { redirect } from 'next/navigation';
+import Link from "next/link";
 
 export default function SharingPage({children,
   params,
@@ -37,6 +38,7 @@ export default function SharingPage({children,
     useEffect(() => {
 
       if(dbContext?.email) {
+        // TODO: use client side redirection
       }
     }, [dbContext?.email]);
 
@@ -45,8 +47,8 @@ export default function SharingPage({children,
       <AuthorizationGuard email={decodedEem} databaseIdHash={params.databaseIdHash} sharingView={true}>
         <div className="pt-10">
           <div className="text-center">
-            <div className="flex justify-center m-4"><DataLoader /></div>
-            <div className="text-gray-500 text-center">{t("Succesfully authorized, redirecting to app...")}</div>
+            {/* <div className="flex justify-center m-4"><DataLoader /></div>
+            <div className="text-gray-500 text-center">{t("Succesfully authorized, redirecting to app...")}</div> */}
           </div>
         </div>
       </AuthorizationGuard>

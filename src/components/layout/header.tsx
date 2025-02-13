@@ -55,7 +55,7 @@ export function Header() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             {/* <DropdownMenuItem>{t('Profile')}</DropdownMenuItem> */}
-            {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => router.push('/settings')}>{t('Your profile and settings')}</DropdownMenuItem>) : (null)}
+            {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => router.push('/admin/settings')}>{t('Your profile and settings')}</DropdownMenuItem>) : (null)}
             {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => { keysContext.setSharedKeysDialogOpen(true); } }>{t('Team & Sharing')}</DropdownMenuItem>) : (null)}
             <DropdownMenuItem onClick={(e) => statsContext.setStatsPopupOpen(true)}>{t('Stats and token usage')}</DropdownMenuItem>
             {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>) : (null)}

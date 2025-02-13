@@ -44,7 +44,7 @@ export function AgentHeader() {
         try {
           const updatedAgent = await agentContext?.importAgent(fileContent.content);
           toast.info(t('Agent imported successfully!'));
-          router.push(`/agent/${updatedAgent.id}/general`);
+          router.push(`/admin/agent/${updatedAgent.id}/general`);
         } catch (e) {
           console.error(e);
           toast.error(t('Failed to import agent. Check the file format.'));
@@ -62,7 +62,7 @@ export function AgentHeader() {
 
   const handleAgentChange = (newId: string) => {
     localStorage.setItem('currentAgentId', newId);
-    router.push(`/agent/${newId}/general`);
+    router.push(`/admin/agent/${newId}/general`);
   };
 
   return (
@@ -80,7 +80,7 @@ export function AgentHeader() {
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={() => router.push('/agent/new/general')}>
+        <Button variant="outline" size="sm" onClick={() => router.push('/admin/agent/new/general')}>
           <Plus className="mr-2 h-4 w-4" />
           {t('Add Agent')}
         </Button>

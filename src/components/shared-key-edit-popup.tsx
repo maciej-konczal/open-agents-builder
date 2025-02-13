@@ -67,7 +67,7 @@ export function SharedKeyEditPopup() {
     setApiResult(await keysContext.addKey(dbContext?.email, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }));
     keysContext.loadKeys();
 
-    setUniqueLink(process.env.NEXT_PUBLIC_APP_URL + '/' + i18n.language + '/sharing/' + dbContext.databaseIdHash + '/' + (await encryptionUtils.encrypt(dbContext.email)) )
+    setUniqueLink(process.env.NEXT_PUBLIC_APP_URL + '/' + i18n.language + '/admin/sharing/' + dbContext.databaseIdHash + '/' + (await encryptionUtils.encrypt(dbContext.email)) )
 
     if(apiResult && apiResult.status === 200) {
       setOpen(false);

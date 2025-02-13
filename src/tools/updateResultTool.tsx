@@ -77,7 +77,7 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
                     const CreateResultEmailTemplate = emailTemplatesLocalized[language].html;
                     const CreateResultEmailTemplatePlain = emailTemplatesLocalized[language].plain;
                     
-                    const url = process.env.APP_URL + '/agent/' + currentAgent.id + '/results/' + sessionId;
+                    const url = process.env.APP_URL + '/admin/agent/' + currentAgent.id + '/results/' + sessionId;
                     const renderedHtmlTemplate = ReactDOMServer.renderToStaticMarkup(<CreateResultEmailTemplate agent={currentAgentDTO} result={result} resultFormat={format} url={url} userName={existingSessionDTO.userName} userEmail={existingSessionDTO.userEmail}/>)
                     const renderedTextTemplate = ReactDOMServer.renderToStaticMarkup(<CreateResultEmailTemplatePlain agent={currentAgentDTO} result={result} resultFormat={format} url={url} userName={existingSessionDTO.userName} userEmail={existingSessionDTO.userEmail}/>)
         

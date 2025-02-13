@@ -6,7 +6,8 @@ import AuthorizationGuard from '@/components/authorization-guard';
 import { AgentHeader } from '@/components/layout/agent-header';
 import { AgentSidebar } from '@/components/layout/agent-sidebar';
 import { Header } from '@/components/layout/header';
-import { AgentProvider, useAgentContext } from '@/contexts/agent-context';
+import { SaaSNotifications } from '@/components/saas-notifications';
+import { AgentProvider } from '@/contexts/agent-context';
 import { AuditContextProvider } from '@/contexts/audit-context';
 import { ConfigContextProvider } from '@/contexts/config-context';
 import { DatabaseContextProvider } from '@/contexts/db-context';
@@ -35,21 +36,20 @@ export default async function GeneralAgentLayout({
           <AuditContextProvider>
             <AuthorizationGuard>
               <KeyContextProvider>
-                <AgentProvider>
-                  <TemplateProvider>
-                    <StatsContextProvider>
+                <StatsContextProvider>
+                  <AgentProvider>
+                    <TemplateProvider>
                       <div className="flex h-screen flex-col">
                         <Header />
                         <AgentHeader />
+                        <SaaSNotifications />
                         <div className="flex flex-1 overflow-hidden">
-                          <main className="flex-1 overflow-auto p-6">
-                            {children}
-                          </main>
+                          {children}
                         </div>
                       </div>
-                    </StatsContextProvider>
-                  </TemplateProvider>
-                </AgentProvider>
+                    </TemplateProvider>
+                  </AgentProvider>
+                </StatsContextProvider>
               </KeyContextProvider>
             </AuthorizationGuard>
           </AuditContextProvider>

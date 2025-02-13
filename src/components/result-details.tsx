@@ -59,13 +59,13 @@ const ResultDetails: FC<ResultDetailsProps> = ({
           </div>
           
           <div className="flex">
-            <Link className="flex" href={`/agent/${sessionId}/sessions/${sessionId}`}>
+            <Link className="flex" href={/admin/agent/${sessionId}/sessions/${sessionId}`}>
               <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{messageCount}</span>
             </Link>
           </div>
 
           <div className="flex">
-            <Link className="flex" href={`/agent/${sessionId}/sessions/${sessionId}`}>
+            <Link className="flex" href={/admin/agent/${sessionId}/sessions/${sessionId}`}>
               <TagIcon className="w-4 h-4 mr-2" /> {t('Session Id')}: <span className="ml-2 font-medium">{sessionId}</span>
             </Link>
           </div>

@@ -29,7 +29,7 @@ export function AgentDeleteDialog() {
                     if(agentContext.current?.id  && agentContext.current?.id !== 'new') {
                     const resp = await agentContext.deleteAgent(agentContext.current)
                     localStorage.removeItem('currentAgentId');
-                    router.push(`/agent/new/general`);
+                    router.push(/admin/agent/new/general`);
                     }
                 } catch (e) {
                     console.error(e);
