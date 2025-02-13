@@ -60,11 +60,11 @@ export function ChangeKeyForm({
         const deleteOldKeyResult = await keyContext.removeKey(dbContext.keyLocatorHash)
 
         if(deleteOldKeyResult.status !== 200) {
-          setOperationResult({ success: false, message: "Error while changing password", issues: deleteOldKeyResult.issues ?? []});
+          setOperationResult({ success: false, message: t("Error while changing password"), issues: deleteOldKeyResult.issues ?? []});
           toast.error(t('Error while changing key'));
           return;
         } else {
-          setOperationResult({ success: true, message: "Password has been successfully changed", issues: [] });
+          setOperationResult({ success: true, message: t("Password has been successfully changed"), issues: [] });
           toast.success(t('Password has been successfully changed'));
 
           if (keepLoggedIn){
@@ -73,7 +73,7 @@ export function ChangeKeyForm({
           }
         }
       } else {
-        setOperationResult({ success: false, message: "Error while changing password", issues: newKeyResult.issues ?? []});
+        setOperationResult({ success: false, message: t("Error while changing password"), issues: newKeyResult.issues ?? []});
         toast.error(t('Error while changing password'));
         return;
       }
@@ -91,7 +91,7 @@ export function ChangeKeyForm({
           <Input type="password" id="email" readOnly value={dbContext?.email} />
         </div>
         <div className="text-sm">
-          <Label htmlFor="password">User Password:</Label>
+          <Label htmlFor="password">{t('User Password:')}</Label>
           <Textarea id="password" readOnly value={dbContext?.password} />
         </div>
         <div className="flex gap-2 mt-5">
@@ -103,7 +103,7 @@ export function ChangeKeyForm({
             } else {
               document.execCommand('copy', true, textToCopy);
             }                
-          }}><CopyIcon className="w-4 h-4" /> Copy to clipboard</Button>             
+          }}><CopyIcon className="w-4 h-4" /> {t('Copy to clipboard')}</Button>             
         </div>
       </div>
 
@@ -115,7 +115,7 @@ export function ChangeKeyForm({
           key: dbContext?.password,
           keepLoggedIn: keepLoggedIn
         });
-      }}>Go to application</Button>
+      }}>{t('Go to application')}</Button>
     </div>)
   } else  {
     return (
@@ -131,7 +131,7 @@ export function ChangeKeyForm({
               </ul>
             </div>
           ) : null}
-          <Label htmlFor="currentKey">Current Password</Label>
+          <Label htmlFor="currentKey">{t('Current Password')}</Label>
           <Input autoFocus 
             type="text"
             id="currentKey"
@@ -141,7 +141,7 @@ export function ChangeKeyForm({
               }
             })}
           />
-          {errors.currentKey && <span className="text-red-500 text-sm">Key must be at least 8 characters length including digits, alpha, lower and upper letters.</span>} 
+          {errors.currentKey && <span className="text-red-500 text-sm">{t('Key must be at least 8 characters length including digits, alpha, lower and upper letters.')}</span>} 
 
         </div>
         <div className="flex flex-col space-y-2 gap-2 mb-4">
