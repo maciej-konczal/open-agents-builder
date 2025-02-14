@@ -1,17 +1,8 @@
 'use client'
 
-import AuthorizationGuard from "@/components/authorization-guard";
-import DataLoader from "@/components/data-loader";
-import { SaaSContextLoader } from "@/components/saas-context-loader";
-import { DatabaseContext, keepLoggedInKeyPassword } from "@/contexts/db-context";
-import { SaaSContext } from "@/contexts/saas-context";
-import { EncryptionUtils } from "@/lib/crypto";
+import { DatabaseContext } from "@/contexts/db-context";
 import { useRouter } from "next/navigation";
-import { Suspense, useContext, useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
-import { redirect } from 'next/navigation';
-import Link from "next/link";
+import { useContext, useEffect } from "react";
 
 export default function SharingPage({children,
   params,
@@ -26,7 +17,6 @@ export default function SharingPage({children,
     useEffect(() => {
 
       if(dbContext?.email) {
-        // TODO: use client side redirection
         router.push('/admin/agent');
       }
     }, [dbContext?.email]);
