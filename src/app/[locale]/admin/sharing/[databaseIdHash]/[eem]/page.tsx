@@ -19,9 +19,6 @@ export default function SharingPage({children,
   children: React.ReactNode;
   params: { databaseIdHash: string, eem: string, locale: string };
 })  {
-    const { t } = useTranslation();
-    const saasContext = useContext(SaaSContext)
-    const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword)
     const router = useRouter();
 
     const dbContext = useContext(DatabaseContext);

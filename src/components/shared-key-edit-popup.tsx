@@ -59,9 +59,10 @@ export function SharedKeyEditPopup() {
 
   const onSubmit = async (data) => {
 
-    const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword);
     
     setSharedKey(data.sharedKey);
+    const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword + data.sharedKey);
+
     const expDate = (parseInt(validFor) === 0) ? null : new Date(Date.now() + parseInt(validFor) * 3600 * 1000);
     assert(dbContext?.email, t("Database Id is required"));
     setApiResult(await keysContext.addKey(dbContext?.email, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }));
