@@ -17,15 +17,6 @@ const AuthorizationGuard = ({ children } : {children: React.ReactNode | undefine
 
     const [decodedEem, setDecodedEem] = useState<string>('');
 
-    useEffect(() => {
-        (async () => {
-          const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword)
-          setDecodedEem(await encryptionUtils.decrypt(params.eem as string))
-        })();
-
-    }, [params.eem, params.databaseIdHash]);
-
-
     useEffectOnce(() => {
         if(keepLoggedIn) {
             const email = localStorage.getItem("email") as string;
@@ -45,7 +36,7 @@ const AuthorizationGuard = ({ children } : {children: React.ReactNode | undefine
         });
 
     return (dbContext?.authStatus === DatabaseAuthStatus.Authorized) ? (
-        <>{children}</>) : (params.databaseIdHash ? <SharingPopup email={decodedEem} databaseIdHash={params.databaseIdHash as string}  autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
+        <>{children}</>) : (params.databaseIdHash ? <SharingPopup eem={params.eem} databaseIdHash={params.databaseIdHash as string}  autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
 };
 
 export default AuthorizationGuard;

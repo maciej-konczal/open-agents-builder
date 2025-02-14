@@ -9,12 +9,11 @@ import FeedbackWidget from './feedback-widget';
 import { useTranslation } from 'react-i18next';
 import { SharingAuthorizeForm } from './sharing-authorize-form';
 
-export function SharingPopup({ autoLoginInProgress, databaseIdHash, email }: { autoLoginInProgress: boolean, databaseIdHash: string, email: string }) {
+export function SharingPopup({ autoLoginInProgress, databaseIdHash, eem }: { autoLoginInProgress: boolean, databaseIdHash: string, eem: string }) {
   const [applicationLoaded, setApplicationLoaded] = useState(false);
   const { theme, systemTheme } = useTheme();
   const { t } = useTranslation();
   const currentTheme = (theme === 'system' ? systemTheme : theme)
-  const [currentTab, setCurrentTab] = useState('authorize');
   const { i18n } = useTranslation();
 
 
