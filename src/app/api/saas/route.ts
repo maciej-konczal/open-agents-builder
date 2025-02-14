@@ -20,7 +20,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
             data: {
                 currentQuota: saasContext.currentQuota,
                 currentUsage: saasContext.currentUsage,
-                email: saasContext.email,
+//                email: saasContext.email, removed due to securtiy resasons
                 userId: saasContext.userId,
                 saasToken: saasContext.saasToken,
                 emailVerified: saasContext.emailVerified

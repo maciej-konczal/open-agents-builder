@@ -12,7 +12,7 @@ import { CookieConsentBannerComponent } from '@/components/cookie-consent-banner
 import { SaaSContextLoader } from './saas-context-loader';
 import FeedbackWidget from './feedback-widget';
 import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: boolean }) {
   const [applicationLoaded, setApplicationLoaded] = useState(false);
@@ -23,6 +23,8 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
   const [currentTab, setCurrentTab] = useState('authorize');
   const { i18n } = useTranslation();
 
+  const searchParams = useSearchParams();
+
   const router = useRouter();
 
   useEffect(() => {
@@ -30,11 +32,11 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
   },[]);
 
   useEffect(() => {
-    if (saasContext?.email) {
-      const defaultTab = saasContext?.email && ((saasContext?.currentUsage !== null ? saasContext.currentUsage.usedDatabases : 0) > 0) ? `authorize` : `create`;
+    if (saasContext?.userId) {
+      const defaultTab = searchParams.get('tab') === 'create' ? 'create' : 'authorize';
       setCurrentTab(defaultTab);
     }
-  }, [saasContext?.email]);
+  }, [saasContext?.userId]);
   return (
     <div className="p-4 grid items-center justify-center h-screen">
      {!applicationLoaded || autoLoginInProgress ? (<div className="w-96 flex items-center justify-center flex-col"><div className="flex-row h-40 w-40"><img src="/img/agent-doodle-logo.svg" /></div><div><DataLoader /></div></div>):(
@@ -43,9 +45,9 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
           <SaaSContextLoader />
         </Suspense>
         <FeedbackWidget />
-        {saasContext?.email ? (
+        {saasContext?.userId ? (
           <div className="text-xs w-96 p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500">
-            {t('Hello ')}{saasContext?.email}{t('! Welcome to Agent Doodle. Read ')}<a className="underline" target="_blank" href="/content/terms">terms</a>{t(' and ')}<a className="underline" target="_blank" href="/content/privacy">{t('privacy')}</a>{t(' before using the app.')}
+            {t('Hello')}{t('! Welcome to Agent Doodle. Read ')}<a className="underline" target="_blank" href="/content/terms">terms</a>{t(' and ')}<a className="underline" target="_blank" href="/content/privacy">{t('privacy')}</a>{t(' before using the app.')}
           </div>
         ): (null)}
         
