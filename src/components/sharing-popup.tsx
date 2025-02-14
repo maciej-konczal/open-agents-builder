@@ -34,7 +34,7 @@ export function SharingPopup({ autoLoginInProgress, databaseIdHash, eem }: { aut
             {t('Enter the Password you have been provided by the data owner to Accept the invitation')}
           </CardHeader>
           <CardContent className="space-y-2">
-            <SharingAuthorizeForm email={email} databaseIdHash={databaseIdHash} />
+            <SharingAuthorizeForm eem={eem} databaseIdHash={databaseIdHash} />
           </CardContent>
         </Card>
         <div id="language-selector">

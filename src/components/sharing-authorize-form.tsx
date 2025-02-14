@@ -9,24 +9,25 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { PasswordInput } from "./ui/password-input";
 import NoSSR  from "react-no-ssr"
-import { AuthorizeDatabaseResult, DatabaseContext } from "@/contexts/db-context";
+import { AuthorizeDatabaseResult, DatabaseContext, keepLoggedInKeyPassword } from "@/contexts/db-context";
 import { toast } from "sonner";
 import { useEffectOnce } from "react-use";
 import Link from "next/link";
 import { passwordValidator } from "@/data/client/models";
 import { useTranslation } from "react-i18next";
+import { EncryptionUtils } from "@/lib/crypto";
 
 const termsUrl = process.env.NEXT_PUBLIC_TERMS_URL ?? '/content/terms';
 const privacyUrl = process.env.NEXT_PUBLIC_PRIVACY_URL ?? '/content/privacy';
 
 interface SharingAuthorizeFormProps {
   databaseIdHash: string;
-  email: string;
+  eem: string;
 }
 
 export function SharingAuthorizeForm({
   databaseIdHash,
-  email
+  eem
 }: SharingAuthorizeFormProps) {
   const [operationResult, setOperationResult] = useState<AuthorizeDatabaseResult | null>(null);
 
@@ -41,8 +42,12 @@ export function SharingAuthorizeForm({
   });
   
   const handleAuthorizeDatabase = handleSubmit(async (data) => {
+    const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword + data.password);
+    const decryptedEmail = await encryptionUtils.decrypt(eem);
+    console.log(eem, decryptedEmail, data.password)
+
     const result = await dbContext?.authorize({
-      email: email,
+      email: decryptedEmail,
       key: data.password,
       keepLoggedIn: keepLoggedIn
     });

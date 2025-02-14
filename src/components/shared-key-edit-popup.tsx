@@ -61,6 +61,7 @@ export function SharedKeyEditPopup() {
 
     
     setSharedKey(data.sharedKey);
+    console.log(keepLoggedInKeyPassword, data.sharedKey);
     const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword + data.sharedKey);
 
     const expDate = (parseInt(validFor) === 0) ? null : new Date(Date.now() + parseInt(validFor) * 3600 * 1000);
