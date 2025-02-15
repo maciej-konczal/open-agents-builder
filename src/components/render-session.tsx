@@ -39,20 +39,20 @@ export function RenderSession({ session }: { session: Session | undefined}) {
           </div>
           
           <div className="flex">
-            <Link className="flex" href={/admin/agent/${session.agentId}/sessions/${session.id}`}>
+            <Link className="flex" href={`/admin/agent/${session.agentId}/sessions/${session.id}`}>
               <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{session.messages ? session.messages?.length : t('no messages yet')}</span>
             </Link>
           </div>
 
           <div className="flex">
-            <Link className="flex" href={/admin/agent/${session.agentId}/sessions/${session.id}`}>
+            <Link className="flex" href={`/admin/agent/${session.agentId}/sessions/${session.id}`}>
               <TagIcon className="w-4 h-4 mr-2" /> {t('Session Id')}: <span className="ml-2 font-medium">{session.id}</span>
             </Link>
           </div>
           
           { session.finalizedAt ? (
             <div className="flex">
-              <Link className="flex" href={/admin/agent/${session.agentId}/results/${session.id}`}>
+              <Link className="flex" href={`/admin/agent/${session.agentId}/results/${session.id}`}>
                 <BookIcon className="w-4 h-4 mr-2"/> {t('Has saved result')}
               </Link>
             </div>

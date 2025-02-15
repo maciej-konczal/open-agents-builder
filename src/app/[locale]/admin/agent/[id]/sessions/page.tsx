@@ -74,7 +74,7 @@ export default function SessionsPage() {
             </Button>
 
             <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
-              copy(process.env.NEXT_PUBLIC_APP_URL + /admin/agent/${session.agentId}/sessions/${session.id}`)
+              copy(process.env.NEXT_PUBLIC_APP_URL + `/admin/agent/${session.agentId}/sessions/${session.id}`)
               toast.info(t('Link copied to clipboard!'))
             }}>
               <Share2Icon className="w-4 h-4" />
@@ -90,7 +90,7 @@ export default function SessionsPage() {
               </Button>
             ) : null}
 
-              <Link href={/admin/agent/${session.agentId}/sessions/${session.id}`}>{new Date(session.createdAt).toLocaleString()} {session.userName ? session.userName : ''} {session.userEmail ? session.userEmail : ''}</Link></CardTitle>
+              <Link href={`/admin/agent/${session.agentId}/sessions/${session.id}`}>{new Date(session.createdAt).toLocaleString()} {session.userName ? session.userName : ''} {session.userEmail ? session.userEmail : ''}</Link></CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
             <RenderSession session={session} />
