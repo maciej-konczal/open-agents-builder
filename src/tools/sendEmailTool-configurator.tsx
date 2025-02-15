@@ -3,8 +3,6 @@ import React, { use, useEffect } from 'react';
 // If you are using the 'tool' helper from @vercel/ai, import it:
 import { useTranslation } from 'react-i18next';
 
-export const defaultFromValue = process.env.NEXT_PUBLIC_EMAIL_FROM || '';
-
 type SendEmailOptions = {
   to: string;
   from: string;
@@ -19,6 +17,8 @@ type SendEmailConfiguratorProps = {
 
 // The form UI for configuring the "sendEmail" tool:
 export function SendEmailConfigurator({ options, onChange }: SendEmailConfiguratorProps) {
+  const defaultFromValue = process.env.NEXT_PUBLIC_EMAIL_FROM || '';
+
   const { t } = useTranslation();
   useEffect(() => {
     if (defaultFromValue !== '') {
