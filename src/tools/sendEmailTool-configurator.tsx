@@ -17,12 +17,12 @@ type SendEmailConfiguratorProps = {
 
 // The form UI for configuring the "sendEmail" tool:
 export function SendEmailConfigurator({ options, onChange }: SendEmailConfiguratorProps) {
-  const defaultFromValue = process.env.NEXT_PUBLIC_EMAIL_FROM || '';
+  const defaultFromValue = process.env.NEXT_PUBLIC_EMAIL_FROM;
 
   const { t } = useTranslation();
   useEffect(() => {
     if (defaultFromValue !== '') {
-      onChange({ ...options, from: defaultFromValue });
+      onChange({ ...options, from: defaultFromValue ?? '' });
     }
   }, []);
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
