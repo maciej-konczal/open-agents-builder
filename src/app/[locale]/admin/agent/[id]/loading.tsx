@@ -1,7 +1,14 @@
+'use client'
+
+import DataLoader from "@/components/data-loader";
+import { useTranslation } from "react-i18next";
+
 export default function Loading() {
+
+  const { t } = useTranslation();
   return (
-    <div className="w-screen h-screen flex justify-center items-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-gray-900"></div>
+    <div className="p-4">
+      <DataLoader />
     </div>
   );
 }
