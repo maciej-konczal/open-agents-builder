@@ -146,7 +146,7 @@ export default function ResultsPage() {
             </Button>
 
             <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
-              copy(process.env.NEXT_PUBLIC_APP_URL? + `/admin/agent/${result.agentId}/results/${result.sessionId}`)
+              copy(process.env.NEXT_PUBLIC_APP_URL + `/admin/agent/${result.agentId}/results/${result.sessionId}`)
               toast.info(t('Link copied to clipboard!'))
             }}>
               <Share2Icon className="w-4 h-4" />
