@@ -3,7 +3,7 @@ import React from 'react';
 // If you are using the 'tool' helper from @vercel/ai, import it:
 import { useTranslation } from 'react-i18next';
 
-const defaultFromValue = process.env.NEXT_PUBLIC_EMAIL_FROM || '';
+export const defaultFromValue = process.env.NEXT_PUBLIC_EMAIL_FROM || '';
 
 type SendEmailOptions = {
   to: string;
@@ -27,6 +27,9 @@ export function SendEmailConfigurator({ options, onChange }: SendEmailConfigurat
     onChange({ ...options, from: e.target.value });
   };
 
+  if (defaultFromValue !== '')
+    onChange({ ...options, from: defaultFromValue });
+
   return (
     <div className="space-y-2">
       <label className="block text-sm font-medium">{t('Recipient Email')}</label>
@@ -36,13 +39,17 @@ export function SendEmailConfigurator({ options, onChange }: SendEmailConfigurat
         value={options.to}
         onChange={handleEmailChange}
       />
-      <label className="block text-sm font-medium">{t('From Email')}</label>
-      <input readOnly={defaultFromValue !== '' ? true : false}
-        className="border p-2 rounded w-full text-sm"
-        type="email"
-        value={defaultFromValue ? defaultFromValue : options.from}
-        onChange={handleFromEmailChange}
-      />
+      {defaultFromValue === '' ? (
+        <>
+          <label className="block text-sm font-medium">{t('From Email')}</label>
+          <input readOnly={defaultFromValue !== '' ? true : false}
+            className="border p-2 rounded w-full text-sm"
+            type="email"
+            value={defaultFromValue ? defaultFromValue : options.from}
+            onChange={handleFromEmailChange}
+          />
+        </>
+      ) : null}
 
     </div>
   );
