@@ -15,6 +15,7 @@ import { KeyContextProvider } from '@/contexts/key-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
 import { StatsContextProvider } from '@/contexts/stats-context';
 import { TemplateProvider } from '@/contexts/template-context';
+import { useTranslation } from 'react-i18next';
 
 const i18nNamespaces = ['translation'];
 
@@ -38,7 +39,11 @@ export default async function GeneralAgentLayout({
                 <StatsContextProvider>
                   <AgentProvider>
                     <TemplateProvider>
-                      <div className="flex h-screen flex-col">
+                      <div className="hidden h-screen flex-col md:flex sm:flex xs:flex lg:hidden text-sm p-4">
+                      <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10 pb-4"/> 
+                        Mobile layout is not yet supported for the admin app. <br />Please do use tablet or desktop resolutions to acces the app. Sorry!
+                      </div>
+                      <div className="flex h-screen flex-col md:hidden sm:hidden xs:hidden lg:flex">
                         <Header />
                         <AgentHeader />
                         <SaaSNotifications />
