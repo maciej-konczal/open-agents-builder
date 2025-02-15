@@ -37,7 +37,7 @@ export function SendEmailConfigurator({ options, onChange }: SendEmailConfigurat
         onChange={handleEmailChange}
       />
       <label className="block text-sm font-medium">{t('From Email')}</label>
-      <input readOnly={defaultFromValue ? true : false}
+      <input readOnly={defaultFromValue !== '' ? true : false}
         className="border p-2 rounded w-full text-sm"
         type="email"
         value={defaultFromValue ? defaultFromValue : options.from}
