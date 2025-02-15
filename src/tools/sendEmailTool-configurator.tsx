@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { use, useEffect } from 'react';
 // If you are using zod:
 // If you are using the 'tool' helper from @vercel/ai, import it:
 import { useTranslation } from 'react-i18next';
@@ -20,16 +20,17 @@ type SendEmailConfiguratorProps = {
 // The form UI for configuring the "sendEmail" tool:
 export function SendEmailConfigurator({ options, onChange }: SendEmailConfiguratorProps) {
   const { t } = useTranslation();
-  console.log(defaultFromValue)
+  useEffect(() => {
+    if (defaultFromValue !== '') {
+      onChange({ ...options, from: defaultFromValue });
+    }
+  }, []);
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ ...options, to: e.target.value });
   };
   const handleFromEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ ...options, from: e.target.value });
   };
-
-  if (defaultFromValue !== '')
-    onChange({ ...options, from: defaultFromValue });
 
   return (
     <div className="space-y-2">
