@@ -62,7 +62,10 @@ export default function SingleResultPage() {
       'Database-Id-Hash': dbContext?.databaseIdHash ?? '',
       'Agent-Id': agentContext.current?.id ?? '',
       'Agent-Locale': i18n.language,
-      'Session-Id': result?.sessionId ?? ''
+      'Session-Id': result?.sessionId ?? '',
+      'Current-Datetime-Iso': new Date().toISOString(),
+      'Current-Datetime': new Date().toLocaleString(),
+      'Current-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone
     }
   }
   useEffect(() => {

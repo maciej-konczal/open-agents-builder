@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure react-big-calendar doesn't interfere with our modal */
+.rbc-calendar {
+  z-index: 0;
+}
+
+.rbc-overlay {
+  z-index: 40;
+}
+

@@ -259,6 +259,23 @@ export const resultDTOSchema = z.object({
 export type ResultDTO = z.infer<typeof resultDTOSchema>;
 export const ResultDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
 
+export const calendarEventDTOSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  agentId: z.string().min(1),
+  description: z.string().optional().nullable(),
+  exclusive: z.string().optional().nullable(),
+  start: z.string().optional().nullable(),
+  location: z.string().optional().nullable(),
+  end: z.string().optional().nullable(),
+  allDay: z.boolean().optional().nullable(),
+  createdAt: z.string().default(() => getCurrentTS()),
+  participants: z.string().optional().nullable(),
+  updatedAt: z.string().default(() => getCurrentTS()),
+});
+export type CalendarEventDTO = z.infer<typeof calendarEventDTOSchema>;
+export const CalendarEventDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
+
 export type PaginatedResult<T> = {
   rows: T;
   total: number;

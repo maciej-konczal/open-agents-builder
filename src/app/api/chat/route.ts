@@ -18,12 +18,12 @@ import { validateTokenQuotas } from '@/lib/quotas';
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined): Record<string, Tool> {
+function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined, databaseIdHash: string, storageKey: string | undefined | null): Record<string, Tool> {
   if (!tools) return {}
   const mappedTools: Record<string, Tool> = {};
   for(const toolKey in tools) {
     const toolConfig = tools[toolKey];
-    const toolDescriptor:ToolDescriptor = toolRegistry.init()[toolConfig.tool];
+    const toolDescriptor:ToolDescriptor = toolRegistry.init({databaseIdHash, storageKey})[toolConfig.tool];
     if (!toolDescriptor) {
       console.log(`Tool is not available ${toolConfig.tool}`);
       continue;
@@ -46,7 +46,7 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined)
       }
 
       mappedTools[toolKey] = tool({ // we are creating a wrapper tool of tool provided to fill the gaps wieh pre-configured parameters
-          description: `${toolConfig.description} - ${toolDescriptor.tool.description}}`,
+          description: `${toolConfig.description} - ${toolDescriptor.tool.description}`,
           parameters: nonDefaultParameters,
           execute: async (params, options) => {
             if (toolDescriptor.tool.execute)
@@ -59,6 +59,7 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined)
     }
   }
   return mappedTools;
+
 }
 
 
@@ -81,6 +82,12 @@ export async function POST(req: NextRequest) {
   const locale = req.headers.get('Agent-Locale') || agent.locale || 'en';
   const saasContext = await authorizeSaasContext(req, true);
 
+
+  const currentDateTimeIso = req.headers.get('Current-Datetime-Iso') || new Date().toISOString();
+  const currentLocalDateTime = req.headers.get('Current-Datetime') || new Date().toLocaleString();
+  const currentTimezone = req.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+
   if (saasContext.isSaasMode) {
       if (!saasContext.hasAccess) {
           return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
@@ -101,7 +108,7 @@ export async function POST(req: NextRequest) {
   let existingSession = await sessionRepo.findOne({ id: sessionId });
 
   const promptName = agent.agentType ? agent.agentType : 'survey-agent';
-  const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events });
+  const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events, currentDateTimeIso, currentLocalDateTime, currentTimezone });
 
   messages.unshift( {
     role: 'system',
@@ -147,7 +154,7 @@ export async function POST(req: NextRequest) {
 
       },
       tools: {
-        ...await prepareAgentTools(agent.tools),
+        ...await prepareAgentTools(agent.tools, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null),
         saveResults: createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
       },
       messages,

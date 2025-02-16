@@ -44,7 +44,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
     const locales = await fs.readdir(templatesPath);
     let templates: Record<string, any[]> = {};
     const templatesRepo = new ServerAgentRepository(requestContext.databaseIdHash, 'templates'); //TODO: add caching to not read the server folder every time it's requested
-    let templatesCached = await get('templatesCached');
+    let templatesCached = false; //await get('templatesCached');
 
     if (!templatesCached) {
 

@@ -98,7 +98,7 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
         const client = await setupApiClient();
         try {
             const apiResponse = await client.get();
-            const fetchedAgents = apiResponse.filter(tpl => tpl.status === AgentStatus.Active && tpl.locale === i18n.language).map((folderDTO: AgentDTO) => Agent.fromDTO(folderDTO));
+            const fetchedAgents = apiResponse.filter(tpl => tpl.status !== AgentStatus.Deleted && tpl.locale === i18n.language).map((folderDTO: AgentDTO) => Agent.fromDTO(folderDTO));
             setTemplates(fetchedAgents);
             return fetchedAgents;
         } catch(error) {

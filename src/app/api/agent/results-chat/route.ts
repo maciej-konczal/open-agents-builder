@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     } as CoreMessage
   })
 
-  const systemPrompt = await renderPrompt(locale, 'results-chat', { agent });
+  const systemPrompt = await renderPrompt(locale, 'results-chat', { agent, currentDate: new Date().toISOString() });
   messages.unshift({
     role: 'system',
     content: systemPrompt

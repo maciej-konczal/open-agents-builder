@@ -1,8 +1,9 @@
-import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO } from "@/data/dto";
+import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
 import { Message } from "ai";
+import moment from "moment";
 
 
 export enum DataLoadingStatus {
@@ -475,6 +476,59 @@ export type EventConfiguration = {
     action: string;
  };
   
+
+ export interface Participant {
+    name: string
+    email: string
+  }
+  
+  export class CalendarEvent {
+    id: string
+    agentId: string
+    title: string
+    start?: Date | null
+    end?: Date | null
+    exclusive?: boolean | null
+    description?: string | null
+    location?: string | null
+    participants?: Participant[] | null
+    updatedAt: string
+    createdAt: string
+
+    constructor(eventDTO: CalendarEventDTO | CalendarEvent) {
+        this.id = eventDTO.id;
+        this.agentId = eventDTO.agentId;
+        this.title = eventDTO.title;
+        this.start = eventDTO.start ? moment(eventDTO.start).toDate() : null;
+        this.end = eventDTO.end ? moment(eventDTO.end).toDate() : null;
+        this.exclusive = typeof eventDTO.exclusive === 'string' ? JSON.parse(eventDTO.exclusive) : eventDTO.exclusive;
+        this.description = eventDTO.description;
+        this.location = eventDTO.location;
+        this.participants = typeof eventDTO.participants === 'string' ? JSON.parse(eventDTO.participants) : eventDTO.participants;
+        this.createdAt = eventDTO.createdAt;
+        this.updatedAt = eventDTO.updatedAt;
+    }
+
+    static fromDTO(eventDTO: CalendarEventDTO): CalendarEvent {
+        return new CalendarEvent(eventDTO);
+    }        
+
+    toDTO(): CalendarEventDTO {
+        return {
+            id: this.id,
+            agentId: this.agentId,
+            title: this.title,
+            start: this.start ?  moment(this.start).toISOString(true) : null,
+            end: this.end ? moment(this.end).toISOString(true) : null,
+            exclusive: this.exclusive ? 'true' : 'false',
+            description: this.description,
+            location: this.location,
+            participants: JSON.stringify(this.participants),
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt
+        };
+    }
+  }
 
 export class DatabaseRefreshRequest {
     refreshToken: string;
