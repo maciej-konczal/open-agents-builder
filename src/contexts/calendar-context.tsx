@@ -103,8 +103,8 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const client = await setupApiClient();
       const response = client.delete(event.toDTO());
 
-      if ((await response).status == 200) {
-        setEvents((prev) => prev.filter((event) => event.id !== event.id))
+      if ((await response).status === 200) {
+        setEvents((prev) => prev.filter((evt) => evt.id !== event.id))
       }
 
       return response;
