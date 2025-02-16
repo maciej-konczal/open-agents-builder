@@ -10,5 +10,5 @@ CREATE TABLE `calendarEvents` (
 	`participants` text,
 	`createdAt` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	`updatedAt` text DEFAULT CURRENT_TIMESTAMP NOT NULL,
-	FOREIGN KEY (`agentId`) REFERENCES `agents`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`agentId`) REFERENCES `agents`(`id`) ON UPDATE no action ON DELETE no action
 );

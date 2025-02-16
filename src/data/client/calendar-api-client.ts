@@ -14,7 +14,7 @@ export type PutCalendarEventResponseSuccess = {
 
 export type DeleteCalendarEventResponse = {
   message: string;
-  status: 200;
+  status: 200 | 400;
 };
 
 export type PutCalendarEventResponseError = {

@@ -10,7 +10,9 @@ import { DatabaseContext } from "./db-context"
 import { CalendarEventApiClient, DeleteCalendarEventResponse, PutCalendarEventResponse } from "@/data/client/calendar-api-client"
 import { SaaSContext } from "./saas-context"
 import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
 import { getErrorMessage } from "@/lib/utils"
+
 
 interface CalendarContextType {
   events: CalendarEvent[]
@@ -37,6 +39,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const agentContext = useAgentContext()
   const saasContext = useContext(SaaSContext)
   const dbContext = useContext(DatabaseContext)
+  const { t } = useTranslation()  
 
   useEffect(() => {
     if (agentContext.current && agentContext.current.id && agentContext.current.id !== 'new') listCalendarEvents(agentContext.current?.id)
@@ -63,7 +66,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }
 
   const addCalendarEvent = async (event: Omit<CalendarEvent, "id">): Promise<PutCalendarEventResponse> => {
-    const newEvent = { ...event, id: uuidv4() }
+    const newEvent = new CalendarEvent({ ...event, id: uuidv4() });
     const response = await updateCalendarEvent(newEvent)
     if (response.status === 200) {
       setEvents((prev) => [...prev, newEvent])
@@ -73,25 +76,43 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }
 
   const updateCalendarEvent = async (updatedEvent: CalendarEvent): Promise<PutCalendarEventResponse> => {
-    const client = await setupApiClient();
-    const response = client.put(updatedEvent.toDTO());
+    try {
+      const client = await setupApiClient();
+      if (agentContext.current?.id && agentContext.current?.id !== 'new')
+      {
+        updatedEvent.agentId = agentContext.current?.id || '';
+        const response = client.put(updatedEvent.toDTO());
 
-    if ((await response).status === 200) {
-      setEvents((prev) => prev.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)))
-    } 
+        if ((await response).status === 200) {
+          setEvents((prev) => prev.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)))
+        } 
 
-    return response;
+        return response;
+      } else {
+        return { status: 400, message: t("Agent not selecte or not saved. Please save the agent before editing calendar") }
+      }
+    } catch (e) {
+      console.log(e)
+      toast.error(t(getErrorMessage(e)))
+      return { status: 400, message: getErrorMessage(e) }
+    }
   }
 
   const deleteCalendarEvent = async (event: CalendarEvent): Promise<DeleteCalendarEventResponse> => {
-    const client = await setupApiClient();
-    const response = client.delete(event.toDTO());
+    try {
+      const client = await setupApiClient();
+      const response = client.delete(event.toDTO());
 
-    if ((await response).status == 200) {
-      setEvents((prev) => prev.filter((event) => event.id !== event.id))
+      if ((await response).status == 200) {
+        setEvents((prev) => prev.filter((event) => event.id !== event.id))
+      }
+
+      return response;
+    } catch (e) {
+      console.log(e)
+      toast.error(t(getErrorMessage(e)))
+      return { status: 400, message: getErrorMessage(e) }
     }
-
-    return response;
   }
 
   const importEvents = async (importedEvents: CalendarEvent[]): Promise<CalendarEvent[]> => {

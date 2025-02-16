@@ -1,7 +1,7 @@
 import { BaseRepository, IQuery } from "./base-repository"
 import { CalendarEventDTO, PaginatedResult, ResultDTO } from "../dto";
 import { getCurrentTS } from "@/lib/utils";
-import { calendarEvents, results } from "./db-schema";
+import { calendarEvents } from "./db-schema";
 import { and, AnyColumn, asc, count, desc, eq, isNotNull, like, or } from "drizzle-orm";
 import { create } from "./generic-repository";
 import { EncryptionUtils } from "@/lib/crypto";
@@ -49,20 +49,22 @@ export default class ServerCalendarRepository extends BaseRepository<CalendarEve
     async create(item: CalendarEventDTO): Promise<CalendarEventDTO> {
         const db = (await this.db());
         item = await this.encryptItem(item);
-        return create(item, results, db); // generic implementation
+        return create(item, calendarEvents, db); // generic implementation
     }
 
     // update folder
     async upsert(query:Record<string, any>, item: CalendarEventDTO): Promise<CalendarEventDTO> { 
         const db = (await this.db());     
-        let existingRecord:CalendarEventDTO | null = query.sessionId ? db.select().from(calendarEvents).where(eq(calendarEvents.id, query.id)).get() as CalendarEventDTO : null
+        let existingRecord:CalendarEventDTO | null = query.id ? db.select().from(calendarEvents).where(eq(calendarEvents.id, query.id)).get() as CalendarEventDTO : null
         if (!existingRecord) {
             existingRecord = await this.create(item);
        } else {
             item = await this.encryptItem(item);  
             existingRecord = item
+            if (!existingRecord.start) existingRecord.start = getCurrentTS();
+            if (!existingRecord.end) existingRecord.end = getCurrentTS();
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
-            db.update(results).set(existingRecord).where(eq(results.sessionId, query.sessionId)).run();
+            db.update(calendarEvents).set(existingRecord).where(eq(calendarEvents.id, query.id)).run();
        }
        return Promise.resolve(existingRecord as CalendarEventDTO)   
     }    

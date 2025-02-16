@@ -500,7 +500,7 @@ export type EventConfiguration = {
         this.title = eventDTO.title;
         this.start = eventDTO.start ? new Date(eventDTO.start) : null;
         this.end = eventDTO.end ? new Date(eventDTO.end) : null;
-        this.exclusive = eventDTO.exclusive;
+        this.exclusive = typeof eventDTO.exclusive === 'string' ? JSON.parse(eventDTO.exclusive) : eventDTO.exclusive;
         this.description = eventDTO.description;
         this.location = eventDTO.location;
         this.participants = typeof eventDTO.participants === 'string' ? JSON.parse(eventDTO.participants) : eventDTO.participants;
@@ -519,7 +519,7 @@ export type EventConfiguration = {
             title: this.title,
             start: this.start ? this.start.toISOString() : null,
             end: this.end ? this.end.toISOString() : null,
-            exclusive: this.exclusive,
+            exclusive: this.exclusive ? 'true' : 'false',
             description: this.description,
             location: this.location,
             participants: JSON.stringify(this.participants),

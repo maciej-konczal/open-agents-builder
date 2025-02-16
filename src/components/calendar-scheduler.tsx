@@ -51,9 +51,9 @@ export default function Scheduler() {
 
   const handleSaveEvent = (event: Omit<CalendarEvent, "id">) => {
     if (selectedEvent) {
-      updateCalendarEvent({ ...event, id: selectedEvent.id })
+      updateCalendarEvent(new CalendarEvent({ ...event, id: selectedEvent.id }))
     } else {
-      addCalendarEvent(event)
+      addCalendarEvent(new CalendarEvent({ ...event, id: uuidv4() }))
     }
     handleCloseModal()
   }

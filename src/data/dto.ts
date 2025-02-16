@@ -264,7 +264,7 @@ export const calendarEventDTOSchema = z.object({
   title: z.string().min(1),
   agentId: z.string().min(1),
   description: z.string().optional().nullable(),
-  exclusive: z.boolean().optional().nullable(),
+  exclusive: z.string().optional().nullable(),
   start: z.string().optional().nullable(),
   location: z.string().optional().nullable(),
   end: z.string().optional().nullable(),
