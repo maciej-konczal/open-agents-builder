@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import type { SlotInfo } from "react-big-calendar"
 import { CalendarEvent, Participant } from "@/data/client/models"
+import moment from "moment"
 
 interface EventModalProps {
   isOpen: boolean
@@ -97,8 +98,8 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
             <Input
               id="start"
               type="datetime-local"
-              value={start.toISOString().slice(0, 16)}
-              onChange={(e) => setStart(new Date(e.target.value))}
+              value={moment(start).toISOString(true).slice(0, 16)}
+              onChange={(e) => setStart(moment(e.target.value).toDate())}
               className="col-span-3"
             />
           </div>
@@ -109,8 +110,8 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
             <Input
               id="end"
               type="datetime-local"
-              value={end.toISOString().slice(0, 16)}
-              onChange={(e) => setEnd(new Date(e.target.value))}
+              value={moment(end).toISOString(true).slice(0, 16)}
+              onChange={(e) => setEnd(moment(e.target.value).toDate())}
               className="col-span-3"
             />
           </div>

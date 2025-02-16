@@ -3,6 +3,7 @@ import { tool } from 'ai';
 import ServerCalendarRepository from '@/data/server/server-calendar-repository';
 import { ToolDescriptor } from './registry';
 import { v4 as uuidv4 } from "uuid"
+import moment from 'moment';
 
 export function createCalendarScheduleTool(databaseIdHash: string, storageKey: string | undefined | null): ToolDescriptor
 {
@@ -16,9 +17,9 @@ export function createCalendarScheduleTool(databaseIdHash: string, storageKey: s
         agentId: z.string().describe('The agent ID'),
         description: z.string().describe('The description of the event'),
         exclusive: z.string().describe('Is this event exclusive - blocking calendar for other events'),
-        start: z.string().describe('The start date and time of the event in ISO format'),
+        start: z.string().describe('The start date and time of the event in ISO format with Time Zone offset'),
         location: z.string().describe('The location of the event. Can be empty.'),
-        end: z.string().describe('The end date and time of the event in ISO format'),
+        end: z.string().describe('The end date and time of the event in ISO format with Time Zone offset'),
         participants: z.string().describe('The participants of the event. Should be JSON array of { name, email} object passed as string'),
       }),
       execute: async ({ id, agentId, title, description, exclusive, start,
@@ -29,7 +30,8 @@ export function createCalendarScheduleTool(databaseIdHash: string, storageKey: s
         const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
 
         if (!id) id = uuidv4();
-        const response = await eventsRepo.upsert({ id }, { id, agentId, title, description, exclusive, start, location, end, participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        const response = await eventsRepo.upsert({ id }, { id, agentId, title, description, exclusive, start: moment(start).toISOString(true), location, end: moment(end).toISOString(true), participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        console.log('ADDED', response)
         return response;        
       },
     }),

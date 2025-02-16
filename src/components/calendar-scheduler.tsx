@@ -20,7 +20,7 @@ import { CalendarEventDTO } from "@/data/dto"
 import { v4 as uuidv4 } from "uuid"
 
 
-const localizer = momentLocalizer(moment)
+const localizer = momentLocalizer(moment);
 
 export default function Scheduler() {
   const { events, addCalendarEvent, updateCalendarEvent, deleteCalendarEvent, importEvents } = useCalendar()
