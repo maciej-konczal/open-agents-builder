@@ -6,10 +6,19 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import type { CalendarEvent, Participant } from "@/contexts/calendar-context"
 import type { SlotInfo } from "react-big-calendar"
 
 interface EventModalProps {
+  isOpen: boolean
   event: CalendarEvent | null
   slotInfo: SlotInfo | null
   onClose: () => void
@@ -17,7 +26,7 @@ interface EventModalProps {
   onDelete: (id: string) => void
 }
 
-export default function EventModal({ event, slotInfo, onClose, onSave, onDelete }: EventModalProps) {
+export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, onDelete }: EventModalProps) {
   const [title, setTitle] = useState("")
   const [start, setStart] = useState<Date>(new Date())
   const [end, setEnd] = useState<Date>(new Date())
@@ -68,30 +77,41 @@ export default function EventModal({ event, slotInfo, onClose, onSave, onDelete 
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-background p-6 rounded-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-4">{event ? "Edit Event" : "Create Event"}</h2>
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} />
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>{event ? "Edit Event" : "Create Event"}</DialogTitle>
+          <DialogDescription>Make changes to your event here. Click save when you're done.</DialogDescription>
+        </DialogHeader>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
+            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="col-span-3" />
           </div>
-          <div>
-            <Label htmlFor="start">Start</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="start" className="text-right">
+              Start
+            </Label>
             <Input
               id="start"
               type="datetime-local"
               value={start.toISOString().slice(0, 16)}
               onChange={(e) => setStart(new Date(e.target.value))}
+              className="col-span-3"
             />
           </div>
-          <div>
-            <Label htmlFor="end">End</Label>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="end" className="text-right">
+              End
+            </Label>
             <Input
               id="end"
               type="datetime-local"
               value={end.toISOString().slice(0, 16)}
               onChange={(e) => setEnd(new Date(e.target.value))}
+              className="col-span-3"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -102,17 +122,31 @@ export default function EventModal({ event, slotInfo, onClose, onSave, onDelete 
             />
             <Label htmlFor="exclusive">Exclusive</Label>
           </div>
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} />
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="description" className="text-right">
+              Description
+            </Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="col-span-3"
+            />
           </div>
-          <div>
-            <Label htmlFor="location">Location</Label>
-            <Input id="location" value={location} onChange={(e) => setLocation(e.target.value)} />
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="location" className="text-right">
+              Location
+            </Label>
+            <Input
+              id="location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="col-span-3"
+            />
           </div>
-          <div>
-            <Label>Participants</Label>
-            <div className="space-y-2">
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label className="text-right">Participants</Label>
+            <div className="col-span-3 space-y-2">
               {participants.map((participant, index) => (
                 <div key={index} className="flex items-center space-x-2">
                   <span>
@@ -123,24 +157,24 @@ export default function EventModal({ event, slotInfo, onClose, onSave, onDelete 
                   </Button>
                 </div>
               ))}
-            </div>
-            <div className="flex space-x-2 mt-2">
-              <Input
-                placeholder="Name"
-                value={newParticipantName}
-                onChange={(e) => setNewParticipantName(e.target.value)}
-              />
-              <Input
-                placeholder="Email"
-                type="email"
-                value={newParticipantEmail}
-                onChange={(e) => setNewParticipantEmail(e.target.value)}
-              />
-              <Button onClick={handleAddParticipant}>Add</Button>
+              <div className="flex space-x-2">
+                <Input
+                  placeholder="Name"
+                  value={newParticipantName}
+                  onChange={(e) => setNewParticipantName(e.target.value)}
+                />
+                <Input
+                  placeholder="Email"
+                  type="email"
+                  value={newParticipantEmail}
+                  onChange={(e) => setNewParticipantEmail(e.target.value)}
+                />
+                <Button onClick={handleAddParticipant}>Add</Button>
+              </div>
             </div>
           </div>
         </div>
-        <div className="flex justify-end space-x-2 mt-4">
+        <DialogFooter>
           {event && (
             <Button variant="destructive" onClick={() => onDelete(event.id)}>
               Delete
@@ -150,9 +184,9 @@ export default function EventModal({ event, slotInfo, onClose, onSave, onDelete 
             Cancel
           </Button>
           <Button onClick={handleSave}>Save</Button>
-        </div>
-      </div>
-    </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }
 

@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useCalendar, type CalendarEvent } from "@/contexts/calendar-context"
-import EventModal from "@/components/calendar-event-modal"
+import EventModal from "./calendar-event-modal"
 
 const localizer = momentLocalizer(moment)
 
@@ -120,11 +120,11 @@ export default function Scheduler() {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col p-4">
       <div className="mb-4 flex space-x-2">
-        <div className="flex-grow text-sm">
-          <Label htmlFor="new-event" className="text-sm">Quick Add Event</Label>
-          <div className="flex space-x-2 text-sm">
+        <div className="flex-grow">
+          <Label htmlFor="new-event">Quick Add Event</Label>
+          <div className="flex space-x-2">
             <Input
               id="new-event"
               type="text"
@@ -140,18 +140,18 @@ export default function Scheduler() {
               />
               <Label htmlFor="exclusive">Exclusive</Label>
             </div>
-            <Button onClick={handleAddEvent} className="text-sm">Add Event</Button>
+            <Button onClick={handleAddEvent}>Add Event</Button>
           </div>
         </div>
         <div className="flex items-end space-x-2">
-          <Button onClick={handleExportJSON} className="text-sm">Export to JSON</Button>
-          <label className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 text-sm">
+          <Button onClick={handleExportJSON}>Export to JSON</Button>
+          <label className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Import from JSON
             <input type="file" accept=".json" className="hidden" onChange={handleImportJSON} />
           </label>
         </div>
       </div>
-      <div className="flex-grow relative z-0 text-sm">
+      <div className="flex-grow">
         <Calendar
           localizer={localizer}
           events={events}
@@ -165,15 +165,14 @@ export default function Scheduler() {
           eventPropGetter={eventStyleGetter}
         />
       </div>
-      {showModal && (
-        <EventModal
-          event={selectedEvent}
-          slotInfo={selectedSlot}
-          onClose={handleCloseModal}
-          onSave={handleSaveEvent}
-          onDelete={handleDeleteEvent}
-        />
-      )}
+      <EventModal
+        isOpen={showModal}
+        event={selectedEvent}
+        slotInfo={selectedSlot}
+        onClose={handleCloseModal}
+        onSave={handleSaveEvent}
+        onDelete={handleDeleteEvent}
+      />
     </div>
   )
 }
