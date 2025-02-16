@@ -4,22 +4,6 @@ import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { v4 as uuidv4 } from "uuid"
 
-export interface Participant {
-  name: string
-  email: string
-}
-
-export interface CalendarEvent {
-  id: string
-  title: string
-  start: Date
-  end: Date
-  exclusive: boolean
-  description: string
-  location: string
-  participants: Participant[]
-}
-
 interface CalendarContextType {
   events: CalendarEvent[]
   listCalendarEvents: () => CalendarEvent[]

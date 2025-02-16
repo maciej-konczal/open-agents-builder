@@ -9,8 +9,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useCalendar, type CalendarEvent } from "@/contexts/calendar-context"
+import { useCalendar } from "@/contexts/calendar-context"
 import EventModal from "./calendar-event-modal"
+import { CalendarEvent } from "@/data/client/models"
 
 const localizer = momentLocalizer(moment)
 

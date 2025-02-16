@@ -99,3 +99,16 @@ export const terms = sqliteTable('terms', {
     email: text('email'),
     signedAt: text('signedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 });
+
+export const calendarEvents = sqliteTable('calendarEvents', {
+    id: text('id').primaryKey(),
+    title: text('title'),
+    start: text('start').notNull(),
+    end: text('end').notNull(),
+    exclusive: text('exclusive'),
+    description: text('description'),
+    location: text('location'),
+    participants: text('participants', { mode: 'json' }),
+    createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
+    updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`)
+  });

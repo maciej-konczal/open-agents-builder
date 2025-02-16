@@ -14,8 +14,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import type { CalendarEvent, Participant } from "@/contexts/calendar-context"
 import type { SlotInfo } from "react-big-calendar"
+import { CalendarEvent, Participant } from "@/data/client/models"
 
 interface EventModalProps {
   isOpen: boolean

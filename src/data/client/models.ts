@@ -1,4 +1,4 @@
-import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO } from "@/data/dto";
+import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
@@ -475,6 +475,56 @@ export type EventConfiguration = {
     action: string;
  };
   
+
+ export interface Participant {
+    name: string
+    email: string
+  }
+  
+  export class CalendarEvent {
+    id: string
+    title: string
+    start?: Date | null
+    end?: Date | null
+    exclusive?: boolean | null
+    description?: string | null
+    location?: string | null
+    participants?: Participant[] | null
+    updatedAt: string
+    createdAt: string
+
+    constructor(eventDTO: CalendarEventDTO | CalendarEvent) {
+        this.id = eventDTO.id;
+        this.title = eventDTO.title;
+        this.start = eventDTO.start ? new Date(eventDTO.start) : null;
+        this.end = eventDTO.end ? new Date(eventDTO.end) : null;
+        this.exclusive = eventDTO.exclusive;
+        this.description = eventDTO.description;
+        this.location = eventDTO.location;
+        this.participants = typeof eventDTO.participants === 'string' ? JSON.parse(eventDTO.participants) : eventDTO.participants;
+        this.createdAt = eventDTO.createdAt;
+        this.updatedAt = eventDTO.updatedAt;
+    }
+
+    static fromDTO(eventDTO: CalendarEventDTO): CalendarEvent {
+        return new CalendarEvent(eventDTO);
+    }        
+
+    toDTO(): CalendarEventDTO {
+        return {
+            id: this.id,
+            title: this.title,
+            start: this.start ? this.start.toISOString() : null,
+            end: this.end ? this.end.toISOString() : null,
+            exclusive: this.exclusive,
+            description: this.description,
+            location: this.location,
+            participants: JSON.stringify(this.participants),
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt
+        };
+    }
+  }
 
 export class DatabaseRefreshRequest {
     refreshToken: string;
