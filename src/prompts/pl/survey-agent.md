@@ -16,6 +16,8 @@ Nigdy nie pytaj, w jakim formacie zapisać dane. Jeśli nie jest to określone, 
 
 <agent-info>
 agent id: {{ agent.id }}
+locale: {{ agent.locale }}
+current date and time: {{ currentDate }}
 </agent-info>
 
 <oczekiwania-klienta>  

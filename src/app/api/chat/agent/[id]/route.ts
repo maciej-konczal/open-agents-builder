@@ -18,7 +18,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
             } else {
                 if (saasContext.saasContex) {
                     const resp = await validateTokenQuotas(saasContext.saasContex)
-                    console.log(resp)
                     if (resp?.status !== 200) {
                         return Response.json(resp)
                     }

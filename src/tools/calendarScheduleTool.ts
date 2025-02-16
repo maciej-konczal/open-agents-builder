@@ -2,13 +2,14 @@ import { z } from 'zod';
 import { tool } from 'ai';
 import ServerCalendarRepository from '@/data/server/server-calendar-repository';
 import { ToolDescriptor } from './registry';
+import { v4 as uuidv4 } from "uuid"
 
 export function createCalendarScheduleTool(databaseIdHash: string, storageKey: string | undefined | null): ToolDescriptor
 {
   return {
     displayName: 'Schedule event in the calendar',
     tool: tool({
-      description: 'Schedule event in the calendar.',
+      description: 'Schedule event in the calendar. Check avaiable dates for events using calendarListTool if available. For new events ALWAYS PASS future dates (later than ' + new Date().toISOString() + ').',
       parameters: z.object({
         id: z.string().describe('Optional ID of the event if passed the event will be updated instead of created. Pass empty string to create new event.'),
         title: z.string().describe('The title of the event'),
@@ -24,8 +25,10 @@ export function createCalendarScheduleTool(databaseIdHash: string, storageKey: s
          location, end, participants }: { id: string, agentId: string, title: string, description: string, exclusive: string, start: string, location: string, end: string, participants: string
       }) => {
         const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
-        const response = await eventsRepo.upsert({ id }, { id, agentId, title, description, exclusive, start, location, end, participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
 
+        if (!id) id = uuidv4();
+        const response = await eventsRepo.upsert({ id }, { id, agentId, title, description, exclusive, start, location, end, participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+console.log(response)
         return response;        
       },
     }),

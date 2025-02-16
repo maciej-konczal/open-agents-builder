@@ -18,7 +18,7 @@ import { validateTokenQuotas } from '@/lib/quotas';
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined, databaseIdHash: string, storageKey: string | null): Record<string, Tool> {
+function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined, databaseIdHash: string, storageKey: string | undefined | null): Record<string, Tool> {
   if (!tools) return {}
   const mappedTools: Record<string, Tool> = {};
   for(const toolKey in tools) {
@@ -46,7 +46,7 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined,
       }
 
       mappedTools[toolKey] = tool({ // we are creating a wrapper tool of tool provided to fill the gaps wieh pre-configured parameters
-          description: `${toolConfig.description} - ${toolDescriptor.tool.description}}`,
+          description: `${toolConfig.description} - ${toolDescriptor.tool.description}`,
           parameters: nonDefaultParameters,
           execute: async (params, options) => {
             if (toolDescriptor.tool.execute)
@@ -59,6 +59,7 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined,
     }
   }
   return mappedTools;
+
 }
 
 
@@ -101,7 +102,7 @@ export async function POST(req: NextRequest) {
   let existingSession = await sessionRepo.findOne({ id: sessionId });
 
   const promptName = agent.agentType ? agent.agentType : 'survey-agent';
-  const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events });
+  const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events, currentDate: new Date().toISOString() });
 
   messages.unshift( {
     role: 'system',

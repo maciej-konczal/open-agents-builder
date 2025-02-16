@@ -6,6 +6,7 @@ import { checkApiKey } from '@/lib/utils';
 import { create } from 'domain';
 import { createCalendarScheduleTool } from './calendarScheduleTool';
 import { createCalendarListTool } from './calendarListTool';
+import { dayNameTool } from './dayNameTool';
 
 
 export type ToolDescriptor = {
@@ -16,7 +17,7 @@ export type ToolDescriptor = {
 let availableTools:Record<string, ToolDescriptor> | null = null;
 
 export const toolRegistry = {
-  init: ({ databaseIdHash, storageKey }: {databaseIdHash: string, storageKey: string | null}): Record<string, ToolDescriptor> => {
+  init: ({ databaseIdHash, storageKey }: {databaseIdHash: string, storageKey: string | undefined | null}): Record<string, ToolDescriptor> => {
     if (availableTools !== null) return availableTools;
     availableTools = {
       sendEmail: createEmailTool({
@@ -24,7 +25,8 @@ export const toolRegistry = {
       }),
       currentDate: currentDateTool,
       calendarSchedule: createCalendarScheduleTool(databaseIdHash, storageKey),
-      calendarList: createCalendarListTool(databaseIdHash, storageKey)
+      calendarList: createCalendarListTool(databaseIdHash, storageKey),
+      dayName: dayNameTool
     }
 
     return availableTools;
