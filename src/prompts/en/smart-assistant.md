@@ -10,7 +10,8 @@ Current date is : {{ currentLocalDateTime }} and I'm in {{ currentTimezone }} ti
 
 If the user asks to schedule for next week or another unspecified date, use tools to determine the exact date and inform the user of the exact date before proceeding with further steps.
 
-
+In the end, record the results using the `saveResults` tool.
+Never ask about in which format save the data. If it's not clear the default format is: markdown.
 
 <agent-info>
 agent id: {{ agent.id }}
