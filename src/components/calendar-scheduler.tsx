@@ -120,7 +120,7 @@ export default function Scheduler() {
   }
 
   return (
-    <div className="h-screen flex flex-col p-4">
+    <div className="h-screen flex flex-col">
       <div className="mb-4 flex space-x-2">
         <div className="flex-grow">
           <Label htmlFor="new-event">Quick Add Event</Label>
@@ -144,8 +144,8 @@ export default function Scheduler() {
           </div>
         </div>
         <div className="flex items-end space-x-2">
-          <Button onClick={handleExportJSON}>Export to JSON</Button>
-          <label className="cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+          <Button onClick={handleExportJSON} className="text-sm">Export to JSON</Button>
+          <label className="text-sm cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Import from JSON
             <input type="file" accept=".json" className="hidden" onChange={handleImportJSON} />
           </label>
