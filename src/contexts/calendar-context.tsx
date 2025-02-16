@@ -1,5 +1,6 @@
 "use client"
 
+import { CalendarEvent } from "@/data/client/models"
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { v4 as uuidv4 } from "uuid"
