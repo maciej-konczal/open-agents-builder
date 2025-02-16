@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +57,12 @@ const sidebarItems = [
     label: 'Results', 
     href: '/admin/agent/[id]/results',
     pattern: '/admin/agent/[id]/results'
+  },
+  { 
+    icon: CalendarIcon, 
+    label: 'Calendar', 
+    href: '/admin/agent/[id]/calendar',
+    pattern: '/admin/agent/[id]/calendar'
   },
 ];
 
