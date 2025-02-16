@@ -12,7 +12,8 @@ Never ask about in which format save the data. If it's not clear the default for
 <agent-info>
 agent id: {{ agent.id }}
 locale: {{ agent.locale }}
-current date and time: {{ currentDate }}
+my local date and time: {{ currentLocalDateTime }}
+my current timezone: {{ currentTimezone }}
 </agent-info>
 
 <client-expectations>  

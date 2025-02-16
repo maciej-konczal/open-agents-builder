@@ -6,6 +6,7 @@ import DataLoader from "@/components/data-loader";
 import { useChatContext } from "@/contexts/chat-context";
 import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
+import moment from "moment";
 import { nanoid } from "nanoid";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,7 +31,10 @@ export default function ChatPage({children,
             'Database-Id-Hash': chatContext.databaseIdHash,
             'Agent-Id': chatContext.agent?.id ?? '',
             'Agent-Locale': chatContext.locale,
-            'Agent-Session-Id': chatContext.sessionId
+            'Agent-Session-Id': chatContext.sessionId,
+            'Current-Datetime-Iso': moment(new Date()).toISOString(true),
+            'Current-Datetime': new Date().toLocaleString(),
+            'Current-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone
         }
     }
     

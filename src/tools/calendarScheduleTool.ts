@@ -24,11 +24,12 @@ export function createCalendarScheduleTool(databaseIdHash: string, storageKey: s
       execute: async ({ id, agentId, title, description, exclusive, start,
          location, end, participants }: { id: string, agentId: string, title: string, description: string, exclusive: string, start: string, location: string, end: string, participants: string
       }) => {
+        console.log({ id, agentId, title, description, exclusive, start,
+          location, end, participants })
         const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
 
         if (!id) id = uuidv4();
         const response = await eventsRepo.upsert({ id }, { id, agentId, title, description, exclusive, start, location, end, participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-console.log(response)
         return response;        
       },
     }),

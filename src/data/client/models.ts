@@ -3,6 +3,7 @@ import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, Result
 import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
 import { Message } from "ai";
+import moment from "moment";
 
 
 export enum DataLoadingStatus {
@@ -498,8 +499,8 @@ export type EventConfiguration = {
         this.id = eventDTO.id;
         this.agentId = eventDTO.agentId;
         this.title = eventDTO.title;
-        this.start = eventDTO.start ? new Date(eventDTO.start) : null;
-        this.end = eventDTO.end ? new Date(eventDTO.end) : null;
+        this.start = eventDTO.start ? moment(eventDTO.start).toDate() : null;
+        this.end = eventDTO.end ? moment(eventDTO.end).toDate() : null;
         this.exclusive = typeof eventDTO.exclusive === 'string' ? JSON.parse(eventDTO.exclusive) : eventDTO.exclusive;
         this.description = eventDTO.description;
         this.location = eventDTO.location;
@@ -517,8 +518,8 @@ export type EventConfiguration = {
             id: this.id,
             agentId: this.agentId,
             title: this.title,
-            start: this.start ? this.start.toISOString() : null,
-            end: this.end ? this.end.toISOString() : null,
+            start: this.start ?  moment(this.start).toISOString(true) : null,
+            end: this.end ? moment(this.end).toISOString(true) : null,
             exclusive: this.exclusive ? 'true' : 'false',
             description: this.description,
             location: this.location,

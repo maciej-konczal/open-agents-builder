@@ -82,6 +82,12 @@ export async function POST(req: NextRequest) {
   const locale = req.headers.get('Agent-Locale') || agent.locale || 'en';
   const saasContext = await authorizeSaasContext(req, true);
 
+
+  const currentDateTimeIso = req.headers.get('Current-Datetime-Iso') || new Date().toISOString();
+  const currentLocalDateTime = req.headers.get('Current-Datetime') || new Date().toLocaleString();
+  const currentTimezone = req.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+
   if (saasContext.isSaasMode) {
       if (!saasContext.hasAccess) {
           return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
@@ -102,7 +108,7 @@ export async function POST(req: NextRequest) {
   let existingSession = await sessionRepo.findOne({ id: sessionId });
 
   const promptName = agent.agentType ? agent.agentType : 'survey-agent';
-  const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events, currentDate: new Date().toISOString() });
+  const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events, currentDateTimeIso, currentLocalDateTime, currentTimezone });
 
   messages.unshift( {
     role: 'system',
