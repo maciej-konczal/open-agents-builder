@@ -142,15 +142,23 @@ export default function Scheduler() {
   return (
     <div className="h-screen flex flex-col">
       <div className="mb-4 flex space-x-2">
+      <div className="flex items-end space-x-2">
+          <Button onClick={handleExportJSON} className="text-sm">{t('Export to JSON')}</Button>
+          <label className="text-sm cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+            {t('Import from JSON')}
+            <input type="file" accept=".json" className="hidden" onChange={handleImportJSON} />
+          </label>
+        </div>
+
         <div className="flex-grow">
-          <Label htmlFor="new-event">Quick Add Event</Label>
+          <Label htmlFor="new-event">{t('Quick Add Event')}</Label>
           <div className="flex space-x-2">
             <Input
               id="new-event"
               type="text"
               value={newEventTitle}
               onChange={(e) => setNewEventTitle(e.target.value)}
-              placeholder="Enter event title"
+              placeholder={t('Enter event title')}
             />
             <div className="flex items-center space-x-2">
               <Checkbox
@@ -158,17 +166,10 @@ export default function Scheduler() {
                 checked={newEventExclusive}
                 onCheckedChange={(checked) => setNewEventExclusive(checked as boolean)}
               />
-              <Label htmlFor="exclusive">Exclusive</Label>
+              <Label htmlFor="exclusive">{t('Exclusive')}</Label>
             </div>
-            <Button onClick={handleAddEvent}>Add Event</Button>
+            <Button onClick={handleAddEvent}>{t('Add Event')}</Button>
           </div>
-        </div>
-        <div className="flex items-end space-x-2">
-          <Button onClick={handleExportJSON} className="text-sm">Export to JSON</Button>
-          <label className="text-sm cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            Import from JSON
-            <input type="file" accept=".json" className="hidden" onChange={handleImportJSON} />
-          </label>
         </div>
       </div>
       <div className="flex-grow">
