@@ -110,6 +110,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 displayName: t('New from template: ') + template.displayName,
                 prompt: template.prompt,
                 agentType: template.agentType,
+                tools: template.tools,
+                events: template.events,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 options: template.options,
