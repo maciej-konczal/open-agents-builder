@@ -1,5 +1,4 @@
 'use client'
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useAgentContext } from '@/contexts/agent-context';
@@ -10,7 +9,7 @@ import { AgentStatus } from '@/components/layout/agent-status';
 import React from 'react';
 import { ToolConfiguration } from '@/data/client/models';
 import { ToolConfigurator } from '@/components/tool-configurator';
-import { DeleteIcon, PlusIcon, Trash2Icon } from 'lucide-react';
+import { PlusIcon, Trash2Icon } from 'lucide-react';
 
 // Import your new dynamic ToolConfigurator
 
