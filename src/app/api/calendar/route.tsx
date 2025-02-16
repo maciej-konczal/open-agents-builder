@@ -26,7 +26,7 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     }) : null;
 
     const apiResult = await genericPUT<CalendarEventDTO>(inputObj, calendarEventDTOSchema, eventsRepo, 'id');
-    if (saasContext.apiClient) {
+    if (saasContext.apiClient && apiResult.status === 200) {
         if (!existingEvent) {
             saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
                 eventName: 'createEvent',

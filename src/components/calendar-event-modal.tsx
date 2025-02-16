@@ -17,6 +17,8 @@ import {
 import type { SlotInfo } from "react-big-calendar"
 import { CalendarEvent, Participant } from "@/data/client/models"
 import moment from "moment"
+import { useTranslation } from "react-i18next"
+import { PlusIcon, Trash, TrashIcon } from "lucide-react"
 
 interface EventModalProps {
   isOpen: boolean
@@ -37,6 +39,7 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
   const [participants, setParticipants] = useState<Participant[]>([])
   const [newParticipantName, setNewParticipantName] = useState("")
   const [newParticipantEmail, setNewParticipantEmail] = useState("")
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (event) {
@@ -81,19 +84,19 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{event ? "Edit Event" : "Create Event"}</DialogTitle>
-          <DialogDescription>Make changes to your event here. Click save when you're done.</DialogDescription>
+          <DialogTitle>{event ? t("Edit Event") : t("Create Event") }</DialogTitle>
+          <DialogDescription>{t("Make changes to your event here. Click save when you're done.")}</DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="title" className="text-right">
-              Title
+              {t('Title')}
             </Label>
             <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="start" className="text-right">
-              Start
+              {t('Start')}
             </Label>
             <Input
               id="start"
@@ -105,7 +108,7 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="end" className="text-right">
-              End
+              {t('End')}
             </Label>
             <Input
               id="end"
@@ -116,7 +119,7 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
             />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="exclusive" className="text-right">Exclusive</Label>
+            <Label htmlFor="exclusive" className="text-right">{t('Exclusive')}</Label>
             <Checkbox
               id="exclusive"
               checked={exclusive}
@@ -125,7 +128,7 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">
-              Description
+              {t('Description')}
             </Label>
             <Textarea
               id="description"
@@ -136,7 +139,7 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="location" className="text-right">
-              Location
+              {t('Location')}
             </Label>
             <Input
               id="location"
@@ -146,15 +149,15 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
             />
           </div>
           <div className="grid grid-cols-4 items-start gap-4">
-            <Label className="text-right">Participants</Label>
+            <Label className="text-right">{t('Participants')}</Label>
             <div className="col-span-3 space-y-2">
               {participants.map((participant, index) => (
                 <div key={index} className="flex items-center space-x-2">
-                  <span>
+                  <span className="text-xs">
                     {participant.name} ({participant.email})
                   </span>
-                  <Button variant="destructive" size="sm" onClick={() => handleRemoveParticipant(index)}>
-                    Remove
+                  <Button variant="outline" size="sm" className="text-xs" onClick={() => handleRemoveParticipant(index)}>
+                    <TrashIcon className="w-4 h4" />{t('Remove')}
                   </Button>
                 </div>
               ))}
@@ -170,21 +173,21 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
                   value={newParticipantEmail}
                   onChange={(e) => setNewParticipantEmail(e.target.value)}
                 />
-                <Button onClick={handleAddParticipant}>Add</Button>
+                <Button onClick={handleAddParticipant}><PlusIcon className="w-4 h-4"/></Button>
               </div>
             </div>
           </div>
         </div>
         <DialogFooter>
           {event && (
-            <Button variant="destructive" onClick={() => onDelete(event.id)}>
-              Delete
+            <Button variant="outline" onClick={() => onDelete(event.id)}>
+              <TrashIcon className="w-4 h-4" />{t('Delete')}
             </Button>
           )}
           <Button variant="outline" onClick={onClose}>
-            Cancel
+            {t('Cancel')}
           </Button>
-          <Button onClick={handleSave}>Save</Button>
+          <Button onClick={handleSave}>{t('Save')}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

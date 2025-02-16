@@ -18,6 +18,8 @@ import { getCurrentTS } from "@/lib/utils"
 import { useAgentContext } from "@/contexts/agent-context"
 import { CalendarEventDTO } from "@/data/dto"
 import { v4 as uuidv4 } from "uuid"
+import { useFilePicker } from "use-file-picker"
+import { ImportIcon, PlusIcon, Share2Icon, ShareIcon } from "lucide-react"
 
 
 const localizer = momentLocalizer(moment);
@@ -105,25 +107,32 @@ export default function Scheduler() {
     linkElement.click()
   }
 
-  const handleImportJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const fileReader = new FileReader()
-    fileReader.readAsText(event.target.files![0], "UTF-8")
-    fileReader.onload = (e) => {
-      const content = e.target?.result as string
-      try {
-        const importedEvents = JSON.parse(content, (key, value) => {
-          if (key === "start" || key === "end") {
-            return new Date(value)
-          }
-          return value
-        })
-        importEvents(importedEvents)
-      } catch (error) {
-        console.error("Error parsing JSON:", error)
-        toast.error(t("Error importing events. Please check the file format."))
-      }
+  const { openFilePicker, filesContent, loading } = useFilePicker({
+    accept: '.json',
+    readAs: 'Text',
+    onFilesSuccessfullySelected: async () => {
+      filesContent.map(async (fileContent) => {
+
+        try {
+          const importedEvents = JSON.parse(fileContent.content, (key, value) => {
+            if (key === "start" || key === "end") {
+              return moment(value).toDate()
+            }
+            return value
+          })
+          await importEvents(importedEvents.map((event: CalendarEventDTO) => {
+            const itm = new CalendarEvent(event.id ? event : { ...event, id: uuidv4() })
+            return itm;
+        }))
+        toast.info(t('Events imported successfully'))
+        } catch (error) {
+          console.error("Error parsing JSON:", error)
+          toast.error(t("Error importing events. Please check the file format."))
+        }
+      });
+
     }
-  }
+  });
 
   const eventStyleGetter = (event: CalendarEvent) => {
     const style: React.CSSProperties = {
@@ -141,17 +150,15 @@ export default function Scheduler() {
 
   return (
     <div className="h-screen flex flex-col">
-      <div className="mb-4 flex space-x-2">
-      <div className="flex items-end space-x-2">
-          <Button onClick={handleExportJSON} className="text-sm">{t('Export to JSON')}</Button>
-          <label className="text-sm cursor-pointer bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            {t('Import from JSON')}
-            <input type="file" accept=".json" className="hidden" onChange={handleImportJSON} />
-          </label>
-        </div>
+      <div className="flex space-x-2 mb-4">
+          <Button variant={"outline"} size="sm" onClick={handleExportJSON} className="text-xs"><ShareIcon className="w-4 h-4 mr-2"/> {t('Export to JSON')}</Button>
+          <Button variant={"outline"} size="sm" className="text-xs" onClick={(e) => openFilePicker() }>
+          <ImportIcon className="w-4 h-4 mr-2"/> {t('Import from JSON')}
+          </Button>
+       </div>
 
+      <div className="mb-4 flex space-x-2">
         <div className="flex-grow">
-          <Label htmlFor="new-event">{t('Quick Add Event')}</Label>
           <div className="flex space-x-2">
             <Input
               id="new-event"
@@ -166,9 +173,9 @@ export default function Scheduler() {
                 checked={newEventExclusive}
                 onCheckedChange={(checked) => setNewEventExclusive(checked as boolean)}
               />
-              <Label htmlFor="exclusive">{t('Exclusive')}</Label>
+              <Label className="text-xs" htmlFor="exclusive">{t('Exclusive')}</Label>
             </div>
-            <Button onClick={handleAddEvent}>{t('Add Event')}</Button>
+            <Button size="sm" variant="outline" className="text-xs" onClick={handleAddEvent}><PlusIcon className="w-4 h-4 mr-2" />{t('Add Event')}</Button>
           </div>
         </div>
       </div>
