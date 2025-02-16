@@ -262,6 +262,7 @@ export const ResultDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: []
 export const calendarEventDTOSchema = z.object({
   id: z.string().min(1),
   title: z.string().min(1),
+  agentId: z.string().min(1),
   description: z.string().optional().nullable(),
   exclusive: z.boolean().optional().nullable(),
   start: z.string().optional().nullable(),

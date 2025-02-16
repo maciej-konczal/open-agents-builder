@@ -483,6 +483,7 @@ export type EventConfiguration = {
   
   export class CalendarEvent {
     id: string
+    agentId: string
     title: string
     start?: Date | null
     end?: Date | null
@@ -495,6 +496,7 @@ export type EventConfiguration = {
 
     constructor(eventDTO: CalendarEventDTO | CalendarEvent) {
         this.id = eventDTO.id;
+        this.agentId = eventDTO.agentId;
         this.title = eventDTO.title;
         this.start = eventDTO.start ? new Date(eventDTO.start) : null;
         this.end = eventDTO.end ? new Date(eventDTO.end) : null;
@@ -513,6 +515,7 @@ export type EventConfiguration = {
     toDTO(): CalendarEventDTO {
         return {
             id: this.id,
+            agentId: this.agentId,
             title: this.title,
             start: this.start ? this.start.toISOString() : null,
             end: this.end ? this.end.toISOString() : null,
