@@ -40,12 +40,12 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
   useEffect(() => {
     if (event) {
       setTitle(event.title)
-      setStart(event.start)
-      setEnd(event.end)
-      setExclusive(event.exclusive)
-      setDescription(event.description)
-      setLocation(event.location)
-      setParticipants(event.participants)
+      setStart(event.start ?? new Date())
+      setEnd(event.end ?? new Date())
+      setExclusive(event.exclusive ?? false)
+      setDescription(event.description ?? '')
+      setLocation(event.location ?? '')
+      setParticipants(event.participants ?? [])
     } else if (slotInfo) {
       setStart(slotInfo.start)
       setEnd(slotInfo.end)
@@ -53,7 +53,7 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
   }, [event, slotInfo])
 
   const handleSave = () => {
-    onSave({
+    onSave(new CalendarEvent({
       title,
       start,
       end,
@@ -61,7 +61,7 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
       description,
       location,
       participants,
-    })
+    }))
   }
 
   const handleAddParticipant = () => {
@@ -114,13 +114,13 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
               className="col-span-3"
             />
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="exclusive" className="text-right">Exclusive</Label>
             <Checkbox
               id="exclusive"
               checked={exclusive}
               onCheckedChange={(checked) => setExclusive(checked as boolean)}
             />
-            <Label htmlFor="exclusive">Exclusive</Label>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">

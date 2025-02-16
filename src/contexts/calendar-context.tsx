@@ -43,7 +43,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     if (agentContext.current && agentContext.current.id && agentContext.current.id !== 'new') listCalendarEvents(agentContext.current?.id)
-  }, [])
+  }, [agentContext.current])
 
 
   const setupApiClient = async () => {
