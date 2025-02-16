@@ -12,6 +12,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { useCalendar } from "@/contexts/calendar-context"
 import EventModal from "./calendar-event-modal"
 import { CalendarEvent } from "@/data/client/models"
+import { toast } from "sonner"
+import { useTranslation } from "react-i18next"
+import { getCurrentTS } from "@/lib/utils"
+import { useAgentContext } from "@/contexts/agent-context"
+import { CalendarEventDTO } from "@/data/dto"
+import { v4 as uuidv4 } from "uuid"
+
 
 const localizer = momentLocalizer(moment)
 
@@ -22,6 +29,9 @@ export default function Scheduler() {
   const [showModal, setShowModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<SlotInfo | null>(null)
+
+  const agentContext = useAgentContext();
+  const { t } = useTranslation()
 
   const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
     setSelectedSlot(slotInfo)
@@ -49,30 +59,39 @@ export default function Scheduler() {
   }
 
   const handleDeleteEvent = (id: string) => {
-    deleteCalendarEvent(id)
+    deleteCalendarEvent(events.find((event) => event.id === id)!)
     handleCloseModal()
   }
 
   const moveEvent = useCallback(
-    ({ event, start, end }: { event: CalendarEvent; start: Date; end: Date }) => {
-      updateCalendarEvent({ ...event, start, end })
+    async ({ event, start, end }: { event: CalendarEvent; start: Date; end: Date }) => {
+      const response = await updateCalendarEvent(new CalendarEvent({ ...event, start, end } as CalendarEvent))
+      if (response.status !== 200) {
+        toast.error(t(response.message));
+      } 
     },
     [updateCalendarEvent],
   )
 
   const handleAddEvent = () => {
-    if (newEventTitle) {
-      addCalendarEvent({
+    if (newEventTitle && agentContext.current && agentContext.current.id && agentContext.current.id !== "new") {
+      addCalendarEvent(new CalendarEvent({
+        id: uuidv4(),
+        agentId: agentContext.current?.id,
         title: newEventTitle,
-        start: new Date(),
-        end: new Date(new Date().setHours(new Date().getHours() + 1)),
+        start: new Date().toISOString(),
+        end: new Date(new Date().setHours(new Date().getHours() + 1)).toISOString(),
         exclusive: newEventExclusive,
         description: "",
         location: "",
-        participants: [],
-      })
+        participants: "[]",
+        updatedAt: getCurrentTS(),
+        createdAt: getCurrentTS()
+      } as CalendarEventDTO))
       setNewEventTitle("")
       setNewEventExclusive(false)
+    } else {
+      toast.error(t('Please save the current agent and provide the event title first'));
     }
   }
 
@@ -101,7 +120,7 @@ export default function Scheduler() {
         importEvents(importedEvents)
       } catch (error) {
         console.error("Error parsing JSON:", error)
-        alert("Error importing events. Please check the file format.")
+        toast.error(t("Error importing events. Please check the file format."))
       }
     }
   }
