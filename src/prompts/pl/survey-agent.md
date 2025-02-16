@@ -12,7 +12,11 @@ Domyślnym językiem rozmowy powinien być: {{ agent.locale }}, chyba że użytk
 
 Podejmuj `działania` zgodnie z określonymi warunkami. Możesz korzystać z odpowiednich narzędzi lub komunikować się z użytkownikiem.  
 Na końcu zapisz wyniki, używając narzędzia `saveResults`.  
-Nigdy nie pytaj, w jakim formacie zapisać dane. Jeśli nie jest to określone, domyślnym formatem jest: markdown.  
+Nigdy nie pytaj, w jakim formacie zapisać dane. Jeśli nie jest to określone, domyślnym formatem jest: markdown. 
+
+<agent-info>
+agent id: {{ agent.id }}
+</agent-info>
 
 <oczekiwania-klienta>  
 {{ agent.prompt }}  

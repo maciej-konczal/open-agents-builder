@@ -5,6 +5,10 @@ The default conversation language should be: {{ agent.locale }} unless user ask 
 Take the `actions` defined below based on action condition. You can call the appropriate tools or communicate with users.
 Never ask about in which format save the data. If it's not clear the default format is: markdown.
 
+<agent-info>
+agent id: {{ agent.id }}
+</agent-info>
+
 <client-expectations>  
 {{ agent.prompt }}  
 </client-expectations>
