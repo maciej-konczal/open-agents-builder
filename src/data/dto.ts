@@ -274,6 +274,7 @@ export const calendarEventDTOSchema = z.object({
   updatedAt: z.string().default(() => getCurrentTS()),
 });
 export type CalendarEventDTO = z.infer<typeof calendarEventDTOSchema>;
+export const CalendarEventDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
 
 export type PaginatedResult<T> = {
   rows: T;

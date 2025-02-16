@@ -4,14 +4,21 @@ import { CalendarEvent } from "@/data/client/models"
 import type React from "react"
 import { createContext, useContext, useState, useEffect } from "react"
 import { v4 as uuidv4 } from "uuid"
+import { useAgentContext } from "./agent-context"
+import { ApiEncryptionConfig } from "@/data/client/admin-api-client"
+import { DatabaseContext } from "./db-context"
+import { CalendarEventApiClient, DeleteCalendarEventResponse, PutCalendarEventResponse } from "@/data/client/calendar-api-client"
+import { SaaSContext } from "./saas-context"
+import { toast } from "sonner"
+import { getErrorMessage } from "@/lib/utils"
 
 interface CalendarContextType {
   events: CalendarEvent[]
-  listCalendarEvents: () => CalendarEvent[]
-  addCalendarEvent: (event: Omit<CalendarEvent, "id">) => void
-  updateCalendarEvent: (event: CalendarEvent) => void
-  deleteCalendarEvent: (id: string) => void
-  importEvents: (events: CalendarEvent[]) => void
+  listCalendarEvents: (agentId: string) => Promise<CalendarEvent[]>
+  addCalendarEvent: (event: Omit<CalendarEvent, "id">) => Promise<PutCalendarEventResponse>
+  updateCalendarEvent: (event: CalendarEvent) => Promise<PutCalendarEventResponse>
+  deleteCalendarEvent: (event: CalendarEvent) => Promise<DeleteCalendarEventResponse>
+  importEvents: (events: CalendarEvent[]) => Promise<CalendarEvent[]>
 }
 
 const CalendarContext = createContext<CalendarContextType | undefined>(undefined)
@@ -27,41 +34,78 @@ export const useCalendar = () => {
 export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [events, setEvents] = useState<CalendarEvent[]>([])
 
+  const agentContext = useAgentContext()
+  const saasContext = useContext(SaaSContext)
+  const dbContext = useContext(DatabaseContext)
+
   useEffect(() => {
-    const storedEvents = localStorage.getItem("calendarEvents")
-    if (storedEvents) {
-      setEvents(
-        JSON.parse(storedEvents, (key, value) => {
-          if (key === "start" || key === "end") {
-            return new Date(value)
-          }
-          return value
-        }),
-      )
-    }
+    if (agentContext.current && agentContext.current.id && agentContext.current.id !== 'new') listCalendarEvents(agentContext.current?.id)
   }, [])
 
-  useEffect(() => {
-    localStorage.setItem("calendarEvents", JSON.stringify(events))
-  }, [events])
 
-  const listCalendarEvents = () => events
+  const setupApiClient = async () => {
+      const encryptionConfig: ApiEncryptionConfig = {
+          secretKey: dbContext?.masterKey,
+          useEncryption: false // TODO: add a env variable config for this
+      };
+      const client = new CalendarEventApiClient('', dbContext, saasContext, encryptionConfig);
+      return client;
+  }        
+  
+  
+  const listCalendarEvents = async (agentId: string) => {
+      const client = await setupApiClient();
+      const response = await client.get(undefined, agentId);
+      const events = response.map(e => CalendarEvent.fromDTO(e));
+      setEvents(events);
+      
+      return events;
+  }
 
-  const addCalendarEvent = (event: Omit<CalendarEvent, "id">) => {
+  const addCalendarEvent = async (event: Omit<CalendarEvent, "id">): Promise<PutCalendarEventResponse> => {
     const newEvent = { ...event, id: uuidv4() }
-    setEvents((prev) => [...prev, newEvent])
+    const response = await updateCalendarEvent(newEvent)
+    if (response.status === 200) {
+      setEvents((prev) => [...prev, newEvent])
+    }
+
+    return response;
   }
 
-  const updateCalendarEvent = (updatedEvent: CalendarEvent) => {
-    setEvents((prev) => prev.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)))
+  const updateCalendarEvent = async (updatedEvent: CalendarEvent): Promise<PutCalendarEventResponse> => {
+    const client = await setupApiClient();
+    const response = client.put(updatedEvent.toDTO());
+
+    if ((await response).status === 200) {
+      setEvents((prev) => prev.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)))
+    } 
+
+    return response;
   }
 
-  const deleteCalendarEvent = (id: string) => {
-    setEvents((prev) => prev.filter((event) => event.id !== id))
+  const deleteCalendarEvent = async (event: CalendarEvent): Promise<DeleteCalendarEventResponse> => {
+    const client = await setupApiClient();
+    const response = client.delete(event.toDTO());
+
+    if ((await response).status == 200) {
+      setEvents((prev) => prev.filter((event) => event.id !== event.id))
+    }
+
+    return response;
   }
 
-  const importEvents = (importedEvents: CalendarEvent[]) => {
-    setEvents(importedEvents)
+  const importEvents = async (importedEvents: CalendarEvent[]): Promise<CalendarEvent[]> => {
+    const client = await setupApiClient();
+
+    importedEvents.forEach(async (event) => {
+      const response = await updateCalendarEvent(event);
+
+      if (response.status !== 200) {
+        toast.error(response.message)
+      }
+    });
+    
+    return events;
   }
 
   return (
