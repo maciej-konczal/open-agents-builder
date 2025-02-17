@@ -50,19 +50,22 @@ const sidebarItems = [
     icon: MessageCircleMore, 
     label: 'Sessions', 
     href: '/admin/agent/[id]/sessions',
-    pattern: '/admin/agent/[id]/sessions'
+    pattern: '/admin/agent/[id]/sessions',
+    activeOnlyOnSavedAgent: true
   },
   { 
     icon: BookIcon, 
     label: 'Results', 
     href: '/admin/agent/[id]/results',
-    pattern: '/admin/agent/[id]/results'
+    pattern: '/admin/agent/[id]/results',
+    activeOnlyOnSavedAgent: true
   },
   { 
     icon: CalendarIcon, 
     label: 'Calendar', 
     href: '/admin/agent/[id]/calendar',
-    pattern: '/admin/agent/[id]/calendar'
+    pattern: '/admin/agent/[id]/calendar',
+    activeOnlyOnSavedAgent: true
   },
 ];
 
@@ -80,18 +83,32 @@ export function AgentSidebar() {
             const href = item.href.replace('[id]', agentId);
             const isActive = pathname.endsWith(href);
             
-            return (
-              <Link key={item.href} href={href}>
+            if (item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) {
+              return (
                 <Button
-                  variant={isActive ? "secondary" : "ghost"}
-                  className="w-full justify-start"
-                >
-                  <item.icon className="mr-2 h-5 w-5" />
-                  {t(item.label)}
+                disabled={true}
+                variant={isActive ? "secondary" : "ghost"}
+                className="w-full justify-start"
+              >                
+                <item.icon className="mr-2 h-5 w-5" />
+                {t(item.label)}                
                 </Button>
-              </Link>
-            );
-          })}
+              )
+            } else {
+              return (
+                <Link key={item.href} href={href}>
+                  <Button
+                    variant={isActive ? "secondary" : "ghost"}
+                    className="w-full justify-start"
+                  >
+                    <item.icon className="mr-2 h-5 w-5" />
+                    {t(item.label)}
+                  </Button>
+                </Link>
+              );
+            }
+           })
+          }
         </div>
       </ScrollArea>
     </div>
