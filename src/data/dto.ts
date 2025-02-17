@@ -269,6 +269,7 @@ export const calendarEventDTOSchema = z.object({
   location: z.string().optional().nullable(),
   end: z.string().optional().nullable(),
   allDay: z.boolean().optional().nullable(),
+  sessionId: z.string().optional().nullable(), // Added sessionId as an optional field
   createdAt: z.string().default(() => getCurrentTS()),
   participants: z.string().optional().nullable(),
   updatedAt: z.string().default(() => getCurrentTS()),

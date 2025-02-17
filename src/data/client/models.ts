@@ -492,6 +492,7 @@ export type EventConfiguration = {
     description?: string | null
     location?: string | null
     participants?: Participant[] | null
+    sessionId?: string | null // Added sessionId as optional
     updatedAt: string
     createdAt: string
 
@@ -505,6 +506,7 @@ export type EventConfiguration = {
         this.description = eventDTO.description;
         this.location = eventDTO.location;
         this.participants = typeof eventDTO.participants === 'string' ? JSON.parse(eventDTO.participants) : eventDTO.participants;
+        this.sessionId = eventDTO.sessionId ?? null; // Initialize optional sessionId
         this.createdAt = eventDTO.createdAt;
         this.updatedAt = eventDTO.updatedAt;
     }
@@ -524,6 +526,7 @@ export type EventConfiguration = {
             description: this.description,
             location: this.location,
             participants: JSON.stringify(this.participants),
+            sessionId: this.sessionId || undefined, // Ensure sessionId persists in DTO
             createdAt: this.createdAt,
             updatedAt: this.updatedAt
         };
