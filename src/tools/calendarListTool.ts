@@ -12,14 +12,18 @@ export function createCalendarListTool(agentId: string, sessionId: string, datab
       parameters: z.object({
       }),
       execute: async () => {
-        const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
-        const response =  await eventsRepo.findAll({
-          filter: {
-            agentId
-          }
-        })
-        console.log('!!', agentId, response);
-        return response;
+        try {
+          const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
+          const response =  await eventsRepo.findAll({
+            filter: {
+              agentId
+            }
+          })
+          return response;
+        } catch (e) {
+          console.error(e);
+          return 'Event list failed';
+        }
       },
     }),
   }

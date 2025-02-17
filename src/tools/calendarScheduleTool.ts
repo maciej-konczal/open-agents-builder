@@ -24,14 +24,21 @@ export function createCalendarScheduleTool(agentId: string, sessionId: string, d
       execute: async ({ id, title, description, exclusive, start,
          location, end, participants }: { id: string, title: string, description: string, exclusive: string, start: string, location: string, end: string, participants: string
       }) => {
-        console.log({ id, agentId, title, description, exclusive, start,
-          location, end, participants })
-        const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
+        try {
+          const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
 
-        if (!id) id = uuidv4();
-        const response = await eventsRepo.upsert({ id }, { id, agentId, title, description, exclusive, start: moment(start).toISOString(true), location, end: moment(end).toISOString(true), participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+          if (!id) id = uuidv4();
+          const response = await eventsRepo.upsert({ id }, { id, agentId, title, description, exclusive, start: moment(start).toISOString(true), location, end: moment(end).toISOString(true), participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
 
-        return 'Event scheduled successfully';        
+          if (response) {
+            return 'Event scheduled successfully';        
+          } else {
+            return 'Event scheduling failed';
+          }
+        } catch (e) {
+          console.error(e);
+          return 'Event scheduling failed';
+        }
       },
     }),
   }
