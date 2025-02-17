@@ -112,5 +112,5 @@ export const calendarEvents = sqliteTable('calendarEvents', {
     participants: text('participants', { mode: 'json' }),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
-    sessionId: text('sessionId').references(() => sessions.id)
+    sessionId: text('sessionId')
 });

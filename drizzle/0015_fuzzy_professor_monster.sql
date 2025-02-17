@@ -1,0 +1,1 @@
+ALTER TABLE `calendarEvents` ADD `sessionId` text;
