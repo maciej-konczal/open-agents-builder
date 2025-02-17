@@ -113,13 +113,6 @@
       "when": 1739795218494,
       "tag": "0015_fuzzy_professor_monster",
       "breakpoints": true
-    },
-    {
-      "idx": 16,
-      "version": "6",
-      "when": 1739795593762,
-      "tag": "0016_glorious_firedrake",
-      "breakpoints": true
     }
   ]
 }
