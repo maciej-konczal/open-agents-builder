@@ -280,7 +280,6 @@ export async function renderPrompt(
     localeName,
     `${promptName}.md`
   );
-
   const template = await fs.readFile(filePath, 'utf8');
   return renderTemplate(template, context, customFilters);
 }

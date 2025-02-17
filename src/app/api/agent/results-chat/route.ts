@@ -70,6 +70,7 @@ export async function POST(req: NextRequest) {
   })
 
   const systemPrompt = await renderPrompt(locale, 'results-chat', { agent, currentDateTimeIso, currentLocalDateTime, currentTimezone  });
+
   messages.unshift({
     role: 'system',
     content: systemPrompt
