@@ -50,6 +50,10 @@ export async function POST(req: NextRequest) {
     id: agentId // TODO: fix seearching as it always return the same record!
   }) as AgentDTO);
 
+  const currentDateTimeIso = req.headers.get('Current-Datetime-Iso') || new Date().toISOString();
+  const currentLocalDateTime = req.headers.get('Current-Datetime') || new Date().toLocaleString();
+  const currentTimezone = req.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
   const resultsRepo = new ServerResultRepository(databaseIdHash, saasContext.saasContex?.storageKey);
   const filter = sessionId ? {
       sessionId
@@ -65,7 +69,7 @@ export async function POST(req: NextRequest) {
     } as CoreMessage
   })
 
-  const systemPrompt = await renderPrompt(locale, 'results-chat', { agent, currentDate: new Date().toISOString() });
+  const systemPrompt = await renderPrompt(locale, 'results-chat', { agent, currentDateTimeIso, currentLocalDateTime, currentTimezone  });
   messages.unshift({
     role: 'system',
     content: systemPrompt
