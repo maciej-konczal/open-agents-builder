@@ -158,7 +158,7 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
           <Label htmlFor="session" className="text-right">
             {t('Session')}
           </Label>
-          <Link href={'/admin/agent/' + agentId + '/sessions/' + sessionId} className="col-span-3 text-xs hover:underline text-blue-400 flex">
+          <Link href={'/admin/agent/' + agentId + '/sessions/' + sessionId} className="col-span-3 text-xs hover:underline flex">
             <MessageCircleIcon className="w-4 h-4 mr-2" /> {t('View Session')}</Link>
         </div>
 
