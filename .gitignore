@@ -46,3 +46,4 @@ uploads/*
 .dev.sh
 .prod.sh
 run.sh
+dev.sh
