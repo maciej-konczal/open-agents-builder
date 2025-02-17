@@ -8,6 +8,8 @@ import { llmProviderSetup } from '@/lib/llm-provider';
 import { renderPrompt } from '@/lib/prompt-template';
 import { validateTokenQuotas } from '@/lib/quotas';
 import { getErrorMessage } from '@/lib/utils';
+import { createCalendarListTool } from '@/tools/calendarListTool';
+import { createCalendarScheduleTool } from '@/tools/calendarScheduleTool';
 import { createUpdateResultTool } from '@/tools/updateResultTool';
 import { CoreMessage, streamText } from 'ai';
 import { NextRequest } from 'next/server';
@@ -82,6 +84,8 @@ export async function POST(req: NextRequest) {
       maxSteps: 10,  
       messages,
       tools: {
+        calendarSchedule: createCalendarScheduleTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey).tool,
+        calendarListEvents: createCalendarListTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey).tool,
         updateResults: createUpdateResultTool(databaseIdHash, saasContext.saasContex?.storageKey).tool
       },
       async onFinish({ response, usage }) {

@@ -18,12 +18,12 @@ import { validateTokenQuotas } from '@/lib/quotas';
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined, databaseIdHash: string, storageKey: string | undefined | null): Record<string, Tool> {
+function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined, databaseIdHash: string, storageKey: string | undefined | null, agentId: string, sessionId: string): Record<string, Tool> {
   if (!tools) return {}
   const mappedTools: Record<string, Tool> = {};
   for(const toolKey in tools) {
     const toolConfig = tools[toolKey];
-    const toolDescriptor:ToolDescriptor = toolRegistry.init({databaseIdHash, storageKey})[toolConfig.tool];
+    const toolDescriptor:ToolDescriptor = toolRegistry.init({ databaseIdHash, storageKey, agentId, sessionId })[toolConfig.tool];
     if (!toolDescriptor) {
       console.log(`Tool is not available ${toolConfig.tool}`);
       continue;
@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
 
       },
       tools: {
-        ...await prepareAgentTools(agent.tools, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null),
+        ...await prepareAgentTools(agent.tools, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, agentId, sessionId),
         saveResults: createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
       },
       messages,

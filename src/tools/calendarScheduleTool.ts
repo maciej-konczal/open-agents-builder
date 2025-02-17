@@ -5,7 +5,7 @@ import { ToolDescriptor } from './registry';
 import { v4 as uuidv4 } from "uuid"
 import moment from 'moment';
 
-export function createCalendarScheduleTool(databaseIdHash: string, storageKey: string | undefined | null): ToolDescriptor
+export function createCalendarScheduleTool(agentId: string, sessionId: string, databaseIdHash: string, storageKey: string | undefined | null): ToolDescriptor
 {
   return {
     displayName: 'Schedule event in the calendar',
@@ -14,7 +14,6 @@ export function createCalendarScheduleTool(databaseIdHash: string, storageKey: s
       parameters: z.object({
         id: z.string().describe('Optional ID of the event if passed the event will be updated instead of created. Pass empty string to create new event.'),
         title: z.string().describe('The title of the event'),
-        agentId: z.string().describe('The agent ID'),
         description: z.string().describe('The description of the event'),
         exclusive: z.string().describe('Is this event exclusive - blocking calendar for other events'),
         start: z.string().describe('The start date and time of the event in ISO format with Time Zone offset'),
@@ -22,8 +21,8 @@ export function createCalendarScheduleTool(databaseIdHash: string, storageKey: s
         end: z.string().describe('The end date and time of the event in ISO format with Time Zone offset'),
         participants: z.string().describe('The participants of the event. Should be JSON array of { name, email} object passed as string'),
       }),
-      execute: async ({ id, agentId, title, description, exclusive, start,
-         location, end, participants }: { id: string, agentId: string, title: string, description: string, exclusive: string, start: string, location: string, end: string, participants: string
+      execute: async ({ id, title, description, exclusive, start,
+         location, end, participants }: { id: string, title: string, description: string, exclusive: string, start: string, location: string, end: string, participants: string
       }) => {
         console.log({ id, agentId, title, description, exclusive, start,
           location, end, participants })
@@ -31,8 +30,8 @@ export function createCalendarScheduleTool(databaseIdHash: string, storageKey: s
 
         if (!id) id = uuidv4();
         const response = await eventsRepo.upsert({ id }, { id, agentId, title, description, exclusive, start: moment(start).toISOString(true), location, end: moment(end).toISOString(true), participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
-        console.log('ADDED', response)
-        return response;        
+
+        return 'Event scheduled successfully';        
       },
     }),
   }

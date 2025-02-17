@@ -17,15 +17,15 @@ export type ToolDescriptor = {
 let availableTools:Record<string, ToolDescriptor> | null = null;
 
 export const toolRegistry = {
-  init: ({ databaseIdHash, storageKey }: {databaseIdHash: string, storageKey: string | undefined | null}): Record<string, ToolDescriptor> => {
+  init: ({ databaseIdHash, storageKey, agentId, sessionId }: {agentId: string, sessionId: string, databaseIdHash: string, storageKey: string | undefined | null}): Record<string, ToolDescriptor> => {
     if (availableTools !== null) return availableTools;
     availableTools = {
       sendEmail: createEmailTool({
         apiKey: checkApiKey('Resend.com API key', 'RESEND_API_KEY', process.env.RESEND_API_KEY || ''),
       }),
       currentDate: currentDateTool,
-      calendarSchedule: createCalendarScheduleTool(databaseIdHash, storageKey),
-      calendarList: createCalendarListTool(databaseIdHash, storageKey),
+      calendarSchedule: createCalendarScheduleTool(agentId, sessionId, databaseIdHash, storageKey),
+      calendarList: createCalendarListTool(agentId, sessionId, databaseIdHash, storageKey),
       dayName: dayNameTool
     }
 
