@@ -420,7 +420,7 @@
   "Agent not selecte or not saved. Please save the agent before editing calendar": "Agent nie został wybrany ani zapisany. Zapisz agenta przed edycją kalendarza",
   "Please save the current agent and provide the event title first": "Zapisz bieżącego agenta i podaj najpierw tytuł wydarzenia",
   "Events imported successfully": "Wydarzenia zostały zaimportowane pomyślnie",
-  "Export to JSON": "Eksportun do JSON",
+  "Export to JSON": "Eksportuj do JSON",
   "Import from JSON": "Importuj z JSON",
   "Quick Add Event": "Quick Add Event",
   "Enter event title": "Podaj nazwę wydarzenia",

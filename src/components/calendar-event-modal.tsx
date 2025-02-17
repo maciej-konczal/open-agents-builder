@@ -18,7 +18,8 @@ import type { SlotInfo } from "react-big-calendar"
 import { CalendarEvent, Participant } from "@/data/client/models"
 import moment from "moment"
 import { useTranslation } from "react-i18next"
-import { PlusIcon, Trash, TrashIcon } from "lucide-react"
+import {  MessageCircleIcon, PlusIcon, TrashIcon } from "lucide-react"
+import Link from "next/link"
 
 interface EventModalProps {
   isOpen: boolean
@@ -36,6 +37,8 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
   const [exclusive, setExclusive] = useState(false)
   const [description, setDescription] = useState("")
   const [location, setLocation] = useState("")
+  const [sessionId, setSessionId] = useState("")
+  const [agentId, setAgentId] = useState("")
   const [participants, setParticipants] = useState<Participant[]>([])
   const [newParticipantName, setNewParticipantName] = useState("")
   const [newParticipantEmail, setNewParticipantEmail] = useState("")
@@ -49,6 +52,8 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
       setExclusive(event.exclusive ?? false)
       setDescription(event.description ?? '')
       setLocation(event.location ?? '')
+      setSessionId(event.sessionId ?? '')
+      setAgentId(event.agentId ?? '')
       setParticipants(event.participants ?? [])
     } else if (slotInfo) {
       setStart(slotInfo.start)
@@ -148,6 +153,16 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
               className="col-span-3"
             />
           </div>
+          {sessionId && agentId ? (
+          <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="session" className="text-right">
+            {t('Session')}
+          </Label>
+          <Link href={'/admin/agent/' + agentId + '/sessions/' + sessionId} className="col-span-3 text-xs hover:underline text-blue-400 flex">
+            <MessageCircleIcon className="w-4 h-4 mr-2" /> {t('View Session')}</Link>
+        </div>
+
+          ): null}
           <div className="grid grid-cols-4 items-start gap-4">
             <Label className="text-right">{t('Participants')}</Label>
             <div className="col-span-3 space-y-2">
