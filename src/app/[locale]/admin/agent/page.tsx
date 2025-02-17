@@ -8,7 +8,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (agentContext.agents.length > 0)
-      if (localStorage.getItem('currentAgentId')) {
+      if (localStorage.getItem('currentAgentId') && agentContext.agents.find(agent => agent.id === localStorage.getItem('currentAgentId'))) {
         redirect(`/admin/agent/${localStorage.getItem('currentAgentId')}/general`);
       } else {
         redirect(`/admin/agent/${agentContext.agents[0].id}/general`);
