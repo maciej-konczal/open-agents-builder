@@ -13,7 +13,7 @@ export enum DisplayToolResultsMode {
 export function ChatMessages({ messages, displayToolResultsMode = DisplayToolResultsMode.None, displayTimestamps = false  }: { messages: Message[], displayToolResultsMode?: DisplayToolResultsMode, displayTimestamps: boolean }) {
     const { t } = useTranslation();
     return (
-        messages.filter(m => m.role !== 'system').map((m) => (
+        messages.filter(m => m.role !== 'system' && (typeof m.content === 'string' || (m.content as unknown as Array<{ type: string, result?: string, text?: string }>).find(mc=> mc.type !== 'tool-call' && (mc.text !== '' || mc.result)))).map((m) => (
             <div key={m.id} className={`mb-4 ${m.role === "user" ? "text-right" : "text-left"}`}>
             {displayTimestamps && m.createdAt ? (<span><TimerIcon className="w-4 h-4"/>{new Date(m.createdAt).toLocaleString()}</span>) : null}
               <span
@@ -26,7 +26,7 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                     {m.toolInvocations.filter(tl=>tl.state === 'result').map((tl) => (
                       <div key={tl.toolCallId} className="mb-2">
                         <span className="font-bold">{t('Tool response: ')}</span>
-                        <span className="ml-2">{tl.result ? (typeof tl.result === 'string' ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(tl.result)}</Markdown>) : (<JsonView value={tl.result} />)) : t('N/A') }</span>
+                        <span className="ml-2">{tl.result ? (typeof tl.result === 'string' ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(tl.result)}</Markdown>) : (<JsonView collapsed={true} value={tl.result} />)) : t('N/A') }</span>
                       </div>
                     ))}
                   </div>
@@ -36,7 +36,15 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                   (m.content && typeof m.content === 'string' ? <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{m.content}</Markdown> : (
                       (m.content as unknown as Array<{ type: string, result?: string, text?: string }>).map((c) => {
                         if (c.type === 'text' && c.text) return (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{c.text}</Markdown>)
-                        if (c.type === 'tool-result' && c.result && displayToolResultsMode !== DisplayToolResultsMode.None) return (typeof c.result === 'string' ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(c.result)}</Markdown>) : (<JsonView value={c.result} />));
+                        if (c.type === 'tool-result' && c.result && displayToolResultsMode !== DisplayToolResultsMode.None) return (
+                          <div className="mb-2">
+                            <span className="font-bold">{t('Tool response: ')}</span>
+                            {(typeof c.result === 'string' ? 
+                                (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(c.result)}</Markdown>) : 
+                                (<JsonView collapsed={true} value={c.result} />)
+                            )}                            
+                          </div>
+                        )
                       })
                     )
                 )}
