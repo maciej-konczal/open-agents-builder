@@ -20,6 +20,7 @@ import moment from "moment"
 import { useTranslation } from "react-i18next"
 import {  MessageCircleIcon, PlusIcon, TrashIcon } from "lucide-react"
 import Link from "next/link"
+import { set } from "date-fns"
 
 interface EventModalProps {
   isOpen: boolean
@@ -56,6 +57,11 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
       setAgentId(event.agentId ?? '')
       setParticipants(event.participants ?? [])
     } else if (slotInfo) {
+      setTitle('')
+      setDescription('')
+      setLocation('')
+      setParticipants([])
+      setSessionId('')
       setStart(slotInfo.start)
       setEnd(slotInfo.end)
     }

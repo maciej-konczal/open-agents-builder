@@ -187,9 +187,7 @@ export default function Scheduler() {
           endAccessor="end"
           onSelectSlot={handleSelectSlot}
           onSelectEvent={handleSelectEvent}
-          onEventDrop={moveEvent}
           selectable
-          resizable
           eventPropGetter={eventStyleGetter}
         />
       </div>
