@@ -12,7 +12,7 @@ Agent Doodle let you create interactive AI agents that:
 - ✏️ can collect the **leads** or save them in external CRM,
 - 🛠️ are able to call all set of tools - sending e-mails, accessing calendar, external CRM's, data sources etc.
 
-<img src=".readme-assets/screenshot-7.png>
+<img src=".readme-assets/screenshot-7.png" />
 
 **Create an agent, get a unique link, send it to the users or share on your webpage!**
 
