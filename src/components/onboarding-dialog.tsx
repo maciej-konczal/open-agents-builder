@@ -68,12 +68,6 @@ export function OnboardingDialog() {
                     ))}
                 </div>
                 <div className="text-center mt-6">
-                    <div className="mb-2">
-                        <Checkbox id="dont-show-again" defaultChecked={false} className="text-xs mr-2" onChange={(e) => {
-                            localStorage.setItem('onboarding', (!e.target.checked).toString());
-                        }} />
-                        <label className="text-xs" htmlFor="dont-show-again">{t('Do not show this dialog again')}</label>
-                    </div>
                     <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white" onClick={(e) => {
                         setOnboardingOpen(false)
                         templateContext?.setTemplatePopupOpen(true)                        
@@ -82,6 +76,13 @@ export function OnboardingDialog() {
                         <Sparkles className="w-4 h-4 ml-2" />
                     </Button>
                 </div>
+                <div className="mt-2 text-center">
+                        <Checkbox id="dont-show-again" defaultChecked={false} className="text-xs mr-2" onChange={(e) => {
+                            localStorage.setItem('onboarding', (!e.target.checked).toString());
+                        }} />
+                        <label className="text-xs" htmlFor="dont-show-again">{t('Do not show this dialog again')}</label>
+                    </div>
+
             </DialogContent>
         </Dialog>
     );

@@ -9,12 +9,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { agentTypesRegistry } from "@/prompts/agent-types-registry";
+import Markdown from "react-markdown";
+import { InfoIcon } from "lucide-react";
 
 export function AgentTypeSelect() {
   const { t, i18n } = useTranslation();
 
   // Access form methods from context (requires <FormProvider> in the parent).
   const { control } = useFormContext();
+  const [agentDescription, setAgentDescription] = React.useState("");
+
+  const agentDescriptions: Record<string, string> = {
+    "survey-agent": t("Survey agents are used to collect the information or opionions from the users. Based on the previous answers they can **dynamically adjust** next questions. These agents save the answers for further processing in the desire format. Can replace tools like **Forms, Polls, Intake forms** etc."),
+    "smart-assistant": t("Smart assistants are **general purpose agents**. They can use tools for example checking Your calendar or booking new events. They can also be used for surveys (mixed with some other tasks) but needs to be finetuned for doing so on the prompt level."),
+
+  }
 
   // Tie the `Select` to the "locale" field using React Hook Form's useController
   const {
@@ -30,7 +39,7 @@ export function AgentTypeSelect() {
 
   return (
     <div>
-      <Select value={value} onValueChange={onChange} onBlur={onBlur} ref={ref}>
+      <Select value={value} onValueChange={(onChange)} onBlur={onBlur} ref={ref}>
         <SelectTrigger
           id="locale"
           className="mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -44,6 +53,10 @@ export function AgentTypeSelect() {
           ))}          
         </SelectContent>
       </Select>
+      <div className="text-xs dark:text-gray-200 p-2 flex">
+        <div><InfoIcon className="w-4 h-4 mr-2" /></div>
+        <Markdown>{agentDescriptions[value]}</Markdown>
+      </div>
 
       {error && (
         <p className="text-red-500 text-sm mt-1">{error.message}</p>
