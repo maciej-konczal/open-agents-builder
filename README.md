@@ -12,6 +12,8 @@ Agent Doodle let you create interactive AI agents that:
 - ✏️ can collect the **leads** or save them in external CRM,
 - 🛠️ are able to call all set of tools - sending e-mails, accessing calendar, external CRM's, data sources etc.
 
+<img src=".readme-assets/screenshot-7.png>
+
 **Create an agent, get a unique link, send it to the users or share on your webpage!**
 
 It can literally replace dozen other SaaS tools like:
@@ -27,6 +29,40 @@ It can literally replace dozen other SaaS tools like:
 ## Screenshots
 
 <table>
+    <tr>
+        <td>
+            <a href=".readme-assets/screenshot-13.png">
+                <img src=".readme-assets/screenshot-13.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-11.png">
+                <img src=".readme-assets/screenshot-11.png" alt="Screenshot" />
+            </a>      
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-9.png">
+                <img src=".readme-assets/screenshot-9.png" alt="Screenshot" />
+            </a>      
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href=".readme-assets/screenshot-12.png">
+                <img src=".readme-assets/screenshot-12.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-14.png">
+                <img src=".readme-assets/screenshot-14.png" alt="Screenshot" />
+            </a>      
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-15.png">
+                <img src=".readme-assets/screenshot-15.png" alt="Screenshot" />
+            </a>      
+        </td>
+    </tr>
     <tr>
         <td>
             <a href=".readme-assets/screenshot-1.png">
