@@ -69,7 +69,7 @@ export function AgentHeader() {
     <div className="flex h-14 items-center justify-between border-b bg-card px-6">
       <div className="flex items-center gap-4">
         <Select value={currentId} onValueChange={handleAgentChange}>
-          <SelectTrigger className="w-[280px]">
+          <SelectTrigger className="w-[230px]">
             <SelectValue placeholder={t('Select project')} />
           </SelectTrigger>
           <SelectContent>
@@ -80,10 +80,11 @@ export function AgentHeader() {
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={() => router.push('/admin/agent/new/general')}>
+        <Button variant="outline" size="sm" className="md:hidden lg:flex" onClick={() => router.push('/admin/agent/new/general')}>
           <Plus className="mr-2 h-4 w-4" />
-          {t('Add Agent')}
+          <span className="md:hidden lg:flex">{t('Add Agent')}</span>
         </Button>
+        
         <TemplateListPopup />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -109,7 +110,7 @@ export function AgentHeader() {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" className="" size="sm">
-              <ShareIcon className="h-4 w-4" /> {t('Export / Import agent')}
+              <ShareIcon className="h-4 w-4" /> <span className="md:hidden lg:flex">{t('Export / Import agent')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -130,12 +131,12 @@ export function AgentHeader() {
               openFilePicker();
             }}><ImportIcon className="mr-2 h-4 w-4"/>{t('Import agent from JSON ...')}</DropdownMenuItem>
           </DropdownMenuContent>
-        </DropdownMenu>        
+        </DropdownMenu>  
         <AgentDeleteDialog />
           {agentContext.current?.id !== 'new' ? (
           <Button variant={"secondary"} size="sm" onClick={(e) => agentContext.setAgentDeleteDialogOpen(true)}>
             <Trash2Icon className="mr-2 h-4 w-4"  />
-            {t('Delete agent')}
+            <span className="md:hidden lg:flex">{t('Delete agent')}</span>
           </Button>        
           ) : null}
 
