@@ -48,11 +48,12 @@ export default async function GeneralAgentLayout({
                         <Header />
                         <AgentHeader />
                         <SaaSNotifications />
+                        <OnboardingDialog />
+
                         <div className="flex flex-1 overflow-hidden">
                           {children}
                         </div>
                       </div>
-                      <OnboardingDialog />
                     </TemplateProvider>
                   </AgentProvider>
                 </StatsContextProvider>
