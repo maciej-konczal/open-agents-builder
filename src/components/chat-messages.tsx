@@ -36,7 +36,7 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                   (m.content && typeof m.content === 'string' ? <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{m.content}</Markdown> : (
                       (m.content as unknown as Array<{ type: string, result?: string, text?: string }>).map((c) => {
                         if (c.type === 'text' && c.text) return (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{c.text}</Markdown>)
-                        if (c.type === 'tool-result' && c.result) return (typeof c.result === 'string' ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(c.result)}</Markdown>) : (<JsonView value={c.result} />));
+                        if (c.type === 'tool-result' && c.result && displayToolResultsMode !== DisplayToolResultsMode.None) return (typeof c.result === 'string' ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(c.result)}</Markdown>) : (<JsonView value={c.result} />));
                       })
                     )
                 )}
