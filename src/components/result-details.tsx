@@ -5,6 +5,7 @@ import { BarChartIcon, CalendarIcon, Mail, MessageCircleIcon, TagIcon, TimerIcon
 import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/utils"
 import Link from "next/link"
+import { SessionHeader } from "./session-header"
 
 export interface ResultDetailsProps {
   sessionStart: Date
@@ -36,15 +37,7 @@ const ResultDetails: FC<ResultDetailsProps> = ({
     <Card className="w-full">
       <CardContent className="p-4">
         <div className="grid grid-cols-2 gap-2 text-sm w-full">
-          <div className="col-span-2 flex justify-between items-center mb-2">
-            {userName ? (<h2 className="text-lg font-semibold">{userName}</h2>) : null}
-            {userEmail ? (
-              <a href={`mailto:${userEmail}`} className="text-primary hover:underline flex items-center">
-                <Mail className="w-4 h-4 mr-1" />
-                {userEmail}
-              </a>
-            ) : null}
-          </div>
+          <SessionHeader session={{ userName, userEmail }} />
 
           <div className="flex">
             <CalendarIcon className="w-4 h-4 mr-2" /> {t('Started')}: <span className="ml-2 font-medium">{formatDate(sessionStart)}</span>

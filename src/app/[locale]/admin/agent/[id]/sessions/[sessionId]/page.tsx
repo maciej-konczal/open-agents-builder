@@ -13,6 +13,7 @@ import { MoveLeftIcon } from 'lucide-react';
 import { useCopyToClipboard } from 'react-use';
 import { DatabaseContext } from '@/contexts/db-context';
 import { RenderSession } from '@/components/render-session';
+import { SessionHeader } from '@/components/session-header';
 
 
 export default function SingleResultPage() {
@@ -43,16 +44,19 @@ export default function SingleResultPage() {
     <div className="space-y-6">
       <Button size="sm" variant="outline" onClick={() => history.back()}><MoveLeftIcon /> {t('Back')}</Button>
       <Card>
-        <CardContent className="p-6">
-              <RenderSession session={session} />
-              <div className="p-4">
-                <ChatMessages 
-                      displayTimestamps={true}
-                      displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
-                      messages={session?.messages ?? []}
-                  />
-              </div>
-        </CardContent>
+        {session ? (
+          <CardContent className="p-6">
+                <SessionHeader session={session} />
+                <RenderSession session={session} />
+                <div className="p-4">
+                  <ChatMessages 
+                        displayTimestamps={true}
+                        displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
+                        messages={session?.messages ?? []}
+                    />
+                </div>
+          </CardContent>
+        ) : (<CardContent>{t('Loading session...')}</CardContent>)}
       </Card>
 
     </div>

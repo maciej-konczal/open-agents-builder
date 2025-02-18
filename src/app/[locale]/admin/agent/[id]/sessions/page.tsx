@@ -18,6 +18,7 @@ import { useDebounce } from 'use-debounce';
 import { Input } from '@/components/ui/input';
 import { useCopyToClipboard } from 'react-use';
 import { SessionDeleteDialog } from '@/components/session-delete-dialog';
+import { SessionHeader } from '@/components/session-header';
 
 
 export default function SessionsPage() {
@@ -70,7 +71,6 @@ export default function SessionsPage() {
               router.push(`/admin/agent/${session.agentId}/sessions/${session.id}`);
             }}>
               <FolderOpenIcon className="w-4 h-4" />
-              {t('Messages')}
             </Button>
 
             <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
@@ -89,10 +89,10 @@ export default function SessionsPage() {
                 {t('Result')}
               </Button>
             ) : null}
-
-              <Link href={`/admin/agent/${session.agentId}/sessions/${session.id}`}>{new Date(session.createdAt).toLocaleString()} {session.userName ? session.userName : ''} {session.userEmail ? session.userEmail : ''}</Link></CardTitle>
+          </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
+            <SessionHeader session={session} />
             <RenderSession session={session} />
             <div className="pt-4 flex justify-end">
               <SessionDeleteDialog session={session} />

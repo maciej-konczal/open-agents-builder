@@ -16,16 +16,6 @@ export function RenderSession({ session }: { session: Session | undefined}) {
 
     return (
         <div className="grid grid-cols-2 gap-2 text-sm w-full">
-          <div className="col-span-2 flex justify-between items-center mb-2">
-            {session.userName ? (<h2 className="text-lg font-semibold">{session.userName}</h2>) : null}
-            {session.userEmail ? (
-              <a href={`mailto:${session.userEmail}`} className="text-primary hover:underline flex items-center">
-                <Mail className="w-4 h-4 mr-1" />
-                {session.userEmail}
-              </a>
-            ) : null}
-          </div>
-
           <div className="flex">
             <CalendarIcon className="w-4 h-4 mr-2" /> {t('Started')}: <span className="ml-2 font-medium">{session.createdAt ? formatDate(new Date(session?.createdAt)) : t('N/A')}</span>
           </div>

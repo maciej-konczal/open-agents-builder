@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useChat } from 'ai/react';
 import { nanoid } from 'nanoid';
 import { DatabaseContext } from '@/contexts/db-context';
-import {  FolderOpenIcon, Loader2, MessageCircleIcon, Share2Icon, ShareIcon } from 'lucide-react';
+import {  FolderOpenIcon, Loader2, Mail, MessageCircleIcon, Share2Icon, ShareIcon } from 'lucide-react';
 import InfiniteScroll from '@/components/infinite-scroll';
 import { getErrorMessage } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -23,6 +23,7 @@ import { useDebounce } from "use-debounce";
 import { SaaSContext } from '@/contexts/saas-context';
 import { useCopyToClipboard } from 'react-use';
 import { ResultDeleteDialog } from '@/components/result-delete-dialog';
+import { SessionHeader } from '@/components/session-header';
 
 
 export default function ResultsPage() {
@@ -145,7 +146,6 @@ export default function ResultsPage() {
               router.push(`/admin/agent/${result.agentId}/results/${result.sessionId}`);
             }}>
               <FolderOpenIcon className="w-4 h-4" />
-              {t('Open details ...')}
             </Button>
 
             <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
@@ -154,10 +154,10 @@ export default function ResultsPage() {
             }}>
               <Share2Icon className="w-4 h-4" />
             </Button>            
-
-              <Link href={`/admin/agent/${result.agentId}/results/${result.sessionId}`}>{new Date(result.createdAt).toLocaleString()} {result.userName ? result.userName : ''} {result.userEmail ? result.userEmail : ''}</Link></CardTitle>
+          </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
+            <SessionHeader session={result} />
             <RenderResult result={result} />
             <div className="pt-4 flex justify-end">
               <ResultDeleteDialog result={result} />
