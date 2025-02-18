@@ -21,6 +21,7 @@ import { nanoid } from 'nanoid';
 import { Chat } from '@/components/chat';
 import { Credenza, CredenzaTrigger, CredenzaContent } from '@/components/credenza';
 import { SaaSContext } from '@/contexts/saas-context';
+import DataLoader from '@/components/data-loader';
 
 
 export default function SingleResultPage() {
@@ -111,54 +112,59 @@ export default function SingleResultPage() {
             {new Date(result?.createdAt ?? Date.now()).toLocaleString()} {result?.userName} {result?.userEmail ? `- ${result.userEmail}` : ''}
           </CardTitle>  
         </CardHeader> */}
-        <CardContent className="pt-6">
-          <ResultDetails 
-            sessionId={result?.sessionId || ''}
-            userName={result?.userName || ''}
-            userEmail={result?.userEmail || ''}
-            sessionStart={new Date(session?.createdAt ?? Date.now())}
-            sessionEnd={new Date(result?.finalizedAt ?? Date.now())}
-            messageCount={session?.messages?.length ?? 0}
-            inputTokens={session?.promptTokens ?? 0} // TODO: implement inputTokens,
-            outputTokens={session?.completionTokens ?? 0} // TODO: implement outputTokens,            
-          /> 
-          <Tabs defaultValue="content" className="mt-4">
-            <TabsList className="grid grid-cols-2">
-                <TabsTrigger value="content" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Result')}</TabsTrigger>
-                <TabsTrigger value="chat" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Message history')}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="content" className="p-2 text-sm">
-              <RenderResult result={result} />
-              <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
-                try {
-                  if(result?.content) copy(result?.content)
-                    toast.info(t('Copied to clipboard!'));
-                } catch (e){
-                  toast.error(t(getErrorMessage(e)))
-                }
-              }}>
-                <CopyIcon className="w-4 h-4" />{t('Copy')}
-              </Button>              
-              <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
-                if (result) agentContext.exportSingleResult(result)
-              }}>
-                <SaveIcon className="w-4 h-4" />{t('Export to file')}
-              </Button>
-              <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
-                setChatOpen(true);
-              }}>
-                <WandSparkles className="w-4 h-4" />{t('Transform with AI')}
-              </Button>
-            </TabsContent>      
-            <TabsContent value="chat" className="p-2 text-sm">
-              <ChatMessages 
-                    displayTimestamps={true}
-                    displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
-                    messages={session?.messages ?? []}
-                />
-              </TabsContent>
-          </Tabs>                  
-        </CardContent>
+          { result ? (
+          <CardContent className="pt-6">
+            <ResultDetails 
+              sessionId={result?.sessionId || ''}
+              userName={result?.userName || ''}
+              userEmail={result?.userEmail || ''}
+              sessionStart={new Date(session?.createdAt ?? Date.now())}
+              sessionEnd={new Date(result?.finalizedAt ?? Date.now())}
+              messageCount={session?.messages?.length ?? 0}
+              inputTokens={session?.promptTokens ?? 0} // TODO: implement inputTokens,
+              outputTokens={session?.completionTokens ?? 0} // TODO: implement outputTokens,            
+            /> 
+            <Tabs defaultValue="content" className="mt-4">
+              <TabsList className="grid grid-cols-2">
+                  <TabsTrigger value="content" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Result')}</TabsTrigger>
+                  <TabsTrigger value="chat" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Message history')}</TabsTrigger>
+              </TabsList>
+              <TabsContent value="content" className="p-2 text-sm">
+                <RenderResult result={result} />
+                <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
+                  try {
+                    if(result?.content) copy(result?.content)
+                      toast.info(t('Copied to clipboard!'));
+                  } catch (e){
+                    toast.error(t(getErrorMessage(e)))
+                  }
+                }}>
+                  <CopyIcon className="w-4 h-4" />{t('Copy')}
+                </Button>              
+                <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
+                  if (result) agentContext.exportSingleResult(result)
+                }}>
+                  <SaveIcon className="w-4 h-4" />{t('Export to file')}
+                </Button>
+                <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {
+                  setChatOpen(true);
+                }}>
+                  <WandSparkles className="w-4 h-4" />{t('Transform with AI')}
+                </Button>
+              </TabsContent>      
+              <TabsContent value="chat" className="p-2 text-sm">
+                <ChatMessages 
+                      displayTimestamps={true}
+                      displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
+                      messages={session?.messages ?? []}
+                  />
+                </TabsContent>
+            </Tabs>                  
+          </CardContent>
+          ) : (<CardContent>
+            <div className="flex justify-center items-center h-64">
+              <DataLoader />
+            </div></CardContent>)}
       </Card>
 
     </div>

@@ -14,6 +14,7 @@ import { useCopyToClipboard } from 'react-use';
 import { DatabaseContext } from '@/contexts/db-context';
 import { RenderSession } from '@/components/render-session';
 import { SessionHeader } from '@/components/session-header';
+import DataLoader from '@/components/data-loader';
 
 
 export default function SingleResultPage() {
@@ -56,7 +57,11 @@ export default function SingleResultPage() {
                     />
                 </div>
           </CardContent>
-        ) : (<CardContent>{t('Loading session...')}</CardContent>)}
+        ) : (<CardContent>
+          <div className="flex justify-center items-center h-64">
+            <DataLoader />
+          </div>
+        </CardContent>)}
       </Card>
 
     </div>

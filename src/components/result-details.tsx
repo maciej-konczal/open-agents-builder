@@ -39,25 +39,25 @@ const ResultDetails: FC<ResultDetailsProps> = ({
         <div className="grid grid-cols-2 gap-2 text-sm w-full">
           <SessionHeader session={{ userName, userEmail }} />
 
-          <div className="flex">
+          <div className="flex text-xs">
             <CalendarIcon className="w-4 h-4 mr-2" /> {t('Started')}: <span className="ml-2 font-medium">{formatDate(sessionStart)}</span>
           </div>
           
-          <div className="flex">
+          <div className="flex text-xs">
             <CalendarIcon className="w-4 h-4 mr-2" /> {t('Ended')}: <span className="ml-2 font-medium">{formatDate(sessionEnd)}</span>
           </div>
 
-          <div className="flex">
+          <div className="flex text-xs">
             <TimerIcon className="w-4 h-4 mr-2" /> {t('Duration')}: <span className="ml-2 font-medium">{durationInMinutes} {t('min')}</span>
           </div>
           
-          <div className="flex">
+          <div className="flex text-xs">
             <Link className="flex" href={`/admin/agent/${sessionId}/sessions/${sessionId}`}>
               <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{messageCount}</span>
             </Link>
           </div>
 
-          <div className="flex">
+          <div className="flex text-xs">
             <Link className="flex" href={`/admin/agent/${sessionId}/sessions/${sessionId}`}>
               <TagIcon className="w-4 h-4 mr-2" /> {t('Session Id')}: <span className="ml-2 font-medium">{sessionId}</span>
             </Link>
