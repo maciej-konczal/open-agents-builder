@@ -8,7 +8,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
     try {
 
         const authorizedContext = await authorizeSaasContext(request); // authorize SaaS context
-        if (!authorizedContext.hasAccess) {
+        if (!authorizedContext.hasAccess || !authorizedContext.saasContex) {
             return Response.json({
                 message: authorizedContext.error,
                 status: 403

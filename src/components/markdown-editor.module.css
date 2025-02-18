@@ -25,8 +25,8 @@
   --baseBorderHover: var(--mauve-8);
   --baseSolid: var(--mauve-9);
   --baseSolidHover: var(--mauve-10);
-  --baseText: var(--mauve-11);
-  --baseTextContrast: var(--mauve-12);
+  --baseText: #fff;
+  --baseTextContrast: #fff;
 
   --admonitionTipBg: var(--cyan4);
   --admonitionTipBorder: var(--cyan8);

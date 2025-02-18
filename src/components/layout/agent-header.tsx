@@ -87,7 +87,6 @@ export function AgentHeader() {
         </Button>
         
         <TemplateListPopup />
-        <OnboardingDialog />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" className="" size="sm">

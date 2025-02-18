@@ -1,6 +1,6 @@
 import { Dialog, DialogTrigger, DialogContent, DialogTitle } from "@radix-ui/react-dialog";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { Button } from "react-day-picker";
+import { Button } from "./ui/button";
 import { Card, CardContent } from "./ui/card";
 import { DialogHeader } from "./ui/dialog";
 import { useContext, useEffect, useState } from "react";
@@ -27,7 +27,7 @@ export function OnboardingDialog() {
             setOnboardingOpen(v);
             localStorage.setItem('onboarding', v.toString());
         }}>
-            <DialogContent className="sm:max-w-[600px] md:max-w-[800px]">
+            <DialogContent className="sm:max-w-[600px] md:max-w-[800px] z-50 bg-background">
                 <DialogHeader>
                     <DialogTitle className="text-center">
                         <div className="flex-row h-40 w-40"><img src="/img/agent-doodle-logo.svg" /></div>

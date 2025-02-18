@@ -6,6 +6,7 @@ import AuthorizationGuard from '@/components/authorization-guard';
 import { AgentHeader } from '@/components/layout/agent-header';
 import { AgentSidebar } from '@/components/layout/agent-sidebar';
 import { Header } from '@/components/layout/header';
+import { OnboardingDialog } from '@/components/onboarding-dialog';
 import { SaaSNotifications } from '@/components/saas-notifications';
 import { AgentProvider } from '@/contexts/agent-context';
 import { AuditContextProvider } from '@/contexts/audit-context';
@@ -51,6 +52,7 @@ export default async function GeneralAgentLayout({
                           {children}
                         </div>
                       </div>
+                      <OnboardingDialog />
                     </TemplateProvider>
                   </AgentProvider>
                 </StatsContextProvider>
