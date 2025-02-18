@@ -449,5 +449,7 @@
   "More templates ...": "Więcej szablonów ...",
   "Open details": "Szczegóły",
   "Session": "Sesja",
-  "View Session": "Pokaż sesję"
+  "View Session": "Pokaż sesję",
+  "Survey agents are used to collect the information or opionions from the users. Based on the previous answers they can **dynamically adjust** next questions. These agents save the answers for further processing in the desire format. Can replace tools like **Forms, Polls, Intake forms** etc.": "Agent ankietowy służy do zbierania informacji lub opinii od użytkowników. Na podstawie poprzednich odpowiedzi mogą **dynamicznie dostosowywać** kolejne pytania. Agenci ci zapisują odpowiedzi do dalszego przetwarzania w pożądanym formacie. Mogą zastąpić narzędzia takie jak **Formularze, Ankiety, Formularze zgłoszeniowe** itp.",
+  "Smart assistants are **general purpose agents**. They can use tools for example checking Your calendar or booking new events. They can also be used for surveys (mixed with some other tasks) but needs to be finetuned for doing so on the prompt level.": "Inteligentni asystenci to **agenci ogólnego przeznaczenia**. Mogą korzystać z narzędzi, na przykład sprawdzając Twój kalendarz lub rezerwując nowe wydarzenia. Mogą być również używane do ankiet (mieszanych z innymi zadaniami), ale wymagają dostrojenia na poziomie instrukcji."
 }
