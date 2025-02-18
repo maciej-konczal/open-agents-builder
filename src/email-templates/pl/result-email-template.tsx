@@ -17,6 +17,7 @@ import {
     dracula,
     Markdown,
   } from "@react-email/components";
+import { max } from "moment";
   import * as React from "react";
   
   export interface CreateResultEmailTemplateProps {
@@ -104,7 +105,7 @@ import {
   };
   
   const button = {
-    backgroundColor: "#000",
+    backgroundColor: "#4b0082",
     borderRadius: "3px",
     fontWeight: "600",
     color: "#fff",
@@ -113,6 +114,7 @@ import {
     textAlign: "center" as const,
     display: "block",
     padding: "11px 23px",
+    maxWidth: "200px"
   };
   
   const reportLink = {
