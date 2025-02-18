@@ -24,6 +24,8 @@ import { SaaSContext } from '@/contexts/saas-context';
 import { useCopyToClipboard } from 'react-use';
 import { ResultDeleteDialog } from '@/components/result-delete-dialog';
 import { SessionHeader } from '@/components/session-header';
+import { SessionMessagesDialog } from '@/components/session-messages-dialog';
+import { DisplayToolResultsMode } from '@/components/chat-messages';
 
 
 export default function ResultsPage() {
@@ -147,6 +149,9 @@ export default function ResultsPage() {
             }}>
               <FolderOpenIcon className="w-4 h-4" />
             </Button>
+
+            <SessionMessagesDialog sessionId={result.sessionId} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} />
+
 
             <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
               copy(process.env.NEXT_PUBLIC_APP_URL + `/admin/agent/${result.agentId}/results/${result.sessionId}`)

@@ -5,6 +5,7 @@ import styles from './chat.module.css';
 import { useTranslation } from "react-i18next";
 import { TimerIcon } from "lucide-react";
 import JsonView from "@uiw/react-json-view";
+import { ChatMessageToolResponse } from "./chat-message-tool-response";
 
 export enum DisplayToolResultsMode {
     None = 'none',
@@ -26,7 +27,7 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                     {m.toolInvocations.filter(tl=>tl.state === 'result').map((tl) => (
                       <div key={tl.toolCallId} className="mb-2">
                         <span className="font-bold">{t('Tool response: ')}</span>
-                        <span className="ml-2">{tl.result ? (typeof tl.result === 'string' ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(tl.result)}</Markdown>) : (<JsonView collapsed={true} value={tl.result} />)) : t('N/A') }</span>
+                        <span className="ml-2">{tl.result ? (typeof tl.result === 'string' ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(tl.result)}</Markdown>) : (<ChatMessageToolResponse result={tl.result} />)) : t('N/A') }</span>
                       </div>
                     ))}
                   </div>
@@ -41,7 +42,7 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                             <span className="font-bold">{t('Tool response: ')}</span>
                             {(typeof c.result === 'string' ? 
                                 (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(c.result)}</Markdown>) : 
-                                (<JsonView collapsed={true} value={c.result} />)
+                                (<ChatMessageToolResponse result={c.result} />)
                             )}                            
                           </div>
                         )
