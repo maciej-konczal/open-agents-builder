@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
                     status: 409
                 });            
             } else {
-                if (!saasContext.hasAccess && saasContext.isSaasMode) {
+                if (saasContext.isSaasMode) {
     
                     const appId = process.env.SAAS_APP_ID || 'agentdoodle';
                     const adminApiKey = process.env.SAAS_API_KEY;
