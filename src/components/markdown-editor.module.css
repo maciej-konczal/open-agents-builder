@@ -19,14 +19,14 @@
   --baseBgSubtle: var(--mauve-2);
   --baseBg: var(--mauve-3);
   --baseBgHover: var(--mauve-4);
-  --baseBgActive: var(--mauve-5);
+  --baseBgActive: #666;
   --baseLine: var(--mauve-6);
-  --baseBorder: var(--mauve-7);
+  --baseBorder: #555;
   --baseBorderHover: var(--mauve-8);
   --baseSolid: var(--mauve-9);
   --baseSolidHover: var(--mauve-10);
-  --baseText: #fff;
-  --baseTextContrast: #fff;
+  --baseText: var(--mauve-10);
+  --baseTextContrast: var(--mauve-11);
 
   --admonitionTipBg: var(--cyan4);
   --admonitionTipBorder: var(--cyan8);
@@ -50,3 +50,4 @@
   --basePageBg: black;
   background: var(--basePageBg);
 }
+
