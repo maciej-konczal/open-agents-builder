@@ -227,6 +227,7 @@ export class Agent {
     status: AgentStatus;
     createdAt: string;
     updatedAt: string;
+    icon?: string | null;
 
     constructor(agentDTO: AgentDTO | Agent) {
         this.id = agentDTO.id;
@@ -246,6 +247,8 @@ export class Agent {
         this.locale = agentDTO.locale || 'en';
         this.agentType = agentDTO.agentType;
         this.status = agentDTO.status === 'deleted' ? AgentStatus.Deleted : AgentStatus.Active;
+
+        this.icon = agentDTO.icon;
     }
 
     static fromDTO(agentDTO: AgentDTO): Agent {
@@ -267,6 +270,7 @@ export class Agent {
             status: this.status,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
+            icon: this.icon
         };
     }
 

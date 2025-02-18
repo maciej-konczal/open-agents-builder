@@ -24,6 +24,7 @@ import { AgentDeleteDialog } from '../agent-delete-dialog';
 import { useFilePicker } from 'use-file-picker';
 import { getErrorMessage } from '@/lib/utils';
 import { useCopyToClipboard } from 'react-use';
+import { OnboardingDialog } from '../onboarding-dialog';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -86,6 +87,7 @@ export function AgentHeader() {
         </Button>
         
         <TemplateListPopup />
+        <OnboardingDialog />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" className="" size="sm">

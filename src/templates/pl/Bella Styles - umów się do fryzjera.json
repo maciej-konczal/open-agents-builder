@@ -39,5 +39,6 @@
     "updatedAt": "2025-02-16 13:24:38",
     "locale": "pl",
     "agentType": "smart-assistant",
-    "status": "active"
+    "status": "active",
+    "icon": "bella.webp"
 }

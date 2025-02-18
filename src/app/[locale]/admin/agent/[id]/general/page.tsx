@@ -4,7 +4,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useAgentContext } from '@/contexts/agent-context';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { FormProvider, useForm, UseFormGetValues, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 import { Agent } from '@/data/client/models';
 import { toast } from 'sonner';
@@ -24,10 +24,13 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
   const params = useParams();
   const agentContext = useAgentContext();
 
-  useEffect(() => {
-    if (!agent && params.id) { // agent does not exist, but id is provided
+  useEffect(() => { 
+    if (agentContext.agents && agentContext.agents.length > 0 && !agent && params.id) { // agent does not exist, but id is provided
       router.push(`/admin/agent/new/general`);
     }
+  }, [agentContext.agents]);
+
+  useEffect(() => {
     if (agent && agent.id === params.id) { // bind the tracking changes only for the currently selected agent
       //agent.toForm(setValue); // load the database values
         const dirtyCheck = (async (originalRecord: Record<string, any>, value: Record<string, any>) => {
