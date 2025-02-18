@@ -50,7 +50,7 @@ export function OnboardingDialog() {
                                     <img src={'/img/onboarding-icons/' + template.icon} alt={template.displayName} className="w-12 h-12 mr-3" />
                         
                                     <div>
-                                        <h3 className="text-lg font-semibold dark:text-gray-200 text-gray-800">{template.displayName}</h3>
+                                        <h3 className="text-lg font-semibold">{template.displayName}</h3>
                                         <p className="text-xs text-gray-600 dark:text-gray-500"><Markdown>{template.options?.welcomeMessage?.length > 80 ? template.options?.welcomeMessage.slice(0, 80)  : template.options?.welcomeMessage}</Markdown></p>
                                     </div>
                                 </div>
