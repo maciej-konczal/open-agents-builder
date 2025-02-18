@@ -440,5 +440,14 @@
   "Make changes to your event here. Click save when you're done.": "Dokonaj zmian w swoim wydarzeniu tutaj. Kliknij zapisz, gdy skończysz.",
   "Current-Datetime-Iso": "Current-Datetime-Iso",
   "Current-Datetime": "Current-Datetime",
-  "Current-Timezone": "Current-Timezone"
+  "Current-Timezone": "Current-Timezone",
+  "icon": "icon",
+  "Welcome to Agent Doodle": "Welcome to Agent Doodle",
+  "In Agent Doodle, you create an AI Assistant that will chat with your customers, colleagues, or anyone who gets the link. Choose a template to get started creating your first Assistant.": "W Agent Doodle tworzysz Asystenta AI, który będzie rozmawiał z Twoimi klientami, kolegami lub każdym, kto otrzyma link. Wybierz szablon, aby rozpocząć tworzenie swojego pierwszego Asystenta.",
+  "Use Template": "Użyj szablonu",
+  "Do not show this dialog again": "Nie pokazuj więcej tego okna",
+  "More templates ...": "Więcej szablonów ...",
+  "Open details": "Szczegóły",
+  "Session": "Sesja",
+  "View Session": "Pokaż sesję"
 }
