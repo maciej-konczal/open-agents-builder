@@ -71,7 +71,7 @@ export default function InitializedMDXEditor({
 
   return (
     <MDXEditor
-      className={theme === 'dark' ? styles['dark-editor'] : ''}
+      className={currentTheme === 'dark' ? styles['dark-editor'] : ''}
       contentEditableClassName={markdownStyles['markdown']} 
       plugins={[
         // Example Plugin Usage
