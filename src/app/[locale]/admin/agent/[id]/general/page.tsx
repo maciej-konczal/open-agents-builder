@@ -25,6 +25,9 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
   const agentContext = useAgentContext();
 
   useEffect(() => {
+    if (!agent && params.id) { // agent does not exist, but id is provided
+      router.push(`/admin/agent/new/general`);
+    }
     if (agent && agent.id === params.id) { // bind the tracking changes only for the currently selected agent
       //agent.toForm(setValue); // load the database values
         const dirtyCheck = (async (originalRecord: Record<string, any>, value: Record<string, any>) => {

@@ -1,26 +1,28 @@
 <p align="center"><img src="./public//img/agent-doodle-logo.svg" alt="Logo" width="200"/></p>
 
-## Empathetic Chatbot Agents from a single prompt!
+## Build AI Assistatns for Bookings, Inquiries, Leadgen, Support ....
 
-Agent Doodle let you create a **dynamic and empathetic chatbot agents**, that:
+Agent Doodle let you create interactive AI agents that:
+- 💁‍♀️ automates your Company and saves you tons of time and money otherwise spend on assisting personel,
 - 🎯 are focused on the goal, **dynamically setting the questions based on previous answers**!
 - 👩‍💼 are **empathetic** - the conversation is managed by AI, using the tone of voice you set for the agent,
+- 📆 can **book calendar events** that fits all the participiants,
 - 💾 collects data in any format you request (**JSON, markdown etc.**),
 - 💵 can sell things,
 - ✏️ can collect the **leads** or save them in external CRM,
-- 📆 can **schedule calendar events** that fits all the participiants,
 - 🛠️ are able to call all set of tools - sending e-mails, accessing calendar, external CRM's, data sources etc.
 
 **Create an agent, get a unique link, send it to the users or share on your webpage!**
 
 It can literally replace dozen other SaaS tools like:
+- Booking software,
 - CRM,
 - Calendar / Scheduler,
 - Google Forms / Typeform etc.,
 - Support agents,
 - Chatbots,
 - Feedback forms,
-- NPS software,
+- NPS software.
 
 ## Screenshots
 
@@ -79,9 +81,14 @@ It can literally replace dozen other SaaS tools like:
 
 Agent Doodle is a very simple tool you can run on your own or use the [hosted version](https://agentdoodle.com). 
 
+### Booking
+
+Use the Calendar module to let the users sign up for your services finding the most convinient time slots. Collect leads!
+
 ### Pre-visit inquiries
 
 Share the link of the Agent with your patient/customers no matter if you are a medicine doctor either physio-terapist, trainer etc. The results will let you **save tons of time** preparing for the visit.
+
 
 ### Scheduling 
 
@@ -94,6 +101,10 @@ Add a widget to your website with a link to Agent which will ask 2-3 questions t
 ### NPS and e-NPS
 
 Agent Doogle is great for checking the Net Promoter Score. Create an Agent, send a link to your employees (eNPS) or customers (NPS) - use the "Chat with the results" feature to calculate the NPS dynamically on the spot!
+
+### Supporting users
+
+Automatically answer all the users questions + use the event based actions to react for business critical situations (like potential lead etc)
 
 ## Getting started
 
