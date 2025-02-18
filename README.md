@@ -1,9 +1,9 @@
 <p align="center"><img src="./public//img/agent-doodle-logo.svg" alt="Logo" width="200"/></p>
 
-## Build AI Assistatns for Bookings, Inquiries, Leadgen, Support ....
+## Build AI Assistants for Bookings, Intake forms, Orders, Support ....
 
 Agent Doodle let you create interactive AI agents that:
-- 💁‍♀️ automates your Company and saves you tons of time and money otherwise spend on assisting personel,
+- 💁‍♀️ automates your Company and **saves you tons of time** and money otherwise spend on assisting personel,
 - 🎯 are focused on the goal, **dynamically setting the questions based on previous answers**!
 - 👩‍💼 are **empathetic** - the conversation is managed by AI, using the tone of voice you set for the agent,
 - 📆 can **book calendar events** that fits all the participiants,
@@ -77,7 +77,54 @@ It can literally replace dozen other SaaS tools like:
 - **Tools** - extensible tools framework so the agent can send e-mails, Slack messages, export data to systems like CRM etc.
 - **Templates** - including ready-made templates like CRM app, pre-visit inquiry etc.
 
-## Use cases
+## Businesses supported by Agent Doodle
+
+Below is a list of industries that have a genuine need for both scheduling appointments and gathering additional data, yet are not as heavily “covered” by popular booking tools. No beating around the bush:
+
+1. **👩‍💻 Workshops and Thematic Courses**  
+   - *Examples:* Cooking classes, painting, sewing, or coding courses for kids.  
+   - *Why?* Instructors often need to know the participant’s skill level, preferences (e.g., diet, tools, materials). Quickly gathering details and setting a date is a perfect job for a chat assistant.
+
+2. **🖨️ Home Appliance Repair Services (AGD, RTV, Computers)**  
+   - *Examples:* Washing machine, laptop, and TV repairs.  
+   - *Why?* There are always questions about the model, serial number, type of fault, and then scheduling a technician’s visit. It’s best to handle all of this in one efficient process.
+
+3. **👩‍🏫 Training and Consulting Firms**  
+   - *Examples:* Marketing consultations, workplace safety (BHP) training, communication workshops.  
+   - *Why?* They often need to gather a brief, determine the number of participants, and understand expectations. A chat-based system that schedules directly into a calendar is a game-changer.
+
+4. **🗒️ Legal and Tax Advisory Services**  
+   - *Examples:* Small law firms, accounting offices.  
+   - *Why?* Before taking on a case, a lawyer or accountant needs key details—case type, documents, deadlines. Instead of endless emails, a quick chat session can collect this info and schedule a meeting instantly.
+
+5. **🏠 Real Estate Agencies**  
+   - *Examples:* Agencies handling apartment, house, or commercial property sales.  
+   - *Why?* How often does an agent ask: “What’s your budget?” “Are you looking for a fixer-upper or a move-in-ready home?”—over and over again. Embedding these questions into an automated chat + a scheduling system will streamline the process and save everyone’s nerves.
+
+6. **📁 Technical Consulting Services (e.g., Interior Designers, Architects)**  
+   - *Examples:* Interior designers, landscape architects, installation planners.  
+   - *Why?* Before starting work, such a specialist needs to know things like square footage, aesthetic preferences, and budget. A chatbot with an automated scheduler eliminates countless phone calls and emails.
+
+7. **🚕 Automotive Services (Beyond Standard Car Repair Shops)**  
+   - *Examples:* Mobile tire service, upholstery cleaning, car detailing.  
+   - *Why?* Customers need to provide details like license plate numbers, service type, vehicle condition. Then there’s the scheduling—do they prefer morning or evening? All of it can be handled in one place.
+
+8. **👨🏻‍🏫 Language Schools and Private Tutors**  
+   - *Examples:* Group language courses, one-on-one online lessons.  
+   - *Why?* Skill level, learning goals (business, hobby, exam prep), preferred times—these details fit perfectly into an automated chat with a scheduling system.
+
+9. **🎉 Event Organizers (e.g., Photo Sessions, Shows, Corporate Events)**  
+   - *Examples:* Photography studios, corporate event planners.  
+   - *Why?* Organizing an event requires coordinating many details—number of attendees, catering, location, needed equipment. A chat system with automatic booking and data collection reduces the chaos.
+
+10. **🪑 Mobile On-Site Services**  
+   - *Examples:* Mobile car washes, mobile pet grooming, bike repair at the client’s location.  
+   - *Why?* They require scheduling an address, time, and sometimes details like the type of equipment or pet breed. A short chat survey—and voila, appointment confirmed.
+
+
+These industries share a common challenge: before an appointment happens, key client information needs to be collected. Doodle Agent can solve two problems at once—automating information gathering and scheduling visits, saving time, stress, and gallons of coffee. Sound like a plan? Absolutely!
+
+## Use Cases 
 
 Agent Doodle is a very simple tool you can run on your own or use the [hosted version](https://agentdoodle.com). 
 
@@ -88,7 +135,6 @@ Use the Calendar module to let the users sign up for your services finding the m
 ### Pre-visit inquiries
 
 Share the link of the Agent with your patient/customers no matter if you are a medicine doctor either physio-terapist, trainer etc. The results will let you **save tons of time** preparing for the visit.
-
 
 ### Scheduling 
 
