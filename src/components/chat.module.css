@@ -4,6 +4,10 @@
     font-size: 1.3em;
 }
 
+.markdown img {
+    border: 1px solid #ccc;
+    width: 120px;
+}
 .markdown h3 {
     margin-top: 20px;
     margin-bottom: 10px;
