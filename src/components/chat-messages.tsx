@@ -5,6 +5,7 @@ import styles from './chat.module.css';
 import { useTranslation } from "react-i18next";
 import { TimerIcon } from "lucide-react";
 import { ChatMessageToolResponse } from "./chat-message-tool-response";
+import { ChatMessageMarkdown } from "./chat-message-markdown";
 
 export enum DisplayToolResultsMode {
     None = 'none',
@@ -33,14 +34,14 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                 ) :  (null)
                 }
                 {
-                  (m.content && typeof m.content === 'string' ? <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{m.content}</Markdown> : (
+                  (m.content && typeof m.content === 'string' ? <ChatMessageMarkdown>{m.content}</ChatMessageMarkdown> : (
                       Array.isArray(m.content) && (m.content as Array<{ type: string, result?: string, text?: string }>).map((c) => {
-                        if (c.type === 'text' && c.text) return (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{c.text}</Markdown>)
+                        if (c.type === 'text' && c.text) return (<ChatMessageMarkdown>{c.text}</ChatMessageMarkdown>)
                         if (c.type === 'tool-result' && c.result && displayToolResultsMode !== DisplayToolResultsMode.None) return (
                           <div className="mb-2">
                             <span className="font-bold">{t('Tool response: ')}</span>
                             {(typeof c.result === 'string' ? 
-                                (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(c.result)}</Markdown>) : 
+                                (<Markdown className={styles.markdown} components={} remarkPlugins={[remarkGfm]}>{t(c.result)}</Markdown>) : 
                                 (<ChatMessageToolResponse result={c.result} />)
                             )}                            
                           </div>
