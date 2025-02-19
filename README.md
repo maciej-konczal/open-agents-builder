@@ -1,4 +1,4 @@
-<p align="center"><img src="./public//img/agent-doodle-logo.svg" alt="Logo" width="200"/></p>
+<img src=".readme-assets/screenshot-hero.png" />
 
 ## Build AI Assistants for Bookings, Intake forms, Orders, Support ....
 
@@ -12,8 +12,6 @@ Agent Doodle let you create interactive AI agents that:
 - 💾 collects data in any format you request (**JSON, markdown etc.**),
 - ✏️ can collect the **leads** or save them in external CRM,
 - 🛠️ are able to call all set of tools - sending e-mails, accessing calendar, external CRM's, data sources etc.
-
-<img src=".readme-assets/screenshot-hero.png" />
 
 **Create an agent, get a unique link, send it to the users or share on your webpage!**
 
