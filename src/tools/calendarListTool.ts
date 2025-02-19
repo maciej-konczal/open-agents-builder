@@ -10,7 +10,7 @@ export function createCalendarListTool(agentId: string, sessionId: string, datab
     tool: tool({
       description: 'List all events in the calendar. Always list events BEFORE SCHEDULING new one to check the availability.',
       parameters: z.object({
-        limitedVisibility: z.boolean().optional()
+        limitedVisibility: z.boolean().optional().default(false)
       }),
       execute: async ({ limitedVisibility }) => {
         try {

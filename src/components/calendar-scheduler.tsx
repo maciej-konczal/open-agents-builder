@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useCallback } from "react"
+import { useState, useCallback, useContext, useEffect } from "react"
 import { Calendar, momentLocalizer, type SlotInfo } from "react-big-calendar"
 import moment from "moment"
 import "react-big-calendar/lib/css/react-big-calendar.css"
@@ -14,12 +14,18 @@ import EventModal from "./calendar-event-modal"
 import { CalendarEvent } from "@/data/client/models"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
-import { getCurrentTS } from "@/lib/utils"
+import { getCurrentTS, getErrorMessage } from "@/lib/utils"
 import { useAgentContext } from "@/contexts/agent-context"
 import { CalendarEventDTO } from "@/data/dto"
 import { v4 as uuidv4 } from "uuid"
 import { useFilePicker } from "use-file-picker"
-import { ImportIcon, PlusIcon, Share2Icon, ShareIcon } from "lucide-react"
+import { ImportIcon, MessageCircleIcon, PlusIcon, Share2Icon, ShareIcon } from "lucide-react"
+import { useChat } from "ai/react"
+import { DatabaseContext } from "@/contexts/db-context"
+import { nanoid } from "nanoid"
+import { Credenza, CredenzaContent, CredenzaTrigger } from "./credenza"
+import { Chat } from "./chat"
+import { SaaSContext } from "@/contexts/saas-context"
 
 
 const localizer = momentLocalizer(moment);
@@ -33,7 +39,41 @@ export default function Scheduler() {
   const [selectedSlot, setSelectedSlot] = useState<SlotInfo | null>(null)
 
   const agentContext = useAgentContext();
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
+  const saasContext = useContext(SaaSContext);
+  const dbContext = useContext(DatabaseContext);
+  const { messages, handleInputChange, isLoading, append, handleSubmit, input} = useChat({
+    api: "/api/agent/results-chat",
+  });
+  const [isResultsChatOpen, setResultsChatOpen] = useState(false);
+  
+  const getSessionHeaders = () => {
+    return {
+      'Database-Id-Hash': dbContext?.databaseIdHash ?? '',
+      'Agent-Id': agentContext.current?.id ?? '',
+      'Agent-Locale': i18n.language,
+      'Current-Datetime-Iso': new Date().toISOString(),
+      'Current-Datetime': new Date().toLocaleString(),
+      'Current-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone
+    }
+  }
+  useEffect(() => {
+    if (agentContext.current && isResultsChatOpen){
+      append({
+        id: nanoid(),
+        role: "user",
+        content: t("Lets chat")
+      }, {
+        headers: getSessionHeaders()
+      }).catch((e) => {
+        console.error(e);
+        toast.error(t(getErrorMessage(e)))
+      })
+    }
+  }, [agentContext.current, isResultsChatOpen]);
+
+
 
   const handleSelectSlot = useCallback((slotInfo: SlotInfo) => {
     setSelectedSlot(slotInfo)
@@ -151,6 +191,25 @@ export default function Scheduler() {
   return (
     <div className="h-screen flex flex-col">
       <div className="flex space-x-2 mb-4">
+      <Credenza open={isResultsChatOpen} onOpenChange={setResultsChatOpen}>
+          <CredenzaTrigger asChild>
+            <Button size="sm" variant="outline" onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> {t('Chat with calendar ...')}</Button>
+          </CredenzaTrigger>
+          <CredenzaContent>
+            {saasContext.saasToken && (saasContext.checkQuotas()).status === 200 ? ( 
+              <Chat
+                headers={getSessionHeaders()}
+                welcomeMessage={t('Lets chat')}
+                messages={messages}
+                handleInputChange={handleInputChange}
+                isLoading={isLoading}
+                handleSubmit={handleSubmit}
+                input={input}
+                displayName={t('Chat with results')}
+              />
+            ): <div className='text-sm text-center text-red-500 p-4'>{t('Please verify your E-mail address and AI budget to use all features of Agent Doodle')}</div>}
+          </CredenzaContent>
+        </Credenza>        
           <Button variant={"outline"} size="sm" onClick={handleExportJSON} className="text-xs"><ShareIcon className="w-4 h-4 mr-2"/> {t('Export to JSON')}</Button>
           <Button variant={"outline"} size="sm" className="text-xs" onClick={(e) => openFilePicker() }>
           <ImportIcon className="w-4 h-4 mr-2"/> {t('Import from JSON')}
