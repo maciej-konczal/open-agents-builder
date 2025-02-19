@@ -56,14 +56,26 @@ export default function EventModal({ isOpen, event, slotInfo, onClose, onSave, o
       setSessionId(event.sessionId ?? '')
       setAgentId(event.agentId ?? '')
       setParticipants(event.participants ?? [])
-    } else if (slotInfo) {
+    } else  {
+        if (slotInfo) {
+            setStart(slotInfo.start)
+            setEnd(slotInfo.end)
+
+            const defaultEnd = moment(slotInfo.start).add(1, 'day').toDate();
+            if (slotInfo.end.getTime() == defaultEnd.getTime()) {
+                const fixedStart = moment(start).hour(moment().hour()).minute(moment().minute()).toDate()
+                setStart(fixedStart)
+                setEnd(moment(fixedStart).add(1, 'hour').toDate())    
+            }
+        }  else {
+            setStart(new Date())
+            setEnd(moment().add(1, 'hour').toDate())
+        }
       setTitle('')
       setDescription('')
       setLocation('')
       setParticipants([])
-      setSessionId('')
-      setStart(slotInfo.start)
-      setEnd(slotInfo.end)
+      setSessionId('')    
     }
   }, [event, slotInfo])
 

@@ -183,6 +183,7 @@ export default function Scheduler() {
         <Calendar
           localizer={localizer}
           events={events}
+          defaultView="week"
           startAccessor="start"
           endAccessor="end"
           onSelectSlot={handleSelectSlot}
