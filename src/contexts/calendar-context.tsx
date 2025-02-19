@@ -12,6 +12,7 @@ import { SaaSContext } from "./saas-context"
 import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { getErrorMessage } from "@/lib/utils"
+import { AuditContext } from "./audit-context"
 
 
 interface CalendarContextType {
@@ -37,6 +38,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [events, setEvents] = useState<CalendarEvent[]>([])
 
   const agentContext = useAgentContext()
+  const auditContext = useContext(AuditContext)
   const saasContext = useContext(SaaSContext)
   const dbContext = useContext(DatabaseContext)
   const { t } = useTranslation()  
@@ -81,9 +83,11 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (agentContext.current?.id && agentContext.current?.id !== 'new')
       {
         updatedEvent.agentId = agentContext.current?.id || '';
-        const response = client.put(updatedEvent.toDTO());
+        const response = await client.put(updatedEvent.toDTO());
 
-        if ((await response).status === 200) {
+        if (response.status === 200) {
+          auditContext?.record({ eventName: 'updateCalendarEvent', recordLocator: JSON.stringify({ id: response.data.id })  })
+
           setEvents((prev) => prev.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)))
         } 
 
@@ -104,6 +108,8 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const response = client.delete(event.toDTO());
 
       if ((await response).status === 200) {
+        auditContext?.record({ eventName: 'deleteCalendarEvent', recordLocator: JSON.stringify({ id: event.id })  })
+
         setEvents((prev) => prev.filter((evt) => evt.id !== event.id))
       }
 

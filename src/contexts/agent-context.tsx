@@ -11,6 +11,7 @@ import { nanoid } from 'nanoid';
 import { AuditContext } from './audit-context';
 import { DeleteResultResponse, ResultApiClient } from '@/data/client/result-api-client';
 import { DeleteSessionResponse, SessionApiClient } from '@/data/client/session-api-client';
+import { detailedDiff } from 'deep-object-diff';
 
 export type AgentStatusType = {
     id: string;
@@ -92,6 +93,15 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 
             return agent;
         } else {
+
+            if (!newRecord) {
+                const prevRecord = agents.find(r => r.id === agent.id);
+                const changes = prevRecord ?  detailedDiff(prevRecord, agent) : {};
+                auditContext?.record({ eventName: 'updateAgent', recordLocator: JSON.stringify({ id: agent.id }), encryptedDiff: JSON.stringify(changes) })
+            } else {
+                auditContext?.record({ eventName: 'addAgent', recordLocator: JSON.stringify({ id: response.data.id })  })
+            }                
+            
             const updatedAgent = Object.assign(agent, { id: response.data.id });
             setAgents(
                 newRecord ? [...agents, updatedAgent] :
@@ -162,6 +172,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         const resp = await client.delete(session.toDTO());
 
         if (resp.status === 200)  {
+            auditContext?.record({ eventName: 'deleteSession', recordLocator: JSON.stringify({ id: session.id })  })
+
             setSessions({ ...sessions, rows: sessions.rows.filter(pr => pr.id !== session.id)});
         }
 
@@ -173,6 +185,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
         const resp = await client.delete(result.toDTO());
 
         if (resp.status === 200)  {
+            auditContext?.record({ eventName: 'deleteResult', recordLocator: JSON.stringify({ sessionId: result.sessionId })  })
             setResults({ ...results, rows: results.rows.filter(pr => pr.sessionId !== result.sessionId)});
         }
 
