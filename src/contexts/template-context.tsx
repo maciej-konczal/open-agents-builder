@@ -22,7 +22,10 @@ interface TemplateContextType {
     setTemplatePopupOpen: (value: boolean) => void;
     lastTemplateAdded: Agent|null;
     setLastTemplateAdded: (agent: Agent|null) => void;
-
+    onboardingOpen: boolean;
+    setOnboardingOpen: (value: boolean) => void;
+    onboardingWellcomeHeader: boolean;
+    setOnboardingWellcomeHeader: (value: boolean) => void;
 }
 
 export const TemplateContext = createContext<TemplateContextType | undefined>(undefined);
@@ -31,6 +34,8 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
     const [templates, setTemplates] = useState<Agent[]>([]);
     const [templatePopupOpen, setTemplatePopupOpen] = useState<boolean>(false);
     const [lastTemplateAdded, setLastTemplateAdded] = useState<Agent|null>(null);
+    const [onboardingOpen, setOnboardingOpen] = useState<boolean>(false);
+    const [onboardingWellcomeHeader, setOnboardingWellcomeHeader] = useState<boolean>(true);
     const auditContext = useContext(AuditContext);
 
     const { t, i18n } = useTranslation();
@@ -117,7 +122,11 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
             templatePopupOpen,
             setTemplatePopupOpen,
             lastTemplateAdded,
-            setLastTemplateAdded
+            setLastTemplateAdded,
+            onboardingOpen,
+            setOnboardingOpen,
+            onboardingWellcomeHeader,
+            setOnboardingWellcomeHeader
             }}>
             {children}
         </TemplateContext.Provider>
