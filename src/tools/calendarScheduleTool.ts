@@ -31,7 +31,7 @@ export function createCalendarScheduleTool(agentId: string, staticSessionId: str
           const response = await eventsRepo.upsert({ id }, { id, agentId, sessionId: staticSessionId ? staticSessionId : sessionId, title, description, exclusive, start: moment(start).toISOString(true), location, end: moment(end).toISOString(true), participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
 
           if (response) {
-            return 'Event scheduled successfully';        
+            return response;
           } else {
             return 'Event scheduling failed';
           }
