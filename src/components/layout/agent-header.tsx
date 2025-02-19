@@ -6,25 +6,23 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
+  SelectSeparator,
   SelectValue,
 } from '@/components/ui/select';
 import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
-import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon, ImportIcon, ShareIcon, Share2, Share2Icon, FilePlusIcon } from 'lucide-react';
+import { Play, Trash2Icon, LayoutTemplateIcon, ImportIcon, ShareIcon, Share2Icon, FilePlusIcon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import TemplateListPopup from '../template-list-popup';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { TemplateContext } from '@/contexts/template-context';
-import { Agent } from '@/data/client/models';
-import { nanoid } from 'nanoid';
 import { toast } from 'sonner';
 import { AgentDeleteDialog } from '../agent-delete-dialog';
 import { useFilePicker } from 'use-file-picker';
 import { getErrorMessage } from '@/lib/utils';
 import { useCopyToClipboard } from 'react-use';
-import { OnboardingDialog } from '../onboarding-dialog';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -83,11 +81,15 @@ export function AgentHeader() {
             <SelectValue placeholder={t('Select project')} />
           </SelectTrigger>
           <SelectContent>
-            {agentContext.agents.map((project) => (
+            {agentContext.agents.filter(a=>a.id !== 'new').map((project) => (
               <SelectItem key={project.id} value={project.id ?? ''}>
                 {project.displayName}
               </SelectItem>
             ))}
+            <SelectSeparator />
+            <SelectItem value="new" className="flex">
+              {t('New agent ...')}
+            </SelectItem>
             <SelectItem value="new-from-template" className="flex">
               {t('New agent from template ...')}
             </SelectItem>
