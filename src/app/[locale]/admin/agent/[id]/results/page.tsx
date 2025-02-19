@@ -66,16 +66,18 @@ export default function ResultsPage() {
   }
   useEffect(() => {
     if (agentContext.current && isResultsChatOpen){
-      append({
-        id: nanoid(),
-        role: "user",
-        content: t("Lets chat")
-      }, {
-        headers: getSessionHeaders()
-      }).catch((e) => {
-        console.error(e)
-        toast.error(t(getErrorMessage(e)))
-      })
+      if (messages.length === 0) {
+        append({
+          id: nanoid(),
+          role: "user",
+          content: t("Lets chat")
+        }, {
+          headers: getSessionHeaders()
+        }).catch((e) => {
+          console.error(e)
+          toast.error(t(getErrorMessage(e)))
+        })
+      }
     }
   }, [agentContext.current, isResultsChatOpen]);
 
@@ -102,11 +104,11 @@ export default function ResultsPage() {
           <CredenzaTrigger asChild>
             <Button size="sm" variant="outline" onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> {t('Chat about results ...')}</Button>
           </CredenzaTrigger>
-          <CredenzaContent>
+          <CredenzaContent className="max-w-3xl">
             {saasContext.saasToken && (saasContext.checkQuotas()).status === 200 ? ( 
               <Chat
                 headers={getSessionHeaders()}
-                welcomeMessage={t('Lets chat')}
+                welcomeMessage={t("By using this chat you may **ask** some cool questions or **modify** the results and your schedule:\n\n- **What's my schedule for Tomorrow**?\n\n- **Please move the meeting from 9:00 to 11:00**\n\n- **What is the most frequently requested service**?\n\n- **How many meetings do I have on average per day this week?**")}
                 messages={messages}
                 handleInputChange={handleInputChange}
                 isLoading={isLoading}
