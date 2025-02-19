@@ -20,12 +20,19 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
         return item;
     }
 
+    async decryptItem(item: ResultDTO): Promise<ResultDTO> {
+        if (this.encUtils){
+            if(item.userName) item.userName = await this.encUtils.decrypt(item.userName);
+            if (item.userEmail) item.userEmail = await this.encUtils.decrypt(item.userEmail);
+            if (item.content) item.content = await this.encUtils.decrypt(item.content);            
+        }
+        return item
+    }
+
     async decryptItems(items: ResultDTO[]): Promise<ResultDTO[]> {
         if(this.encUtils){
             for(let item of items){
-                if(item.userName) item.userName = await this.encUtils.decrypt(item.userName);
-                if (item.userEmail) item.userEmail = await this.encUtils.decrypt(item.userEmail);
-                if (item.content) item.content = await this.encUtils.decrypt(item.content);            
+                item = await this.decryptItem(item);
             }
         }
         return items;
@@ -42,7 +49,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
     async create(item: ResultDTO): Promise<ResultDTO> {
         const db = (await this.db());
         item = await this.encryptItem(item);
-        return create(item, results, db); // generic implementation
+        return this.decryptItem(await create(item, results, db)); // generic implementation
     }
 
     // update folder
@@ -56,6 +63,7 @@ export default class ServerResultRepository extends BaseRepository<ResultDTO> {
             existingRecord = item
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
             db.update(results).set(existingRecord).where(eq(results.sessionId, query.sessionId)).run();
+            existingRecord = await this.decryptItem(existingRecord);
        }
        return Promise.resolve(existingRecord as ResultDTO)   
     }    

@@ -5,17 +5,25 @@ import styles from './chat.module.css'
 import remarkGfm from "remark-gfm";
 import DataLoader from "./data-loader";
 import { useTranslation } from "react-i18next";
+import { githubLightTheme } from '@uiw/react-json-view/githubLight';
+import { githubDarkTheme } from '@uiw/react-json-view/githubDark';
+import { useTheme } from "next-themes";
+
 
 export function RenderResult({ result }: { result: Result | undefined}) {
 
     const { t } = useTranslation();
+
+    const { theme, systemTheme } = useTheme();
+    const currentTheme = (theme === 'system' ? systemTheme : theme)
+
 
     if (!result) {
         return <DataLoader />;
     }
 
     if (result.format === 'JSON') {
-        return <JsonView value={JSON.parse(result.content ?? '{}')} />;
+        return <JsonView style={currentTheme === 'dark' ? githubDarkTheme : githubLightTheme } value={JSON.parse(result.content ?? '{}')} />;
     }
 
     if (result.format === 'markdown') {

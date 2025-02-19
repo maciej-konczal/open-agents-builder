@@ -24,15 +24,22 @@ export default class ServerCalendarRepository extends BaseRepository<CalendarEve
         return item;
     }
 
+    async decryptItem(item: CalendarEventDTO): Promise<CalendarEventDTO> {
+        if (this.encUtils){
+            if(item.title) item.title = await this.encUtils.decrypt(item.title);
+            if (item.location) item.location = await this.encUtils.decrypt(item.location);
+            if (item.description) item.description = await this.encUtils.decrypt(item.description);
+            if (item.participants) item.participants = await this.encUtils.decrypt(item.participants);
+            if (item.start) item.start = await this.encUtils.decrypt(item.start);
+            if (item.end) item.end = await this.encUtils.decrypt(item.end);
+        }
+        return item;
+    }
+
     async decryptItems(items: CalendarEventDTO[]): Promise<CalendarEventDTO[]> {
         if(this.encUtils){
             for(let item of items){
-                if(item.title) item.title = await this.encUtils.decrypt(item.title);
-                if (item.location) item.location = await this.encUtils.decrypt(item.location);
-                if (item.description) item.description = await this.encUtils.decrypt(item.description);
-                if (item.participants) item.participants = await this.encUtils.decrypt(item.participants);
-                if (item.start) item.start = await this.encUtils.decrypt(item.start);
-                if (item.end) item.end = await this.encUtils.decrypt(item.end);
+                item = await this.decryptItem(item);
             }
         }
         return items;
@@ -49,7 +56,7 @@ export default class ServerCalendarRepository extends BaseRepository<CalendarEve
     async create(item: CalendarEventDTO): Promise<CalendarEventDTO> {
         const db = (await this.db());
         item = await this.encryptItem(item);
-        return create(item, calendarEvents, db); // generic implementation
+        return await this.decryptItem(await create(item, calendarEvents, db)); // generic implementation
     }
 
     // update folder
@@ -65,6 +72,8 @@ export default class ServerCalendarRepository extends BaseRepository<CalendarEve
             if (!existingRecord.end) existingRecord.end = getCurrentTS();
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
             db.update(calendarEvents).set(existingRecord).where(eq(calendarEvents.id, query.id)).run();
+
+            existingRecord = await this.decryptItem(existingRecord);
        }
        return Promise.resolve(existingRecord as CalendarEventDTO)   
     }    

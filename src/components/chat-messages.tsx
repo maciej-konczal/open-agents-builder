@@ -4,7 +4,6 @@ import remarkGfm from "remark-gfm";
 import styles from './chat.module.css';
 import { useTranslation } from "react-i18next";
 import { TimerIcon } from "lucide-react";
-import JsonView from "@uiw/react-json-view";
 import { ChatMessageToolResponse } from "./chat-message-tool-response";
 
 export enum DisplayToolResultsMode {

@@ -28,12 +28,19 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
         return item;
     }
 
+    async decryptItem(item: SessionDTO): Promise<SessionDTO> {
+        if (this.encUtils){
+            if(item.userName) item.userName = await this.encUtils.decrypt(item.userName);
+            if (item.userEmail) item.userEmail = await this.encUtils.decrypt(item.userEmail);
+            if (item.messages) item.messages = await this.encUtils.decrypt(item.messages);            
+        }
+        return item
+    }
+
     async decryptItems(items: SessionDTO[]): Promise<SessionDTO[]> {
         if(this.encUtils){
             for(let item of items){
-                if(item.userName) item.userName = await this.encUtils.decrypt(item.userName);
-                if (item.userEmail) item.userEmail = await this.encUtils.decrypt(item.userEmail);
-                if (item.messages) item.messages = await this.encUtils.decrypt(item.messages);            
+                item = await this.decryptItem(item);
             }
         }
         return items;
@@ -43,7 +50,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
     async create(item: SessionDTO): Promise<SessionDTO> {
         const db = (await this.db());
         item = await this.encryptItem(item);
-        return create(item, sessions, db); // generic implementation
+        return await this.decryptItem(await create(item, sessions, db)); // generic implementation
     }
 
     // update folder
@@ -57,6 +64,7 @@ export default class ServerSessionRepository extends BaseRepository<SessionDTO> 
             existingRecord = item
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
             db.update(sessions).set(existingRecord).where(eq(sessions.id, query.id)).run();
+            existingRecord = await this.decryptItem(existingRecord);
        }
        return Promise.resolve(existingRecord as SessionDTO)   
     }    

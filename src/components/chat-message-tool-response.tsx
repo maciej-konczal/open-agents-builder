@@ -4,9 +4,15 @@ import JsonView from "@uiw/react-json-view";
 import { ScrollArea } from "./ui/scroll-area";
 import { CodeIcon } from "lucide-react";
 import { Button } from "./ui/button";
+import { useTheme } from "next-themes";
+import { githubLightTheme } from '@uiw/react-json-view/githubLight';
+import { githubDarkTheme } from '@uiw/react-json-view/githubDark';
 
 export function ChatMessageToolResponse( { result }: { result: any}) {
     const { t } = useTranslation();
+    const { theme, systemTheme } = useTheme();
+    const currentTheme = (theme === 'system' ? systemTheme : theme)
+    
     return (
         <Credenza>
             <CredenzaTrigger asChild>
@@ -16,7 +22,7 @@ export function ChatMessageToolResponse( { result }: { result: any}) {
             </CredenzaTrigger>
             <CredenzaContent>
                 <ScrollArea className="h-96">
-                   <JsonView value={result} />
+                   <JsonView style={currentTheme === 'dark' ? githubDarkTheme : githubLightTheme } value={result} />
                 </ScrollArea>
             </CredenzaContent>
         </Credenza>
