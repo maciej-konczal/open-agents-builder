@@ -17,6 +17,7 @@ import React from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { LocaleSelect } from '@/components/locale-select';
 import { AgentTypeSelect } from '@/components/agent-type-select';
+import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
@@ -255,13 +256,16 @@ export default function GeneralPage() {
         </label>
         <LocaleSelect fieldName='locale' register={register} />
       </div>
-      <div>
+      <div className="flex justify-between">
         <Button
         type="submit"
         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
         {t('Save')}
         </Button>
+
+        <SaveAgentAsTemplateButton agent={agent} onSaved={function (): void {
+            } } />
       </div>
       </form>
       </FormProvider>

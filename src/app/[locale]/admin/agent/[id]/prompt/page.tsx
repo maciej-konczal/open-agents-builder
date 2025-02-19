@@ -11,6 +11,7 @@ import { AgentStatus } from '@/components/layout/agent-status';
 import { MarkdownEditor } from '@/components/markdown-editor';
 import React from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
+import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 
 export default function PromptPage() {
   const { t } = useTranslation();
@@ -43,13 +44,16 @@ export default function PromptPage() {
         <MarkdownEditor ref={editors.prompt} markdown={getValues('prompt') ?? agent?.prompt ?? ''} onChange={(e) => setValue('prompt', e)} diffMarkdown={agent?.prompt ?? ''} />
         {errors.prompt && <p className="mt-2 text-sm text-red-600">{errors.prompt.message}</p>}
       </div>
-      <div>
+      <div className="flex justify-between">
         <Button
         type="submit"
         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
         {t('Save')}
         </Button>
+
+        <SaveAgentAsTemplateButton agent={agent} onSaved={function (): void {
+            } } />
       </div>
       </form>
     </div>

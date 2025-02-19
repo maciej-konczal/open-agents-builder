@@ -10,9 +10,9 @@ import {
 } from '@/components/ui/select';
 import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
-import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon, ImportIcon, ShareIcon, Share2, Share2Icon } from 'lucide-react';
+import { Plus, Play, Trash2Icon, LayoutTemplateIcon, PlusIcon, SaveIcon, ImportIcon, ShareIcon, Share2, Share2Icon, FilePlusIcon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import TemplateListPopup from '../template-list-popup';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -35,6 +35,8 @@ export function AgentHeader() {
   const templateContext = useContext(TemplateContext);
   const dbContext = useContext(DatabaseContext);
   const [, copy] = useCopyToClipboard();
+
+  const [templatesDropdownOpen, setTemplatesDropdownOpen] = useState(false);
 
 
   const { openFilePicker, filesContent, loading } = useFilePicker({
@@ -81,33 +83,20 @@ export function AgentHeader() {
             ))}
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" className="md:hidden lg:flex" onClick={() => router.push('/admin/agent/new/general')}>
-          <Plus className="mr-2 h-4 w-4" />
-          <span className="md:hidden lg:flex">{t('Add Agent')}</span>
-        </Button>
-        
+
         <TemplateListPopup />
-        <DropdownMenu>
+        <DropdownMenu open={templatesDropdownOpen} onOpenChange={setTemplatesDropdownOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" className="" size="sm">
-              <LayoutTemplateIcon className="h-4 w-4" /> {t('Templates')}
+            <Button variant="secondary" size="sm" className="md:hidden lg:flex" onClick={() => router.push('/admin/agent/new/general')} onMouseOver={() => setTemplatesDropdownOpen(true)} >
+              <FilePlusIcon className="mr-2 h-4 w-4" />
+              <span className="md:hidden lg:flex">{t('New Agent...')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem className="text-xs" onSelect={() => templateContext?.setTemplatePopupOpen(true)}><PlusIcon className="mr-2 h-4 w-4"/> {t('New agent from template ...')}</DropdownMenuItem>
-            <DropdownMenuItem className="text-xs" onClick={async (e) => {
-              try {
-                  if (agentContext.current) {
-                    await templateContext?.updateTemplate(new Agent({ ...agentContext.current, id: nanoid() } as Agent));
-                    toast.info(t('Current agent has been saved as a template'))
-                  }              
-                } catch (e) {
-                  console.error(e);
-                  toast.error(t('Failed to save agent as a template'));
-                }
-            }}><SaveIcon className="mr-2 h-4 w-4"/>{t('Save agent as template')}</DropdownMenuItem>
+            <DropdownMenuItem className="text-xs" onSelect={() => templateContext?.setTemplatePopupOpen(true)}><LayoutTemplateIcon className="mr-2 h-4 w-4"/> {t('New agent from template ...')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+       
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="secondary" className="" size="sm">

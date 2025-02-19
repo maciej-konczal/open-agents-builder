@@ -10,6 +10,7 @@ import React from 'react';
 import { ToolConfiguration } from '@/data/client/models';
 import { ToolConfigurator } from '@/components/tool-configurator';
 import { PlusIcon, Trash2Icon } from 'lucide-react';
+import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 
 // Import your new dynamic ToolConfigurator
 
@@ -108,17 +109,17 @@ export default function ToolsPage() {
         </div>
 
         {/* Save */}
-        <div>
-          <Button
-            type="submit"
-            className="inline-flex justify-center py-2 px-4 border border-transparent
-                       shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 
-                       hover:bg-indigo-700 focus:outline-none focus:ring-2 
-                       focus:ring-offset-2 focus:ring-indigo-500"
-          >
-            {t('Save')}
-          </Button>
-        </div>
+      <div className="flex justify-between">
+        <Button
+        type="submit"
+        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+        {t('Save')}
+        </Button>
+
+        <SaveAgentAsTemplateButton agent={agent} onSaved={function (): void {
+            } } />
+      </div>
       </form>
     </div>
   );

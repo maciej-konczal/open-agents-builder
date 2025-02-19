@@ -14,6 +14,7 @@ import { EventConfiguration } from '@/data/client/models';
 import { EventConfigurator } from '@/components/event-configurator';
 import { PlusIcon } from 'lucide-react';
 import { Trash2Icon } from '@/components/icons';
+import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 
 // Import the new EventConfigurator
 
@@ -115,18 +116,17 @@ export default function EventsPage() {
         </div>
 
         {/* Save */}
-        <div>
-          <Button
-            type="submit"
-            className="inline-flex justify-center py-2 px-4 
-                       border border-transparent shadow-sm text-sm font-medium 
-                       rounded-md text-white bg-indigo-600 hover:bg-indigo-700
-                       focus:outline-none focus:ring-2 focus:ring-offset-2 
-                       focus:ring-indigo-500"
-          >
-            {t('Save')}
-          </Button>
-        </div>
+      <div className="flex justify-between">
+        <Button
+        type="submit"
+        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+        {t('Save')}
+        </Button>
+
+        <SaveAgentAsTemplateButton agent={agent} onSaved={function (): void {
+            } } />
+      </div>
       </form>
     </div>
   );

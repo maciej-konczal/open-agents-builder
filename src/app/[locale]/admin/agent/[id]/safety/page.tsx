@@ -11,6 +11,7 @@ import { AgentStatus } from '@/components/layout/agent-status';
 import React from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { MarkdownEditor } from '@/components/markdown-editor';
+import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 
 export default function SafetyRulesPage() {
 
@@ -44,13 +45,16 @@ export default function SafetyRulesPage() {
         <MarkdownEditor ref={editors.safetyRules} markdown={getValues('safetyRules') ?? agent?.safetyRules ?? ''} onChange={(e) => setValue('safetyRules', e)} diffMarkdown={agent?.safetyRules ?? ''} />
         {errors.safetyRules && <p className="mt-2 text-sm text-red-600">{errors.safetyRules.message}</p>}
       </div>
-      <div>
+      <div className="flex justify-between">
         <Button
         type="submit"
         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
         {t('Save')}
         </Button>
+
+        <SaveAgentAsTemplateButton agent={agent} onSaved={function (): void {
+            } } />
       </div>
       </form>
     </div>
