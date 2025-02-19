@@ -8,11 +8,11 @@ export function ChatMessageMarkdown({ children }) {
         <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]} components={
             {
                 img(props) {
-                    if (props.alt?.startsWith('product')) {
+//                    if (props.alt?.startsWith('product')) {
                         return <ZoomableImage src={props.src} width={100} height={100} className="border" />
-                    } else {
-                        return <img {...props} />
-                    }
+  //                  } else {
+  //                      return <img {...props} />
+//                 }
                 }
             }
         }>

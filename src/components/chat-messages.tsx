@@ -27,7 +27,7 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                     {m.toolInvocations.filter(tl=>tl.state === 'result').map((tl) => (
                       <div key={tl.toolCallId} className="mb-2">
                         <span className="font-bold">{t('Tool response: ')}</span>
-                        <span className="ml-2">{tl.result ? (typeof tl.result === 'string' ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{t(tl.result)}</Markdown>) : (<ChatMessageToolResponse result={tl.result} />)) : t('N/A') }</span>
+                        <span className="ml-2">{tl.result ? (typeof tl.result === 'string' ? (<ChatMessageMarkdown>{t(tl.result)}</ChatMessageMarkdown>) : (<ChatMessageToolResponse result={tl.result} />)) : t('N/A') }</span>
                       </div>
                     ))}
                   </div>
@@ -41,7 +41,7 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                           <div className="mb-2">
                             <span className="font-bold">{t('Tool response: ')}</span>
                             {(typeof c.result === 'string' ? 
-                                (<Markdown className={styles.markdown} components={} remarkPlugins={[remarkGfm]}>{t(c.result)}</Markdown>) : 
+                                (<ChatMessageMarkdown>{t(c.result)}</ChatMessageMarkdown>) : 
                                 (<ChatMessageToolResponse result={c.result} />)
                             )}                            
                           </div>
