@@ -122,6 +122,7 @@ It can literally replace dozen other SaaS tools like:
 
 ## Features
 
+- **Multi language** support more than 54 languages instantly!
 - **Create new agents and polls** just based on your text description it takes 20s to create your first inquiry!
 - **Chat for the end users** send unique link t ousers to get the results,
 - **Event/action flows** - to dynamically react for user answers,
