@@ -7,6 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { Bell, DollarSign, User } from 'lucide-react';
 import { useContext } from 'react';
@@ -56,10 +57,13 @@ export function Header() {
           <DropdownMenuContent align="end">
             {/* <DropdownMenuItem>{t('Profile')}</DropdownMenuItem> */}
             {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => router.push('/admin/settings')}>{t('Your profile and settings')}</DropdownMenuItem>) : (null)}
-            {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => { keysContext.setSharedKeysDialogOpen(true); } }>{t('Team & Sharing')}</DropdownMenuItem>) : (null)}
-            <DropdownMenuItem onClick={(e) => statsContext.setStatsPopupOpen(true)}>{t('Stats and token usage')}</DropdownMenuItem>
             {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => keysContext?.setChangePasswordDialogOpen(true)}>{t('Change password')}</DropdownMenuItem>) : (null)}
+            {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => { keysContext.setSharedKeysDialogOpen(true); } }>{t('Team & Sharing')}</DropdownMenuItem>) : (null)}
+            <DropdownMenuSeparator />
+            {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<DropdownMenuItem onSelect={() => router.push('/admin/settings')}>{t('Agent templates')}</DropdownMenuItem>) : (null)}
+            <DropdownMenuItem onClick={(e) => statsContext.setStatsPopupOpen(true)}>{t('Stats and token usage')}</DropdownMenuItem>
             <DropdownMenuItem onSelect={(e) => window.open('mailto:info@catchthetornado.com?subject=' + encodeURIComponent('Support reuest for ' + dbContext?.databaseIdHash))}>{t('Contact Support')}</DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onSelect={(e) => {
               dbContext?.logout();
             }}>{t('Sign out')}</DropdownMenuItem>

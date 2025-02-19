@@ -35,6 +35,7 @@ export function AgentHeader() {
   const [, copy] = useCopyToClipboard();
 
   const [templatesDropdownOpen, setTemplatesDropdownOpen] = useState(false);
+  const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
 
 
   const { openFilePicker, filesContent, loading } = useFilePicker({
@@ -116,9 +117,9 @@ export function AgentHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
        
-        <DropdownMenu>
+        <DropdownMenu open={exportDropdownOpen} onOpenChange={setExportDropdownOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" className="" size="sm">
+            <Button variant="secondary" className="" size="sm" onMouseOver={() => setExportDropdownOpen(true)}>
               <ShareIcon className="h-4 w-4" /> <span className="md:hidden lg:flex">{t('Export / Import agent')}</span>
             </Button>
           </DropdownMenuTrigger>
