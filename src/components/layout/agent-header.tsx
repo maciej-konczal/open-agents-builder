@@ -64,6 +64,13 @@ export function AgentHeader() {
   }, [currentId]);
 
   const handleAgentChange = (newId: string) => {
+
+    if (newId === 'new-from-template') {
+      templateContext?.setOnboardingOpen(true);
+      templateContext?.setOnboardingWellcomeHeader(false); 
+      return;
+    }
+
     localStorage.setItem('currentAgentId', newId);
     router.push(`/admin/agent/${newId}/general`);
   };
@@ -81,19 +88,29 @@ export function AgentHeader() {
                 {project.displayName}
               </SelectItem>
             ))}
+            <SelectItem value="new-from-template" className="flex">
+              {t('New agent from template ...')}
+            </SelectItem>
           </SelectContent>
         </Select>
 
         <TemplateListPopup />
         <DropdownMenu open={templatesDropdownOpen} onOpenChange={setTemplatesDropdownOpen}>
           <DropdownMenuTrigger asChild>
-            <Button variant="secondary" size="sm" className="md:hidden lg:flex" onClick={() => router.push('/admin/agent/new/general')} onMouseOver={() => setTemplatesDropdownOpen(true)} >
+            <Button variant="secondary" size="sm" className="lg:flex" onClick={() => router.push('/admin/agent/new/general')} onMouseOver={() => setTemplatesDropdownOpen(true)} >
               <FilePlusIcon className="mr-2 h-4 w-4" />
               <span className="md:hidden lg:flex">{t('New Agent...')}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem className="text-xs" onSelect={() => templateContext?.setTemplatePopupOpen(true)}><LayoutTemplateIcon className="mr-2 h-4 w-4"/> {t('New agent from template ...')}</DropdownMenuItem>
+            <DropdownMenuItem className="text-xs" onSelect={async () => {
+              router.push('/admin/agent/new/general'); }} onMouseOver={() => setTemplatesDropdownOpen(true)}
+            ><FilePlusIcon className="mr-2 h-4 w-4" /> {t('New agent ...')}</DropdownMenuItem>
+
+            <DropdownMenuItem className="text-xs" onSelect={() => {
+              templateContext?.setOnboardingOpen(true);
+              templateContext?.setOnboardingWellcomeHeader(false); 
+            }}><LayoutTemplateIcon className="mr-2 h-4 w-4"/> {t('New agent from template ...')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
        

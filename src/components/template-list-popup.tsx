@@ -29,7 +29,6 @@ export default function TemplateListPopup() {
       <CredenzaContent className="sm:max-w-[500px] bg-background">
         <CredenzaHeader>
           <CredenzaTitle>{t('Agent templates')}
-            <SaveAsTemplateButton />
           </CredenzaTitle>
           <CredenzaDescription>
             {t('Select a template to create a new agent with')}

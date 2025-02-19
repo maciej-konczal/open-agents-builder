@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { PlusIcon, TextCursorInputIcon, Trash2Icon } from "lucide-react";
+import { FilePlus2Icon, FilePlusIcon, PlusIcon, TextCursorInputIcon, Trash2Icon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContext } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "./ui/alert-dialog";
@@ -34,7 +34,7 @@ export default function TemplateItem({ template, selected, onClick }: { template
 
             router.push(`/admin/agent/${newAgent.id}/general`);
           }
-        }><PlusIcon /> {t('New agent')}
+        }><FilePlusIcon /> {t('Use template')}
           </Button>
           <Button className="ml-2" title={t('Rename template...')} size="sm" variant={"outline"} onClick={(e) => {
             try {
