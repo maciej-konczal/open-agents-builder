@@ -13,6 +13,7 @@ import { toast } from "sonner"
 import { useTranslation } from "react-i18next"
 import { getErrorMessage } from "@/lib/utils"
 import { AuditContext } from "./audit-context"
+import { detailedDiff } from "deep-object-diff"
 
 
 interface CalendarContextType {
@@ -85,9 +86,16 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updatedEvent.agentId = agentContext.current?.id || '';
         const response = await client.put(updatedEvent.toDTO());
 
-        if (response.status === 200) {
-          auditContext?.record({ eventName: 'updateCalendarEvent', recordLocator: JSON.stringify({ id: response.data.id })  })
+        const existingEvent = events.find((event) => event.id === updatedEvent.id);
 
+        if (response.status === 200) {
+          if (existingEvent) {
+            const changes = existingEvent ?  detailedDiff(existingEvent, updatedEvent) : {};
+            auditContext?.record({ eventName: 'updateCalendarEvent', recordLocator: JSON.stringify({ id: existingEvent.id }), encryptedDiff: JSON.stringify(changes) })
+          } else {
+            auditContext?.record({ eventName: 'createCalendarEvent', recordLocator: JSON.stringify({ id: updatedEvent.id })  })
+          }
+  
           setEvents((prev) => prev.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)))
         } 
 
