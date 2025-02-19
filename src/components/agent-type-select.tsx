@@ -53,7 +53,7 @@ export function AgentTypeSelect() {
           ))}          
         </SelectContent>
       </Select>
-      <div className="text-xs dark:text-gray-200 p-2 flex">
+      <div className="text-xs p-2 flex">
         <div><InfoIcon className="w-4 h-4 mr-2" /></div>
         <Markdown>{agentDescriptions[value]}</Markdown>
       </div>
