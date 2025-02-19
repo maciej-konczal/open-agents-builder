@@ -31,9 +31,11 @@ export class CalendarEventApiClient extends AdminApiClient {
       super(baseUrl, dbContext, saasContext, encryptionConfig);
     }
 
-    async get(calendarEventId?:string, agentId?: string): Promise<GetCalendarEventsResponse> {
+    async get({ calendarEventId, agentId, sessionId } : { calendarEventId?:string, agentId?: string, sessionId?: string }): Promise<GetCalendarEventsResponse> {
     if (calendarEventId)
       return this.request<GetCalendarEventsResponse>('/api/calendar/?id=' + encodeURIComponent(calendarEventId) , 'GET', CalendarEventDTOEncSettings) as Promise<GetCalendarEventsResponse>;
+    if (sessionId)
+      return this.request<GetCalendarEventsResponse>('/api/calendar/?sessionId=' + encodeURIComponent(sessionId) , 'GET', CalendarEventDTOEncSettings) as Promise<GetCalendarEventsResponse>;
     if (agentId)
       return this.request<GetCalendarEventsResponse>('/api/calendar/?agentId=' + encodeURIComponent(agentId) , 'GET', CalendarEventDTOEncSettings) as Promise<GetCalendarEventsResponse>;
     else 

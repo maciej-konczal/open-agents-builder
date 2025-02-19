@@ -65,7 +65,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   
   const listCalendarEvents = async (agentId: string) => {
       const client = await setupApiClient();
-      const response = await client.get(undefined, agentId);
+      const response = await client.get({ agentId });
       const events = response.map(e => CalendarEvent.fromDTO(e));
       setEvents(events);
       

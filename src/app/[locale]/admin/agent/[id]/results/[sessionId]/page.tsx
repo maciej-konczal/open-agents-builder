@@ -22,6 +22,8 @@ import { Chat } from '@/components/chat';
 import { Credenza, CredenzaTrigger, CredenzaContent } from '@/components/credenza';
 import { SaaSContext } from '@/contexts/saas-context';
 import DataLoader from '@/components/data-loader';
+import { CalendarEventsDisplayMode, SessionCalendarEvents } from '@/components/session-calendar-events';
+import Calendar from '../../calendar/page';
 
 
 export default function SingleResultPage() {
@@ -123,12 +125,16 @@ export default function SingleResultPage() {
               messageCount={session?.messages?.length ?? 0}
               inputTokens={session?.promptTokens ?? 0} // TODO: implement inputTokens,
               outputTokens={session?.completionTokens ?? 0} // TODO: implement outputTokens,            
-            /> 
+            />             
             <Tabs defaultValue="content" className="mt-4">
-              <TabsList className="grid grid-cols-2">
+              <TabsList className="grid grid-cols-3">
                   <TabsTrigger value="content" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Result')}</TabsTrigger>
                   <TabsTrigger value="chat" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Message history')}</TabsTrigger>
+                  <TabsTrigger value="calendar" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Calendar')}</TabsTrigger>
               </TabsList>
+              <TabsContent value="calendar" className="p-2 text-sm">
+                <SessionCalendarEvents displayMode={CalendarEventsDisplayMode.list} sessionId={result?.sessionId} />
+              </TabsContent>
               <TabsContent value="content" className="p-2 text-sm">
                 <RenderResult result={result} />
                 <Button size="sm" variant="outline" className="mt-2" onClick={(e) => {

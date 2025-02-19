@@ -15,6 +15,7 @@ import { DatabaseContext } from '@/contexts/db-context';
 import { RenderSession } from '@/components/render-session';
 import { SessionHeader } from '@/components/session-header';
 import DataLoader from '@/components/data-loader';
+import { CalendarEventsDisplayMode, SessionCalendarEvents } from '@/components/session-calendar-events';
 
 
 export default function SingleResultPage() {
@@ -49,6 +50,7 @@ export default function SingleResultPage() {
           <CardContent className="p-6">
                 <SessionHeader session={session} />
                 <RenderSession session={session} />
+                <SessionCalendarEvents displayMode={CalendarEventsDisplayMode.list} sessionId={session.id} />
                 <div className="p-4">
                   <ChatMessages 
                         displayTimestamps={true}

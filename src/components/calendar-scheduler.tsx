@@ -26,6 +26,7 @@ import { nanoid } from "nanoid"
 import { Credenza, CredenzaContent, CredenzaTrigger } from "./credenza"
 import { Chat } from "./chat"
 import { SaaSContext } from "@/contexts/saas-context"
+import { useSearchParams } from "next/navigation"
 
 
 const localizer = momentLocalizer(moment);
@@ -37,6 +38,8 @@ export default function Scheduler() {
   const [showModal, setShowModal] = useState(false)
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<SlotInfo | null>(null)
+
+  const searchParams = useSearchParams();
 
   const agentContext = useAgentContext();
   const { t, i18n } = useTranslation()
@@ -90,6 +93,15 @@ export default function Scheduler() {
     setSelectedEvent(null)
     setSelectedSlot(null)
   }
+
+  useEffect(() => {
+    if (events && events.length > 0 && searchParams.get('eventId')) {
+      setShowModal(true);
+      const evt = events.find(e => e.id === searchParams.get('eventId'))
+      if (evt) setSelectedEvent(evt);
+    }
+
+  }, [searchParams, events]);
 
   const handleSaveEvent = (event: Omit<CalendarEvent, "id">) => {
     if (selectedEvent) {

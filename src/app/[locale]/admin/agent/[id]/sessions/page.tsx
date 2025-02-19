@@ -21,6 +21,7 @@ import { SessionDeleteDialog } from '@/components/session-delete-dialog';
 import { SessionHeader } from '@/components/session-header';
 import { SessionMessagesDialog } from '@/components/session-messages-dialog';
 import { DisplayToolResultsMode } from '@/components/chat-messages';
+import { CalendarEventsDisplayMode, SessionCalendarEvents } from '@/components/session-calendar-events';
 
 
 export default function SessionsPage() {
@@ -97,6 +98,7 @@ export default function SessionsPage() {
           <CardContent className="text-sm">
             <SessionHeader session={session} />
             <RenderSession session={session} />
+            <SessionCalendarEvents displayMode={CalendarEventsDisplayMode.icon} sessionId={session.id} />
             <div className="pt-4 flex justify-end">
               <SessionDeleteDialog session={session} />
             </div>

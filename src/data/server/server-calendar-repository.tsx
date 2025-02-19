@@ -94,8 +94,13 @@ export default class ServerCalendarRepository extends BaseRepository<CalendarEve
             if(query.filter['id']){
                 dbQuery.where(eq(calendarEvents.id, query.filter['id'] as string));
             }
+            
             if(query.filter['agentId']){
                 dbQuery.where(eq(calendarEvents.agentId, query.filter['agentId'] as string));
+            }
+
+            if(query.filter['sessionId']){
+                dbQuery.where(like(calendarEvents.sessionId, query.filter['sessionId']));
             }
         }        
         return Promise.resolve(await this.decryptItems(dbQuery.all() as CalendarEventDTO[]))
