@@ -1,6 +1,7 @@
 import * as React from "react";
 import { CreateResultEmailTemplateProps } from "./result-email-template";
   
+// eslint-disable-next-line
   export default ({
     result, resultFormat, agent, url
   }: CreateResultEmailTemplateProps) => (

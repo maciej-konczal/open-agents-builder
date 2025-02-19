@@ -86,6 +86,7 @@ export function AgentSidebar() {
             if (item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) {
               return (
                 <Button
+                key={item.href}
                 disabled={true}
                 variant={isActive ? "secondary" : "ghost"}
                 className="w-full justify-start"

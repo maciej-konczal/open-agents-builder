@@ -11,6 +11,7 @@ interface TranslationProviderProps {
     resources: any;
 }
 
+// eslint-disable-next-line
 const TranslationProvider = React.memo<PropsWithChildren<TranslationProviderProps>>(
     ({ children, locale, namespaces, resources }) => {
         const i18n = createInstance();

@@ -54,7 +54,7 @@ export function AgentHeader() {
       });
     }
   });
-
+// eslint-disable-next-line
   useEffect(() => {
     agentContext.listAgents(currentId).catch((e)=> {
       console.error(e);

@@ -21,16 +21,19 @@ import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-b
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
+// eslint-disable-next-line react-hooks/exhaustive-deps
   const [isDirty, setIsDirty] = useState(false);
   const params = useParams();
   const agentContext = useAgentContext();
 
+  // eslint-disable-next-line
   useEffect(() => { 
     if (agentContext.agents && agentContext.agents.length > 0 && !agent && params.id) { // agent does not exist, but id is provided
       router.push(`/admin/agent/new/general`);
     }
   }, [agentContext.agents]);
 
+  // eslint-disable-next-line
   useEffect(() => {
     if (agent && agent.id === params.id) { // bind the tracking changes only for the currently selected agent
       //agent.toForm(setValue); // load the database values

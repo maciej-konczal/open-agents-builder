@@ -49,7 +49,7 @@ export function AgentTypeSelect() {
 
         <SelectContent>
           {agentTypesRegistry.filter(at => at.locale === i18n.language).map((at) => (
-            <SelectItem value={at.template}>{at.displayName}</SelectItem>
+            <SelectItem key={at.template} value={at.template}>{at.displayName}</SelectItem>
           ))}          
         </SelectContent>
       </Select>

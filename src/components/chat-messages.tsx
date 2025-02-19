@@ -36,9 +36,9 @@ export function ChatMessages({ messages, displayToolResultsMode = DisplayToolRes
                 {
                   (m.content && typeof m.content === 'string' ? <ChatMessageMarkdown>{m.content}</ChatMessageMarkdown> : (
                       Array.isArray(m.content) && (m.content as Array<{ type: string, result?: string, text?: string }>).map((c) => {
-                        if (c.type === 'text' && c.text) return (<ChatMessageMarkdown>{c.text}</ChatMessageMarkdown>)
+                        if (c.type === 'text' && c.text) return (<ChatMessageMarkdown key={c.text}>{c.text}</ChatMessageMarkdown>)
                         if (c.type === 'tool-result' && c.result && displayToolResultsMode !== DisplayToolResultsMode.None) return (
-                          <div className="mb-2">
+                          <div className="mb-2" key={c.text}>
                             <span className="font-bold">{t('Tool response: ')}</span>
                             {(typeof c.result === 'string' ? 
                                 (<ChatMessageMarkdown>{t(c.result)}</ChatMessageMarkdown>) : 

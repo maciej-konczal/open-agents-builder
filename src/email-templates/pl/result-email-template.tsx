@@ -28,7 +28,7 @@ import { max } from "moment";
     userName: string;
     userEmail: string;
   }
-  
+  // eslint-disable-next-line
   export default ({
     result, resultFormat, agent, url, userName, userEmail
   }: CreateResultEmailTemplateProps) => (

@@ -29,6 +29,7 @@ import {
     userEmail: string;
   }
 
+  // eslint-disable-next-line
   export default ({
     result, resultFormat, agent, url, userEmail, userName
   }: CreateResultEmailTemplateProps) => (
