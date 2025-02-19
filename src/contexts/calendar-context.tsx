@@ -15,9 +15,12 @@ import { getErrorMessage } from "@/lib/utils"
 import { AuditContext } from "./audit-context"
 import { detailedDiff } from "deep-object-diff"
 
+let syncHandler = null
+
 
 interface CalendarContextType {
   events: CalendarEvent[]
+  refreshDataSync: string;
   listCalendarEvents: (agentId: string) => Promise<CalendarEvent[]>
   addCalendarEvent: (event: Omit<CalendarEvent, "id">) => Promise<PutCalendarEventResponse>
   updateCalendarEvent: (event: CalendarEvent) => Promise<PutCalendarEventResponse>
@@ -37,6 +40,7 @@ export const useCalendar = () => {
 
 export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [events, setEvents] = useState<CalendarEvent[]>([])
+  const [refreshDataSync, setRefreshDataSync] = useState(uuidv4())
 
   const agentContext = useAgentContext()
   const auditContext = useContext(AuditContext)
@@ -46,7 +50,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   useEffect(() => {
     if (agentContext.current && agentContext.current.id && agentContext.current.id !== 'new') listCalendarEvents(agentContext.current?.id)
-  }, [agentContext.current])
+  }, [agentContext.current, refreshDataSync])
 
 
   const setupApiClient = async () => {
@@ -65,6 +69,13 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const events = response.map(e => CalendarEvent.fromDTO(e));
       setEvents(events);
       
+      if (syncHandler) clearInterval(syncHandler);
+      syncHandler = setInterval(() => {
+          console.log('Refreshing SaaS data sync ...');
+          setRefreshDataSync(new Date().toISOString());
+      }, 1000 *  30); // refresh data every 30s
+
+
       return events;
   }
 
@@ -152,6 +163,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         updateCalendarEvent,
         deleteCalendarEvent,
         importEvents,
+        refreshDataSync
       }}
     >
       {children}
