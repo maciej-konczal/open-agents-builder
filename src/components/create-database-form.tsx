@@ -53,10 +53,6 @@ export function CreateDatabaseForm({
       language: i18n.language,
     });
 
-    if (keepLoggedIn){
-      localStorage.setItem("email", data.email);
-      localStorage.setItem("password", data.password);
-    }
     setOperationResult(result ?? null);
     if(result?.success) {
       toast.success(t(result?.message));
