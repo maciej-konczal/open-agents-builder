@@ -147,7 +147,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             console.error('Error deleting agent:', response.message);
             toast.error(t('Error deleting agent'));
         } else {
-            auditContext?.record({ eventName: 'deleteAgent', recordLocator: agent.id  })
+            auditContext?.record({ eventName: 'deleteAgent', recordLocator: JSON.stringify({ id: agent.id })  })
 
             setAgents(agents.filter(pr => pr.id !== agent.id));
             toast.success(t('Agent deleted'));

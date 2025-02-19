@@ -73,6 +73,8 @@ export default class ServerCalendarRepository extends BaseRepository<CalendarEve
         const db = (await this.db());
         if(query.id) 
             return db.delete(calendarEvents).where(eq(calendarEvents.id, query.id)).run().changes > 0
+        if (query.agentId)
+            return db.delete(calendarEvents).where(eq(calendarEvents.agentId, query.agentId)).run().changes > 0
         return false;
     }
 

@@ -1,4 +1,5 @@
 import ServerAgentRepository from "@/data/server/server-agent-repository";
+import ServerCalendarRepository from "@/data/server/server-calendar-repository";
 import ServerResultRepository from "@/data/server/server-result-repository";
 import ServerSessionRepository from "@/data/server/server-session-repository";
 import {  authorizeRequestContext, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
@@ -13,9 +14,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
         const resultRepo = new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
         const sessionRepo = new ServerSessionRepository (requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
+        const calendarRepo = new ServerCalendarRepository (requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
 
         await resultRepo.delete({ agentId: recordLocator });
         await sessionRepo.delete({ agentId: recordLocator });
+        await calendarRepo.delete({ agentId: recordLocator });
 
 
         if(!recordLocator){
