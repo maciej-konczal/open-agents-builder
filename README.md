@@ -3,20 +3,24 @@
 ## Build AI Assistants for Bookings, Intake forms, Orders, Support ....
 
 Agent Doodle let you create interactive AI agents that:
+- 💵 can sell things on Instagram,
+- 🛠️ can configure sophisticated products (CPQ),
 - 💁‍♀️ automates your Company and **saves you tons of time** and money otherwise spend on assisting personel,
 - 🎯 are focused on the goal, **dynamically setting the questions based on previous answers**!
 - 👩‍💼 are **empathetic** - the conversation is managed by AI, using the tone of voice you set for the agent,
 - 📆 can **book calendar events** that fits all the participiants,
 - 💾 collects data in any format you request (**JSON, markdown etc.**),
-- 💵 can sell things,
 - ✏️ can collect the **leads** or save them in external CRM,
 - 🛠️ are able to call all set of tools - sending e-mails, accessing calendar, external CRM's, data sources etc.
 
-<img src=".readme-assets/screenshot-7.png" />
+<img src=".readme-assets/screenshot-hero.png" />
 
 **Create an agent, get a unique link, send it to the users or share on your webpage!**
 
 It can literally replace dozen other SaaS tools like:
+- eCommerce,
+- B2B,
+- CPQ,
 - Booking software,
 - CRM,
 - Calendar / Scheduler,
@@ -31,8 +35,25 @@ It can literally replace dozen other SaaS tools like:
 <table>
     <tr>
         <td>
-            <a href=".readme-assets/screenshot-13.png">
-                <img src=".readme-assets/screenshot-13.png" alt="Screenshot" />
+            <a href=".readme-assets/screenshot-17.png">
+                <img src=".readme-assets/screenshot-17.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-18.png">
+                <img src=".readme-assets/screenshot-18.png" alt="Screenshot" />
+            </a>      
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-19.png">
+                <img src=".readme-assets/screenshot-19.png" alt="Screenshot" />
+            </a>      
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href=".readme-assets/screenshot-20.png">
+                <img src=".readme-assets/screenshot-20.png" alt="Screenshot" />
             </a>
         </td>
         <td>
@@ -65,8 +86,8 @@ It can literally replace dozen other SaaS tools like:
     </tr>
     <tr>
         <td>
-            <a href=".readme-assets/screenshot-1.png">
-                <img src=".readme-assets/screenshot-1.png" alt="Screenshot" />
+            <a href=".readme-assets/screenshot-13.png">
+                <img src=".readme-assets/screenshot-13.png" alt="Screenshot" />
             </a>
         </td>
         <td>
@@ -92,7 +113,7 @@ It can literally replace dozen other SaaS tools like:
             </a>      
         </td>
         <td>
-            <a href=".readme-assets/screenshot-6.png">
+            <a href=".readme-assets/screenshot-1.png">
                 <img src=".readme-assets/screenshot-6.png" alt="Screenshot" />
             </a>      
         </td>
@@ -117,43 +138,51 @@ It can literally replace dozen other SaaS tools like:
 
 Below is a list of industries that have a genuine need for both scheduling appointments and gathering additional data, yet are not as heavily “covered” by popular booking tools. No beating around the bush:
 
-1. **👩‍💻 Workshops and Thematic Courses**  
+1. **💈 E-Commerce, Social commerce** 
+   - *Examples:* Selling things on Instagram  
+   - *Why?* You probably need a simple eCommerce. With Agent Doodle you may create a whole eCommerce under a single link that you paste into your Instagram profile. Moreover it will answer user questions and let them customize the products!
+
+2. **🔧 B2B, CPQ, Qutation Engine** 
+   - *Examples:* Negotiating quotes or configuring very complex products
+   - *Why?* Your Sales team probably spend hours on calls with customers. Now you can outsource it to Agent Doodle generated agent. Provide it with all the products, your negotiation strategies and its gonna do the reset finalizing with the order. Great for made-for-order use cases!
+
+3. **👩‍💻 Workshops and Thematic Courses**  
    - *Examples:* Cooking classes, painting, sewing, or coding courses for kids.  
    - *Why?* Instructors often need to know the participant’s skill level, preferences (e.g., diet, tools, materials). Quickly gathering details and setting a date is a perfect job for a chat assistant.
 
-2. **🖨️ Home Appliance Repair Services (AGD, RTV, Computers)**  
+4. **🖨️ Home Appliance Repair Services (AGD, RTV, Computers)**  
    - *Examples:* Washing machine, laptop, and TV repairs.  
    - *Why?* There are always questions about the model, serial number, type of fault, and then scheduling a technician’s visit. It’s best to handle all of this in one efficient process.
 
-3. **👩‍🏫 Training and Consulting Firms**  
+5. **👩‍🏫 Training and Consulting Firms**  
    - *Examples:* Marketing consultations, workplace safety (BHP) training, communication workshops.  
    - *Why?* They often need to gather a brief, determine the number of participants, and understand expectations. A chat-based system that schedules directly into a calendar is a game-changer.
 
-4. **🗒️ Legal and Tax Advisory Services**  
+6. **🗒️ Legal and Tax Advisory Services**  
    - *Examples:* Small law firms, accounting offices.  
    - *Why?* Before taking on a case, a lawyer or accountant needs key details—case type, documents, deadlines. Instead of endless emails, a quick chat session can collect this info and schedule a meeting instantly.
 
-5. **🏠 Real Estate Agencies**  
+7. **🏠 Real Estate Agencies**  
    - *Examples:* Agencies handling apartment, house, or commercial property sales.  
    - *Why?* How often does an agent ask: “What’s your budget?” “Are you looking for a fixer-upper or a move-in-ready home?”—over and over again. Embedding these questions into an automated chat + a scheduling system will streamline the process and save everyone’s nerves.
 
-6. **📁 Technical Consulting Services (e.g., Interior Designers, Architects)**  
+8. **📁 Technical Consulting Services (e.g., Interior Designers, Architects)**  
    - *Examples:* Interior designers, landscape architects, installation planners.  
    - *Why?* Before starting work, such a specialist needs to know things like square footage, aesthetic preferences, and budget. A chatbot with an automated scheduler eliminates countless phone calls and emails.
 
-7. **🚕 Automotive Services (Beyond Standard Car Repair Shops)**  
+9. **🚕 Automotive Services (Beyond Standard Car Repair Shops)**  
    - *Examples:* Mobile tire service, upholstery cleaning, car detailing.  
    - *Why?* Customers need to provide details like license plate numbers, service type, vehicle condition. Then there’s the scheduling—do they prefer morning or evening? All of it can be handled in one place.
 
-8. **👨🏻‍🏫 Language Schools and Private Tutors**  
+10. **👨🏻‍🏫 Language Schools and Private Tutors**  
    - *Examples:* Group language courses, one-on-one online lessons.  
    - *Why?* Skill level, learning goals (business, hobby, exam prep), preferred times—these details fit perfectly into an automated chat with a scheduling system.
 
-9. **🎉 Event Organizers (e.g., Photo Sessions, Shows, Corporate Events)**  
+11. **🎉 Event Organizers (e.g., Photo Sessions, Shows, Corporate Events)**  
    - *Examples:* Photography studios, corporate event planners.  
    - *Why?* Organizing an event requires coordinating many details—number of attendees, catering, location, needed equipment. A chat system with automatic booking and data collection reduces the chaos.
 
-10. **🪑 Mobile On-Site Services**  
+12. **🪑 Mobile On-Site Services**  
    - *Examples:* Mobile car washes, mobile pet grooming, bike repair at the client’s location.  
    - *Why?* They require scheduling an address, time, and sometimes details like the type of equipment or pet breed. A short chat survey—and voila, appointment confirmed.
 
@@ -163,6 +192,14 @@ These industries share a common challenge: before an appointment happens, key cl
 ## Use Cases 
 
 Agent Doodle is a very simple tool you can run on your own or use the [hosted version](https://agentdoodle.com). 
+
+### E-commerce
+
+You may list your products (with prices, variants, photos) and let the users configure and select what they're interested in. The agent will gather all required data, maintain the shopping cart and finalize with order!
+
+### Made to Order, CPQ
+
+Complex products are very difficult for users to configure. You may create an agent which is instructed how to configure the products based on even super-complex specs. Let it do the work for your users and for you - finalizing with a Quote or an Order!
 
 ### Booking
 
