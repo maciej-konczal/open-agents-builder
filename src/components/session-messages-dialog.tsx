@@ -1,4 +1,4 @@
-import { Credenza, CredenzaContent, CredenzaTrigger } from "./credenza";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { MessageCircleIcon } from "lucide-react";
 import { ChatMessages, DisplayToolResultsMode } from "./chat-messages";
 import { Message } from "ai";
@@ -13,10 +13,13 @@ import { getErrorMap } from "zod";
 import { toast } from "sonner";
 import { getErrorMessage } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { ScrollArea } from "./ui/scroll-area";
+import { SessionHeader } from "./session-header";
 
 export function SessionMessagesDialog({ sessionId, displayToolResultsMode }: { sessionId:string, displayToolResultsMode: DisplayToolResultsMode }) {
 
   const [messages, setMesssages] = useState([] as Message[]); 
+  const [session, setSession] = useState<Session | null>(null);
   const dbContext = useContext(DatabaseContext);
   const saasContext = useContext(SaaSContext);
   const { t } = useTranslation();
@@ -28,6 +31,7 @@ export function SessionMessagesDialog({ sessionId, displayToolResultsMode }: { s
     client.get(sessionId).then((sessions) => {
         if (sessions.length > 0) {
             const session = Session.fromDTO(sessions[0]);
+            setSession(session);
             if (session.messages) setMesssages(session.messages);
         }
     }).catch((e) => {
@@ -39,13 +43,16 @@ export function SessionMessagesDialog({ sessionId, displayToolResultsMode }: { s
   }, [sessionId]);
 
 
-  return (<Credenza>
-    <CredenzaTrigger asChild>
+  return (<Dialog>
+    <DialogTrigger asChild>
       <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary">
         <MessageCircleIcon className="w-4 h-4" />
       </Button>
-    </CredenzaTrigger>
-    <CredenzaContent>
+    </DialogTrigger>
+    <DialogContent className="max-w-3xl">
+      <ScrollArea className="h-[80vh] pr-4">
+        <SessionHeader session={session} />
+
         {messages ? (
           <ChatMessages 
             displayToolResultsMode={displayToolResultsMode}
@@ -53,6 +60,7 @@ export function SessionMessagesDialog({ sessionId, displayToolResultsMode }: { s
             messages={messages}
           />
         ) : <div className="flex justify-center items-center h-64"><DataLoader /></div>}
-    </CredenzaContent>
-  </Credenza>);
+      </ScrollArea>
+    </DialogContent>
+  </Dialog>);
 }

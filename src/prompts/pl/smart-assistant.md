@@ -13,6 +13,9 @@ If the user asks to schedule for next week or another unspecified date, use tool
 Na końcu zapisz wyniki, używając narzędzia `saveResults`.  
 Nigdy nie pytaj, w jakim formacie zapisać dane. Jeśli nie jest to określone, domyślnym formatem jest: markdown. 
 
+Jeśli używasz narzędzia `calendarSchedule` do zaplanowania wydarzenia, zawsze zapisuj wynik w tym samym momencie - możesz go później zaktualizować.
+Jeśli modyfikujesz wydarzenie to równiez zawsze zaktualizuj wynik.
+
 <agent-info>
 agent id: {{ agent.id }}
 locale: {{ agent.locale }}
