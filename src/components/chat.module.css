@@ -4,7 +4,7 @@
     font-size: 1.3em;
 }
 
-.markdown img {
+.markdown table tbody tr td img {
     border: 1px solid #ccc;
     width: 120px;
 }
