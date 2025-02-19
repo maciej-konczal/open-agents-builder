@@ -58,7 +58,7 @@ export class BaseApiClient {
       const response: AxiosResponse = await axios(config);
       return response.data
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new ApiError('Request failed' + getErrorMessage(error) + ' [' + error.code + ']', error.code, error);
     }
   }

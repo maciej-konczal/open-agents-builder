@@ -21,7 +21,6 @@ export function ChatInitForm({ displayName, welcomeMessage }: { displayName: str
         //console.log(data);
         chatContext.saveInitForm(data);
         const response = chatContext.setInitFormDone(true);
-        console.log(response);
     }
     const [openTerms, setOpenTerms] = useState(false);
 

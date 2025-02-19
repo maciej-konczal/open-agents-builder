@@ -33,7 +33,6 @@ export class PlatformApiClient extends AdminApiClient {
         databaseIdHash?: string|null;
         apiKey?: string|null;
     }): Promise<SaaSActivationResponse> {
-        console.log('aa')
         return this.request<SaaSActivationResponse>('/api/users/verify' + qr(databaseIdHash, apiKey), 'POST') as Promise<SaaSActivationResponse>;
     }
 

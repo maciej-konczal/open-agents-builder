@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
                                 createdAt: getCurrentTS()
                             })
                         } catch (e) {
-                            console.log(e)
+                            console.error(e)
                         }
 
                         saasContext = await authorizeSaasToken(authCreateRequest.databaseIdHash, newUserData.activeApiKey);    

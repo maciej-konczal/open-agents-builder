@@ -10,15 +10,24 @@ export function createCalendarListTool(agentId: string, sessionId: string, datab
     tool: tool({
       description: 'List all events in the calendar. Always list events BEFORE SCHEDULING new one to check the availability.',
       parameters: z.object({
+        limitedVisibility: z.boolean().optional()
       }),
-      execute: async () => {
+      execute: async ({ limitedVisibility }) => {
         try {
+          console.log('LV', limitedVisibility)
           const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
           const response =  await eventsRepo.findAll({
             filter: {
               agentId
             }
           })
+
+          if (response && response.length > 0 && limitedVisibility) {
+            return response.map(evt => {
+              return { ...evt, description: 'ANONYMIZED', location: 'ANONYMIZED', participants: [], title: 'ANONYMIZED' }
+            })
+          }
+
           return response;
         } catch (e) {
           console.error(e);

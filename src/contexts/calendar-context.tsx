@@ -115,7 +115,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return { status: 400, message: t("Agent not selecte or not saved. Please save the agent before editing calendar") }
       }
     } catch (e) {
-      console.log(e)
+      console.error(e)
       toast.error(t(getErrorMessage(e)))
       return { status: 400, message: getErrorMessage(e) }
     }
@@ -134,7 +134,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
       return response;
     } catch (e) {
-      console.log(e)
+      console.error(e)
       toast.error(t(getErrorMessage(e)))
       return { status: 400, message: getErrorMessage(e) }
     }

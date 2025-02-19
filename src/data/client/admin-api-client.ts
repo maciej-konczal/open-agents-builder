@@ -198,7 +198,7 @@ export class AdminApiClient {
         return responseData;
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       throw new ApiError('Request failed' + getErrorMessage(error) + ' [' + error.code + ']', error.code, error);
     }
   }
