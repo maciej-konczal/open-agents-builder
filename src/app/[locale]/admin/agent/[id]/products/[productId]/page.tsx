@@ -19,6 +19,7 @@ import { useProductContext } from "@/contexts/product-context";
 import { getErrorMessage } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import { useAgentContext } from "@/contexts/agent-context";
+import { MoveLeftIcon, TrashIcon, WandIcon } from "lucide-react";
 
 // ----------------------------------------------------
 // 1) Schemat walidacji Zod
@@ -400,6 +401,7 @@ export default function ProductFormPage() {
   return (
     <FormProvider {...methods}>
       <div className="max-w-4xl mx-auto">
+      <Button className="mb-6" size="sm" variant="outline" onClick={() => history.back()}><MoveLeftIcon /> {t('Back to products')}</Button>
 
         <form
           onSubmit={(e) => {
@@ -419,6 +421,7 @@ export default function ProductFormPage() {
             <div>
               <label className="block font-medium mb-1">Name</label>
               <Input
+              autoFocus 
                 {...register("name")}
                 placeholder="Product name..."
               />
@@ -549,10 +552,10 @@ export default function ProductFormPage() {
                     )}
                     <Button
                       type="button"
-                      variant="destructive"
+                      variant="outline"
                       onClick={() => removeFileFromQueue(f.id)}
                     >
-                      Remove
+                      <TrashIcon className="w-4 h-4" />
                     </Button>
                   </div>
                 ))}
@@ -582,11 +585,12 @@ export default function ProductFormPage() {
                   />
                   <Button
                     type="button"
-                    variant="destructive"
+                    variant="outline"
+                    size="sm"
                     onClick={() => removeAttribute(i)}
                   >
-                    Remove
-                  </Button>
+                      <TrashIcon className="w-4 h-4" />
+                   </Button>
                 </div>
               ))}
               <Button
@@ -612,10 +616,11 @@ export default function ProductFormPage() {
                 <label className="block font-medium">Variants</label>
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="secondary"
                   onClick={generateVariantsFromAttributes}
                 >
-                  Generate variants
+                  <WandIcon className="w-4 h-4 mr-2" />
+                  {t('Generate variants')}
                 </Button>
               </div>
               {variantFields.map((field, idx) => (

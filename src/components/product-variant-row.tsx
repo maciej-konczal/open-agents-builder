@@ -7,6 +7,8 @@ import { nanoid } from "nanoid";
 // shadcn UI
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TrashIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Definicja atrybutu wariantu
 type VariantAttribute = {
@@ -41,20 +43,18 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
     formState: { errors },
   } = useFormContext<ProductFormData>();
 
-  // Odczyt bieżących wartości wariantu przez useWatch
   const variantValue = useWatch({
     name: `variants.${index}`,
     control,
   });
   // => { sku, name, price, priceInclTax, taxRate, variantAttributes }
 
-  // Obsługa błędów walidacji (Zod/React-Hook-Form)
   const variantErrors = errors.variants?.[index] || {};
 
-  // REF do śledzenia, które pole user edytował ostatnio: "price" czy "priceInclTax"
+  const { t } = useTranslation();
+
   const lastChangedField = useRef<"price" | "priceInclTax" | null>(null);
 
-  // Handlery onChange, żeby ustawić lastChangedField
   const onChangePrice = useCallback(() => {
     lastChangedField.current = "price";
   }, []);
@@ -78,7 +78,6 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [variantValue?.price, variantValue?.taxRate]);
 
-  // useEffect do obliczania "netto" => price
   useEffect(() => {
     if (!variantValue) return;
     if (lastChangedField.current === "priceInclTax") {
@@ -114,7 +113,6 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
             {...register(`variants.${index}.sku`)}
             placeholder="SKU"
             onBlur={(e) => {
-              // Jeśli user skasuje SKU => nadaj nanoid
               if (!e.target.value) {
                 setValue(`variants.${index}.sku`, nanoid());
               }
@@ -185,7 +183,6 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
         </div>
       </div>
 
-      {/* Wypisanie atrybutów wariantu (jeśli ma) */}
       {variantValue?.variantAttributes?.length > 0 && (
         <div className="mb-2">
           <label className="block text-sm font-medium">Variant Attributes</label>
@@ -201,11 +198,12 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
 
       <Button
         type="button"
-        variant="destructive"
+        size={"sm"}
+        variant="outline"
         onClick={() => removeVariant(index)}
       >
-        Remove Variant
-      </Button>
+        <TrashIcon className="w-4 h-4" /> {t('Remove variant')}
+        </Button>
     </div>
   );
 }

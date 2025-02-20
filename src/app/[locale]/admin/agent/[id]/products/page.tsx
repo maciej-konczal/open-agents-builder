@@ -37,7 +37,6 @@ export default function ProductsPage() {
   });
   const [debouncedSearchQuery] = useDebounce(productsQuery, 500);
 
-  // Stan do przechowywania wyników paginacji (rows + meta)
   const [productsData, setProductsData] = useState<PaginatedResult<Product[]>>({
     rows: [],
     total: 0,
@@ -51,7 +50,6 @@ export default function ProductsPage() {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 4; // przyrost kolejnych stron
 
-  // Efekt: kiedy zmieni się debouncedSearchQuery, pobieramy pierwszą stronę
   useEffect(() => {
     (async () => {
       setProductsLoading(true);
@@ -62,7 +60,6 @@ export default function ProductsPage() {
           orderBy: debouncedSearchQuery.orderBy,
           query: debouncedSearchQuery.query,
         });
-        // Zapisz w stanie
         setProductsData({
           ...response,
           rows: response.rows.map((dto) => Product.fromDTO(dto)),
@@ -81,7 +78,6 @@ export default function ProductsPage() {
     );
   }, [productsData]);
 
-  // Funkcja do pobierania kolejnych produktów
   const loadMore = async () => {
     if (productsLoading) return;
     const newOffset = productsData.limit + productsData.offset;
@@ -93,7 +89,7 @@ export default function ProductsPage() {
 
     try {
       const response = await productContext.queryProducts({
-        limit: pageSize, // pobierz np. +4 kolejnych
+        limit: pageSize, 
         offset: newOffset,
         orderBy: productsData.orderBy,
         query: productsData.query,
@@ -105,7 +101,7 @@ export default function ProductsPage() {
           ...response.rows.map((dto) => Product.fromDTO(dto)),
         ],
         total: response.total,
-        limit: prev.limit + response.limit, // albo sumuj, zależnie jak liczycie
+        limit: prev.limit + response.limit, 
         offset: newOffset,
         orderBy: prev.orderBy,
         query: prev.query,
@@ -129,8 +125,6 @@ export default function ProductsPage() {
         </Link>
         </div>
 
-
-      {/* Pole wyszukiwania */}
       <Input
         placeholder={"Search products..."}
         onChange={(e) => {
@@ -142,14 +136,12 @@ export default function ProductsPage() {
         value={productsQuery.query}
       />
 
-      {/* Jeśli brak rekordów, pokaż alert */}
       {productsData.rows.length === 0 && !productsLoading ? (
         <NoRecordsAlert title={t("No products found")}>
           {t("Try adjusting your search or add new products.")}
         </NoRecordsAlert>
       ) : null}
 
-      {/* Lista produktów */}
       {productsData.rows.map((product) => (
         <Card key={product.id}>
           <CardHeader>
@@ -158,8 +150,7 @@ export default function ProductsPage() {
                     className="mr-2"
                     variant="secondary"
                     onClick={() => {
-                    // np. przejście do strony szczegółów
-                    router.push("/admin/agent/" + encodeURIComponent(agentContext.current?.id || '') + "/products/" + encodeURIComponent(product.id || ''));
+                       router.push("/admin/agent/" + encodeURIComponent(agentContext.current?.id || '') + "/products/" + encodeURIComponent(product.id || ''));
                     }}
                 >
                 <FolderOpenIcon className="w-4 h-4" />
@@ -167,7 +158,6 @@ export default function ProductsPage() {
             {product.name}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
-            {/* Główne zdjęcie */}
             {product.imageUrl && (
               <img
                 src={product.imageUrl}
@@ -176,7 +166,6 @@ export default function ProductsPage() {
               />
             )}
 
-            {/* Pozostałe zdjęcia – product.images to tablica Attachment */}
             {product.images && product.images.length > 0 && (
               <div className="flex flex-row gap-2 mb-2">
                 {product.images.map((img, idx) => (
@@ -190,10 +179,8 @@ export default function ProductsPage() {
               </div>
             )}
 
-            {/* Opis */}
             {product.description && <p className="mb-2">{product.description}</p>}
 
-            {/* Atrybuty */}
             {product.attributes && product.attributes.length > 0 && (
               <div className="mb-2">
                 <strong>Attributes:</strong>
@@ -215,14 +202,12 @@ export default function ProductsPage() {
         </Card>
       ))}
 
-      {/* Infinite scroll */}
       <InfiniteScroll
         hasMore={hasMore}
         isLoading={productsLoading}
         next={loadMore}
         threshold={1}
       >
-        {/* loader w trakcie wczytywania */}
         {hasMore && productsLoading && (
           <div className="flex justify-center">
             <Loader2 className="my-4 h-8 w-8 animate-spin" />
