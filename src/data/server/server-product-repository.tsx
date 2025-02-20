@@ -1,9 +1,9 @@
 // server-product-repository.ts
 
 import { BaseRepository, IQuery } from "./base-repository";
-import { ProductDTO } from "../dto";
+import { PaginatedResult, ProductDTO } from "../dto";
 import { getCurrentTS } from "@/lib/utils";
-import { eq } from "drizzle-orm";
+import { asc, count, desc, eq, like, or } from "drizzle-orm";
 import { create } from "./generic-repository";
 import { products } from "./db-schema-commerce";
 
@@ -160,4 +160,67 @@ export default class ServerProductRepository extends BaseRepository<ProductDTO> 
     const rows = dbQuery.all();
     return rows.map((row) => this.fromDbRecord(row));
   }
+
+
+  async queryAll({ limit, offset, orderBy, query }: 
+    { limit: number; offset: number; orderBy: string; query: string; }
+  ): Promise<PaginatedResult<ProductDTO[]>> {
+    const db = await this.db();
+
+    // domyślne sortowanie – np. po dacie malejąco
+    let orderColumn = desc(products.createdAt);
+
+    switch (orderBy) {
+      case "name":
+        orderColumn = asc(products.name);
+        break;
+      case "priceValue":
+        orderColumn = asc(products.priceValue);
+        break;
+      // inne pola, np. updatedAt, brand, itp.
+      case "createdAt":
+      default:
+        orderColumn = desc(products.createdAt);
+        break;
+    }
+
+    let whereCondition = null;
+    if (query) {
+      whereCondition = or(
+        like(products.sku, `%${query}%`),
+        like(products.name, `%${query}%`)
+      );
+    }
+
+    // Policzmy łączną liczbę pasujących rekordów
+    const countQuery = db
+      .select({ count: count() })
+      .from(products)
+      .where(whereCondition ?? undefined)
+      .execute();
+
+    // Pobieżmy rekordy
+    let dbRecords = db
+      .select()
+      .from(products)
+      .where(whereCondition ?? undefined)
+      .orderBy(orderColumn)
+      .limit(limit)
+      .offset(offset)
+      .all();
+
+    const total = (await countQuery)[0].count;
+
+    // Zamieńmy je na ProductDTO
+    const rows = dbRecords.map((r) => this.fromDbRecord(r));
+
+    return {
+      rows,
+      total,
+      limit,
+      offset,
+      orderBy,
+      query,
+    };
+  }  
 }
