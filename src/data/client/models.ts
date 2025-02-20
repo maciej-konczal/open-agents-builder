@@ -714,11 +714,10 @@ export class Product {
             name: this.name,
             description: this.description ?? "",
 
-            priceValue: this.price?.value ?? 0,
-            priceCurrency: this.price?.currency ?? "USD",
+            price: this.price?.value ?? 0,
+            currency: this.price?.currency ?? "USD",
 
-            priceInclTaxValue: this.priceInclTax?.value ?? 0,
-            priceInclTaxCurrency: this.priceInclTax?.currency ?? "USD",
+            priceInclTax: this.priceInclTax?.value ?? 0,
 
             taxRate: this.taxRate ?? 0,
             taxValue: this.taxValue ?? 0,
@@ -766,12 +765,12 @@ export class Product {
             description: data.description ?? existing?.description,
 
             price: {
-                value: data.priceValue ?? existing?.price?.value ?? 0,
-                currency: data.priceCurrency ?? existing?.price?.currency ?? "USD",
+                value: data.price ?? existing?.price?.value ?? 0,
+                currency: data.currency ?? existing?.price?.currency ?? "USD",
             },
             priceInclTax: {
-                value: data.priceInclTaxValue ?? existing?.priceInclTax?.value ?? 0,
-                currency: data.priceInclTaxCurrency ?? existing?.priceInclTax?.currency ?? "USD",
+                value: data.priceInclTax ?? existing?.priceInclTax?.value ?? 0,
+                currency: data.currency ?? existing?.priceInclTax?.currency ?? "USD",
             },
 
             taxRate: data.taxRate ?? existing?.taxRate ?? 0,

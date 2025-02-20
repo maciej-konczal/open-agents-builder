@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import { toast } from "sonner";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import { FileUploadStatus, UploadedFile, Product } from "@/data/client/models";
 import { useProductContext } from "@/contexts/product-context";
 import { getErrorMessage } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
+import { useAgentContext } from "@/contexts/agent-context";
 
 // ----------------------------------------------------
 // 1) Schemat walidacji Zod
@@ -89,6 +90,9 @@ export default function ProductFormPage() {
   const { t, i18n } = useTranslation();
   const productContext = useProductContext();
   const params = useParams();
+
+  const agentContext = useAgentContext();
+  const router = useRouter();
 
   // Domyślne stawki i waluty
   const defaultTaxRate = i18n.language === "pl" ? 23 : 0;
@@ -382,8 +386,7 @@ export default function ProductFormPage() {
       if (saved?.id) {
         toast.success("Product saved!");
         if (addNext) {
-          reset();
-          setUploadedFiles([]);
+          router.push(`/admin/agent/${agentContext?.current?.id}/products/new`);          
         }
       } else {
         toast.error("Error saving product");
@@ -411,12 +414,12 @@ export default function ProductFormPage() {
           className="space-y-6"
         >
 
-        <Tabs defaultValue="content" className="mt-4">
+        <Tabs defaultValue="basic" className="mt-4">
            <TabsList className="grid grid-cols-2">
              <TabsTrigger value="basic" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Basic')}</TabsTrigger>
              <TabsTrigger value="advanced" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Advanced')}</TabsTrigger>
             </TabsList>
-            <TabsContent value="basic" className="p-2 text-sm">
+            <TabsContent value="basic" className="p-4 text-sm space-y-4">
 
             {/* NAME */}
             <div>
@@ -434,6 +437,7 @@ export default function ProductFormPage() {
             <div>
               <label className="block font-medium mb-1">Description</label>
               <Textarea
+                rows={8}
                 {...register("description")}
                 placeholder="Describe your product..."
               />
@@ -554,7 +558,7 @@ export default function ProductFormPage() {
               </div>
             </div>
           </TabsContent>
-          <TabsContent value="advanced" className="p-2 text-sm">
+          <TabsContent value="advanced" className="p-4 text-sm space-y-4">
             {/* ATTRIBUTES */}
             <div>
               <label className="block font-medium mb-2">Attributes</label>
@@ -665,7 +669,7 @@ export default function ProductFormPage() {
                 handleSubmit((data) => onSubmit(data, true))();
               }}
             >
-              Save and add next
+              {t('Save and add next')}
             </Button>
           </div>
         </form>

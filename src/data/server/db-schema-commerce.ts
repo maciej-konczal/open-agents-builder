@@ -12,11 +12,9 @@ export const products = sqliteTable('products', {
   name: text('name'),
   description: text('description'),
 
-  priceValue: real('priceValue'),
-  priceCurrency: text('priceCurrency'),
-
-  priceInclTaxValue: real('priceInclTaxValue'),
-  priceInclTaxCurrency: text('priceInclTaxCurrency'),
+  price: real('price'),
+  currency: text('currency'),
+  priceInclTax: real('priceInclTax'),
 
   taxRate: real('taxRate'),
   taxValue: real('taxValue'),
