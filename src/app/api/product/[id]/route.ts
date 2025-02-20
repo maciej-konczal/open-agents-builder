@@ -11,7 +11,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return Response.json({ message: "No id provided", status: 400 }, { status: 400 });
     }
     const requestContext = await authorizeRequestContext(request);
-    const repo = new ServerProductRepository(requestContext.databaseIdHash);
+    const repo = new ServerProductRepository(requestContext.databaseIdHash, 'commerce');
 
     // Ewentualnie usunięcie powiązanych danych
     return Response.json(await genericDELETE(request, repo, { id: recordId }));

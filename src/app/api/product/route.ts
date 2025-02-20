@@ -8,7 +8,7 @@ import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 export async function GET(request: NextRequest, response: NextResponse) {
   try {
     const requestContext = await authorizeRequestContext(request, response);
-    const repo = new ServerProductRepository(requestContext.databaseIdHash);
+    const repo = new ServerProductRepository(requestContext.databaseIdHash, 'commerce');
 
     const url = request.nextUrl;
     const limitParam = url.searchParams.get("limit");
@@ -37,7 +37,7 @@ export async function PUT(request: NextRequest, response: NextResponse) {
   const saasContext = await authorizeSaasContext(request);
 
   const body = await request.json();
-  const productRepo = new ServerProductRepository(requestContext.databaseIdHash);
+  const productRepo = new ServerProductRepository(requestContext.databaseIdHash, 'commerce');
   const result = await genericPUT<ProductDTO>(body, productDTOSchema, productRepo, "id");
 
   return Response.json(result, { status: result.status });

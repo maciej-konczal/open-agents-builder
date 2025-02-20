@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { Loader2 } from "lucide-react";
+import { BoxIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -18,10 +18,12 @@ import { Product } from "@/data/client/models";
 import { PaginatedQuery, PaginatedResult } from "@/data/dto"; 
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useAgentContext } from "@/contexts/agent-context";
 
 export default function ProductsPage() {
   const router = useRouter();
   const productContext = useProductContext();
+  const agentContext = useAgentContext();   
 
   const { t } = useTranslation();
   
@@ -70,11 +72,9 @@ export default function ProductsPage() {
       }
       setProductsLoading(false);
     })();
-  }, [debouncedSearchQuery, productContext]);
+  }, [debouncedSearchQuery]);
 
-  // Gdy productsData się zmieni – aktualizujemy hasMore itp.
   useEffect(() => {
-    // Jeżeli offset + limit >= total, to nie ma więcej
     setHasMore(
       productsData.offset + productsData.limit < productsData.total
     );
@@ -120,6 +120,15 @@ export default function ProductsPage() {
   // Render
   return (
     <div className="space-y-6">
+      <div className="flex space-x-2">
+        <Link href={"/admin/agent/" + agentContext.current?.id + "/products/new"}>
+            <Button size="sm" variant="outline">
+                <BoxIcon className="w-4 h-4 mr-2" />
+                {t("Add new product...")}</Button>
+        </Link>
+        </div>
+
+
       {/* Pole wyszukiwania */}
       <Input
         placeholder={"Search products..."}
