@@ -17,6 +17,7 @@ import { ProductVariantRow } from "@/components/product-variant-row";
 import { FileUploadStatus, UploadedFile, Product } from "@/data/client/models";
 import { useProductContext } from "@/contexts/product-context";
 import { getErrorMessage } from "@/lib/utils";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 
 // ----------------------------------------------------
 // 1) Schemat walidacji Zod
@@ -409,234 +410,248 @@ export default function ProductFormPage() {
           }}
           className="space-y-6"
         >
-          {/* NAME */}
-          <div>
-            <label className="block font-medium mb-1">Name</label>
-            <Input
-              {...register("name")}
-              placeholder="Product name..."
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name.message}</p>
-            )}
-          </div>
 
-          {/* DESCRIPTION */}
-          <div>
-            <label className="block font-medium mb-1">Description</label>
-            <Textarea
-              {...register("description")}
-              placeholder="Describe your product..."
-            />
-            {errors.description && (
-              <p className="text-red-500 text-sm">
-                {errors.description.message as string}
-              </p>
-            )}
-          </div>
+        <Tabs defaultValue="content" className="mt-4">
+           <TabsList className="grid grid-cols-2">
+             <TabsTrigger value="basic" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Basic')}</TabsTrigger>
+             <TabsTrigger value="advanced" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Advanced')}</TabsTrigger>
+            </TabsList>
+            <TabsContent value="basic" className="p-2 text-sm">
 
-          {/* SKU */}
-          <div>
-            <label className="block font-medium mb-1">Product SKU</label>
-            <Input
-              {...register("sku")}
-              placeholder="SKU..."
-            />
-            {errors.sku && (
-              <p className="text-red-500 text-sm">
-                {errors.sku.message as string}
-              </p>
-            )}
-          </div>
-
-          {/* PRICE / TAX */}
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <label className="block font-medium mb-1">Price (net)</label>
+            {/* NAME */}
+            <div>
+              <label className="block font-medium mb-1">Name</label>
               <Input
-                type="number"
-                step="0.01"
-                {...register("price", { valueAsNumber: true })}
-                onChange={() => {
-                  // user zmienia price => zapamiętujemy w lastChangedMainField
-                  lastChangedMainField.current = "price";
-                }}
+                {...register("name")}
+                placeholder="Product name..."
               />
-              {errors.price && (
-                <p className="text-red-500 text-sm">
-                  {errors.price.message as string}
-                </p>
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
               )}
             </div>
-            <div className="flex-1">
-              <label className="block font-medium mb-1">Price (incl. tax)</label>
-              <Input
-                type="number"
-                step="0.01"
-                {...register("priceInclTax", { valueAsNumber: true })}
-                onChange={() => {
-                  lastChangedMainField.current = "priceInclTax";
-                }}
-              />
-              {errors.priceInclTax && (
-                <p className="text-red-500 text-sm">
-                  {errors.priceInclTax.message as string}
-                </p>
-              )}
-            </div>
-            <div className="flex-1">
-              <label className="block font-medium mb-1">Tax Rate (%)</label>
-              <Input
-                type="number"
-                step="1"
-                {...register("taxRate", { valueAsNumber: true })}
-              />
-              {errors.taxRate && (
-                <p className="text-red-500 text-sm">
-                  {errors.taxRate.message as string}
-                </p>
-              )}
-            </div>
-            <div className="flex-1">
-              <label className="block font-medium mb-1">Currency</label>
-              <select className="border rounded p-2 w-full" {...register("currency")}>
-                {sortedCurrencyList.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              {errors.currency && (
-                <p className="text-red-500 text-sm">
-                  {errors.currency.message as string}
-                </p>
-              )}
-            </div>
-          </div>
 
-          {/* ATTRIBUTES */}
-          <div>
-            <label className="block font-medium mb-2">Attributes</label>
-            {attributeFields.map((field, i) => (
-              <div key={field.id} className="flex gap-2 mb-2">
+            {/* DESCRIPTION */}
+            <div>
+              <label className="block font-medium mb-1">Description</label>
+              <Textarea
+                {...register("description")}
+                placeholder="Describe your product..."
+              />
+              {errors.description && (
+                <p className="text-red-500 text-sm">
+                  {errors.description.message as string}
+                </p>
+              )}
+            </div>
+
+            {/* SKU */}
+            <div>
+              <label className="block font-medium mb-1">Product SKU</label>
+              <Input
+                {...register("sku")}
+                placeholder="SKU..."
+              />
+              {errors.sku && (
+                <p className="text-red-500 text-sm">
+                  {errors.sku.message as string}
+                </p>
+              )}
+            </div>
+
+            {/* PRICE / TAX */}
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <label className="block font-medium mb-1">Price (net)</label>
                 <Input
-                  {...register(`attributes.${i}.attrName`)}
-                  placeholder="Attribute name"
+                  type="number"
+                  step="0.01"
+                  {...register("price", { valueAsNumber: true })}
+                  onChange={() => {
+                    // user zmienia price => zapamiętujemy w lastChangedMainField
+                    lastChangedMainField.current = "price";
+                  }}
                 />
-                <select
-                  className="border rounded p-2"
-                  {...register(`attributes.${i}.attrType`)}
-                >
-                  <option value="text">Text</option>
-                  <option value="select">Select</option>
-                </select>
-                <Input
-                  {...register(`attributes.${i}.attrValues`)}
-                  placeholder="Values (comma-separated for select; single text otherwise)"
-                />
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => removeAttribute(i)}
-                >
-                  Remove
-                </Button>
+                {errors.price && (
+                  <p className="text-red-500 text-sm">
+                    {errors.price.message as string}
+                  </p>
+                )}
               </div>
-            ))}
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() =>
-                appendAttribute({
-                  attrName: "",
-                  attrType: "text",
-                  attrValues: "",
-                })
-              }
-            >
-              + Add attribute
-            </Button>
-          </div>
-
-          {/* TAGS */}
-          <div>
-            <label className="block font-medium mb-2">Tags (comma separated)</label>
-            <Input {...register("tags")} placeholder="e.g. 'new, sale, featured'" />
-            {errors.tags && (
-              <p className="text-red-500 text-sm">
-                {errors.tags.message as string}
-              </p>
-            )}
-          </div>
-
-          {/* VARIANTS */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block font-medium">Variants</label>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={generateVariantsFromAttributes}
-              >
-                Generate variants
-              </Button>
+              <div className="flex-1">
+                <label className="block font-medium mb-1">Price (incl. tax)</label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  {...register("priceInclTax", { valueAsNumber: true })}
+                  onChange={() => {
+                    lastChangedMainField.current = "priceInclTax";
+                  }}
+                />
+                {errors.priceInclTax && (
+                  <p className="text-red-500 text-sm">
+                    {errors.priceInclTax.message as string}
+                  </p>
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="block font-medium mb-1">Tax Rate (%)</label>
+                <Input
+                  type="number"
+                  step="1"
+                  {...register("taxRate", { valueAsNumber: true })}
+                />
+                {errors.taxRate && (
+                  <p className="text-red-500 text-sm">
+                    {errors.taxRate.message as string}
+                  </p>
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="block font-medium mb-1">Currency</label>
+                <select className="border rounded p-2 w-full" {...register("currency")}>
+                  {sortedCurrencyList.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                {errors.currency && (
+                  <p className="text-red-500 text-sm">
+                    {errors.currency.message as string}
+                  </p>
+                )}
+              </div>
             </div>
-            {variantFields.map((field, idx) => (
-              <ProductVariantRow
-                key={field.id}
-                field={field}
-                index={idx}
-                removeVariant={removeVariant}
-              />
-            ))}
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() =>
-                appendVariant({
-                  sku: nanoid(),
-                  name: "",
-                  price: 0,
-                  priceInclTax: 0,
-                  taxRate: defaultTaxRate,
-                  variantAttributes: [],
-                })
-              }
-            >
-              + Add Variant
-            </Button>
-          </div>
 
-          {/* UPLOAD PLIKÓW */}
-          <div>
-            <label className="block font-medium mb-2">Photos</label>
-            <Input type="file" multiple onChange={handleFileSelect} />
-            <div className="mt-2 space-y-2">
-              {uploadedFiles.map((f) => (
-                <div key={f.id} className="flex items-center gap-2">
-                  <span className="flex-1">
-                    {f.file.name} - {f.status}
-                  </span>
-                  {f.status === FileUploadStatus.ERROR && (
+            {/* UPLOAD PLIKÓW */}
+            <div>
+              <label className="block font-medium mb-2">Photos</label>
+              <Input type="file" multiple onChange={handleFileSelect} />
+              <div className="mt-2 space-y-2">
+                {uploadedFiles.map((f) => (
+                  <div key={f.id} className="flex items-center gap-2">
+                    <span className="flex-1">
+                      {f.file.name} - {f.status}
+                    </span>
+                    {f.status === FileUploadStatus.ERROR && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => onUpload(f)}
+                      >
+                        Retry
+                      </Button>
+                    )}
                     <Button
                       type="button"
-                      variant="outline"
-                      onClick={() => onUpload(f)}
+                      variant="destructive"
+                      onClick={() => removeFileFromQueue(f.id)}
                     >
-                      Retry
+                      Remove
                     </Button>
-                  )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+          <TabsContent value="advanced" className="p-2 text-sm">
+            {/* ATTRIBUTES */}
+            <div>
+              <label className="block font-medium mb-2">Attributes</label>
+              {attributeFields.map((field, i) => (
+                <div key={field.id} className="flex gap-2 mb-2">
+                  <Input
+                    {...register(`attributes.${i}.attrName`)}
+                    placeholder="Attribute name"
+                  />
+                  <select
+                    className="border rounded p-2"
+                    {...register(`attributes.${i}.attrType`)}
+                  >
+                    <option value="text">Text</option>
+                    <option value="select">Select</option>
+                  </select>
+                  <Input
+                    {...register(`attributes.${i}.attrValues`)}
+                    placeholder="Values (comma-separated for select; single text otherwise)"
+                  />
                   <Button
                     type="button"
                     variant="destructive"
-                    onClick={() => removeFileFromQueue(f.id)}
+                    onClick={() => removeAttribute(i)}
                   >
                     Remove
                   </Button>
                 </div>
               ))}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  appendAttribute({
+                    attrName: "",
+                    attrType: "text",
+                    attrValues: "",
+                  })
+                }
+              >
+                + Add attribute
+              </Button>
             </div>
-          </div>
+
+
+
+            {/* VARIANTS */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block font-medium">Variants</label>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={generateVariantsFromAttributes}
+                >
+                  Generate variants
+                </Button>
+              </div>
+              {variantFields.map((field, idx) => (
+                <ProductVariantRow
+                  key={field.id}
+                  field={field}
+                  index={idx}
+                  removeVariant={removeVariant}
+                />
+              ))}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  appendVariant({
+                    sku: nanoid(),
+                    name: "",
+                    price: 0,
+                    priceInclTax: 0,
+                    taxRate: defaultTaxRate,
+                    variantAttributes: [],
+                  })
+                }
+              >
+                + Add Variant
+              </Button>
+            </div>
+
+
+            {/* TAGS */}
+            <div>
+              <label className="block font-medium mb-2">Tags (comma separated)</label>
+              <Input {...register("tags")} placeholder="e.g. 'new, sale, featured'" />
+              {errors.tags && (
+                <p className="text-red-500 text-sm">
+                  {errors.tags.message as string}
+                </p>
+              )}
+            </div>
+          </TabsContent>
+        </Tabs>
 
           {/* PRZYCISKI */}
           <div className="flex gap-4 mt-6">
