@@ -13,6 +13,7 @@ type ProductContextType = {
     loaderStatus: DataLoadingStatus;
 
     listProducts: () => Promise<Product[]>;
+    loadProduct: (productId: string) => Promise<Product>;
     updateProduct: (product: Product, setAsCurrent?: boolean) => Promise<Product>;
     deleteProduct: (product: Product) => Promise<DeleteProductResponse>;
 
@@ -64,6 +65,16 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
           throw error;
         }
       };   
+
+    const loadProduct = async (productId: string): Promise<Product> => {
+        const client = await setupApiClient();
+        const response = await client.get(productId);
+        if (response && response.total > 0)
+            return Product.fromDTO(response.rows[0])
+        else 
+         throw new Error(t('Product not found'));
+    }
+
 
 
     const listProducts = async (): Promise<Product[]> => {
@@ -143,7 +154,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         setCurrent,
         setProducts,
         setLoaderStatus,
-        queryProducts
+        queryProducts,
+        loadProduct
     };
 
     return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;

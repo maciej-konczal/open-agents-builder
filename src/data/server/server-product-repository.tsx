@@ -3,7 +3,7 @@
 import { BaseRepository, IQuery } from "./base-repository";
 import { PaginatedResult, ProductDTO } from "../dto";
 import { getCurrentTS } from "@/lib/utils";
-import { asc, count, desc, eq, like, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, like, or } from "drizzle-orm";
 import { create } from "./generic-repository";
 import { products } from "./db-schema-commerce";
 
@@ -163,8 +163,8 @@ console.log(updated);
   }
 
 
-  async queryAll({ limit, offset, orderBy, query }: 
-    { limit: number; offset: number; orderBy: string; query: string; }
+  async queryAll({ id, limit, offset, orderBy, query }: 
+    { limit: number; offset: number; orderBy: string; query: string; id?: string;  }
   ): Promise<PaginatedResult<ProductDTO[]>> {
     const db = await this.db();
 
@@ -193,7 +193,11 @@ console.log(updated);
       );
     }
 
-    // Policzmy łączną liczbę pasujących rekordów
+    console.log(id)
+    if (id) {
+        whereCondition = eq(products.id, id); // select single product by id
+    }
+
     const countQuery = db
       .select({ count: count() })
       .from(products)

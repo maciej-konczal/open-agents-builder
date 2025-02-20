@@ -42,21 +42,20 @@ export class ProductApiClient extends AdminApiClient {
     super(baseUrl, dbContext, saasContext, encryptionConfig);
   }
 
-  async get(productId?: string): Promise<GetProductsResponse> {
+  async get(productId?: string): Promise<GetProductsPaginatedResponse> {
     if (productId) {
-      // /api/product?id=...
-      return this.request<GetProductsResponse>(
+      return this.request<GetProductsPaginatedResponse>(
         `/api/product?id=${encodeURIComponent(productId)}`,
         "GET",
         { ecnryptedFields: [] } // lub pola do szyfrowania
-      ) as Promise<GetProductsResponse>;
+      ) as Promise<GetProductsPaginatedResponse>;
     } else {
       // /api/product
-      return this.request<GetProductsResponse>(
+      return this.request<GetProductsPaginatedResponse>(
         "/api/product",
         "GET",
         { ecnryptedFields: [] }
-      ) as Promise<GetProductsResponse>;
+      ) as Promise<GetProductsPaginatedResponse>;
     }
   }
 

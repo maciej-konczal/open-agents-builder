@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import { toast } from "sonner";
+import { useParams } from "next/navigation"; // <-- kluczowe do wczytywania paramów
 
 // shadcn UI-komponenty
 import { Button } from "@/components/ui/button";
@@ -19,36 +20,32 @@ import { ProductVariantRow } from "@/components/product-variant-row";
 // Modele, typy (dostosuj importy):
 import { FileUploadStatus, UploadedFile, Product } from "@/data/client/models";
 import { useProductContext } from "@/contexts/product-context";
+import { getErrorMessage } from "@/lib/utils";
 
 // ----------------------------------------------------
-// 1) Schemat walidacji (Zod) dla formularza produktu
+// 1) Schemat walidacji (Zod) dla formularza
 // ----------------------------------------------------
 
-// Atrybut produktu (formularz)
 const attributeFormSchema = z.object({
   attrName: z.string().nonempty("Attribute name is required"),
   attrType: z.enum(["text", "select"]),
   attrValues: z.string().optional(),
 });
 
-// Pojedynczy { attributeName, attributeValue } w wariancie:
 const variantAttributeSchema = z.object({
   attributeName: z.string().nonempty(),
   attributeValue: z.string().nonempty(),
 });
 
-// Wariant formularzowy
 const variantFormSchema = z.object({
   sku: z.string().nonempty("SKU is required"),
   name: z.string().nonempty("Variant name is required"),
   price: z.number().min(0, "Price must be >= 0"),
   priceInclTax: z.number().min(0, "Price incl. tax must be >= 0"),
   taxRate: z.number().min(0).max(100),
-  // Ta tablica mówi, które atrybuty ma dany wariant
   variantAttributes: z.array(variantAttributeSchema),
 });
 
-// Główny schemat produktu
 const productFormSchema = z.object({
   name: z.string().nonempty("Name is required"),
   description: z.string().optional(),
@@ -66,12 +63,10 @@ const productFormSchema = z.object({
   variants: z.array(variantFormSchema),
 });
 
-// ----------------------------------------------------
-// 2) Typ TS (inferred from Zod)
 type ProductFormData = z.infer<typeof productFormSchema>;
 
 // ----------------------------------------------------
-// 3) Waluty (faworyci, plus reszta)
+// 2) Waluty
 // ----------------------------------------------------
 const FAVOURITE_CURRENCIES = ["EUR", "USD", "PLN", "GBP", "CHF"];
 const ALL_CURRENCIES = [
@@ -89,11 +84,12 @@ const sortedCurrencyList = [
 ];
 
 // ----------------------------------------------------
-// 4) Główny komponent: formularz produktu
+// 3) Główny komponent formularza
 // ----------------------------------------------------
 export default function ProductFormPage() {
   const { t, i18n } = useTranslation();
-  const { updateProduct } = useProductContext();
+  const productContext = useProductContext();
+  const params = useParams(); // <-- klucz do odczytu { productId }
 
   const defaultTaxRate = i18n.language === "pl" ? 23 : 0;
   const defaultCurrency = i18n.language === "pl" ? "PLN" : "USD";
@@ -124,26 +120,96 @@ export default function ProductFormPage() {
     formState: { errors },
   } = methods;
 
-  // Atrybuty
+  // 3a) Ładowanie produktu do edycji:
+  React.useEffect(() => {
+    if (!params?.productId) return;
+
+    if (params.productId !== "new") {
+      // wczytaj produkt i ustaw w formularzu
+      loadProduct(params.productId);
+    } else {
+      // new -> reset do default
+      reset();
+    }
+  }, [params?.productId]);
+
+  // Funkcja asynchroniczna do wczytania produktu
+  async function loadProduct(productId: string) {
+    try {
+      // Zakładam, że w context masz metodę: productContext.get(productId)
+      // lub do weryfikacji
+      const loadedDto = await productContext.loadProduct(productId); 
+      if (!loadedDto) {
+        toast.error("Product not found!");
+        return;
+      }
+
+      // Stwórzmy obiekt `formData` pasujący do `ProductFormData`
+      const formData: ProductFormData = mapDtoToFormData(loadedDto);
+      reset(formData);
+    } catch (err) {
+      console.error(err);
+      toast.error("Error loading product: " + getErrorMessage(err));
+    }
+  }
+
+  // Funkcja pomocnicza: mapuje ProductDTO -> ProductFormData
+  // (przykładowa — dostosuj do swojej struktury w `ProductDTO`)
+  function mapDtoToFormData(loadedDto: any): ProductFormData {
+    const taxRatePercent = (loadedDto.taxRate || 0) * 100;
+
+    // variantAttributes w loadedDto.variants => docelowo array: { attributeName, attributeValue }
+    // price / priceInclTax => loadedDto ma je w polach: loadedDto.price.value, loadedDto.price.currency, itp.
+
+    return {
+      name: loadedDto.name || "",
+      description: loadedDto.description || "",
+      sku: loadedDto.sku || nanoid(),
+
+      price: loadedDto.price?.value || 0,
+      priceInclTax: loadedDto.priceInclTax?.value || 0,
+      taxRate: taxRatePercent > 100 ? 100 : taxRatePercent,
+
+      currency: loadedDto.price?.currency || defaultCurrency,
+
+      attributes: (loadedDto.attributes || []).map((a: any) => ({
+        attrName: a.name,
+        attrType: a.type,
+        attrValues: a.possibleValues ? a.possibleValues.join(",") : "",
+      })),
+
+      tags: (loadedDto.tags || []).join(", "),
+
+      variants: (loadedDto.variants || []).map((v: any) => ({
+        sku: v.sku || nanoid(),
+        name: v.name || "",
+        price: v.price?.value || 0,
+        priceInclTax: v.priceInclTax?.value || 0,
+        taxRate: (v.taxRate || 0) * 100, // z 0.23 => 23
+        variantAttributes: v.variantAttributes || [],
+      })),
+    };
+  }
+
+  // 3b) Atrybuty (useFieldArray)
   const {
     fields: attributeFields,
     append: appendAttribute,
     remove: removeAttribute,
   } = useFieldArray({ control, name: "attributes" });
 
-  // Warianty
+  // 3c) Warianty (useFieldArray)
   const {
     fields: variantFields,
     append: appendVariant,
     remove: removeVariant,
   } = useFieldArray({ control, name: "variants" });
 
-  // 4a) Funkcja generowania wariantów z atrybutów typu "select"
-  //     Każdy wygenerowany wariant będzie miał `variantAttributes: { attributeName, attributeValue }[]`
+  // 3d) Generowanie wariantów z atrybutów typu "select"
   function generateVariantsFromAttributes() {
-    // 1) Znajdź atrybuty typu select
+    const rawAttrs = watch("attributes");
     type SelectAttr = { attrName: string; values: string[] };
-    const selectAttributes: SelectAttr[] = attributeFields
+    const selectAttributes: SelectAttr[] = rawAttrs
       .filter((a) => a.attrType === "select")
       .map((a) => ({
         attrName: a.attrName,
@@ -153,32 +219,30 @@ export default function ProductFormPage() {
           .filter((v) => v.length > 0),
       }));
 
-    // Jeśli brak albo któryś ma 0 wartości => koniec
     if (!selectAttributes.length || selectAttributes.some((sa) => !sa.values.length)) {
       toast.error("No valid select attributes or empty values.");
       return;
     }
 
-    // 2) Iloczyn kartezjański atrybutów
-    //   => tablica tablic, a w każdej "paczkę" { attributeName, attributeValue }
     const combos = buildVariantCombinations(selectAttributes);
 
-    // 3) Dodaj warianty do formularza
+    const defaultTax = watch("taxRate");
+
     combos.forEach((combo) => {
-      // Nazwa to np. "red / L / cotton"
+      // variantName = "red / L / cotton..."
       const variantName = combo.map((x) => x.attributeValue).join(" / ");
       appendVariant({
         sku: nanoid(),
         name: variantName,
         price: 0,
         priceInclTax: 0,
-        taxRate: defaultTaxRate,
+        taxRate: defaultTax,
         variantAttributes: combo,
       });
     });
   }
 
-  // Pomocnicza rekurencja do budowania combos
+  // 3d.2) Iloczyn kartezjański rekurencyjnie
   function buildVariantCombinations(
     selectAttrs: { attrName: string; values: string[] }[],
     index = 0,
@@ -201,7 +265,7 @@ export default function ProductFormPage() {
     return result;
   }
 
-  // 4b) Dwustronna obsługa Price ↔ PriceInclTax
+  // 3e) Dwustronna obsługa main price
   const mainPrice = watch("price");
   const mainPriceInclTax = watch("priceInclTax");
   const mainTaxRate = watch("taxRate");
@@ -230,7 +294,7 @@ export default function ProductFormPage() {
     }
   }, [mainPriceInclTax, mainTaxRate, setValue]);
 
-  // 4c) Obsługa plików
+  // 3f) Obsługa plików
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -242,7 +306,6 @@ export default function ProductFormPage() {
       uploaded: false,
     }));
     setUploadedFiles((prev) => [...prev, ...newFiles]);
-    // Auto-upload
     newFiles.forEach((f) => onUpload(f));
   };
 
@@ -254,8 +317,7 @@ export default function ProductFormPage() {
     fileToUpload.status = FileUploadStatus.UPLOADING;
     setUploadedFiles((prev) => [...prev]);
     try {
-      // Symulacja uploadu
-      await new Promise((res) => setTimeout(res, 1500));
+      await new Promise((res) => setTimeout(res, 1500)); // symulacja
       fileToUpload.status = FileUploadStatus.SUCCESS;
       fileToUpload.uploaded = true;
       setUploadedFiles((prev) => [...prev]);
@@ -266,21 +328,20 @@ export default function ProductFormPage() {
     }
   }, []);
 
-  // 5) Submit formularza
+  // 4) Submit
   const onSubmit = async (formData: ProductFormData, addNext: boolean) => {
-    // Stawka w ułamku
+    // stawka w ułamku
     const decimalTaxRate = formData.taxRate / 100;
 
-    // Budujemy obiekt domenowy
+    // Budujemy docelowy obiekt (np. Product) z formData
     const newProduct = Product.fromForm({
-      id: nanoid(),
+      id: (params?.productId && params.productId !== "new") ? params.productId : nanoid(),
       sku: formData.sku,
       name: formData.name,
       description: formData.description,
       price: { value: formData.price, currency: formData.currency },
       priceInclTax: { value: formData.priceInclTax, currency: formData.currency },
       taxRate: decimalTaxRate,
-
       attributes: formData.attributes.map((a) => ({
         name: a.attrName,
         type: a.attrType,
@@ -291,13 +352,10 @@ export default function ProductFormPage() {
               .filter((v) => v.length > 0)
           : [],
       })),
-
-      tags: formData.tags
+      tags: (formData.tags || "")
         .split(",")
         .map((t) => t.trim())
         .filter((t) => t),
-
-      // Warianty
       variants: formData.variants.map((v) => ({
         id: nanoid(),
         sku: v.sku || nanoid(),
@@ -305,14 +363,12 @@ export default function ProductFormPage() {
         price: { value: v.price, currency: formData.currency },
         priceInclTax: { value: v.priceInclTax, currency: formData.currency },
         taxRate: v.taxRate / 100,
-        // Zachowujemy atrybuty
         variantAttributes: v.variantAttributes,
       })),
     });
 
     try {
-      // Zapis przez kontekst
-      const saved = await updateProduct(newProduct, true);
+      const saved = await productContext.updateProduct(newProduct, true);
       if (saved?.id) {
         toast.success("Product saved!");
         if (addNext) {
@@ -331,7 +387,11 @@ export default function ProductFormPage() {
   return (
     <FormProvider {...methods}>
       <div className="max-w-4xl mx-auto py-6">
-        <h1 className="text-2xl font-bold mb-4">Add / Edit Product</h1>
+        <h1 className="text-2xl font-bold mb-4">
+          {params?.productId && params.productId !== "new"
+            ? `Edit Product: ${params.productId}`
+            : "Add / Edit Product"}
+        </h1>
 
         <form
           onSubmit={(e) => {
@@ -340,7 +400,7 @@ export default function ProductFormPage() {
           }}
           className="space-y-6"
         >
-          {/* Name */}
+          {/* NAME */}
           <div>
             <label className="block font-medium mb-1">Name</label>
             <Input
@@ -352,7 +412,7 @@ export default function ProductFormPage() {
             )}
           </div>
 
-          {/* Description */}
+          {/* DESCRIPTION */}
           <div>
             <label className="block font-medium mb-1">Description</label>
             <Textarea
@@ -360,20 +420,27 @@ export default function ProductFormPage() {
               placeholder="Describe your product..."
             />
             {errors.description && (
-              <p className="text-red-500 text-sm">{errors.description.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.description.message as string}
+              </p>
             )}
           </div>
 
           {/* SKU */}
           <div>
             <label className="block font-medium mb-1">Product SKU</label>
-            <Input {...register("sku")} placeholder="SKU..." />
+            <Input
+              {...register("sku")}
+              placeholder="SKU..."
+            />
             {errors.sku && (
-              <p className="text-red-500 text-sm">{errors.sku.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.sku.message as string}
+              </p>
             )}
           </div>
 
-          {/* Price / PriceInclTax / TaxRate / Currency */}
+          {/* PRICE / TAX */}
           <div className="flex gap-4">
             <div className="flex-1">
               <label className="block font-medium mb-1">Price (net)</label>
@@ -384,7 +451,9 @@ export default function ProductFormPage() {
                 onChange={onChangeMainPrice}
               />
               {errors.price && (
-                <p className="text-red-500 text-sm">{errors.price.message}</p>
+                <p className="text-red-500 text-sm">
+                  {errors.price.message as string}
+                </p>
               )}
             </div>
             <div className="flex-1">
@@ -396,7 +465,9 @@ export default function ProductFormPage() {
                 onChange={onChangeMainPriceInclTax}
               />
               {errors.priceInclTax && (
-                <p className="text-red-500 text-sm">{errors.priceInclTax.message}</p>
+                <p className="text-red-500 text-sm">
+                  {errors.priceInclTax.message as string}
+                </p>
               )}
             </div>
             <div className="flex-1">
@@ -407,7 +478,9 @@ export default function ProductFormPage() {
                 {...register("taxRate", { valueAsNumber: true })}
               />
               {errors.taxRate && (
-                <p className="text-red-500 text-sm">{errors.taxRate.message}</p>
+                <p className="text-red-500 text-sm">
+                  {errors.taxRate.message as string}
+                </p>
               )}
             </div>
             <div className="flex-1">
@@ -420,12 +493,14 @@ export default function ProductFormPage() {
                 ))}
               </select>
               {errors.currency && (
-                <p className="text-red-500 text-sm">{errors.currency.message}</p>
+                <p className="text-red-500 text-sm">
+                  {errors.currency.message as string}
+                </p>
               )}
             </div>
           </div>
 
-          {/* Attributes */}
+          {/* ATTRIBUTES */}
           <div>
             <label className="block font-medium mb-2">Attributes</label>
             {attributeFields.map((field, i) => (
@@ -467,16 +542,18 @@ export default function ProductFormPage() {
             </Button>
           </div>
 
-          {/* Tags */}
+          {/* TAGS */}
           <div>
             <label className="block font-medium mb-2">Tags (comma separated)</label>
             <Input {...register("tags")} placeholder="e.g. 'new, sale, featured'" />
             {errors.tags && (
-              <p className="text-red-500 text-sm">{errors.tags.message}</p>
+              <p className="text-red-500 text-sm">
+                {errors.tags.message as string}
+              </p>
             )}
           </div>
 
-          {/* Variants */}
+          {/* VARIANTS */}
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="block font-medium">Variants</label>
@@ -514,7 +591,7 @@ export default function ProductFormPage() {
             </Button>
           </div>
 
-          {/* Upload plików */}
+          {/* UPLOAD PLIKÓW */}
           <div>
             <label className="block font-medium mb-2">Photos</label>
             <Input type="file" multiple onChange={handleFileSelect} />
@@ -545,12 +622,9 @@ export default function ProductFormPage() {
             </div>
           </div>
 
-          {/* Główne przyciski */}
+          {/* PRZYCISKI */}
           <div className="flex gap-4 mt-6">
-            <Button
-              type="submit"
-              variant="default"
-            >
+            <Button type="submit" variant="default">
               Save
             </Button>
             <Button

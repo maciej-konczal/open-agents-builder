@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { BoxIcon, Loader2 } from "lucide-react";
+import { BoxIcon, Loader2, OptionIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,7 @@ import { PaginatedQuery, PaginatedResult } from "@/data/dto";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAgentContext } from "@/contexts/agent-context";
+import { SelectIcon } from "@radix-ui/react-select";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -186,11 +187,13 @@ export default function ProductsPage() {
               <div className="mb-2">
                 <strong>Attributes:</strong>
                 <ul>
-                  {product.attributes.map((attr, idx) => (
-                    <li key={idx}>
-                      {attr.name}:{" "}
+                  {product.attributes.slice(0, product.attributes.length > 4 ? 4 : product.attributes.length).map((attr, idx) => (
+                    <li key={idx} className="flex text-xs">
+                      {attr.type === "select" ?(
+                        <TextIcon className="w-4 h-4 mr-1" />
+                      ) : (<TextCursorInputIcon className="w-4 h-4 mr-1" />)}{attr.name}:{" "}
                       {attr.type === "select"
-                        ? `(select) [${(attr.possibleValues || []).join(", ")}]`
+                        ? `${(attr.possibleValues || []).join(" / ")}`
                         : attr.defaultValue ?? ""}
                     </li>
                   ))}
@@ -203,7 +206,7 @@ export default function ProductsPage() {
               variant="secondary"
               onClick={() => {
                 // np. przejście do strony szczegółów
-                router.push(`/admin/products/${product.id}`);
+                router.push("/admin/agent/" + encodeURIComponent(agentContext.current?.id || '') + "/products/" + encodeURIComponent(product.id || ''));
               }}
             >
               View details
