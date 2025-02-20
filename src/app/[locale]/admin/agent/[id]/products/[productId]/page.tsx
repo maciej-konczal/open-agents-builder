@@ -1,25 +1,52 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
+import React, { useState, useCallback, useRef } from "react";
+import { FormProvider, useForm, useFieldArray } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import { toast } from "sonner";
 
-import {
-  FileUploadStatus,
-  Product,
-  UploadedFile,
-} from "@/data/client/models";
+// shadcn-komponenty:
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+
+import { VariantRow } from "@/components/product-variant-row";  // podkomponent odpowiedzialny za pojedynczy wariant
+import { FileUploadStatus, UploadedFile, Product } from "@/data/client/models"; 
+// powyżej dostosuj importy do swojego kodu
+
 import { useProductContext } from "@/contexts/product-context";
 
-// Możesz wstawić je tuż nad komponentem ProductFormPage:
-const FAVOURITE_CURRENCIES = ["EUR", "USD", "PLN", "GBP", "CHF"];
+// TYPY formularza:
+type AttributeForm = {
+  attrName: string;
+  attrType: "text" | "select";
+  attrValues: string;  // np. "Red,Blue,Green"
+};
 
-// Przykładowa lista z ISO 4217 i innymi (posortowana alfabetycznie):
+type VariantForm = {
+  sku: string;
+  name: string;
+  price: number;         // net
+  priceInclTax: number;  // gross
+  taxRate: number;       // w %
+};
+
+type ProductFormData = {
+  name: string;
+  description: string;
+  sku: string;
+  price: number;
+  priceInclTax: number;
+  taxRate: number;   // w %
+  currency: string;
+  attributes: AttributeForm[];
+  tags: string;
+  variants: VariantForm[];
+};
+
+// Waluty: najpierw faworyci, potem reszta
+const FAVOURITE_CURRENCIES = ["EUR", "USD", "PLN", "GBP", "CHF"];
 const ALL_CURRENCIES = [
   "AED","AFN","ALL","AMD","ANG","AOA","ARS","AUD","AWG","AZN","BAM","BBD","BDT","BGN","BHD","BIF","BMD","BND","BOB","BRL","BSD","BTN","BWP","BYN","BZD",
   "CAD","CDF","CLP","CNY","COP","CRC","CUP","CVE","CZK","DJF","DKK","DOP","DZD","EGP","ERN","ETB","FJD","FKP","GEL","GGP","GHS","GIP","GMD","GNF","GTQ",
@@ -29,74 +56,25 @@ const ALL_CURRENCIES = [
   "SVC","SYP","SZL","THB","TJS","TMT","TND","TOP","TRY","TTD","TVD","TWD","TZS","UAH","UGX","UYU","UZS","VEF","VND","VUV","WST","XAF","XCD","XDR","XOF",
   "XPF","YER","ZAR","ZMW","ZWD"
 ];
-
-// Łączymy listę w taki sposób:
-// 1) Najpierw FAVOURITE_CURRENCIES w ustalonej kolejności
-// 2) Pozostałe z ALL_CURRENCIES, których nie ma w FAVOURITE_CURRENCIES
 const sortedCurrencyList = [
   ...FAVOURITE_CURRENCIES,
   ...ALL_CURRENCIES.filter((c) => !FAVOURITE_CURRENCIES.includes(c)),
 ];
 
-
-/** Definicja jednego wariantu w formularzu */
-type VariantForm = {
-  sku: string;
-  name: string;
-  price: number;
-  priceInclTax: number;
-  taxRate: number; // w % (np. 23)
-};
-
-/** Atrybut w formularzu */
-type AttributeForm = {
-  attrName: string;
-  attrType: "text" | "select";
-  attrValues: string; // gdy select, przechowuje wartości oddzielone przecinkami
-};
-
-/** Główny typ formularza */
-type ProductFormData = {
-  // Pola główne produktu
-  name: string;
-  description: string;
-  sku: string;
-  price: number; // netto
-  priceInclTax: number; // brutto
-  taxRate: number; // w procentach, np. 23
-  currency: string;
-
-  attributes: AttributeForm[];
-  tags: string; // np. "tag1, tag2"
-
-  // Warianty
-  variants: VariantForm[];
-};
-
 export default function ProductFormPage() {
   const { t, i18n } = useTranslation();
   const { updateProduct } = useProductContext();
 
-  // Domyślny VAT: 23% jeśli PL, 0% w innym wypadku
+  // Domyślna stawka VAT i waluta
   const defaultTaxRate = i18n.language === "pl" ? 23 : 0;
-
-  // Domyślna waluta
   const defaultCurrency = i18n.language === "pl" ? "PLN" : "USD";
 
-  /** Inicjalizacja formularza */
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    reset,
-    control,
-    formState: { errors },
-  } = useForm<ProductFormData>({
+  // Inicjalizacja formularza
+  const methods = useForm<ProductFormData>({
     defaultValues: {
       name: "",
       description: "",
-      sku: nanoid(), // SKU dla produktu głównego (opcjonalnie)
+      sku: nanoid(),
       price: 0,
       priceInclTax: 0,
       taxRate: defaultTaxRate,
@@ -107,73 +85,64 @@ export default function ProductFormPage() {
     },
   });
 
-  /** FieldArray dla atrybutów */
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    control,
+    reset,
+  } = methods;
+
+  // ATRYBUTY (useFieldArray)
   const {
     fields: attributeFields,
     append: appendAttribute,
     remove: removeAttribute,
-  } = useFieldArray({
-    control,
-    name: "attributes",
-  });
+  } = useFieldArray({ control, name: "attributes" });
 
-  /** FieldArray dla wariantów */
+  // WARIANTY (useFieldArray)
   const {
     fields: variantFields,
     append: appendVariant,
     remove: removeVariant,
-    update: updateVariantFormField,
-  } = useFieldArray({
-    control,
-    name: "variants",
-  });
+  } = useFieldArray({ control, name: "variants" });
 
-  /**
-   * Obserwujemy główne pola produktu do dwustronnego przeliczenia ceny
-   * (price <-> priceInclTax) w zależności od taxRate w % (np. 23 -> 0.23)
-   */
+  // Generowanie wariantów z atrybutów typu select
+  const generateVariantsFromAttributes = () => {
+    const selects = attributeFields
+      .filter((a) => a.attrType === "select")
+      .map((a) => a.attrValues.split(",").map((v) => v.trim()).filter(Boolean));
+
+    if (!selects.length || selects.some((arr) => !arr.length)) {
+      toast.error("No valid 'select' attributes or empty values.");
+      return;
+    }
+    // Iloczyn kartezjański
+    const cartesian = (arrays: string[][]): string[][] =>
+      arrays.reduce(
+        (acc, curr) => acc.flatMap((prev) => curr.map((val) => [...prev, val])),
+        [[]] as string[][]
+      );
+    const combos = cartesian(selects);
+
+    combos.forEach((combo) => {
+      appendVariant({
+        sku: nanoid(),
+        name: combo.join(" / "),
+        price: 0,
+        priceInclTax: 0,
+        taxRate: defaultTaxRate,
+      });
+    });
+  };
+
+  // Dwustronne przeliczenie ceny w produkcie głównym
   const mainPrice = watch("price");
   const mainPriceInclTax = watch("priceInclTax");
-  const mainTaxRatePercent = watch("taxRate"); // np. 23
-
-  // useRef do śledzenia ostatniego pola (net/brutto) które user edytował
+  const mainTaxRate = watch("taxRate");
   const lastChangedMainField = useRef<"price" | "priceInclTax" | null>(null);
 
-  // Gdy user wpisze w pole "price", to w onChange od razu lastChanged = "price"
-  // Podobnie dla "priceInclTax".
-  // Możemy to zrobić przez 'onChange' w <Input> albo przez watchEffect.
-  // Dla uproszczenia zrobimy to w watchEffect:
-  useEffect(() => {
-    // sprawdź, czy wartość w formularzu "price" jest inna niż poprzednia
-    // i czy user tam coś dopiero co zmienił
-    // Tutaj w uproszczeniu – jeśli lastChanged = null => ustal "price"
-    // lub sprawdzamy, czy difference jest > 0.01 itp.
-
-    // Ale lepsze i prostsze bywa: event onChange w samym input. 
-    // (tu demonstruję watchEffect z "lastChangedMainField".)
-
-    // Równolegle musimy unikać pętli. Gdy zmieniamy price => liczymy priceInclTax.
-    const taxRateDecimal = mainTaxRatePercent / 100; // z 23 => 0.23
-
-    if (lastChangedMainField.current === "price") {
-      const newPriceInclTax = mainPrice * (1 + taxRateDecimal);
-      setValue("priceInclTax", parseFloat(newPriceInclTax.toFixed(2)));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mainPrice]);
-
-  useEffect(() => {
-    const taxRateDecimal = mainTaxRatePercent / 100;
-    if (lastChangedMainField.current === "priceInclTax") {
-      // price = priceInclTax / (1 + stawka)
-      const newPrice = mainPriceInclTax / (1 + taxRateDecimal);
-      setValue("price", parseFloat(newPrice.toFixed(2)));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mainPriceInclTax]);
-
-  // Poniższe 2 funkcje przypisujemy do onChange w inputach "price" i "priceInclTax"
-  // by ustawić lastChangedMainField.current
   const onChangeMainPrice = () => {
     lastChangedMainField.current = "price";
   };
@@ -181,61 +150,28 @@ export default function ProductFormPage() {
     lastChangedMainField.current = "priceInclTax";
   };
 
-  /**
-   * Obsługa analogiczna dla wariantów – musimy w pętli 
-   * zarejestrować watchers i do dwustronnego wyliczania
-   * (robimy to dynamicznie w renderze).
-   */
-
-  /**
-   * Generowanie wariantów na podstawie "select" atrybutów:
-   * - zbieramy tablice "select" z możliwymi values
-   * - robimy iloczyn kartezjański
-   * - dla każdej kombinacji -> tworzymy VariantForm
-   */
-  const generateVariantsFromAttributes = () => {
-    // 1) pobierz attributes z getValues
-    const allAttrs = attributeFields; // z useFieldArray
-    const selects = allAttrs
-      .filter((a) => a.attrType === "select")
-      .map((a) => a.attrValues.split(",").map((v) => v.trim()).filter(Boolean));
-
-    // Jeżeli brak atrybutów typu select lub które mają zero values => return
-    if (!selects.length || selects.some((arr) => arr.length === 0)) {
-      toast.error("No valid select attributes or no values to generate variants.");
-      return;
+  // Reakcja na zmiany price → priceInclTax
+  React.useEffect(() => {
+    if (lastChangedMainField.current === "price") {
+      const dec = mainTaxRate / 100;
+      const newVal = mainPrice * (1 + dec);
+      setValue("priceInclTax", parseFloat(newVal.toFixed(2)));
     }
+  }, [mainPrice, mainTaxRate, setValue]);
 
-    // 2) iloczyn kartezjański
-    const cartesian = (arrays: string[][]): string[][] => {
-      // rekurencyjnie lub iteracyjnie
-      return arrays.reduce<string[][]>(
-        (acc, curr) =>
-          acc.flatMap((prev) => curr.map((val) => [...prev, val])),
-        [[]]
-      );
-    };
-    const combinations = cartesian(selects); // np. [ ['Red','XL'], ['Red','L'], ...]
+  // Reakcja na zmiany priceInclTax → price
+  React.useEffect(() => {
+    if (lastChangedMainField.current === "priceInclTax") {
+      const dec = mainTaxRate / 100;
+      const newVal = mainPriceInclTax / (1 + dec);
+      setValue("price", parseFloat(newVal.toFixed(2)));
+    }
+  }, [mainPriceInclTax, mainTaxRate, setValue]);
 
-    // 3) Mapujemy każdą kombinację do obiektu VariantForm
-    const newVariants = combinations.map<VariantForm>((combo) => {
-      return {
-        sku: nanoid(),
-        name: combo.join(" / "),
-        price: 0,
-        priceInclTax: 0,
-        taxRate: defaultTaxRate,
-      };
-    });
-
-    // 4) Dodajemy do istniejących wariantów (append)
-    newVariants.forEach((v) => appendVariant(v));
-  };
-
-  /** Obsługa plików (queued, remove, auto-upload) */
+  // Pliki w stanie lokalnym
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
-  // Po wybraniu plików -> dodaj do stanu i od razu upload
+  // Dodawanie plików -> auto upload
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const newFiles = Array.from(e.target.files).map((file) => ({
@@ -243,103 +179,66 @@ export default function ProductFormPage() {
       file,
       status: FileUploadStatus.QUEUED,
       uploaded: false,
-    })) as UploadedFile[];
-
-    // Ustaw w stanie
+    }));
     setUploadedFiles((prev) => [...prev, ...newFiles]);
-
-    // Auto-upload:
-    newFiles.forEach((fileItem) => onUpload(fileItem));
+    newFiles.forEach((f) => onUpload(f));
   };
 
-  // Usunięcie pliku z kolejki (jeszcze nie wrzuconego lub wrzuconego)
+  // Usuwanie pliku z kolejki
   const removeFileFromQueue = useCallback((fileId: string) => {
     setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
   }, []);
 
-  // Funkcja uploadu pojedynczego pliku
-  const onUpload = useCallback(
-    async (fileToUpload: UploadedFile) => {
-      // Zaznacz UPLOADING
-      fileToUpload.status = FileUploadStatus.UPLOADING;
+  // Upload konkretnego pliku
+  const onUpload = useCallback(async (fileToUpload: UploadedFile) => {
+    fileToUpload.status = FileUploadStatus.UPLOADING;
+    setUploadedFiles((prev) => [...prev]);
+    try {
+      // np. formData + zapytanie do API
+      await new Promise((res) => setTimeout(res, 1500)); // symulacja
+      fileToUpload.status = FileUploadStatus.SUCCESS;
+      fileToUpload.uploaded = true;
       setUploadedFiles((prev) => [...prev]);
+    } catch (error) {
+      fileToUpload.status = FileUploadStatus.ERROR;
+      setUploadedFiles((prev) => [...prev]);
+      toast.error("Error uploading file: " + String(error));
+    }
+  }, []);
 
-      try {
-        // Tworzysz FormData:
-        const formData = new FormData();
-        formData.append("file", fileToUpload.file);
-
-        // Wywołujesz Twój endpoint, np.:
-        // const apiClient = new EncryptedAttachmentApiClient(...);
-        // const result = await apiClient.put(formData);
-
-        // Tu symulacja:
-        await new Promise((res) => setTimeout(res, 1500));
-
-        // Sukces:
-        fileToUpload.status = FileUploadStatus.SUCCESS;
-        fileToUpload.uploaded = true;
-        setUploadedFiles((prev) => [...prev]);
-      } catch (error) {
-        fileToUpload.status = FileUploadStatus.ERROR;
-        setUploadedFiles((prev) => [...prev]);
-        toast.error("Error uploading file: " + String(error));
-      }
-    },
-    []
-  );
-
-  /**
-   * Obsługa zapisu formularza
-   * @param formData dane z formularza
-   * @param addNext czy po zapisie resetujemy formularz
-   */
+  // Zapis formularza
   const onSubmit = async (formData: ProductFormData, addNext: boolean) => {
-    // Stworzenie instancji Product (klasa) na podstawie wypełnionego formularza
-
-    // UWAGA: user podaje stawkę w procentach, np. 23 => to 0.23
-    const productTaxRateDecimal = formData.taxRate / 100;
-
-    // Warianty -> mapujemy tak samo
-    const mappedVariants = formData.variants.map((v) => {
-      const variantTaxRateDec = v.taxRate / 100;
-      return {
-        id: nanoid(),
-        sku: v.sku || nanoid(),
-        name: v.name,
-        price: { value: v.price, currency: formData.currency },
-        priceInclTax: {
-          value: v.priceInclTax,
-          currency: formData.currency,
-        },
-        taxRate: variantTaxRateDec,
-      };
-    });
+    // Konwersja stawki % -> ułamek
+    const decimalTaxRate = formData.taxRate / 100;
 
     const newProduct = Product.fromForm({
-      id: nanoid(), // lub w wypadku edycji: istniejące ID
-      sku: formData.sku || nanoid(),
+      id: nanoid(),
+      sku: formData.sku,
       name: formData.name,
       description: formData.description,
       price: { value: formData.price, currency: formData.currency },
       priceInclTax: { value: formData.priceInclTax, currency: formData.currency },
-      taxRate: productTaxRateDecimal,
-      // atrybuty
-      attributes: formData.attributes.map((attr) => ({
-        name: attr.attrName,
-        type: attr.attrType,
+      taxRate: decimalTaxRate,
+      attributes: formData.attributes.map((a) => ({
+        name: a.attrName,
+        type: a.attrType,
         possibleValues:
-          attr.attrType === "select"
-            ? attr.attrValues.split(",").map((v) => v.trim()).filter(Boolean)
+          a.attrType === "select"
+            ? a.attrValues.split(",").map((v) => v.trim()).filter(Boolean)
             : [],
       })),
-      // tagi
       tags: formData.tags
         .split(",")
-        .map((tag) => tag.trim())
-        .filter((t) => t.length > 0),
-      // Warianty
-      variants: mappedVariants,
+        .map((t) => t.trim())
+        .filter((t) => t),
+      variants: formData.variants.map((v) => ({
+        id: nanoid(),
+        sku: v.sku || nanoid(),
+        name: v.name,
+        price: { value: v.price, currency: formData.currency },
+        priceInclTax: { value: v.priceInclTax, currency: formData.currency },
+        taxRate: v.taxRate / 100,
+      })),
     });
 
     try {
@@ -354,325 +253,231 @@ export default function ProductFormPage() {
         toast.error("Error saving product");
       }
     } catch (error) {
-      console.error("Submit error", error);
-      toast.error("Error saving product: " + String(error));
+      toast.error(String(error));
+      console.error("Error saving product:", error);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-6">
-      <h1 className="text-2xl font-bold mb-4">Add / Edit Product</h1>
+    <FormProvider {...methods}>
+      <div className="max-w-4xl mx-auto py-6">
+        <h1 className="text-2xl font-bold mb-4">Add / Edit Product</h1>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          // Domyślnie: "Save"
-          handleSubmit((data) => onSubmit(data, false))();
-        }}
-        className="space-y-6"
-      >
-        {/* Name & Description */}
-        <div>
-          <label className="block font-medium mb-1">Name</label>
-          <Input
-            {...register("name", { required: true })}
-            placeholder="Product name..."
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm">Name is required</p>
-          )}
-        </div>
-
-        <div>
-          <label className="block font-medium mb-1">Description</label>
-          <Textarea
-            {...register("description")}
-            placeholder="Describe your product..."
-          />
-        </div>
-
-        {/* SKU */}
-        <div>
-          <label className="block font-medium mb-1">Product SKU</label>
-          <Input
-            {...register("sku", { required: true })}
-            placeholder="Unique product SKU..."
-          />
-          {errors.sku && (
-            <p className="text-red-500 text-sm">SKU is required</p>
-          )}
-        </div>
-
-        {/* Price / PriceInclTax / TaxRate / Currency */}
-        <div className="flex gap-4">
-          <div className="flex-1">
-            <label className="block font-medium mb-1">Price (net)</label>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit((data) => onSubmit(data, false))();
+          }}
+          className="space-y-6"
+        >
+          {/* Nazwa */}
+          <div>
+            <label className="block font-medium mb-1">Name</label>
             <Input
-              type="number"
-              step="0.01"
-              {...register("price")}
-              onChange={onChangeMainPrice}
+              {...register("name", { required: true })}
+              placeholder="Product name..."
             />
           </div>
-          <div className="flex-1">
-            <label className="block font-medium mb-1">Price (incl. tax)</label>
-            <Input
-              type="number"
-              step="0.01"
-              {...register("priceInclTax")}
-              onChange={onChangeMainPriceInclTax}
-            />
-          </div>
-          <div className="flex-1">
-            <label className="block font-medium mb-1">Tax Rate (%)</label>
-            <Input
-              type="number"
-              step="1"
-              {...register("taxRate")}
-              // Gdy user wpisze np. "23", we interpretujemy jako 23%
-            />
-          </div>
-          <div className="flex-1">
-            <label className="block font-medium mb-1">Currency</label>
-            <select {...register("currency")} className="border rounded p-2 w-full">
-              {sortedCurrencyList.map((curr) => (
-                <option key={curr} value={curr}>
-                  {curr}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
 
-        {/* Atrybuty */}
-        <div>
-          <label className="block font-medium mb-2">Attributes</label>
-          {attributeFields.map((field, index) => (
-            <div key={field.id} className="flex gap-2 mb-2">
+          {/* Opis */}
+          <div>
+            <label className="block font-medium mb-1">Description</label>
+            <Textarea
+              {...register("description")}
+              placeholder="Describe your product..."
+            />
+          </div>
+
+          {/* SKU */}
+          <div>
+            <label className="block font-medium mb-1">Product SKU</label>
+            <Input
+              {...register("sku")}
+              placeholder="SKU..."
+            />
+          </div>
+
+          {/* Ceny */}
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block font-medium mb-1">Price (net)</label>
               <Input
-                {...register(`attributes.${index}.attrName`)}
-                placeholder="Attribute name"
+                type="number"
+                step="0.01"
+                {...register("price")}
+                onChange={onChangeMainPrice}
               />
-              <select
-                className="border rounded p-2"
-                {...register(`attributes.${index}.attrType`)}
-              >
-                <option value="text">Text</option>
-                <option value="select">Select</option>
-              </select>
-              <Input
-                {...register(`attributes.${index}.attrValues`)}
-                placeholder="Values (comma-separated)"
-              />
-              <Button
-                type="button"
-                variant="destructive"
-                onClick={() => removeAttribute(index)}
-              >
-                Remove
-              </Button>
             </div>
-          ))}
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() =>
-              appendAttribute({ attrName: "", attrType: "text", attrValues: "" })
-            }
-          >
-            + Add Attribute
-          </Button>
-        </div>
-
-        {/* Tagi */}
-        <div>
-          <label className="block font-medium mb-2">Tags (comma separated)</label>
-          <Input {...register("tags")} placeholder="e.g. new, sale" />
-        </div>
-
-        {/* Warianty */}
-        <div>
-          <div className="flex items-center justify-between">
-            <label className="block font-medium mb-2">Variants</label>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={generateVariantsFromAttributes}
-            >
-              Generate variants
-            </Button>
+            <div className="flex-1">
+              <label className="block font-medium mb-1">Price (incl. tax)</label>
+              <Input
+                type="number"
+                step="0.01"
+                {...register("priceInclTax")}
+                onChange={onChangeMainPriceInclTax}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block font-medium mb-1">Tax Rate (%)</label>
+              <Input
+                type="number"
+                step="1"
+                {...register("taxRate")}
+              />
+            </div>
+            <div className="flex-1">
+              <label className="block font-medium mb-1">Currency</label>
+              <select className="border rounded p-2 w-full" {...register("currency")}>
+                {sortedCurrencyList.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          {/* Lista wariantów */}
-          {variantFields.map((field, idx) => {
-            const variantPrice = watch(`variants.${idx}.price`);
-            const variantPriceInclTax = watch(`variants.${idx}.priceInclTax`);
-            const variantTaxRatePercent = watch(`variants.${idx}.taxRate`);
-
-            // lastChangedRef do pętli
-            const lastChangedVariantField = useRef<"price" | "priceInclTax" | null>(null);
-
-            // Gdy user zmienia price => recalc priceInclTax
-            const onChangeVariantPrice = useCallback(() => {
-              lastChangedVariantField.current = "price";
-            }, []);
-
-            const onChangeVariantPriceInclTax = useCallback(() => {
-              lastChangedVariantField.current = "priceInclTax";
-            }, []);
-
-            useEffect(() => {
-              if (lastChangedVariantField.current === "price") {
-                const decimal = variantTaxRatePercent / 100;
-                const newPIT = variantPrice * (1 + decimal);
-                updateVariantFormField(idx, {
-                  ...field,
-                  price: variantPrice,
-                  priceInclTax: parseFloat(newPIT.toFixed(2)),
-                  taxRate: variantTaxRatePercent,
-                });
-              }
-              // eslint-disable-next-line react-hooks/exhaustive-deps
-            }, [variantPrice]);
-
-            useEffect(() => {
-              if (lastChangedVariantField.current === "priceInclTax") {
-                const decimal = variantTaxRatePercent / 100;
-                const newPrice = variantPriceInclTax / (1 + decimal);
-                updateVariantFormField(idx, {
-                  ...field,
-                  price: parseFloat(newPrice.toFixed(2)),
-                  priceInclTax: variantPriceInclTax,
-                  taxRate: variantTaxRatePercent,
-                });
-              }
-              // eslint-disable-next-line react-hooks/exhaustive-deps
-            }, [variantPriceInclTax]);
-
-            return (
-              <div key={field.id} className="border p-3 rounded mb-2">
-                <div className="flex gap-2 mb-2">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium">Variant Name</label>
-                    <Input
-                      {...register(`variants.${idx}.name`)}
-                      placeholder="Variant Name"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium">SKU</label>
-                    <Input {...register(`variants.${idx}.sku`)} placeholder="SKU" />
-                  </div>
-                </div>
-
-                <div className="flex gap-2 mb-2">
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium">Price (net)</label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      {...register(`variants.${idx}.price`)}
-                      onChange={onChangeVariantPrice}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium">Price (incl. tax)</label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      {...register(`variants.${idx}.priceInclTax`)}
-                      onChange={onChangeVariantPriceInclTax}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label className="block text-sm font-medium">Tax Rate (%)</label>
-                    <Input
-                      type="number"
-                      step="1"
-                      {...register(`variants.${idx}.taxRate`)}
-                    />
-                  </div>
-                </div>
-
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={() => removeVariant(idx)}
+          {/* Atrybuty */}
+          <div>
+            <label className="block font-medium mb-2">Attributes</label>
+            {attributeFields.map((field, i) => (
+              <div key={field.id} className="flex gap-2 mb-2">
+                <Input
+                  {...register(`attributes.${i}.attrName`)}
+                  placeholder="Attribute name"
+                />
+                <select
+                  className="border rounded p-2"
+                  {...register(`attributes.${i}.attrType`)}
                 >
-                  Remove Variant
-                </Button>
-              </div>
-            );
-          })}
-
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() =>
-              appendVariant({
-                sku: nanoid(),
-                name: "",
-                price: 0,
-                priceInclTax: 0,
-                taxRate: defaultTaxRate,
-              })
-            }
-          >
-            + Add Variant
-          </Button>
-        </div>
-
-        {/* Pliki */}
-        <div>
-          <label className="block font-medium mb-2">Photos</label>
-          <Input type="file" multiple onChange={handleFileSelect} />
-
-          <div className="mt-2 space-y-2">
-            {uploadedFiles.map((f) => (
-              <div key={f.id} className="flex items-center gap-2">
-                <span className="flex-1">
-                  {f.file.name} - {f.status}
-                </span>
-                {f.status === FileUploadStatus.ERROR && (
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => onUpload(f)}
-                  >
-                    Retry
-                  </Button>
-                )}
+                  <option value="text">Text</option>
+                  <option value="select">Select</option>
+                </select>
+                <Input
+                  {...register(`attributes.${i}.attrValues`)}
+                  placeholder="Values (comma-separated)"
+                />
                 <Button
                   type="button"
-                  size="sm"
                   variant="destructive"
-                  onClick={() => removeFileFromQueue(f.id)}
+                  onClick={() => removeAttribute(i)}
                 >
                   Remove
                 </Button>
               </div>
             ))}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() =>
+                appendAttribute({
+                  attrName: "",
+                  attrType: "text",
+                  attrValues: "",
+                })
+              }
+            >
+              + Add attribute
+            </Button>
           </div>
-        </div>
 
-        {/* Przyciski */}
-        <div className="flex gap-4 mt-6">
-          <Button type="submit" variant="default">
-            Save
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => {
-              // Save & Add Next
-              handleSubmit((data) => onSubmit(data, true))();
-            }}
-          >
-            Save and add next
-          </Button>
-        </div>
-      </form>
-    </div>
+          {/* Tagi */}
+          <div>
+            <label className="block font-medium mb-2">Tags (comma separated)</label>
+            <Input
+              {...register("tags")}
+              placeholder="e.g. 'new, sale, featured'"
+            />
+          </div>
+
+          {/* WARIANTY */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block font-medium">Variants</label>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={generateVariantsFromAttributes}
+              >
+                Generate variants
+              </Button>
+            </div>
+            {variantFields.map((field, index) => (
+              <VariantRow
+                key={field.id}
+                field={field}
+                index={index}
+                removeVariant={removeVariant}
+              />
+            ))}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() =>
+                appendVariant({
+                  sku: nanoid(),
+                  name: "",
+                  price: 0,
+                  priceInclTax: 0,
+                  taxRate: defaultTaxRate,
+                })
+              }
+            >
+              + Add Variant
+            </Button>
+          </div>
+
+          {/* Pliki */}
+          <div>
+            <label className="block font-medium mb-2">Photos</label>
+            <Input type="file" multiple onChange={handleFileSelect} />
+            <div className="mt-2 space-y-2">
+              {uploadedFiles.map((f) => (
+                <div key={f.id} className="flex items-center gap-2">
+                  <span className="flex-1">
+                    {f.file.name} - {f.status}
+                  </span>
+                  {f.status === FileUploadStatus.ERROR && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => onUpload(f)}
+                    >
+                      Retry
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    onClick={() => removeFileFromQueue(f.id)}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* PRZYCISKI */}
+          <div className="flex gap-4 mt-6">
+            <Button
+              type="submit"
+              variant="default"
+            >
+              Save
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                handleSubmit((data) => onSubmit(data, true))();
+              }}
+            >
+              Save and add next
+            </Button>
+          </div>
+        </form>
+      </div>
+    </FormProvider>
   );
 }
