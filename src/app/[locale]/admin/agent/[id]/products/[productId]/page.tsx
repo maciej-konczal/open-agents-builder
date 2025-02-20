@@ -406,10 +406,9 @@ export default function ProductFormPage() {
             e.preventDefault();
             handleSubmit((data) => onSubmit(data, false))();
           }}
-          className="space-y-6"
         >
 
-        <Tabs defaultValue="basic" className="mt-4">
+        <Tabs defaultValue="basic">
            <TabsList className="grid grid-cols-2">
              <TabsTrigger value="basic" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Basic')}</TabsTrigger>
              <TabsTrigger value="advanced" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Advanced')}</TabsTrigger>
@@ -465,7 +464,11 @@ export default function ProductFormPage() {
                   type="number"
                   step="0.01"
                   {...register("price", { valueAsNumber: true })}
-                  onChange={() => {
+                  onKeyDown={(e) => {
+                    // user zmienia price => zapamiętujemy w lastChangedMainField
+                    lastChangedMainField.current = "price";
+                  }}
+                  onMouseDown={() => {
                     // user zmienia price => zapamiętujemy w lastChangedMainField
                     lastChangedMainField.current = "price";
                   }}
@@ -482,7 +485,10 @@ export default function ProductFormPage() {
                   type="number"
                   step="0.01"
                   {...register("priceInclTax", { valueAsNumber: true })}
-                  onChange={() => {
+                  onMouseDown={() => {
+                    lastChangedMainField.current = "priceInclTax";
+                  }} 
+                  onKeyDown={() => {
                     lastChangedMainField.current = "priceInclTax";
                   }}
                 />

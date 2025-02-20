@@ -76,7 +76,7 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantValue?.price]);
+  }, [variantValue?.price, variantValue?.taxRate]);
 
   // useEffect do obliczania "netto" => price
   useEffect(() => {
@@ -88,7 +88,7 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
       setValue(`variants.${index}.price`, parseFloat(newVal.toFixed(2)));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantValue?.priceInclTax]);
+  }, [variantValue?.priceInclTax, variantValue?.taxRate]);
 
   return (
     <div className="border p-3 rounded mb-2">
@@ -138,7 +138,8 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
             {...register(`variants.${index}.price`, {
               valueAsNumber: true,
             })}
-            onChange={onChangePrice}
+            onMouseDown={onChangePrice}
+            onKeyDown={onChangePrice}
           />
           {variantErrors?.price && (
             <p className="text-red-500 text-sm">
@@ -156,7 +157,8 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
             {...register(`variants.${index}.priceInclTax`, {
               valueAsNumber: true,
             })}
-            onChange={onChangePriceInclTax}
+            onMouseDown={onChangePriceInclTax}
+            onKeyDown={onChangePriceInclTax}
           />
           {variantErrors?.priceInclTax && (
             <p className="text-red-500 text-sm">
