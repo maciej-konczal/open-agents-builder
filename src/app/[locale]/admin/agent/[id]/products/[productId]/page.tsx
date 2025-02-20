@@ -435,9 +435,9 @@ export default function ProductFormPage() {
           <div className="flex-1">
             <label className="block font-medium mb-1">Currency</label>
             <select {...register("currency")} className="border rounded p-2 w-full">
-              {AVAILABLE_CURRENCIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
+              {sortedCurrencyList.map((curr) => (
+                <option key={curr} value={curr}>
+                  {curr}
                 </option>
               ))}
             </select>
