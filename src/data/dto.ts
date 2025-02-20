@@ -314,6 +314,13 @@ const productVariantSchema = z.object({
   brand: z.string().optional(),
 });
 
+const productImageSchema = z.object({
+  id: z.string(),
+  storageKey: z.string().optional(),
+  url: z.string().url(),
+  alt: z.string().optional(),
+});
+
 
 export const productDTOSchema = z.object({
   id: z.string().optional(),
@@ -352,7 +359,7 @@ export const productDTOSchema = z.object({
   variants: z.array(productVariantSchema).optional(),
 
   // zdjęcia – tablica w stylu Attachment
-  images: z.array(attachmentDTOSchema).optional(),
+  images: z.array(productImageSchema).optional(),
 
   // tagi
   tags: z.array(z.string()).optional(),
@@ -361,15 +368,12 @@ export const productDTOSchema = z.object({
   updatedAt: z.string().default(() => getCurrentTS()),
 });
 
-// Typ TS
 export type ProductDTO = z.infer<typeof productDTOSchema>;
-
-// Ewentualne szyfrowanie
 export const ProductDTOEncSettings = {
   ecnryptedFields: [
-    // np. "description", "attributes", ...
   ],
 };
+
 
 
 
