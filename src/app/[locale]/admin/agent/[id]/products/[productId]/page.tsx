@@ -399,12 +399,7 @@ export default function ProductFormPage() {
 
   return (
     <FormProvider {...methods}>
-      <div className="max-w-4xl mx-auto py-6">
-        <h1 className="text-2xl font-bold mb-4">
-          {params?.productId && params.productId !== "new"
-            ? `Edit Product: ${params.productId}`
-            : "Add / Edit Product"}
-        </h1>
+      <div className="max-w-4xl mx-auto">
 
         <form
           onSubmit={(e) => {

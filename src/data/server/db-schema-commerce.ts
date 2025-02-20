@@ -12,9 +12,8 @@ export const products = sqliteTable('products', {
   name: text('name'),
   description: text('description'),
 
-  price: real('price'),
-  currency: text('currency'),
-  priceInclTax: real('priceInclTax'),
+  price: text('price', { mode: 'json' }),
+  priceInclTax: text('priceInclTax', { mode: 'json' }),
 
   taxRate: real('taxRate'),
   taxValue: real('taxValue'),

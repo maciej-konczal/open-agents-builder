@@ -765,12 +765,12 @@ export class Product {
             description: data.description ?? existing?.description,
 
             price: {
-                value: data.price ?? existing?.price?.value ?? 0,
-                currency: data.currency ?? existing?.price?.currency ?? "USD",
+                value: data.price.value ?? existing?.price?.value ?? 0,
+                currency: data.price?.currency ?? existing?.price?.currency ?? "USD",
             },
             priceInclTax: {
-                value: data.priceInclTax ?? existing?.priceInclTax?.value ?? 0,
-                currency: data.currency ?? existing?.priceInclTax?.currency ?? "USD",
+                value: data.priceInclTax?.value ?? existing?.priceInclTax?.value ?? 0,
+                currency: data.price.currency ?? existing?.priceInclTax?.currency ?? "USD",
             },
 
             taxRate: data.taxRate ?? existing?.taxRate ?? 0,

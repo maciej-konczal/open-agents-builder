@@ -19,11 +19,8 @@ export default class ServerProductRepository extends BaseRepository<ProductDTO> 
       name: dto.name,
       description: dto.description,
 
-      priceValue: dto.price?.value ?? 0,
-      priceCurrency: dto.price?.currency ?? "USD",
-
-      priceInclTaxValue: dto.priceInclTax?.value ?? 0,
-      priceInclTaxCurrency: dto.priceInclTax?.currency ?? "USD",
+      price: JSON.stringify(dto.price) ?? { value: 0, currency: "USD" },
+      priceInclTax: JSON.stringify(dto.priceInclTax) ?? { value: 0, currency: "USD" },
 
       taxRate: dto.taxRate ?? 0,
       taxValue: dto.taxValue ?? 0,
@@ -58,21 +55,12 @@ export default class ServerProductRepository extends BaseRepository<ProductDTO> 
    * Mapuje dane z bazy (z kolumn) -> ProductDTO
    */
   private fromDbRecord(record: any): ProductDTO {
-    return {
+    const result: ProductDTO =  {
       id: record.id,
       agentId: record.agentId,
       sku: record.sku,
       name: record.name,
       description: record.description ?? undefined,
-
-      price: {
-        value: record.priceValue ?? 0,
-        currency: record.priceCurrency ?? "USD",
-      },
-      priceInclTax: {
-        value: record.priceInclTaxValue ?? 0,
-        currency: record.priceInclTaxCurrency ?? "USD",
-      },
 
       taxRate: record.taxRate ?? 0,
       taxValue: record.taxValue ?? 0,
@@ -92,19 +80,51 @@ export default class ServerProductRepository extends BaseRepository<ProductDTO> 
 
       imageUrl: record.imageUrl ?? null,
 
-      attributes: record.attributes ? JSON.parse(record.attributes) : [],
-      variants: record.variants ? JSON.parse(record.variants) : [],
-      images: record.images ? JSON.parse(record.images) : [],
-      tags: record.tags ? JSON.parse(record.tags) : [],
-
       createdAt: record.createdAt,
       updatedAt: record.updatedAt,
     };
+
+    try {
+      result.price = JSON.parse(record.price);
+    } catch {
+      result.price = { value: 0, currency: "USD" };
+    }
+    try {
+      result.priceInclTax = JSON.parse(record.priceInclTax)
+    } catch {
+      result.priceInclTax = { value: 0, currency: "USD" };
+    }
+
+    try {
+      result.attributes = record.attributes ? JSON.parse(record.attributes) : []
+    } catch {
+      result.attributes = [];
+    }
+
+    try {
+      result.variants = record.variants ? JSON.parse(record.variants) : []
+    } catch {
+      result.variants = [];
+    }
+    try {
+      result.images = record.images ? JSON.parse(record.images) : []
+    } catch {
+      result.images = [];
+    }
+    
+    try {
+      result.tags = record.tags ? JSON.parse(record.tags) : []
+    } catch {
+      result.tags = [];
+    }
+
+    return result;
   }
 
   async create(item: ProductDTO): Promise<ProductDTO> {
     const db = await this.db();
     const dbRecord = this.toDbRecord(item);
+    console.log(dbRecord);
     const inserted = await create(dbRecord, products, db);
     console.log(inserted);
     return this.fromDbRecord(inserted);
@@ -127,7 +147,6 @@ export default class ServerProductRepository extends BaseRepository<ProductDTO> 
       updated.updatedAt = getCurrentTS();
 
       db.update(products).set(updated).where(eq(products.id, query.id)).run();
-console.log(updated);
       return this.fromDbRecord(updated);
     }
   }

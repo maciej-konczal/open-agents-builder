@@ -50,7 +50,7 @@ const sidebarItems = [
     icon: BoxesIcon, 
     label: 'Products', 
     href: '/admin/agent/[id]/products',
-    pattern: '/admin/agent/[id]/products',
+    pattern: '(.*)/products/(.*)',
     activeOnlyOnSavedAgent: true
   },
   { 
@@ -88,7 +88,8 @@ export function AgentSidebar() {
         <div className="space-y-1 p-2">
           {sidebarItems.map((item) => {
             const href = item.href.replace('[id]', agentId);
-            const isActive = pathname.endsWith(href);
+            const isActive = pathname.endsWith(href) || pathname.match(item.pattern)
+            
             
             if (item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) {
               return (
