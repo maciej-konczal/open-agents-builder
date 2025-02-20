@@ -1,4 +1,4 @@
-import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO } from "@/data/dto";
+import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO, ProductDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
@@ -27,7 +27,7 @@ export type AttachmentAssigment = {
     type: string;
 }
 
-export type DisplayableDataObject =  {
+export type DisplayableDataObject = {
     contentType?: string;
     url: string;
     name: string;
@@ -50,7 +50,7 @@ export class Attachment {
 
     constructor(attachmentDTO: AttachmentDTO) {
         this.id = attachmentDTO.id;
-        this.assignedTo = attachmentDTO.assignedTo ? ( typeof attachmentDTO.assignedTo == 'string' ? JSON.parse(attachmentDTO.assignedTo) : attachmentDTO.assignedTo ): [];
+        this.assignedTo = attachmentDTO.assignedTo ? (typeof attachmentDTO.assignedTo == 'string' ? JSON.parse(attachmentDTO.assignedTo) : attachmentDTO.assignedTo) : [];
         this.displayName = attachmentDTO.displayName;
         this.description = attachmentDTO.description ? attachmentDTO.description : '';
         this.mimeType = attachmentDTO.mimeType ? attachmentDTO.mimeType : '';
@@ -127,7 +127,7 @@ export class Key {
         this.keyHashParams = keyDTO.keyHashParams;
         this.databaseIdHash = keyDTO.databaseIdHash;
         this.encryptedMasterKey = keyDTO.encryptedMasterKey;
-        this.acl = keyDTO instanceof Key ? keyDTO.acl :  (keyDTO.acl ? JSON.parse(keyDTO.acl) : null);
+        this.acl = keyDTO instanceof Key ? keyDTO.acl : (keyDTO.acl ? JSON.parse(keyDTO.acl) : null);
         this.extra = keyDTO.extra ?? null;
         this.expiryDate = keyDTO.expiryDate ?? null;
         this.updatedAt = keyDTO.updatedAt ?? getCurrentTS();
@@ -196,10 +196,10 @@ export class Term {
             signedAt: this.signedAt,
         };
     }
-    
+
 }
 
-export type AgentOptions = { 
+export type AgentOptions = {
     welcomeMessage: string;
     termsAndConditions: string;
     mustConfirmTerms: boolean;
@@ -232,13 +232,13 @@ export class Agent {
     constructor(agentDTO: AgentDTO | Agent) {
         this.id = agentDTO.id;
         this.displayName = agentDTO.displayName;
-        this.options = typeof agentDTO.options === 'string' ? JSON.parse(agentDTO.options as string) :  agentDTO.options;
+        this.options = typeof agentDTO.options === 'string' ? JSON.parse(agentDTO.options as string) : agentDTO.options;
 
         this.prompt = agentDTO.prompt;
         this.expectedResult = agentDTO.expectedResult ?? undefined;
         this.safetyRules = agentDTO.safetyRules ?? undefined;
-        this.events = typeof agentDTO.events === 'string' ? JSON.parse(agentDTO.events as string) :  agentDTO.events;
-        this.tools = typeof agentDTO.tools === 'string' ? JSON.parse(agentDTO.tools as string) :  agentDTO.tools;
+        this.events = typeof agentDTO.events === 'string' ? JSON.parse(agentDTO.events as string) : agentDTO.events;
+        this.tools = typeof agentDTO.tools === 'string' ? JSON.parse(agentDTO.tools as string) : agentDTO.tools;
 
 
         this.createdAt = agentDTO.createdAt;
@@ -293,8 +293,7 @@ export class Agent {
             events: this?.events || {},
             tools: this?.tools || {},
         };
-        if (setValue !== null)
-        {
+        if (setValue !== null) {
             Object.keys(map).forEach((key) => {
                 setValue(key, map[key]);
             });
@@ -319,15 +318,15 @@ export class Agent {
             events: data.events ?? agent?.events,
             tools: data.tools ?? agent?.tools,
             options: {
-              ...agent?.options,
-              welcomeMessage: data.welcomeInfo ?? agent?.options?.welcomeMessage,
-              termsAndConditions: data.termsConditions ?? agent?.options?.termsAndConditions,
-              mustConfirmTerms: data.confirmTerms ?? agent?.options?.mustConfirmTerms,
-              resultEmail: data.resultEmail ?? agent?.options?.resultEmail,
-              collectUserEmail: data.collectUserInfo ?? agent?.options?.collectUserEmail,
-              collectUserName: data.collectUserInfo ?? agent?.options?.collectUserName
+                ...agent?.options,
+                welcomeMessage: data.welcomeInfo ?? agent?.options?.welcomeMessage,
+                termsAndConditions: data.termsConditions ?? agent?.options?.termsAndConditions,
+                mustConfirmTerms: data.confirmTerms ?? agent?.options?.mustConfirmTerms,
+                resultEmail: data.resultEmail ?? agent?.options?.resultEmail,
+                collectUserEmail: data.collectUserInfo ?? agent?.options?.collectUserEmail,
+                collectUserName: data.collectUserInfo ?? agent?.options?.collectUserName
             },
-          } as Agent);        
+        } as Agent);
     }
 }
 
@@ -349,13 +348,13 @@ export class Session {
     updatedAt: string;
     finalizedAt?: string | null;
 
-    constructor(sessionDTO: SessionDTO | Session)  {
+    constructor(sessionDTO: SessionDTO | Session) {
         this.id = sessionDTO.id;
         this.agentId = sessionDTO.agentId;
         this.userName = sessionDTO.userName ?? null;
         this.userEmail = sessionDTO.userEmail ?? null;
         try {
-            this.messages = sessionDTO instanceof Session ? sessionDTO.messages :  (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
+            this.messages = sessionDTO instanceof Session ? sessionDTO.messages : (sessionDTO.messages ? JSON.parse(sessionDTO.messages) : null);
         } catch (e) {
             this.messages = null
         }
@@ -473,20 +472,20 @@ export type ToolConfiguration = {
     tool: string;                // e.g. "sendEmail" or "currentDate"
     description: string;         // e.g. "contact support" or "get the current date"
     options: Record<string, any> // tool-specific options
-  };
+};
 
 export type EventConfiguration = {
     condition: string;
     action: string;
- };
-  
+};
 
- export interface Participant {
+
+export interface Participant {
     name: string
     email: string
-  }
-  
-  export class CalendarEvent {
+}
+
+export class CalendarEvent {
     id: string
     agentId: string
     title: string
@@ -517,14 +516,14 @@ export type EventConfiguration = {
 
     static fromDTO(eventDTO: CalendarEventDTO): CalendarEvent {
         return new CalendarEvent(eventDTO);
-    }        
+    }
 
     toDTO(): CalendarEventDTO {
         return {
             id: this.id,
             agentId: this.agentId,
             title: this.title,
-            start: this.start ?  moment(this.start).toISOString(true) : null,
+            start: this.start ? moment(this.start).toISOString(true) : null,
             end: this.end ? moment(this.end).toISOString(true) : null,
             exclusive: this.exclusive ? 'true' : 'false',
             description: this.description,
@@ -535,7 +534,274 @@ export type EventConfiguration = {
             updatedAt: this.updatedAt
         };
     }
-  }
+}
+
+
+/// commerce module
+
+// models.ts
+
+export interface Price {
+    value: number;
+    currency: string;
+}
+
+export interface ProductAttribute {
+    name: string;
+    type: "text" | "select";
+    values?: string[];
+    defaultValue?: string;
+}
+
+export interface ProductVariant {
+    id?: string;
+    sku: string;
+    name?: string;
+    status?: string;
+
+    price?: Price;
+    priceInclTax?: Price;
+    taxRate?: number;
+    taxValue?: number;
+
+    width?: number;
+    height?: number;
+    length?: number;
+    weight?: number;
+
+    widthUnit?: string;
+    heightUnit?: string;
+    lengthUnit?: string;
+    weightUnit?: string;
+
+    brand?: string;
+}
+
+export interface ProductImage {
+    id: string;
+    url: string;
+    alt?: string;
+    storageKey?: string;
+}
+
+export class Product {
+    id?: string;
+    agentId?: string | null;
+
+    sku: string;
+    name: string;
+    description?: string;
+
+    price?: Price;
+    priceInclTax?: Price;
+
+    taxRate?: number;
+    taxValue?: number;
+
+    width?: number;
+    height?: number;
+    length?: number;
+    weight?: number;
+
+    widthUnit?: string;
+    heightUnit?: string;
+    lengthUnit?: string;
+    weightUnit?: string;
+
+    brand?: string;
+    status?: string;
+
+    imageUrl?: string;
+
+    attributes?: ProductAttribute[];
+    variants?: ProductVariant[];
+    images?: ProductImage[];
+    tags?: string[];
+
+    createdAt: string;
+    updatedAt: string;
+
+    constructor(dto: ProductDTO | Product) {
+        this.id = dto.id;
+        this.agentId = dto.agentId ?? null;
+
+        this.sku = dto.sku;
+        this.name = dto.name;
+        this.description = dto.description ?? undefined;
+
+        this.price = dto.price;
+        this.priceInclTax = dto.priceInclTax;
+
+        this.taxRate = dto.taxRate;
+        this.taxValue = dto.taxValue;
+
+        this.width = dto.width;
+        this.height = dto.height;
+        this.length = dto.length;
+        this.weight = dto.weight;
+
+        this.widthUnit = dto.widthUnit;
+        this.heightUnit = dto.heightUnit;
+        this.lengthUnit = dto.lengthUnit;
+        this.weightUnit = dto.weightUnit;
+
+        this.brand = dto.brand;
+        this.status = dto.status;
+
+        this.imageUrl = dto.imageUrl ?? undefined;
+
+        this.attributes = dto.attributes ?? [];
+        this.variants = dto.variants ?? [];
+        this.images = dto.images ?? [];
+        this.tags = dto.tags ?? [];
+
+        this.createdAt = dto.createdAt;
+        this.updatedAt = dto.updatedAt;
+    }
+
+    static fromDTO(dto: ProductDTO): Product {
+        return new Product(dto);
+    }
+
+    toDTO(): ProductDTO {
+        return {
+            id: this.id,
+            agentId: this.agentId,
+
+            sku: this.sku,
+            name: this.name,
+            description: this.description,
+
+            price: this.price,
+            priceInclTax: this.priceInclTax,
+            taxRate: this.taxRate,
+            taxValue: this.taxValue,
+
+            width: this.width,
+            height: this.height,
+            length: this.length,
+            weight: this.weight,
+
+            widthUnit: this.widthUnit,
+            heightUnit: this.heightUnit,
+            lengthUnit: this.lengthUnit,
+            weightUnit: this.weightUnit,
+
+            brand: this.brand,
+            status: this.status,
+
+            imageUrl: this.imageUrl,
+
+            attributes: this.attributes,
+            variants: this.variants,
+            images: this.images,
+            tags: this.tags,
+
+            createdAt: this.createdAt,
+            updatedAt: this.updatedAt,
+        };
+    }
+
+    /**
+     * Metoda toForm(...) – np. do React Hook Form
+     */
+    toForm(setValue?: (field: string, value: any) => void): Record<string, any> {
+        const formData: Record<string, any> = {
+            id: this.id,
+            agentId: this.agentId,
+
+            sku: this.sku,
+            name: this.name,
+            description: this.description ?? "",
+
+            price: this.price?.value ?? 0,
+            currency: this.price?.currency ?? "USD",
+
+            priceInclTax: this.priceInclTax?.value ?? 0,
+
+            taxRate: this.taxRate ?? 0,
+            taxValue: this.taxValue ?? 0,
+
+            width: this.width ?? 0,
+            height: this.height ?? 0,
+            length: this.length ?? 0,
+            weight: this.weight ?? 0,
+
+            widthUnit: this.widthUnit ?? "cm",
+            heightUnit: this.heightUnit ?? "cm",
+            lengthUnit: this.lengthUnit ?? "cm",
+            weightUnit: this.weightUnit ?? "kg",
+
+            brand: this.brand ?? "",
+            status: this.status ?? "active",
+
+            imageUrl: this.imageUrl ?? "",
+
+            attributes: this.attributes ?? [],
+            variants: this.variants ?? [],
+            images: this.images ?? [],
+            tags: this.tags ?? [],
+        };
+
+        if (setValue) {
+            Object.keys(formData).forEach((key) => {
+                setValue(key, formData[key]);
+            });
+        }
+        return formData;
+    }
+
+    /**
+     * Tworzenie obiektu Product z formularza (lub analogicznie):
+     */
+    static fromForm(data: Record<string, any>, existing?: Product | null): Product {
+        return new Product({
+            ...existing,
+            id: data.id ?? existing?.id,
+            agentId: data.agentId ?? existing?.agentId,
+
+            sku: data.sku ?? existing?.sku,
+            name: data.name ?? existing?.name,
+            description: data.description ?? existing?.description,
+
+            price: {
+                value: data.price.value ?? existing?.price?.value ?? 0,
+                currency: data.price?.currency ?? existing?.price?.currency ?? "USD",
+            },
+            priceInclTax: {
+                value: data.priceInclTax?.value ?? existing?.priceInclTax?.value ?? 0,
+                currency: data.price.currency ?? existing?.priceInclTax?.currency ?? "USD",
+            },
+
+            taxRate: data.taxRate ?? existing?.taxRate ?? 0,
+            taxValue: data.taxValue ?? existing?.taxValue ?? 0,
+
+            width: data.width ?? existing?.width ?? 0,
+            height: data.height ?? existing?.height ?? 0,
+            length: data.length ?? existing?.length ?? 0,
+            weight: data.weight ?? existing?.weight ?? 0,
+
+            widthUnit: data.widthUnit ?? existing?.widthUnit ?? "cm",
+            heightUnit: data.heightUnit ?? existing?.heightUnit ?? "cm",
+            lengthUnit: data.lengthUnit ?? existing?.lengthUnit ?? "cm",
+            weightUnit: data.weightUnit ?? existing?.weightUnit ?? "kg",
+
+            brand: data.brand ?? existing?.brand ?? "",
+            status: data.status ?? existing?.status ?? "active",
+
+            imageUrl: data.imageUrl ?? existing?.imageUrl,
+
+            attributes: data.attributes ?? existing?.attributes ?? [],
+            variants: data.variants ?? existing?.variants ?? [],
+            images: data.images ?? existing?.images ?? [],
+            tags: data.tags ?? existing?.tags ?? [],
+
+            createdAt: existing?.createdAt || getCurrentTS(),
+            updatedAt: getCurrentTS(),
+        } as Product);
+    }
+}
+
 
 export class DatabaseRefreshRequest {
     refreshToken: string;
@@ -547,14 +813,31 @@ export class DatabaseRefreshRequest {
     }
 }
 
-export const passwordValidator = (value:string) => {
+export const passwordValidator = (value: string) => {
     const passSchema = new PasswordValidator();
     passSchema.is().min(6).has().not().spaces();
     return passSchema.validate(value);
 }
 
-export const sharingKeyValidator = (value:string) => {
+export const sharingKeyValidator = (value: string) => {
     const passSchema = new PasswordValidator();
     passSchema.is().min(6).has().not().spaces().has().digits(6);
     return passSchema.validate(value);
+}
+
+export type UploadedFile = {
+    id: number | string;
+    file: File;
+    uploaded: boolean;
+    status: FileUploadStatus;
+    index: number;
+    dto: AttachmentDTO | null;
+}
+
+export enum FileUploadStatus {
+  QUEUED = 'queued',
+  UPLOADING = 'uploading',
+  SUCCESS = 'ok',
+  ERROR = 'error',
+  ENCRYPTING = 'encrypting'
 }

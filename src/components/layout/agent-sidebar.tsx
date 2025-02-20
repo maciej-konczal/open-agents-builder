@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -47,6 +47,13 @@ const sidebarItems = [
     pattern: '/admin/agent/[id]/safety'
   },
   { 
+    icon: BoxesIcon, 
+    label: 'Products', 
+    href: '/admin/agent/[id]/products',
+    pattern: '(.*)/products/(.*)',
+    activeOnlyOnSavedAgent: true
+  },
+  { 
     icon: MessageCircleMore, 
     label: 'Sessions', 
     href: '/admin/agent/[id]/sessions',
@@ -81,7 +88,8 @@ export function AgentSidebar() {
         <div className="space-y-1 p-2">
           {sidebarItems.map((item) => {
             const href = item.href.replace('[id]', agentId);
-            const isActive = pathname.endsWith(href);
+            const isActive = pathname.endsWith(href) || pathname.match(item.pattern)
+            
             
             if (item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) {
               return (

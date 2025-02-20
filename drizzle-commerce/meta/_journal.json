@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1740048851177,
+      "tag": "0000_tranquil_titania",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1740065825401,
+      "tag": "0001_early_robin_chapel",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1740066229263,
+      "tag": "0002_lovely_sue_storm",
+      "breakpoints": true
+    }
+  ]
+}

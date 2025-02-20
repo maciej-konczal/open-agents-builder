@@ -1,4 +1,4 @@
-import { AttachmentDTO, AttachmentDTOSchema } from "@/data/dto";
+import { AttachmentDTO, attachmentDTOSchema } from "@/data/dto";
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
 import { authorizeRequestContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { StorageService } from "@/lib/storage-service";
@@ -24,7 +24,7 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
     const storageService = new StorageService(requestContext.databaseIdHash);
     let apiResult = await genericPUT<AttachmentDTO>(
         inputJson,
-        AttachmentDTOSchema,
+        attachmentDTOSchema,
         new ServerAttachmentRepository(requestContext.databaseIdHash),
         'id'
     );

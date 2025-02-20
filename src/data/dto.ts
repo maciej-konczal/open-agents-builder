@@ -37,7 +37,7 @@ export type AttachmentAssigmentDTO = {
   type: string;
 }
 
-export const AttachmentDTOSchema = z.object({
+export const attachmentDTOSchema = z.object({
   id: z.number().positive().optional(),
   displayName: z.string().min(1),
   description: z.string().optional().nullable(),
@@ -58,7 +58,7 @@ export const AttachmentDTOSchema = z.object({
   assignedTo: z.string().optional().nullable()
 });
 export const AttachmentDTOEncSettings = { ecnryptedFields: ['displayName', 'description', 'mimeType', 'type', 'json', 'extra'] };
-export type AttachmentDTO = z.infer<typeof AttachmentDTOSchema>;
+export type AttachmentDTO = z.infer<typeof attachmentDTOSchema>;
 
 export const databaseCreateRequestSchema = z.object({
   email: z.string().email(),
@@ -277,6 +277,107 @@ export const calendarEventDTOSchema = z.object({
 });
 export type CalendarEventDTO = z.infer<typeof calendarEventDTOSchema>;
 export const CalendarEventDTOEncSettings: DTOEncryptionSettings = { ecnryptedFields: [] };
+
+const productAttributeSchema = z.object({
+  name: z.string(),
+  type: z.enum(["text", "select"]).default("text"),
+  values: z.array(z.string()).optional(), //  ["Red","Blue"]
+  defaultValue: z.string().optional(),
+});
+
+const priceSchema = z.object({
+  value: z.number().min(0),
+  currency: z.string().min(1),
+});
+
+const productVariantSchema = z.object({
+  id: z.string().optional(),    
+  sku: z.string().min(1),
+  name: z.string().optional(),
+  status: z.string().optional(), 
+  
+  price: priceSchema.optional(),
+  priceInclTax: priceSchema.optional(),
+  taxRate: z.number().min(0).max(1).optional(),  // np. 0.23
+  taxValue: z.number().min(0).optional(),
+
+  width: z.number().min(0).optional(),
+  height: z.number().min(0).optional(),
+  length: z.number().min(0).optional(),
+  weight: z.number().min(0).optional(),
+
+  widthUnit: z.string().optional(),
+  heightUnit: z.string().optional(),
+  lengthUnit: z.string().optional(),
+  weightUnit: z.string().optional(),
+  
+  brand: z.string().optional(),
+});
+
+const productImageSchema = z.object({
+  id: z.string(),
+  storageKey: z.string().optional(),
+  url: z.string().url(),
+  alt: z.string().optional(),
+});
+
+
+export const productDTOSchema = z.object({
+  id: z.string().optional(),
+  agentId: z.string().optional().nullable(),
+
+  sku: z.string().min(1),
+  name: z.string().min(1),
+  description: z.string().optional().nullable(),
+
+  // Zamiast net/gross => price, priceInclTax
+  price: priceSchema.optional(),
+  priceInclTax: priceSchema.optional(),
+
+  taxRate: z.number().min(0).max(1).optional(),
+  taxValue: z.number().min(0).optional(),
+
+  width: z.number().min(0).optional(),
+  height: z.number().min(0).optional(),
+  length: z.number().min(0).optional(),
+  weight: z.number().min(0).optional(),
+
+  widthUnit: z.string().optional(),
+  heightUnit: z.string().optional(),
+  lengthUnit: z.string().optional(),
+  weightUnit: z.string().optional(),
+
+  brand: z.string().optional(),
+  status: z.string().optional(), // np. "active", "inactive", "deleted"
+
+  imageUrl: z.string().url().optional().nullable(),
+
+  // atrybuty – tablica obiektów
+  attributes: z.array(productAttributeSchema).optional(),
+
+  // warianty
+  variants: z.array(productVariantSchema).optional(),
+
+  // zdjęcia – tablica w stylu Attachment
+  images: z.array(productImageSchema).optional(),
+
+  // tagi
+  tags: z.array(z.string()).optional(),
+
+  createdAt: z.string().default(() => getCurrentTS()),
+  updatedAt: z.string().default(() => getCurrentTS()),
+});
+
+export type ProductDTO = z.infer<typeof productDTOSchema>;
+export const ProductDTOEncSettings = {
+  ecnryptedFields: [
+  ],
+};
+
+
+
+
+
 
 export type PaginatedResult<T> = {
   rows: T;
