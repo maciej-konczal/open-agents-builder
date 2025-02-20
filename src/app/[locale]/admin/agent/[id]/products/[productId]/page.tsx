@@ -1,35 +1,33 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
 import { FormProvider, useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTranslation } from "react-i18next";
 import { nanoid } from "nanoid";
 import { toast } from "sonner";
-import { useParams } from "next/navigation"; // <-- kluczowe do wczytywania paramów
+import { useParams } from "next/navigation";
 
-// shadcn UI-komponenty
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-// Nasz podkomponent do wariantów
 import { ProductVariantRow } from "@/components/product-variant-row";
-
-// Modele, typy (dostosuj importy):
 import { FileUploadStatus, UploadedFile, Product } from "@/data/client/models";
 import { useProductContext } from "@/contexts/product-context";
 import { getErrorMessage } from "@/lib/utils";
 
 // ----------------------------------------------------
-// 1) Schemat walidacji (Zod) dla formularza
+// 1) Schemat walidacji Zod
 // ----------------------------------------------------
 
 const attributeFormSchema = z.object({
   attrName: z.string().nonempty("Attribute name is required"),
   attrType: z.enum(["text", "select"]),
-  attrValues: z.string().optional(),
+  attrValues: z.string().optional(), 
+  // Uwaga: to jest surowe pole inputu; w bazie, jeśli "select", zrobimy tablicę
+  //        jeśli "text", zapiszemy jedną pozycję w values
 });
 
 const variantAttributeSchema = z.object({
@@ -89,12 +87,13 @@ const sortedCurrencyList = [
 export default function ProductFormPage() {
   const { t, i18n } = useTranslation();
   const productContext = useProductContext();
-  const params = useParams(); // <-- klucz do odczytu { productId }
+  const params = useParams();
 
+  // Domyślne stawki i waluty
   const defaultTaxRate = i18n.language === "pl" ? 23 : 0;
   const defaultCurrency = i18n.language === "pl" ? "PLN" : "USD";
 
-  // Inicjalizacja formularza z walidacją Zod
+  // 3a) Inicjalizacja formularza (Zod, domyślne wartości)
   const methods = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -120,31 +119,24 @@ export default function ProductFormPage() {
     formState: { errors },
   } = methods;
 
-  // 3a) Ładowanie produktu do edycji:
-  React.useEffect(() => {
+  // 3b) Ładowanie produktu do edycji
+  useEffect(() => {
     if (!params?.productId) return;
-
     if (params.productId !== "new") {
-      // wczytaj produkt i ustaw w formularzu
       loadProduct(params.productId);
     } else {
-      // new -> reset do default
+      // new
       reset();
     }
   }, [params?.productId]);
 
-  // Funkcja asynchroniczna do wczytania produktu
   async function loadProduct(productId: string) {
     try {
-      // Zakładam, że w context masz metodę: productContext.get(productId)
-      // lub do weryfikacji
-      const loadedDto = await productContext.loadProduct(productId); 
+      const loadedDto = await productContext.loadProduct(productId);
       if (!loadedDto) {
         toast.error("Product not found!");
         return;
       }
-
-      // Stwórzmy obiekt `formData` pasujący do `ProductFormData`
       const formData: ProductFormData = mapDtoToFormData(loadedDto);
       reset(formData);
     } catch (err) {
@@ -153,59 +145,50 @@ export default function ProductFormPage() {
     }
   }
 
-  // Funkcja pomocnicza: mapuje ProductDTO -> ProductFormData
-  // (przykładowa — dostosuj do swojej struktury w `ProductDTO`)
+  // Funkcja mapująca ProductDTO -> ProductFormData
   function mapDtoToFormData(loadedDto: any): ProductFormData {
     const taxRatePercent = (loadedDto.taxRate || 0) * 100;
-
-    // variantAttributes w loadedDto.variants => docelowo array: { attributeName, attributeValue }
-    // price / priceInclTax => loadedDto ma je w polach: loadedDto.price.value, loadedDto.price.currency, itp.
-
     return {
       name: loadedDto.name || "",
       description: loadedDto.description || "",
       sku: loadedDto.sku || nanoid(),
-
       price: loadedDto.price?.value || 0,
       priceInclTax: loadedDto.priceInclTax?.value || 0,
       taxRate: taxRatePercent > 100 ? 100 : taxRatePercent,
-
       currency: loadedDto.price?.currency || defaultCurrency,
-
       attributes: (loadedDto.attributes || []).map((a: any) => ({
         attrName: a.name,
         attrType: a.type,
-        attrValues: a.possibleValues ? a.possibleValues.join(",") : "",
+        // scalamy values -> jednego stringa
+        attrValues: a.values ? a.values.join(",") : "",
       })),
-
       tags: (loadedDto.tags || []).join(", "),
-
       variants: (loadedDto.variants || []).map((v: any) => ({
         sku: v.sku || nanoid(),
         name: v.name || "",
         price: v.price?.value || 0,
         priceInclTax: v.priceInclTax?.value || 0,
-        taxRate: (v.taxRate || 0) * 100, // z 0.23 => 23
+        taxRate: (v.taxRate || 0) * 100,
         variantAttributes: v.variantAttributes || [],
       })),
     };
   }
 
-  // 3b) Atrybuty (useFieldArray)
+  // 4) Obsługa atrybutów (useFieldArray)
   const {
     fields: attributeFields,
     append: appendAttribute,
     remove: removeAttribute,
   } = useFieldArray({ control, name: "attributes" });
 
-  // 3c) Warianty (useFieldArray)
+  // 5) Obsługa wariantów (useFieldArray)
   const {
     fields: variantFields,
     append: appendVariant,
     remove: removeVariant,
   } = useFieldArray({ control, name: "variants" });
 
-  // 3d) Generowanie wariantów z atrybutów typu "select"
+  // 5a) Generowanie wariantów z atrybutów typu select
   function generateVariantsFromAttributes() {
     const rawAttrs = watch("attributes");
     type SelectAttr = { attrName: string; values: string[] };
@@ -225,11 +208,9 @@ export default function ProductFormPage() {
     }
 
     const combos = buildVariantCombinations(selectAttributes);
-
     const defaultTax = watch("taxRate");
 
     combos.forEach((combo) => {
-      // variantName = "red / L / cotton..."
       const variantName = combo.map((x) => x.attributeValue).join(" / ");
       appendVariant({
         sku: nanoid(),
@@ -242,7 +223,7 @@ export default function ProductFormPage() {
     });
   }
 
-  // 3d.2) Iloczyn kartezjański rekurencyjnie
+  // Iloczyn kartezjański
   function buildVariantCombinations(
     selectAttrs: { attrName: string; values: string[] }[],
     index = 0,
@@ -265,7 +246,7 @@ export default function ProductFormPage() {
     return result;
   }
 
-  // 3e) Dwustronna obsługa main price
+  // 6) Dwustronne przeliczanie ceny głównej
   const mainPrice = watch("price");
   const mainPriceInclTax = watch("priceInclTax");
   const mainTaxRate = watch("taxRate");
@@ -278,7 +259,8 @@ export default function ProductFormPage() {
     lastChangedMainField.current = "priceInclTax";
   };
 
-  React.useEffect(() => {
+  // Reakcja: kiedy mainPrice się zmienia
+  useEffect(() => {
     if (lastChangedMainField.current === "price") {
       const dec = mainTaxRate / 100;
       const newVal = mainPrice * (1 + dec);
@@ -286,7 +268,8 @@ export default function ProductFormPage() {
     }
   }, [mainPrice, mainTaxRate, setValue]);
 
-  React.useEffect(() => {
+  // Reakcja: kiedy mainPriceInclTax się zmienia
+  useEffect(() => {
     if (lastChangedMainField.current === "priceInclTax") {
       const dec = mainTaxRate / 100;
       const newVal = mainPriceInclTax / (1 + dec);
@@ -294,7 +277,7 @@ export default function ProductFormPage() {
     }
   }, [mainPriceInclTax, mainTaxRate, setValue]);
 
-  // 3f) Obsługa plików
+  // 7) Upload plików
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -317,7 +300,8 @@ export default function ProductFormPage() {
     fileToUpload.status = FileUploadStatus.UPLOADING;
     setUploadedFiles((prev) => [...prev]);
     try {
-      await new Promise((res) => setTimeout(res, 1500)); // symulacja
+      // Symulacja
+      await new Promise((res) => setTimeout(res, 1500));
       fileToUpload.status = FileUploadStatus.SUCCESS;
       fileToUpload.uploaded = true;
       setUploadedFiles((prev) => [...prev]);
@@ -328,34 +312,59 @@ export default function ProductFormPage() {
     }
   }, []);
 
-  // 4) Submit
+  // 8) Submit
   const onSubmit = async (formData: ProductFormData, addNext: boolean) => {
-    // stawka w ułamku
+    // Stawka w ułamku
     const decimalTaxRate = formData.taxRate / 100;
 
-    // Budujemy docelowy obiekt (np. Product) z formData
+    // Budujemy docelowy obiekt
     const newProduct = Product.fromForm({
+      // Jeżeli edycja => params.productId
       id: (params?.productId && params.productId !== "new") ? params.productId : nanoid(),
+
       sku: formData.sku,
       name: formData.name,
       description: formData.description,
+
       price: { value: formData.price, currency: formData.currency },
       priceInclTax: { value: formData.priceInclTax, currency: formData.currency },
       taxRate: decimalTaxRate,
-      attributes: formData.attributes.map((a) => ({
-        name: a.attrName,
-        type: a.attrType,
-        possibleValues: a.attrType === "select"
-          ? (a.attrValues || "")
-              .split(",")
-              .map((v) => v.trim())
-              .filter((v) => v.length > 0)
-          : [],
-      })),
+
+      // Atrybuty
+      attributes: formData.attributes.map((a) => {
+        // interpretacja pola a.attrValues
+        // - jeśli select => to tablica wartości
+        // - jeśli text => to 1-elementowa tablica (przechowujemy to w values)
+        let possibleVals: string[] = [];
+        if (a.attrType === "select") {
+          possibleVals = (a.attrValues || "")
+            .split(",")
+            .map((v) => v.trim())
+            .filter((v) => v.length > 0);
+        } else {
+          // typ: text => wrzucamy do values jedną wartość 
+          // (tak by w bazie w polu "values" mieć to co user wpisał)
+          if (a.attrValues && a.attrValues.trim().length > 0) {
+            possibleVals = [a.attrValues.trim()];
+          } else {
+            possibleVals = [];
+          }
+        }
+        return {
+          name: a.attrName,
+          type: a.attrType,
+          values: possibleVals,
+          defaultValue: possibleVals[0] || "",
+        };
+      }),
+
+      // Tagi
       tags: (formData.tags || "")
         .split(",")
         .map((t) => t.trim())
         .filter((t) => t),
+
+      // Warianty
       variants: formData.variants.map((v) => ({
         id: nanoid(),
         sku: v.sku || nanoid(),
@@ -448,7 +457,10 @@ export default function ProductFormPage() {
                 type="number"
                 step="0.01"
                 {...register("price", { valueAsNumber: true })}
-                onChange={onChangeMainPrice}
+                onChange={() => {
+                  // user zmienia price => zapamiętujemy w lastChangedMainField
+                  lastChangedMainField.current = "price";
+                }}
               />
               {errors.price && (
                 <p className="text-red-500 text-sm">
@@ -462,7 +474,9 @@ export default function ProductFormPage() {
                 type="number"
                 step="0.01"
                 {...register("priceInclTax", { valueAsNumber: true })}
-                onChange={onChangeMainPriceInclTax}
+                onChange={() => {
+                  lastChangedMainField.current = "priceInclTax";
+                }}
               />
               {errors.priceInclTax && (
                 <p className="text-red-500 text-sm">
@@ -518,7 +532,7 @@ export default function ProductFormPage() {
                 </select>
                 <Input
                   {...register(`attributes.${i}.attrValues`)}
-                  placeholder="Values (comma-separated, only if select)"
+                  placeholder="Values (comma-separated for select; single text otherwise)"
                 />
                 <Button
                   type="button"
@@ -532,11 +546,13 @@ export default function ProductFormPage() {
             <Button
               type="button"
               variant="secondary"
-              onClick={() => appendAttribute({
-                attrName: "",
-                attrType: "text",
-                attrValues: "",
-              })}
+              onClick={() =>
+                appendAttribute({
+                  attrName: "",
+                  attrType: "text",
+                  attrValues: "",
+                })
+              }
             >
               + Add attribute
             </Button>

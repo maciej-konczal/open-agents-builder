@@ -281,7 +281,7 @@ export const CalendarEventDTOEncSettings: DTOEncryptionSettings = { ecnryptedFie
 const productAttributeSchema = z.object({
   name: z.string(),
   type: z.enum(["text", "select"]).default("text"),
-  possibleValues: z.array(z.string()).optional(), //  ["Red","Blue"]
+  values: z.array(z.string()).optional(), //  ["Red","Blue"]
   defaultValue: z.string().optional(),
 });
 

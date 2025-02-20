@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { BoxIcon, Loader2, OptionIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
+import { BoxIcon, FolderOpenIcon, Loader2, OptionIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -153,7 +153,18 @@ export default function ProductsPage() {
       {productsData.rows.map((product) => (
         <Card key={product.id}>
           <CardHeader>
-            <CardTitle>{product.name}</CardTitle>
+            <CardTitle>
+                <Button
+                    className="mr-2"
+                    variant="secondary"
+                    onClick={() => {
+                    // np. przejście do strony szczegółów
+                    router.push("/admin/agent/" + encodeURIComponent(agentContext.current?.id || '') + "/products/" + encodeURIComponent(product.id || ''));
+                    }}
+                >
+                <FolderOpenIcon className="w-4 h-4" />
+            </Button>
+            {product.name}</CardTitle>
           </CardHeader>
           <CardContent className="text-sm">
             {/* Główne zdjęcie */}
@@ -193,24 +204,13 @@ export default function ProductsPage() {
                         <TextIcon className="w-4 h-4 mr-1" />
                       ) : (<TextCursorInputIcon className="w-4 h-4 mr-1" />)}{attr.name}:{" "}
                       {attr.type === "select"
-                        ? `${(attr.possibleValues || []).join(" / ")}`
+                        ? `${(attr.values || []).join(" / ")}`
                         : attr.defaultValue ?? ""}
                     </li>
                   ))}
                 </ul>
               </div>
             )}
-
-            {/* Przykładowy przycisk: zobacz szczegóły */}
-            <Button
-              variant="secondary"
-              onClick={() => {
-                // np. przejście do strony szczegółów
-                router.push("/admin/agent/" + encodeURIComponent(agentContext.current?.id || '') + "/products/" + encodeURIComponent(product.id || ''));
-              }}
-            >
-              View details
-            </Button>
           </CardContent>
         </Card>
       ))}

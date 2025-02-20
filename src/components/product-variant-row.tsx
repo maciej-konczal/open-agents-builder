@@ -8,7 +8,7 @@ import { nanoid } from "nanoid";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-// Zgodne z definicją w productFormSchema
+// Definicja atrybutu wariantu
 type VariantAttribute = {
   attributeName: string;
   attributeValue: string;
@@ -23,7 +23,6 @@ type VariantForm = {
   variantAttributes: VariantAttribute[];
 };
 
-// Główny typ z "variants"
 type ProductFormData = {
   variants: VariantForm[];
 };
@@ -35,48 +34,66 @@ type ProductVariantRowProps = {
 };
 
 export function ProductVariantRow({ field, index, removeVariant }: ProductVariantRowProps) {
-  const { register, setValue, control, formState: { errors } } = useFormContext<ProductFormData>();
+  const {
+    register,
+    setValue,
+    control,
+    formState: { errors },
+  } = useFormContext<ProductFormData>();
 
-  // Obserwujemy wartości danego wariantu
+  // Odczyt bieżących wartości wariantu przez useWatch
   const variantValue = useWatch({
     name: `variants.${index}`,
     control,
   });
   // => { sku, name, price, priceInclTax, taxRate, variantAttributes }
 
-  // Które pole user ostatnio edytował: "price" czy "priceInclTax"
+  // Obsługa błędów walidacji (Zod/React-Hook-Form)
+  const variantErrors = errors.variants?.[index] || {};
+
+  // REF do śledzenia, które pole user edytował ostatnio: "price" czy "priceInclTax"
   const lastChangedField = useRef<"price" | "priceInclTax" | null>(null);
 
+  // Handlery onChange, żeby ustawić lastChangedField
   const onChangePrice = useCallback(() => {
     lastChangedField.current = "price";
   }, []);
+
   const onChangePriceInclTax = useCallback(() => {
     lastChangedField.current = "priceInclTax";
   }, []);
 
-  // Dwustronne przeliczanie w useEffect
+  // useEffect do obliczania "brutto" => priceInclTax
   useEffect(() => {
     if (!variantValue) return;
-    const { price, priceInclTax, taxRate } = variantValue;
-    const dec = taxRate / 100;
-
     if (lastChangedField.current === "price") {
+      const { price, taxRate } = variantValue;
+      const dec = taxRate / 100; // np. 23 => 0.23
       const newVal = price * (1 + dec);
-      setValue(`variants.${index}.priceInclTax`, parseFloat(newVal.toFixed(2)));
-    } else if (lastChangedField.current === "priceInclTax") {
+      setValue(
+        `variants.${index}.priceInclTax`,
+        parseFloat(newVal.toFixed(2))
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variantValue?.price]);
+
+  // useEffect do obliczania "netto" => price
+  useEffect(() => {
+    if (!variantValue) return;
+    if (lastChangedField.current === "priceInclTax") {
+      const { priceInclTax, taxRate } = variantValue;
+      const dec = taxRate / 100;
       const newVal = priceInclTax / (1 + dec);
       setValue(`variants.${index}.price`, parseFloat(newVal.toFixed(2)));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [variantValue.price, variantValue.priceInclTax]);
-
-  // Wyświetlamy ewentualne błędy walidacji z "variants[index]"
-  const variantErrors = errors.variants?.[index] || {};
+  }, [variantValue?.priceInclTax]);
 
   return (
     <div className="border p-3 rounded mb-2">
-      {/* Nazwa wariantu i SKU */}
       <div className="flex gap-2 mb-2">
+        {/* Nazwa wariantu */}
         <div className="flex-1">
           <label className="block text-sm font-medium">Variant Name</label>
           <Input
@@ -89,6 +106,8 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
             </p>
           )}
         </div>
+
+        {/* SKU */}
         <div className="flex-1">
           <label className="block text-sm font-medium">SKU</label>
           <Input
@@ -109,14 +128,16 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
         </div>
       </div>
 
-      {/* Cena net/brutto + stawka */}
       <div className="flex gap-2 mb-2">
+        {/* Price - NET */}
         <div className="flex-1">
           <label className="block text-sm font-medium">Price (net)</label>
           <Input
             type="number"
             step="0.01"
-            {...register(`variants.${index}.price`, { valueAsNumber: true })}
+            {...register(`variants.${index}.price`, {
+              valueAsNumber: true,
+            })}
             onChange={onChangePrice}
           />
           {variantErrors?.price && (
@@ -125,12 +146,16 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
             </p>
           )}
         </div>
+
+        {/* Price incl. tax - GROSS */}
         <div className="flex-1">
           <label className="block text-sm font-medium">Price (incl. tax)</label>
           <Input
             type="number"
             step="0.01"
-            {...register(`variants.${index}.priceInclTax`, { valueAsNumber: true })}
+            {...register(`variants.${index}.priceInclTax`, {
+              valueAsNumber: true,
+            })}
             onChange={onChangePriceInclTax}
           />
           {variantErrors?.priceInclTax && (
@@ -139,12 +164,16 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
             </p>
           )}
         </div>
+
+        {/* Stawka podatku (%) */}
         <div className="flex-1">
           <label className="block text-sm font-medium">Tax Rate (%)</label>
           <Input
             type="number"
             step="1"
-            {...register(`variants.${index}.taxRate`, { valueAsNumber: true })}
+            {...register(`variants.${index}.taxRate`, {
+              valueAsNumber: true,
+            })}
           />
           {variantErrors?.taxRate && (
             <p className="text-red-500 text-sm">
@@ -154,12 +183,12 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
         </div>
       </div>
 
-      {/* Wyświetlanie atrybutów wariantu w trybie read-only */}
-      {variantValue.variantAttributes?.length > 0 && (
+      {/* Wypisanie atrybutów wariantu (jeśli ma) */}
+      {variantValue?.variantAttributes?.length > 0 && (
         <div className="mb-2">
           <label className="block text-sm font-medium">Variant Attributes</label>
           <div className="ml-2 mt-1 space-y-1">
-            {variantValue.variantAttributes.map((att, idxA) => (
+            {variantValue.variantAttributes.map((att: any, idxA: number) => (
               <div key={idxA} className="text-xs text-gray-600">
                 {att.attributeName}: {att.attributeValue}
               </div>

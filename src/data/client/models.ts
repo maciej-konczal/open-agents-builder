@@ -549,7 +549,7 @@ export interface Price {
 export interface ProductAttribute {
     name: string;
     type: "text" | "select";
-    possibleValues?: string[];
+    values?: string[];
     defaultValue?: string;
 }
 
