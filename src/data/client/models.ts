@@ -825,3 +825,20 @@ export const sharingKeyValidator = (value: string) => {
     passSchema.is().min(6).has().not().spaces().has().digits(6);
     return passSchema.validate(value);
 }
+
+export type UploadedFile = {
+    id: number | string;
+    file: File;
+    uploaded: boolean;
+    status: FileUploadStatus;
+    index: number;
+    dto: AttachmentDTO | null;
+}
+
+export enum FileUploadStatus {
+  QUEUED = 'queued',
+  UPLOADING = 'uploading',
+  SUCCESS = 'ok',
+  ERROR = 'error',
+  ENCRYPTING = 'encrypting'
+}
