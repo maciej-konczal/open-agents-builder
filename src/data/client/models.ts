@@ -578,7 +578,6 @@ export interface ProductVariant {
 }
 
 export interface ProductImage {
-    id: string;
     url: string;
     alt?: string;
     storageKey?: string;

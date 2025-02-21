@@ -315,7 +315,6 @@ const productVariantSchema = z.object({
 });
 
 const productImageSchema = z.object({
-  id: z.string(),
   storageKey: z.string().optional(),
   url: z.string().url(),
   alt: z.string().optional(),

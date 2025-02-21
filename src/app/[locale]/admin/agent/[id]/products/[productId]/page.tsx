@@ -160,6 +160,7 @@ export default function ProductFormPage() {
   // Funkcja mapująca ProductDTO -> ProductFormData
   function mapDtoToFormData(loadedDto: any): ProductFormData {
     const taxRatePercent = (loadedDto.taxRate || 0) * 100;
+    setImages(loadedDto.images || []);
     return {
       name: loadedDto.name || "",
       description: loadedDto.description || "",
@@ -295,15 +296,14 @@ export default function ProductFormPage() {
   const [images, setImages] = useState<ProductImage[]>([]);
 
   useEffect(() => {
-    setImages(uploadedFiles.map((f) => {
+    setImages(uploadedFiles.map((up) => {
       return {
-        alt: f.dto?.displayName,
-        url: `${process.env.NEXT_PUBLIC_APP_URL}/storage/product/${dbContext?.databaseIdHash}/${f.dto?.id}`,
-        id: f.dto?.id ?? f.id,
-        storageKey: f.dto?.storageKey,
-      } as ProductImage;
-    }))    
-  }, [uploadedFiles]); 
+        alt: up.dto?.displayName,
+        url: `${process.env.NEXT_PUBLIC_APP_URL}/storage/product/${dbContext?.databaseIdHash}/${up.dto?.storageKey}`,
+        storageKey: up?.dto?.storageKey
+      } as ProductImage
+    }));
+  }, [uploadedFiles]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -330,7 +330,7 @@ export default function ProductFormPage() {
 
   const removeFileFromQueue = useCallback((file: UploadedFile) => {
     setRemovedFiles([...removedFiles, file]);
-    setUploadedFiles((prev) => prev.filter((f) => f.id !== f.id));
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== file.id));
   }, []);
 
   const onUpload = useCallback(async (fileToUpload: UploadedFile) => {
