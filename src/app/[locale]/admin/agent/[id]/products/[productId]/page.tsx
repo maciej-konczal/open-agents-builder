@@ -531,7 +531,7 @@ export default function ProductFormPage() {
 
             {/* NAME */}
             <div>
-              <label className="block font-medium mb-1">Name</label>
+              <label className="block font-medium mb-1">{t('Name')}</label>
               <Input
               autoFocus 
                 {...register("name")}
@@ -771,7 +771,7 @@ export default function ProductFormPage() {
                   })
                 }
               >
-                + Add attribute
+                {t('+ Add attribute')}
               </Button>
             </div>
 

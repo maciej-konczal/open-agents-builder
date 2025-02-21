@@ -520,5 +520,7 @@
   "Invalid attachment": "Nieprawidłowy załącznik",
   "Invalid product": "Nieprawidłowy produkt",
   "No id provided": "Nie podano identyfikatora",
-  "Products and services": "Produkty i usługi"
+  "Products and services": "Produkty i usługi",
+  "Name": "Nazwa",
+  "+ Add attribute": "+ Dodaj atrybut"
 }
