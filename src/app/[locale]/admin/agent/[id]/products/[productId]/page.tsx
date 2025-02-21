@@ -16,10 +16,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { ProductVariantRow } from "@/components/product-variant-row";
 import { FileUploadStatus, UploadedFile, Product } from "@/data/client/models";
 import { useProductContext } from "@/contexts/product-context";
-import { getErrorMessage } from "@/lib/utils";
+import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import { useAgentContext } from "@/contexts/agent-context";
 import { MoveLeftIcon, TrashIcon, WandIcon } from "lucide-react";
+import { v4 as uuidv4 } from 'uuid';
+
 
 // ----------------------------------------------------
 // 1) Schemat walidacji Zod
@@ -293,6 +295,17 @@ export default function ProductFormPage() {
       file,
       status: FileUploadStatus.QUEUED,
       uploaded: false,
+      dto: {
+          displayName: file.name,
+          description: '',
+        
+          mimeType: file.type,
+          size: file.size,
+          storageKey: uuidv4(),
+        
+          createdAt: getCurrentTS(),
+          updatedAt: getCurrentTS(),                 
+      }      
     }));
     setUploadedFiles((prev) => [...prev, ...newFiles]);
     newFiles.forEach((f) => onUpload(f));
@@ -307,7 +320,16 @@ export default function ProductFormPage() {
     setUploadedFiles((prev) => [...prev]);
     try {
       // Symulacja
+      const formData = new FormData();
+      formData.append("file", fileToUpload.file); // TODO: encrypt file here
+      formData.append("attachmentDTO", JSON.stringify(fileToUpload.dto));
+      const apiClient = new EncryptedAttachmentApiClient('', dbContext, saasContext, {
+
+      
+      fileToUpload
       await new Promise((res) => setTimeout(res, 1500));
+
+
       fileToUpload.status = FileUploadStatus.SUCCESS;
       fileToUpload.uploaded = true;
       setUploadedFiles((prev) => [...prev]);
@@ -547,7 +569,7 @@ export default function ProductFormPage() {
                         variant="outline"
                         onClick={() => onUpload(f)}
                       >
-                        Retry
+                        {t('Retry')}
                       </Button>
                     )}
                     <Button
