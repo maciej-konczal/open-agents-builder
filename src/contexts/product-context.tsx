@@ -11,6 +11,7 @@ type ProductContextType = {
     current: Product | null;
     products: Product[];
     loaderStatus: DataLoadingStatus;
+    refreshDataSync: string;
 
     listProducts: () => Promise<Product[]>;
     loadProduct: (productId: string) => Promise<Product>;
@@ -36,6 +37,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
     // Stany
     const [current, setCurrent] = useState<Product | null>(null);
     const [products, setProducts] = useState<Product[]>([]);
+    const [refreshDataSync, setRefreshDataSync] = useState("");
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
 
     const setupApiClient = async (): Promise<ProductApiClient> => {
@@ -67,12 +69,17 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       };   
 
     const loadProduct = async (productId: string): Promise<Product> => {
+        setLoaderStatus(DataLoadingStatus.Loading);
         const client = await setupApiClient();
         const response = await client.get(productId);
-        if (response && response.total > 0)
+        if (response && response.total > 0) {
+            setLoaderStatus(DataLoadingStatus.Success);
             return Product.fromDTO(response.rows[0])
-        else 
-         throw new Error(t('Product not found'));
+        }
+        else {
+            setLoaderStatus(DataLoadingStatus.Error);
+            throw new Error(t('Product not found'));
+        }
     }
 
 
@@ -120,6 +127,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
             }
         });
 
+        setRefreshDataSync(new Date().toISOString());
+
         if (setAsCurrent) {
             setCurrent(updatedProduct);
         }
@@ -135,6 +144,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
             if (current?.id === product.id) {
                 setCurrent(null);
             }
+            setRefreshDataSync(new Date().toISOString());
         } else {
             console.error(resp.message);
             throw new Error(t(resp.message));
@@ -155,7 +165,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         setProducts,
         setLoaderStatus,
         queryProducts,
-        loadProduct
+        loadProduct,
+        refreshDataSync,
     };
 
     return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;

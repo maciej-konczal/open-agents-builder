@@ -19,10 +19,10 @@ export class AdminApiClient {
   private encryptionFilter: DTOEncryptionFilter<any> | null = null;
   private encryptionConfig?: ApiEncryptionConfig | null = null;
   private encryptionUtils: EncryptionUtils | null = null;
-  private dbContext?: DatabaseContextType | null = null;
-  private saasContext?: SaaSContextType | null = null;
-  private saasToken: string | null = null;
-  private databaseIdHash: string | null = null;
+  protected dbContext?: DatabaseContextType | null = null;
+  protected saasContext?: SaaSContextType | null = null;
+  protected saasToken: string | null = null;
+  protected databaseIdHash: string | null = null;
 
   constructor(baseUrl?: string, databaseContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
     this.baseUrl = baseUrl || '';
@@ -47,10 +47,9 @@ export class AdminApiClient {
 
   public async getArrayBuffer(
     endpoint: string,
-    repeatedRequestAccessToken = ''
+    repeatedRequestAccessToken = '',
+    headers: Record<string, string> = {}
   ): Promise<ArrayBuffer | null | undefined> {
-    const headers: Record<string, string> = {};
-
     if (this.dbContext?.accessToken || repeatedRequestAccessToken) {
       headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;
     }

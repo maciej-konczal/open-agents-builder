@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { BoxIcon, FolderOpenIcon, Loader2, OptionIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
+import { BoxIcon, FolderOpenIcon, Loader2, OptionIcon, TagIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -20,6 +20,10 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAgentContext } from "@/contexts/agent-context";
 import { SelectIcon } from "@radix-ui/react-select";
+import ZoomableImage from "@/components/zoomable-image";
+import { ProductDeleteDialog } from "@/components/product-delete-dialog";
+import Image from "next/image";
+import { Price } from "@/components/price";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -70,7 +74,7 @@ export default function ProductsPage() {
       }
       setProductsLoading(false);
     })();
-  }, [debouncedSearchQuery]);
+  }, [debouncedSearchQuery, productContext.refreshDataSync]);
 
   useEffect(() => {
     setHasMore(
@@ -142,8 +146,9 @@ export default function ProductsPage() {
         </NoRecordsAlert>
       ) : null}
 
+      <div className="grid grid-cols-2 gap-6">
       {productsData.rows.map((product) => (
-        <Card key={product.id}>
+        <Card key={product.id} className="">
           <CardHeader>
             <CardTitle>
                 <Button
@@ -156,52 +161,72 @@ export default function ProductsPage() {
                 <FolderOpenIcon className="w-4 h-4" />
             </Button>
             {product.name}</CardTitle>
+            <div className="flex items-center text-sm space-x-2 mt-4">
+                <div className="flex space-x-2"><TagIcon className="w-4 h-4 mr-2" /> {t('Price: ')} </div>
+                <div>
+                    <Price currency={product.priceInclTax?.currency || ''} price={product.priceInclTax?.value} />
+                </div>
+            </div>
+            {product.variants && product.variants.length > 0 ? (
+                <div className="flex items-center text-sm space-x-2 mt-4">
+                    <div className="flex space-x-2"><OptionIcon className="w-4 h-4 mr-2" /> {t('Variants: ')} </div>
+                    <div>
+                        {product.variants.length}
+                    </div>
+                </div>
+            ) : null}
+
           </CardHeader>
           <CardContent className="text-sm">
             {product.imageUrl && (
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="max-w-sm mb-2"
-              />
+            <Link href={"/admin/agent/" + agentContext.current?.id + "/products/" + product.id}>
+                <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="mb-2 cursor-pointer"
+                />
+            </Link>
             )}
 
             {product.images && product.images.length > 0 && (
-              <div className="flex flex-row gap-2 mb-2">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {product.images.map((img, idx) => (
-                  <img
+                  <ZoomableImage
                     key={idx}
                     src={img.url}
                     alt={img.alt || product.name}
-                    className="w-16 h-16 object-cover"
+                    className="w-16 h-16 object-cover cursor-pointer"
                   />
                 ))}
               </div>
             )}
 
-            {product.description && <p className="mb-2">{product.description}</p>}
+            {product.description && <p className="mb-6 mt-6 text-xs">{product.description}</p>}
 
             {product.attributes && product.attributes.length > 0 && (
-              <div className="mb-2">
-                <strong>Attributes:</strong>
-                <ul>
+              <div className="mb-2 flex flex-wrap gap-2">
                   {product.attributes.slice(0, product.attributes.length > 4 ? 4 : product.attributes.length).map((attr, idx) => (
-                    <li key={idx} className="flex text-xs">
-                      {attr.type === "select" ?(
+                    <div key={idx} className="flex items-center text-xs p-2 border rounded w-fit">
+                      {attr.type === "select" ? (
                         <TextIcon className="w-4 h-4 mr-1" />
-                      ) : (<TextCursorInputIcon className="w-4 h-4 mr-1" />)}{attr.name}:{" "}
+                      ) : (
+                        <TextCursorInputIcon className="w-4 h-4 mr-1" />
+                      )}
+                      {attr.name}:{" "}
                       {attr.type === "select"
                         ? `${(attr.values || []).join(" / ")}`
                         : attr.defaultValue ?? ""}
-                    </li>
+                    </div>
                   ))}
-                </ul>
-              </div>
+                </div>
             )}
+            <div className="flex justify-end">
+              <ProductDeleteDialog  product={product} />
+            </div>
           </CardContent>
         </Card>
       ))}
-
+</div>
       <InfiniteScroll
         hasMore={hasMore}
         isLoading={productsLoading}

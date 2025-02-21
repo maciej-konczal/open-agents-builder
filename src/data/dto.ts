@@ -315,12 +315,15 @@ const productVariantSchema = z.object({
 });
 
 const productImageSchema = z.object({
-  id: z.string(),
   storageKey: z.string().optional(),
   url: z.string().url(),
   alt: z.string().optional(),
 });
 
+export enum StorageSchemas  {
+  Commerce = "commerce",
+  Default = ""
+}
 
 export const productDTOSchema = z.object({
   id: z.string().optional(),

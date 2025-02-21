@@ -4,7 +4,7 @@ import { ZodError, ZodObject } from "zod";
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeKey } from "@/data/server/server-key-helpers";
 import { jwtVerify } from "jose";
-import { defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO } from "@/data/dto";
+import { defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO, StorageSchemas } from "@/data/dto";
 import { Key } from "react";
 import { PlatformApiClient } from "@/data/server/platform-api-client";
 import NodeCache from "node-cache";
@@ -129,6 +129,15 @@ export async function authorizeSaasToken(databaseIdHash?:string | null, saasToke
                 }
             }
         }
+    }
+}
+
+export async function authorizeStorageSchema(request: Request, response?: NextResponse): Promise<string> {
+    const storageSchema = request.headers.get('Storage-Schema') || StorageSchemas.Default;
+    if (storageSchema && [StorageSchemas.Commerce, StorageSchemas.Default].includes(storageSchema as StorageSchemas)) {
+        return storageSchema;
+    } else {
+        throw new Error('Unauthorized. Wrong Storage Partition');
     }
 }
 

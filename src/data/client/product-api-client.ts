@@ -5,6 +5,8 @@ import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { DatabaseContextType } from "@/contexts/db-context";
 import { urlParamsForQuery } from "./base-api-client";
+import { Product } from "./models";
+import { Attachment } from "ai";
 
 export type GetProductsResponse = ProductDTO[]; // kiedy zwykły GET
 export type GetProductsPaginatedResponse = PaginatedResult<ProductDTO[]>;
@@ -57,6 +59,18 @@ export class ProductApiClient extends AdminApiClient {
         { ecnryptedFields: [] }
       ) as Promise<GetProductsPaginatedResponse>;
     }
+  }
+
+  async describe(product: Product, attId: string, locale: string): Promise<GetProductsResponse> {
+    return this.request<GetProductsResponse>(
+      `/api/product/descriptor/${attId}`,
+      "POST",
+      { ecnryptedFields: [] }, product.toDTO(),
+        undefined,undefined, {
+        'Database-Id-Hash': this.dbContext?.databaseIdHash ?? '',
+        'Agent-Locale': locale
+      }
+    ) as Promise<GetProductsResponse>;
   }
 
   async query(params: { limit: number; offset: number; orderBy?: string; query?: string; }): Promise<GetProductsPaginatedResponse> {

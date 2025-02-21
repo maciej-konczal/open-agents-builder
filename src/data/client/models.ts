@@ -23,7 +23,7 @@ export enum DatabaseAuthStatus {
 
 
 export type AttachmentAssigment = {
-    id: number;
+    id: string;
     type: string;
 }
 
@@ -578,7 +578,6 @@ export interface ProductVariant {
 }
 
 export interface ProductImage {
-    id: string;
     url: string;
     alt?: string;
     storageKey?: string;
@@ -700,55 +699,6 @@ export class Product {
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         };
-    }
-
-    /**
-     * Metoda toForm(...) – np. do React Hook Form
-     */
-    toForm(setValue?: (field: string, value: any) => void): Record<string, any> {
-        const formData: Record<string, any> = {
-            id: this.id,
-            agentId: this.agentId,
-
-            sku: this.sku,
-            name: this.name,
-            description: this.description ?? "",
-
-            price: this.price?.value ?? 0,
-            currency: this.price?.currency ?? "USD",
-
-            priceInclTax: this.priceInclTax?.value ?? 0,
-
-            taxRate: this.taxRate ?? 0,
-            taxValue: this.taxValue ?? 0,
-
-            width: this.width ?? 0,
-            height: this.height ?? 0,
-            length: this.length ?? 0,
-            weight: this.weight ?? 0,
-
-            widthUnit: this.widthUnit ?? "cm",
-            heightUnit: this.heightUnit ?? "cm",
-            lengthUnit: this.lengthUnit ?? "cm",
-            weightUnit: this.weightUnit ?? "kg",
-
-            brand: this.brand ?? "",
-            status: this.status ?? "active",
-
-            imageUrl: this.imageUrl ?? "",
-
-            attributes: this.attributes ?? [],
-            variants: this.variants ?? [],
-            images: this.images ?? [],
-            tags: this.tags ?? [],
-        };
-
-        if (setValue) {
-            Object.keys(formData).forEach((key) => {
-                setValue(key, formData[key]);
-            });
-        }
-        return formData;
     }
 
     /**

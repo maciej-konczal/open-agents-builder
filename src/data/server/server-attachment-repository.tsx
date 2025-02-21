@@ -1,4 +1,4 @@
-import { BaseRepository } from "./base-repository"
+import { BaseRepository, IFilter } from "./base-repository"
 import { AttachmentDTO } from "../dto";
 import { pool } from '@/data/server/db-provider'
 import { getCurrentTS } from "@/lib/utils";
@@ -37,6 +37,11 @@ export default class ServerAttachmentRepository extends BaseRepository<Attachmen
         const db = (await this.db());
         console.log(db.select().from(attachments).all());
         return Promise.resolve(db.select().from(attachments).all() as AttachmentDTO[])
+    }
+
+    async findOne(query: IFilter): Promise<AttachmentDTO | null> {
+        const db = (await this.db());
+        return db.select().from(attachments).where(eq(attachments.storageKey, query.storageKey)).get() as AttachmentDTO;
     }
 
 }
