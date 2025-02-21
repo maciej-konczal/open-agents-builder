@@ -19,10 +19,10 @@ export class AdminApiClient {
   private encryptionFilter: DTOEncryptionFilter<any> | null = null;
   private encryptionConfig?: ApiEncryptionConfig | null = null;
   private encryptionUtils: EncryptionUtils | null = null;
-  private dbContext?: DatabaseContextType | null = null;
-  private saasContext?: SaaSContextType | null = null;
-  private saasToken: string | null = null;
-  private databaseIdHash: string | null = null;
+  protected dbContext?: DatabaseContextType | null = null;
+  protected saasContext?: SaaSContextType | null = null;
+  protected saasToken: string | null = null;
+  protected databaseIdHash: string | null = null;
 
   constructor(baseUrl?: string, databaseContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
     this.baseUrl = baseUrl || '';

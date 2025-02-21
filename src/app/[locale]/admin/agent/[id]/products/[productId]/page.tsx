@@ -27,6 +27,8 @@ import { SaaSContext } from "@/contexts/saas-context";
 import { StorageSchemas } from "@/data/dto";
 import ZoomableImage from "@/components/zoomable-image";
 import { set } from "date-fns";
+import { ProductApiClient } from "@/data/client/product-api-client";
+import DataLoader from "@/components/data-loader";
 
 
 // ----------------------------------------------------
@@ -160,10 +162,12 @@ export default function ProductFormPage() {
   }
 
   // Funkcja mapująca ProductDTO -> ProductFormData
-  function mapDtoToFormData(loadedDto: any): ProductFormData {
+  function mapDtoToFormData(loadedDto: any, mapImages: boolean = true): ProductFormData {
     const taxRatePercent = (loadedDto.taxRate || 0) * 100;
-    setImages(loadedDto.images || []);
-    setDefaultImageUrl(loadedDto.imageUrl || null);
+    if (mapImages) {
+      setImages(loadedDto.images || []);
+      setDefaultImageUrl(loadedDto.imageUrl || null);
+    }
     return {
       name: loadedDto.name || "",
       description: loadedDto.description || "",
@@ -298,6 +302,7 @@ export default function ProductFormPage() {
   const [removedFiles, setRemovedFiles] = useState<UploadedFile[]>([]);
   const [images, setImages] = useState<ProductImage[]>([]);
   const [defaultImageUrl, setDefaultImageUrl] = useState<string | null>(null);
+  const [aiProcessing, setAiProcessing] = useState(false);
 
   useEffect(() => {
     uploadedFiles.filter(uf=>images.map(im=>im.storageKey).indexOf(uf.dto?.storageKey) < 0).forEach((f) => {
@@ -383,13 +388,11 @@ export default function ProductFormPage() {
     }
   }, []);
 
-  // 8) Submit
-  const onSubmit = async (formData: ProductFormData, addNext: boolean) => {
-    // Stawka w ułamku
+
+  const productFromFormData = (formData: ProductFormData): Product => {
     const decimalTaxRate = formData.taxRate / 100;
 
-    // Budujemy docelowy obiekt
-    const newProduct = Product.fromForm({
+    return Product.fromForm({
       // Jeżeli edycja => params.productId
       id: (params?.productId && params.productId !== "new") ? params.productId : nanoid(),
 
@@ -403,7 +406,7 @@ export default function ProductFormPage() {
 
       images,
 
-      imageUrl: defaultImageUrl || images[0]?.url || "",
+      imageUrl: defaultImageUrl || images[0]?.url || null,
 
       // Attributes
       attributes: formData.attributes.map((a) => {
@@ -450,6 +453,12 @@ export default function ProductFormPage() {
         variantAttributes: v.variantAttributes,
       })),
     });
+  }
+
+  // 8) Submit
+  const onSubmit = async (formData: ProductFormData, addNext: boolean) => {
+    // Budujemy docelowy obiekt
+    const newProduct = productFromFormData(formData);
 
     try {
       const saved = await productContext.updateProduct(newProduct, true);
@@ -550,6 +559,31 @@ export default function ProductFormPage() {
                     }}>
                       <ImageIcon className="w-4 h-4" />
                     </Button>
+
+                    {aiProcessing ? (
+                        <Button disabled size="icon" className="relative top-[-38px] left-[6px]"> 
+                          <svg className="size-5 animate-spin text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>                        
+                        </Button>                          
+                    ) : (
+                      <Button title={t('AI: Auto describe product')} variant={"outline"} size="icon" className="relative top-[-38px] left-[6px]" onClick={(e) => {
+                        e.preventDefault();
+                        const cl = new ProductApiClient('', dbContext, saasContext);
+                        setAiProcessing(true)
+                        const prd:Product = productFromFormData(methods.getValues());
+                        if (!prd.name) prd.name = 'New Product';
+              
+                        if (image.storageKey) cl.describe(prd, image.storageKey, i18n.language).then((result) => {
+                          setAiProcessing(false);
+                          const formData: ProductFormData = mapDtoToFormData(result, false);
+                          reset(formData);
+                        }).catch(e => {
+                          console.error(e);
+                          toast.error(getErrorMessage(e));
+                        });
+                      }}>
+                        <WandIcon className="w-4 h-4" />
+                      </Button>          
+                    )}            
                   </div>
                 ))}
               </div>

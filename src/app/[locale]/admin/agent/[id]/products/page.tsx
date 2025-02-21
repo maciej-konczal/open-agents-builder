@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { BoxIcon, FolderOpenIcon, Loader2, OptionIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
+import { BoxIcon, FolderOpenIcon, Loader2, OptionIcon, TagIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,8 @@ import { useAgentContext } from "@/contexts/agent-context";
 import { SelectIcon } from "@radix-ui/react-select";
 import ZoomableImage from "@/components/zoomable-image";
 import { ProductDeleteDialog } from "@/components/product-delete-dialog";
+import Image from "next/image";
+import { Price } from "@/components/price";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -159,14 +161,31 @@ export default function ProductsPage() {
                 <FolderOpenIcon className="w-4 h-4" />
             </Button>
             {product.name}</CardTitle>
+            <div className="flex items-center text-sm space-x-2 mt-4">
+                <div className="flex space-x-2"><TagIcon className="w-4 h-4 mr-2" /> {t('Price: ')} </div>
+                <div>
+                    <Price currency={product.priceInclTax?.currency || ''} price={product.priceInclTax?.value} />
+                </div>
+            </div>
+            {product.variants && product.variants.length > 0 ? (
+                <div className="flex items-center text-sm space-x-2 mt-4">
+                    <div className="flex space-x-2"><OptionIcon className="w-4 h-4 mr-2" /> {t('Variants: ')} </div>
+                    <div>
+                        {product.variants.length}
+                    </div>
+                </div>
+            ) : null}
+
           </CardHeader>
           <CardContent className="text-sm">
             {product.imageUrl && (
-              <ZoomableImage
-                src={product.imageUrl}
-                alt={product.name}
-                className="mb-2 cursor-pointer"
-              />
+            <Link href={"/admin/agent/" + agentContext.current?.id + "/products/" + product.id}>
+                <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="mb-2 cursor-pointer"
+                />
+            </Link>
             )}
 
             {product.images && product.images.length > 0 && (

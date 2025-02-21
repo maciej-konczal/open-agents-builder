@@ -16,16 +16,17 @@ import { createCalendarScheduleTool } from '@/tools/calendarScheduleTool';
 import { createUpdateResultTool } from '@/tools/updateResultTool';
 import { CoreMessage, generateObject, generateText, streamText } from 'ai';
 import { NextRequest } from 'next/server';
+import { parse } from 'path';
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-export async function POST(req: NextRequest, { params }: { params: { storageKey: string, productId: string } }) {
+export async function POST(req: NextRequest, { params }: { params: { storageKey: string  } }) {
   const databaseIdHash = req.headers.get('Database-Id-Hash');
   const locale = req.headers.get('Agent-Locale') || 'en';
 
   if(!databaseIdHash ) {
-    return Response.json('The required HTTP headers: Database-Id-Hash and Agent-Id missing', { status: 400 });
+    return Response.json('The required HTTP headers: Database-Id-Hash', { status: 400 });
   }
 
   const saasContext = await authorizeSaasContext(req);
@@ -47,43 +48,50 @@ export async function POST(req: NextRequest, { params }: { params: { storageKey:
   }
 
   const attRepo = new ServerAttachmentRepository(databaseIdHash, 'commerce');
-  const prodRepo = new ServerProductRepository(databaseIdHash, 'commerce');
 
   const attachment = Attachment.fromDTO(await attRepo.findOne({storageKey: params.storageKey}) as AttachmentDTO);  
-  const product = await prodRepo.findOne({id: params.productId});
+  const parsed = await productDTOSchema.safeParse(await req.json());
+
+  if(parsed.success === false) {
+    return Response.json({ message: parsed.error.message, status: 400 }, { status: 400 });
+  } 
 
   if (!attachment || !attachment.mimeType?.startsWith('image')) {
     return Response.json({ message: "Invalid attachment", status: 400 }, { status: 400 });
   }
 
-  if (!product) {
+  if (!parsed.data) {
     return Response.json({ message: "Invalid product", status: 400 }, { status: 400 });
   }
 
   const srv: StorageService = new StorageService(databaseIdHash, 'commerce');
   const imageContent = srv.readAttachment(attachment.storageKey);
 
-  const systemPrompt = await renderPrompt(locale, 'describe-product', { product });
+  const systemPrompt = await renderPrompt(locale, 'describe-product', { product: parsed.data });
+
+  const messages:CoreMessage[] = [
+    {
+      content: systemPrompt,
+      role: 'user',          
+    },
+    {
+      role: 'user',
+      content: [{
+                  type: 'image',
+                  image: `data:${attachment.mimeType};base64,${Buffer.from(imageContent).toString('base64')}`
+               }]
+    },
+    {
+      role: 'user',
+      content: JSON.stringify(parsed.data)
+    }
+  ] as CoreMessage[]
 
   try {
     const { object }  = await generateObject({
       model: llmProviderSetup(),
       maxSteps: 10,  
-      prompt: systemPrompt,
-      messages: [
-        {
-          content: systemPrompt,
-          role: 'user',          
-        },
-        {
-          type: 'image',
-          image: `data:${attachment.mimeType};base64,${Buffer.from(imageContent).toString('base64')}`
-        },
-        {
-          type: 'text',
-          content: JSON.stringify(product)
-        }
-      ] as CoreMessage[],
+      messages,
       schema: productDTOSchema,
       async onFinish({ response, usage }) {
       
@@ -106,8 +114,8 @@ export async function POST(req: NextRequest, { params }: { params: { storageKey:
 
       },    
     });
-    console.log(object)
-    return object
+
+    return Response.json(object, { status: 200 });
   } catch (error) {
     console.error('Error streaming text:', getErrorMessage(error));
     return Response.json({ message: getErrorMessage(error) }, { status: 500 });
