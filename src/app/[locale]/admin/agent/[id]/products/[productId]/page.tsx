@@ -465,6 +465,37 @@ export default function ProductFormPage() {
               )}
             </div>
 
+            {/* UPLOAD PLIKÓW */}
+            <div>
+              <label className="block font-medium mb-2">Photos</label>
+              <Input type="file" multiple onChange={handleFileSelect} />
+              <div className="mt-2 space-y-2">
+                {uploadedFiles.map((f) => (
+                  <div key={f.id} className="flex items-center gap-2">
+                    <span className="flex-1">
+                      {f.file.name} - {f.status}
+                    </span>
+                    {f.status === FileUploadStatus.ERROR && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => onUpload(f)}
+                      >
+                        {t('Retry')}
+                      </Button>
+                    )}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => removeFileFromQueue(f.id)}
+                    >
+                      <TrashIcon className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>            
+
             {/* DESCRIPTION */}
             <div>
               <label className="block font-medium mb-1">Description</label>
@@ -563,37 +594,6 @@ export default function ProductFormPage() {
                     {errors.currency.message as string}
                   </p>
                 )}
-              </div>
-            </div>
-
-            {/* UPLOAD PLIKÓW */}
-            <div>
-              <label className="block font-medium mb-2">Photos</label>
-              <Input type="file" multiple onChange={handleFileSelect} />
-              <div className="mt-2 space-y-2">
-                {uploadedFiles.map((f) => (
-                  <div key={f.id} className="flex items-center gap-2">
-                    <span className="flex-1">
-                      {f.file.name} - {f.status}
-                    </span>
-                    {f.status === FileUploadStatus.ERROR && (
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => onUpload(f)}
-                      >
-                        {t('Retry')}
-                      </Button>
-                    )}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => removeFileFromQueue(f.id)}
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
               </div>
             </div>
           </TabsContent>

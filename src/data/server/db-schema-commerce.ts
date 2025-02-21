@@ -3,6 +3,9 @@
 import { sqliteTable, text, real, integer } from 'drizzle-orm/sqlite-core';
 import { sql } from "drizzle-orm";
 
+
+export { attachments }  from './db-schema'
+
 export const products = sqliteTable('products', {
   id: text('id').primaryKey(),
 
