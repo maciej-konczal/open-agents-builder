@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { useAgentContext } from "@/contexts/agent-context";
 import { SelectIcon } from "@radix-ui/react-select";
 import ZoomableImage from "@/components/zoomable-image";
+import { ProductDeleteDialog } from "@/components/product-delete-dialog";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -71,7 +72,7 @@ export default function ProductsPage() {
       }
       setProductsLoading(false);
     })();
-  }, [debouncedSearchQuery]);
+  }, [debouncedSearchQuery, productContext.refreshDataSync]);
 
   useEffect(() => {
     setHasMore(
@@ -143,9 +144,9 @@ export default function ProductsPage() {
         </NoRecordsAlert>
       ) : null}
 
-      <div className="grid grid-cols-2">
+      <div className="grid grid-cols-2 gap-6">
       {productsData.rows.map((product) => (
-        <Card key={product.id} className="m-4">
+        <Card key={product.id} className="">
           <CardHeader>
             <CardTitle>
                 <Button
@@ -164,7 +165,7 @@ export default function ProductsPage() {
               <ZoomableImage
                 src={product.imageUrl}
                 alt={product.name}
-                className="max-w-sm mb-2 cursor-pointer"
+                className="mb-2 cursor-pointer"
               />
             )}
 
@@ -200,6 +201,9 @@ export default function ProductsPage() {
                   ))}
                 </div>
             )}
+            <div className="flex justify-end">
+              <ProductDeleteDialog  product={product} />
+            </div>
           </CardContent>
         </Card>
       ))}

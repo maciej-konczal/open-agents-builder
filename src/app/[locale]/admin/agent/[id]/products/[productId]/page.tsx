@@ -19,7 +19,7 @@ import { useProductContext } from "@/contexts/product-context";
 import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import { useAgentContext } from "@/contexts/agent-context";
-import { MoveLeftIcon, TrashIcon, WandIcon } from "lucide-react";
+import { ImageIcon, MoveLeftIcon, TrashIcon, WandIcon } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import { AttachmentApiClient } from "@/data/client/attachment-api-client";
 import { DatabaseContext } from "@/contexts/db-context";
@@ -163,6 +163,7 @@ export default function ProductFormPage() {
   function mapDtoToFormData(loadedDto: any): ProductFormData {
     const taxRatePercent = (loadedDto.taxRate || 0) * 100;
     setImages(loadedDto.images || []);
+    setDefaultImageUrl(loadedDto.imageUrl || null);
     return {
       name: loadedDto.name || "",
       description: loadedDto.description || "",
@@ -296,10 +297,14 @@ export default function ProductFormPage() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [removedFiles, setRemovedFiles] = useState<UploadedFile[]>([]);
   const [images, setImages] = useState<ProductImage[]>([]);
+  const [defaultImageUrl, setDefaultImageUrl] = useState<string | null>(null);
 
   useEffect(() => {
     uploadedFiles.filter(uf=>images.map(im=>im.storageKey).indexOf(uf.dto?.storageKey) < 0).forEach((f) => {
       if (f.status === FileUploadStatus.SUCCESS && f.uploaded) {
+        if (!defaultImageUrl) {
+          setDefaultImageUrl(`${process.env.NEXT_PUBLIC_APP_URL}/storage/product/${dbContext?.databaseIdHash}/${f.dto?.storageKey}`);
+        }
         // Dodajemy do images
         setImages((prev) => [
           ...prev,
@@ -338,6 +343,7 @@ export default function ProductFormPage() {
 
   const removeFileFromQueue = useCallback((file: UploadedFile) => {
     setRemovedFiles([...removedFiles, file]);
+    if(defaultImageUrl && defaultImageUrl?.indexOf(file.dto?.storageKey || '') > 0) setDefaultImageUrl(null);
     setImages((prev) => prev.filter((im) => im.storageKey !== file.dto?.storageKey));
     setUploadedFiles((prev) => prev.filter((f) => f.id !== file.id));
   }, []);
@@ -396,6 +402,8 @@ export default function ProductFormPage() {
       taxRate: decimalTaxRate,
 
       images,
+
+      imageUrl: defaultImageUrl || images[0]?.url || "",
 
       // Attributes
       attributes: formData.attributes.map((a) => {
@@ -473,6 +481,8 @@ export default function ProductFormPage() {
         
         if (addNext) {
           router.push(`/admin/agent/${agentContext?.current?.id}/products/new`);          
+        } else {
+          router.push(`/admin/agent/${agentContext?.current?.id}/products`);                    
         }
       } else {
         toast.error("Error saving product");
@@ -520,10 +530,11 @@ export default function ProductFormPage() {
               <label className="block font-medium mb-2">{t('Images')}</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {images.map((image, index) => (
-                  <div key={index} className="w-36 h-36">
+                  <div key={index} className={`w-36 h-36 ${defaultImageUrl === image.url ? 'border-4 border-blue-500' : ''}`}>
                     <ZoomableImage src={image.url} alt={image.alt} className="cursor-pointer w-full h-full object-cover" />
                       <Button variant={"outline"} size="icon" className="relative top-[-38px] left-[2px]" onClick={(e) => {
                         e.preventDefault();
+                        if(defaultImageUrl && defaultImageUrl?.indexOf(image.storageKey || '') > 0) setDefaultImageUrl(null);
                         setImages((prev) => prev.filter((im) => im.storageKey !== image.storageKey));
                         const ufo = uploadedFiles.find((f) => f.dto?.storageKey === image.storageKey);
                         if (ufo) {
@@ -532,6 +543,12 @@ export default function ProductFormPage() {
                         }
                       }}>
                       <TrashIcon className="w-4 h-4" />
+                    </Button>
+                    <Button title={t('Set as default image')} variant={"outline"} size="icon" className="relative top-[-38px] left-[4px]" onClick={(e) => {
+                      e.preventDefault();
+                      setDefaultImageUrl(image.url);
+                    }}>
+                      <ImageIcon className="w-4 h-4" />
                     </Button>
                   </div>
                 ))}
