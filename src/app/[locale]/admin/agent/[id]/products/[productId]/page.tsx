@@ -223,7 +223,7 @@ export default function ProductFormPage() {
       }));
 
     if (!selectAttributes.length || selectAttributes.some((sa) => !sa.values.length)) {
-      toast.error("No valid select attributes or empty values.");
+      toast.error(t("No valid select attributes or empty values."));
       return;
     }
 
@@ -463,7 +463,7 @@ export default function ProductFormPage() {
     try {
       const saved = await productContext.updateProduct(newProduct, true);
       if (saved?.id) {
-        toast.success("Product saved!");
+        toast.success(t("Product saved!"));
 
         const aac = new AttachmentApiClient('', StorageSchemas.Commerce, dbContext, saasContext, { useEncryption: false });
 
@@ -535,10 +535,10 @@ export default function ProductFormPage() {
               <Input
               autoFocus 
                 {...register("name")}
-                placeholder="Product name..."
+                placeholder={t("Product name...")}
               />
               {errors.name && (
-                <p className="text-red-500 text-sm">{errors.name.message}</p>
+                <p className="text-red-500 text-sm">{t(errors.name.message || '')}</p>
               )}
             </div>
 
@@ -586,7 +586,7 @@ export default function ProductFormPage() {
                           reset(formData);
                         }).catch(e => {
                           console.error(e);
-                          toast.error(getErrorMessage(e));
+                          toast.error(t(getErrorMessage(e)));
                         });
                       }}>
                         <WandIcon className="w-4 h-4" />
@@ -630,29 +630,29 @@ export default function ProductFormPage() {
 
             {/* DESCRIPTION */}
             <div>
-              <label className="block font-medium mb-1">Description</label>
+              <label className="block font-medium mb-1">{t('Description')}</label>
               <Textarea
                 rows={8}
                 {...register("description")}
-                placeholder="Describe your product..."
+                placeholder={t("Describe your product...")}
               />
               {errors.description && (
                 <p className="text-red-500 text-sm">
-                  {errors.description.message as string}
+                  {t(errors.description.message as string)}
                 </p>
               )}
             </div>
 
             {/* SKU */}
             <div>
-              <label className="block font-medium mb-1">Product SKU</label>
+              <label className="block font-medium mb-1">{t('Product SKU')}</label>
               <Input
                 {...register("sku")}
-                placeholder="SKU..."
+                placeholder={t("SKU...")}
               />
               {errors.sku && (
                 <p className="text-red-500 text-sm">
-                  {errors.sku.message as string}
+                  {t(errors.sku.message as string)}
                 </p>
               )}
             </div>
@@ -660,7 +660,7 @@ export default function ProductFormPage() {
             {/* PRICE / TAX */}
             <div className="flex gap-4">
               <div className="flex-1">
-                <label className="block font-medium mb-1">Price (net)</label>
+                <label className="block font-medium mb-1">{t('Price (net)')}</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -681,7 +681,7 @@ export default function ProductFormPage() {
                 )}
               </div>
               <div className="flex-1">
-                <label className="block font-medium mb-1">Price (incl. tax)</label>
+                <label className="block font-medium mb-1">{t('Price (incl. tax)')}</label>
                 <Input
                   type="number"
                   step="0.01"
@@ -695,12 +695,12 @@ export default function ProductFormPage() {
                 />
                 {errors.priceInclTax && (
                   <p className="text-red-500 text-sm">
-                    {errors.priceInclTax.message as string}
+                    {t(errors.priceInclTax.message as string)}
                   </p>
                 )}
               </div>
               <div className="flex-1">
-                <label className="block font-medium mb-1">Tax Rate (%)</label>
+                <label className="block font-medium mb-1">{t('Tax Rate (%)')}</label>
                 <Input
                   type="number"
                   step="1"
@@ -708,12 +708,12 @@ export default function ProductFormPage() {
                 />
                 {errors.taxRate && (
                   <p className="text-red-500 text-sm">
-                    {errors.taxRate.message as string}
+                    {t(errors.taxRate.message as string)}
                   </p>
                 )}
               </div>
               <div className="flex-1">
-                <label className="block font-medium mb-1">Currency</label>
+                <label className="block font-medium mb-1">{t('Currency')}</label>
                 <select className="border rounded p-2 w-full" {...register("currency")}>
                   {sortedCurrencyList.map((c) => (
                     <option key={c} value={c}>
@@ -723,7 +723,7 @@ export default function ProductFormPage() {
                 </select>
                 {errors.currency && (
                   <p className="text-red-500 text-sm">
-                    {errors.currency.message as string}
+                    {t(errors.currency.message as string)}
                   </p>
                 )}
               </div>
@@ -732,23 +732,23 @@ export default function ProductFormPage() {
           <TabsContent value="advanced" className="p-4 text-sm space-y-4">
             {/* ATTRIBUTES */}
             <div>
-              <label className="block font-medium mb-2">Attributes</label>
+              <label className="block font-medium mb-2">{t('Attributes')}</label>
               {attributeFields.map((field, i) => (
                 <div key={field.id} className="flex gap-2 mb-2">
                   <Input
                     {...register(`attributes.${i}.attrName`)}
-                    placeholder="Attribute name"
+                    placeholder={t("Attribute name")}
                   />
                   <select
                     className="border rounded p-2"
                     {...register(`attributes.${i}.attrType`)}
                   >
-                    <option value="text">Text</option>
-                    <option value="select">Select</option>
+                    <option value="text">{t('Text')}</option>
+                    <option value="select">{t('Select')}</option>
                   </select>
                   <Input
                     {...register(`attributes.${i}.attrValues`)}
-                    placeholder="Values (comma-separated for select; single text otherwise)"
+                    placeholder={t("Values (comma-separated for select; single text otherwise)")}
                   />
                   <Button
                     type="button"
@@ -780,7 +780,7 @@ export default function ProductFormPage() {
             {/* VARIANTS */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block font-medium">Variants</label>
+                <label className="block font-medium">{t('Variants')}</label>
                 <Button
                   type="button"
                   variant="secondary"
@@ -812,18 +812,18 @@ export default function ProductFormPage() {
                   })
                 }
               >
-                + Add Variant
+                {t('+ Add Variant')}
               </Button>
             </div>
 
 
             {/* TAGS */}
             <div>
-              <label className="block font-medium mb-2">Tags (comma separated)</label>
-              <Input {...register("tags")} placeholder="e.g. 'new, sale, featured'" />
+              <label className="block font-medium mb-2">{t('Tags (comma separated)')}</label>
+              <Input {...register("tags")} placeholder={t("e.g. 'new, sale, featured'")} />
               {errors.tags && (
                 <p className="text-red-500 text-sm">
-                  {errors.tags.message as string}
+                  {t(errors.tags.message as string)}
                 </p>
               )}
             </div>
