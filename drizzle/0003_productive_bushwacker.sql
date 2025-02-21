@@ -11,7 +11,6 @@ CREATE TABLE `results` (
 	FOREIGN KEY (`sessionId`) REFERENCES `sessions`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
-DROP TABLE `Attachments`;--> statement-breakpoint
 ALTER TABLE `sessions` DROP COLUMN `result`;--> statement-breakpoint
 ALTER TABLE `sessions` DROP COLUMN `prompt`;--> statement-breakpoint
 ALTER TABLE `sessions` DROP COLUMN `safetyRules`;

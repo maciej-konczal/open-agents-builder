@@ -321,6 +321,10 @@ const productImageSchema = z.object({
   alt: z.string().optional(),
 });
 
+export enum StorageSchemas  {
+  Commerce = "commerce",
+  Default = ""
+}
 
 export const productDTOSchema = z.object({
   id: z.string().optional(),

@@ -1,12 +1,13 @@
-import { AttachmentDTO, attachmentDTOSchema } from "@/data/dto";
+import { AttachmentDTO, attachmentDTOSchema, StorageSchemas } from "@/data/dto";
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
-import { authorizeRequestContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeRequestContext, authorizeStorageSchema, genericGET, genericPUT } from "@/lib/generic-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 
 // Rest of the code
+
 
 export async function PUT(request: NextRequest, response: NextResponse) {
     if (request.headers.get("Content-Type") === "application/json") {
@@ -20,12 +21,13 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 
 async function handlePUTRequest(inputJson: any, request: NextRequest, response: NextResponse, file?: File) {
     const requestContext = await authorizeRequestContext(request, response);
+    const storageSchema = await authorizeStorageSchema(request, response);
 
-    const storageService = new StorageService(requestContext.databaseIdHash);
+    const storageService = new StorageService(requestContext.databaseIdHash, storageSchema);
     let apiResult = await genericPUT<AttachmentDTO>(
         inputJson,
         attachmentDTOSchema,
-        new ServerAttachmentRepository(requestContext.databaseIdHash),
+        new ServerAttachmentRepository(requestContext.databaseIdHash, storageSchema),
         'id'
     );
     if (apiResult.status === 200) { // validation went OK, now we can store the file

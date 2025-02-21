@@ -47,10 +47,9 @@ export class AdminApiClient {
 
   public async getArrayBuffer(
     endpoint: string,
-    repeatedRequestAccessToken = ''
+    repeatedRequestAccessToken = '',
+    headers: Record<string, string> = {}
   ): Promise<ArrayBuffer | null | undefined> {
-    const headers: Record<string, string> = {};
-
     if (this.dbContext?.accessToken || repeatedRequestAccessToken) {
       headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;
     }

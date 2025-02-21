@@ -25,25 +25,38 @@ export type PutAttachmentResponseError = {
 export type PutAttachmentResponse = PutAttachmentResponseSuccess | PutAttachmentResponseError;
 
 export class AttachmentApiClient extends AdminApiClient {
-    constructor(baseUrl: string, dbContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
+    storageSchema: string; 
+
+    constructor(baseUrl: string, storageSchema: string, dbContext?: DatabaseContextType | null, saasContext?: SaaSContextType | null, encryptionConfig?: ApiEncryptionConfig) {
       super(baseUrl, dbContext, saasContext, encryptionConfig);
+      this.storageSchema = storageSchema;
     }
 
   
     async put(inputObject:PutAttachmentRequest): Promise<PutAttachmentResponse> {
       if (inputObject instanceof FormData) {
-        return this.request<PutAttachmentResponse>('/api/attachment', 'PUT', { ecnryptedFields: [] }, null, inputObject as FormData) as Promise<PutAttachmentResponse>;
+        return this.request<PutAttachmentResponse>('/api/attachment', 'PUT', { ecnryptedFields: [] }, null, inputObject as FormData, undefined, {
+          'Storage-Schema': this.storageSchema
+        }) as Promise<PutAttachmentResponse>;
       } else {
-        return this.request<PutAttachmentResponse>('/api/attachment', 'PUT', { ecnryptedFields: ['displayName'] }, inputObject as AttachmentDTO) as Promise<PutAttachmentResponse>;
+        return this.request<PutAttachmentResponse>('/api/attachment', 'PUT', { ecnryptedFields: ['displayName'] }, inputObject as AttachmentDTO, undefined, undefined, {
+          'Storage-Schema': this.storageSchema
+        }) as Promise<PutAttachmentResponse>;
       }
     }
 
     async get(attachment: AttachmentDTO): Promise<ArrayBuffer | undefined | null> {
-      return this.getArrayBuffer('/api/attachment/' + attachment.storageKey);
+      return this.getArrayBuffer('/api/attachment/' + attachment.storageKey, undefined, {
+        'Storage-Schema': this.storageSchema
+      });
     }
 
     async delete(attachment: AttachmentDTO): Promise<DeleteAttachmentResponse> {
-      return this.request<DeleteAttachmentResponse>('/api/attachment/' + attachment.storageKey, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteAttachmentResponse>;
+      return this.request<DeleteAttachmentResponse>('/api/attachment/' + attachment.storageKey, 'DELETE', { ecnryptedFields: [] }, undefined, undefined, undefined,
+        {
+          'Storage-Schema': this.storageSchema
+        }
+      ) as Promise<DeleteAttachmentResponse>;
     }
     
   }
