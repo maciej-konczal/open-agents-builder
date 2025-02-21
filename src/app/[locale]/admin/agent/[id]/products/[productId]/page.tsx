@@ -307,7 +307,7 @@ export default function ProductFormPage() {
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
-    const newFiles = Array.from(e.target.files).map((file) => ({
+    const newFiles = Array.from(e.target.files).filter(f=>f.type.startsWith('image')).map((file) => ({
       id: nanoid(),
       file,
       status: FileUploadStatus.QUEUED,
@@ -509,7 +509,7 @@ export default function ProductFormPage() {
             {/* UPLOAD PLIKÓW */}
             <div>
               <label className="block font-medium mb-2">{t('Photos')}</label>
-              <Input type="file" accept=".png;*.jpg;*.webp" multiple onChange={handleFileSelect} />
+              <Input type="file" accept="image/*" multiple onChange={handleFileSelect} />
               <div className="mt-2 space-y-2">
                 {uploadedFiles.map((f) => (
                   <div key={f.id} className="flex items-center gap-2">
