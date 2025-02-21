@@ -48,7 +48,7 @@ const sidebarItems = [
   },
   { 
     icon: BoxesIcon, 
-    label: 'Products', 
+    label: 'Products and services', 
     href: '/admin/agent/[id]/products',
     pattern: '(.*)/products/(.*)',
     activeOnlyOnSavedAgent: true
