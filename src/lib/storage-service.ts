@@ -18,7 +18,6 @@ export class StorageService {
         if (!fs.existsSync(this.uploadPath)) {
             fs.mkdirSync(this.uploadPath, { recursive: true });
         }
-        console.log('AAA',this.uploadPath)
         fs.writeFileSync(path.resolve(this.uploadPath, storageKey), buffer);
     }
 

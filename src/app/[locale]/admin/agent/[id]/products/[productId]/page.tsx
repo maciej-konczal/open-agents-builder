@@ -25,6 +25,7 @@ import { AttachmentApiClient } from "@/data/client/attachment-api-client";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
 import { StorageSchemas } from "@/data/dto";
+import ZoomableImage from "@/components/zoomable-image";
 
 
 // ----------------------------------------------------
@@ -296,13 +297,19 @@ export default function ProductFormPage() {
   const [images, setImages] = useState<ProductImage[]>([]);
 
   useEffect(() => {
-    setImages(uploadedFiles.map((up) => {
-      return {
-        alt: up.dto?.displayName,
-        url: `${process.env.NEXT_PUBLIC_APP_URL}/storage/product/${dbContext?.databaseIdHash}/${up.dto?.storageKey}`,
-        storageKey: up?.dto?.storageKey
-      } as ProductImage
-    }));
+    uploadedFiles.filter(uf=>images.map(im=>im.storageKey).indexOf(uf.dto?.storageKey) < 0).forEach((f) => {
+      if (f.status === FileUploadStatus.SUCCESS && f.uploaded) {
+        // Dodajemy do images
+        setImages((prev) => [
+          ...prev,
+            {
+              alt: f.dto?.displayName,
+              url: `${process.env.NEXT_PUBLIC_APP_URL}/storage/product/${dbContext?.databaseIdHash}/${f.dto?.storageKey}`,
+              storageKey: f?.dto?.storageKey,
+            } as ProductImage,
+        ]);
+      }
+    });
   }, [uploadedFiles]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -330,6 +337,7 @@ export default function ProductFormPage() {
 
   const removeFileFromQueue = useCallback((file: UploadedFile) => {
     setRemovedFiles([...removedFiles, file]);
+    setImages((prev) => prev.filter((im) => im.storageKey !== file.dto?.storageKey));
     setUploadedFiles((prev) => prev.filter((f) => f.id !== file.id));
   }, []);
 
@@ -504,6 +512,18 @@ export default function ProductFormPage() {
               {errors.name && (
                 <p className="text-red-500 text-sm">{errors.name.message}</p>
               )}
+            </div>
+
+            {/* IMAGES GRID */}
+            <div>
+              <label className="block font-medium mb-2">{t('Images')}</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {images.map((image, index) => (
+                  <div key={index} className="w-36 h-36">
+                    <ZoomableImage src={image.url} alt={image.alt} className="cursor-pointer w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* UPLOAD PLIKÓW */}
