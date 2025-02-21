@@ -557,7 +557,7 @@ export default function ProductFormPage() {
 
             {/* UPLOAD PLIKÓW */}
             <div>
-              <label className="block font-medium mb-2">{t('Photos')}</label>
+              <label className="block font-medium mb-2">{t('Add images')}</label>
               <Input type="file" accept="image/*" multiple onChange={handleFileSelect} />
               <div className="mt-2 space-y-2">
                 {uploadedFiles.map((f) => (
