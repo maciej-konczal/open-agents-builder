@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef, useEffect, useContext } from "react";
 import { FormProvider, useForm, useFieldArray } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +21,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
 import { useAgentContext } from "@/contexts/agent-context";
 import { MoveLeftIcon, TrashIcon, WandIcon } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
+import { AttachmentApiClient } from "@/data/client/attachment-api-client";
+import { DatabaseContext } from "@/contexts/db-context";
+import { SaaSContext } from "@/contexts/saas-context";
 
 
 // ----------------------------------------------------
@@ -86,12 +89,11 @@ const sortedCurrencyList = [
   ...ALL_CURRENCIES.filter((c) => !FAVOURITE_CURRENCIES.includes(c)),
 ];
 
-// ----------------------------------------------------
-// 3) Główny komponent formularza
-// ----------------------------------------------------
 export default function ProductFormPage() {
   const { t, i18n } = useTranslation();
   const productContext = useProductContext();
+  const dbContext = useContext(DatabaseContext);
+  const saasContext = useContext(SaaSContext);
   const params = useParams();
 
   const agentContext = useAgentContext();
@@ -323,15 +325,26 @@ export default function ProductFormPage() {
       const formData = new FormData();
       formData.append("file", fileToUpload.file); // TODO: encrypt file here
       formData.append("attachmentDTO", JSON.stringify(fileToUpload.dto));
-      const apiClient = new EncryptedAttachmentApiClient('', dbContext, saasContext, {
+      const apiClient:AttachmentApiClient = new AttachmentApiClient('', dbContext, saasContext, { useEncryption: false });
 
-      
-      fileToUpload
-      await new Promise((res) => setTimeout(res, 1500));
-
-
-      fileToUpload.status = FileUploadStatus.SUCCESS;
-      fileToUpload.uploaded = true;
+      try {
+        const result = await apiClient.put(formData);
+        if (result.status === 200) {
+          console.log('Attachment saved', result);
+          fileToUpload.status = FileUploadStatus.SUCCESS;
+          fileToUpload.uploaded = true;
+          fileToUpload.dto = result.data; // updated DTO
+        } else {
+          console.log("File upload error", result);
+          toast.error(t("File upload error ") + t(result.message));
+          fileToUpload.status = FileUploadStatus.ERROR;
+        }
+      } catch (error) {
+        console.log("File upload error", error);
+        toast.error('File upload error ' + getErrorMessage(error));
+        fileToUpload.status = FileUploadStatus.ERROR;
+      }
+    
       setUploadedFiles((prev) => [...prev]);
     } catch (error) {
       fileToUpload.status = FileUploadStatus.ERROR;

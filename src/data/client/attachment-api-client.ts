@@ -1,7 +1,7 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { AttachmentDTO } from "../dto";
-import { AdminApiClient } from "./admin-api-client";
+import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
 
 export type PutAttachmentRequest = FormData | AttachmentDTO;
 
