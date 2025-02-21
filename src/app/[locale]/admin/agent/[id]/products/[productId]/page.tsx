@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 import { ProductVariantRow } from "@/components/product-variant-row";
-import { FileUploadStatus, UploadedFile, Product, ProductImage } from "@/data/client/models";
+import { FileUploadStatus, UploadedFile, Product, ProductImage, Attachment } from "@/data/client/models";
 import { useProductContext } from "@/contexts/product-context";
 import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
@@ -453,6 +453,14 @@ export default function ProductFormPage() {
           }
         });
         setRemovedFiles([]); // clear form
+
+        // assign attachments to product
+        uploadedFiles?.filter(uf => uf !== null && uf.dto).map(uf => uf.dto).forEach(async (attachmentToUpdate) => {
+          if (attachmentToUpdate && saved.id) {
+            attachmentToUpdate.assignedTo = JSON.stringify([{ id: saved.id, type: "product" }]);
+            await aac.put(attachmentToUpdate);
+          }
+        });         
         
         if (addNext) {
           router.push(`/admin/agent/${agentContext?.current?.id}/products/new`);          

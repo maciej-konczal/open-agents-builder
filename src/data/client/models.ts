@@ -23,7 +23,7 @@ export enum DatabaseAuthStatus {
 
 
 export type AttachmentAssigment = {
-    id: number;
+    id: string;
     type: string;
 }
 
