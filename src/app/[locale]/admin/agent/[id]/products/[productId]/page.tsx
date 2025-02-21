@@ -26,6 +26,7 @@ import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
 import { StorageSchemas } from "@/data/dto";
 import ZoomableImage from "@/components/zoomable-image";
+import { set } from "date-fns";
 
 
 // ----------------------------------------------------
@@ -229,9 +230,9 @@ export default function ProductFormPage() {
       appendVariant({
         sku: nanoid(),
         name: variantName,
-        price: 0,
-        priceInclTax: 0,
-        taxRate: defaultTax,
+        price: mainPrice,
+        priceInclTax: mainPriceInclTax,
+        taxRate: mainTaxRate,
         variantAttributes: combo,
       });
     });
@@ -517,10 +518,21 @@ export default function ProductFormPage() {
             {/* IMAGES GRID */}
             <div>
               <label className="block font-medium mb-2">{t('Images')}</label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {images.map((image, index) => (
                   <div key={index} className="w-36 h-36">
                     <ZoomableImage src={image.url} alt={image.alt} className="cursor-pointer w-full h-full object-cover" />
+                      <Button variant={"outline"} size="icon" className="relative top-[-38px] left-[2px]" onClick={(e) => {
+                        e.preventDefault();
+                        setImages((prev) => prev.filter((im) => im.storageKey !== image.storageKey));
+                        const ufo = uploadedFiles.find((f) => f.dto?.storageKey === image.storageKey);
+                        if (ufo) {
+                          setUploadedFiles((prev) => prev.filter((f) => f.id !== ufo.id));
+                          setRemovedFiles((prev) => [...prev, ufo]);
+                        }
+                      }}>
+                      <TrashIcon className="w-4 h-4" />
+                    </Button>
                   </div>
                 ))}
               </div>

@@ -20,6 +20,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAgentContext } from "@/contexts/agent-context";
 import { SelectIcon } from "@radix-ui/react-select";
+import ZoomableImage from "@/components/zoomable-image";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -142,8 +143,9 @@ export default function ProductsPage() {
         </NoRecordsAlert>
       ) : null}
 
+      <div className="grid grid-cols-2">
       {productsData.rows.map((product) => (
-        <Card key={product.id}>
+        <Card key={product.id} className="m-4">
           <CardHeader>
             <CardTitle>
                 <Button
@@ -159,49 +161,49 @@ export default function ProductsPage() {
           </CardHeader>
           <CardContent className="text-sm">
             {product.imageUrl && (
-              <img
+              <ZoomableImage
                 src={product.imageUrl}
                 alt={product.name}
-                className="max-w-sm mb-2"
+                className="max-w-sm mb-2 cursor-pointer"
               />
             )}
 
             {product.images && product.images.length > 0 && (
-              <div className="flex flex-row gap-2 mb-2">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {product.images.map((img, idx) => (
-                  <img
+                  <ZoomableImage
                     key={idx}
                     src={img.url}
                     alt={img.alt || product.name}
-                    className="w-16 h-16 object-cover"
+                    className="w-16 h-16 object-cover cursor-pointer"
                   />
                 ))}
               </div>
             )}
 
-            {product.description && <p className="mb-2">{product.description}</p>}
+            {product.description && <p className="mb-6 mt-6 text-xs">{product.description}</p>}
 
             {product.attributes && product.attributes.length > 0 && (
-              <div className="mb-2">
-                <strong>Attributes:</strong>
-                <ul>
+              <div className="mb-2 flex flex-wrap gap-2">
                   {product.attributes.slice(0, product.attributes.length > 4 ? 4 : product.attributes.length).map((attr, idx) => (
-                    <li key={idx} className="flex text-xs">
-                      {attr.type === "select" ?(
+                    <div key={idx} className="flex items-center text-xs p-2 border rounded w-fit">
+                      {attr.type === "select" ? (
                         <TextIcon className="w-4 h-4 mr-1" />
-                      ) : (<TextCursorInputIcon className="w-4 h-4 mr-1" />)}{attr.name}:{" "}
+                      ) : (
+                        <TextCursorInputIcon className="w-4 h-4 mr-1" />
+                      )}
+                      {attr.name}:{" "}
                       {attr.type === "select"
                         ? `${(attr.values || []).join(" / ")}`
                         : attr.defaultValue ?? ""}
-                    </li>
+                    </div>
                   ))}
-                </ul>
-              </div>
+                </div>
             )}
           </CardContent>
         </Card>
       ))}
-
+</div>
       <InfiniteScroll
         hasMore={hasMore}
         isLoading={productsLoading}
