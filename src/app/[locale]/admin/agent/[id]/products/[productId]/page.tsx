@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 import { ProductVariantRow } from "@/components/product-variant-row";
-import { FileUploadStatus, UploadedFile, Product } from "@/data/client/models";
+import { FileUploadStatus, UploadedFile, Product, ProductImage } from "@/data/client/models";
 import { useProductContext } from "@/contexts/product-context";
 import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
@@ -24,6 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AttachmentApiClient } from "@/data/client/attachment-api-client";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
+import { StorageSchemas } from "@/data/dto";
 
 
 // ----------------------------------------------------
@@ -129,7 +130,7 @@ export default function ProductFormPage() {
     formState: { errors },
   } = methods;
 
-  // 3b) Ładowanie produktu do edycji
+  // 3b) Loading product for editing
   useEffect(() => {
     if (!params?.productId) return;
     if (params.productId !== "new") {
@@ -139,6 +140,7 @@ export default function ProductFormPage() {
       reset();
     }
   }, [params?.productId]);
+
 
   async function loadProduct(productId: string) {
     try {
@@ -287,8 +289,21 @@ export default function ProductFormPage() {
     }
   }, [mainPriceInclTax, mainTaxRate, setValue]);
 
-  // 7) Upload plików
+  // 7) File upload
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [removedFiles, setRemovedFiles] = useState<UploadedFile[]>([]);
+  const [images, setImages] = useState<ProductImage[]>([]);
+
+  useEffect(() => {
+    setImages(uploadedFiles.map((f) => {
+      return {
+        alt: f.dto?.displayName,
+        url: `${process.env.NEXT_PUBLIC_APP_URL}/storage/product/${dbContext?.databaseIdHash}/${f.dto?.id}`,
+        id: f.dto?.id ?? f.id,
+        storageKey: f.dto?.storageKey,
+      } as ProductImage;
+    }))    
+  }, [uploadedFiles]); 
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
@@ -313,19 +328,19 @@ export default function ProductFormPage() {
     newFiles.forEach((f) => onUpload(f));
   };
 
-  const removeFileFromQueue = useCallback((fileId: string) => {
-    setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
+  const removeFileFromQueue = useCallback((file: UploadedFile) => {
+    setRemovedFiles([...removedFiles, file]);
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== f.id));
   }, []);
 
   const onUpload = useCallback(async (fileToUpload: UploadedFile) => {
     fileToUpload.status = FileUploadStatus.UPLOADING;
     setUploadedFiles((prev) => [...prev]);
     try {
-      // Symulacja
       const formData = new FormData();
-      formData.append("file", fileToUpload.file); // TODO: encrypt file here
+      formData.append("file", fileToUpload.file); 
       formData.append("attachmentDTO", JSON.stringify(fileToUpload.dto));
-      const apiClient:AttachmentApiClient = new AttachmentApiClient('', dbContext, saasContext, { useEncryption: false });
+      const apiClient:AttachmentApiClient = new AttachmentApiClient('', StorageSchemas.Commerce, dbContext, saasContext, { useEncryption: false });
 
       try {
         const result = await apiClient.put(formData);
@@ -345,7 +360,7 @@ export default function ProductFormPage() {
         fileToUpload.status = FileUploadStatus.ERROR;
       }
     
-      setUploadedFiles((prev) => [...prev]);
+      setUploadedFiles((prev) => [...prev]);      
     } catch (error) {
       fileToUpload.status = FileUploadStatus.ERROR;
       setUploadedFiles((prev) => [...prev]);
@@ -371,11 +386,13 @@ export default function ProductFormPage() {
       priceInclTax: { value: formData.priceInclTax, currency: formData.currency },
       taxRate: decimalTaxRate,
 
-      // Atrybuty
+      images,
+
+      // Attributes
       attributes: formData.attributes.map((a) => {
-        // interpretacja pola a.attrValues
-        // - jeśli select => to tablica wartości
-        // - jeśli text => to 1-elementowa tablica (przechowujemy to w values)
+        // interpretation of the a.attrValues field
+        // - if select => it's an array of values
+        // - if text => it's a 1-element array (we store it in values)
         let possibleVals: string[] = [];
         if (a.attrType === "select") {
           possibleVals = (a.attrValues || "")
@@ -383,8 +400,8 @@ export default function ProductFormPage() {
             .map((v) => v.trim())
             .filter((v) => v.length > 0);
         } else {
-          // typ: text => wrzucamy do values jedną wartość 
-          // (tak by w bazie w polu "values" mieć to co user wpisał)
+            // type: text => we put one value into values 
+            // (so that in the database in the "values" field we have what the user entered)
           if (a.attrValues && a.attrValues.trim().length > 0) {
             possibleVals = [a.attrValues.trim()];
           } else {
@@ -421,6 +438,22 @@ export default function ProductFormPage() {
       const saved = await productContext.updateProduct(newProduct, true);
       if (saved?.id) {
         toast.success("Product saved!");
+
+        const aac = new AttachmentApiClient('', StorageSchemas.Commerce, dbContext, saasContext, { useEncryption: false });
+
+        console.log('Clearing removed attachments', removedFiles);
+        removedFiles.forEach(async (attachmentToRemove) => {
+          if (attachmentToRemove) {
+            try {
+              if(attachmentToRemove.dto) await aac.delete(attachmentToRemove.dto); // TODO: in case user last seconds cancels record save AFTER attachment removal it may cause problems that attachments are still attached to the record but not existient on the storage
+            } catch (error) {
+              toast.error('Error removing file from storage ' + error);
+              console.error(error);
+            }  
+          }
+        });
+        setRemovedFiles([]); // clear form
+        
         if (addNext) {
           router.push(`/admin/agent/${agentContext?.current?.id}/products/new`);          
         }
@@ -428,7 +461,7 @@ export default function ProductFormPage() {
         toast.error("Error saving product");
       }
     } catch (error) {
-      toast.error("Error saving product: " + String(error));
+      toast.error(t("Error saving product: ") + t(getErrorMessage(error)));
       console.error(error);
     }
   };
@@ -467,8 +500,8 @@ export default function ProductFormPage() {
 
             {/* UPLOAD PLIKÓW */}
             <div>
-              <label className="block font-medium mb-2">Photos</label>
-              <Input type="file" multiple onChange={handleFileSelect} />
+              <label className="block font-medium mb-2">{t('Photos')}</label>
+              <Input type="file" accept=".png;*.jpg;*.webp" multiple onChange={handleFileSelect} />
               <div className="mt-2 space-y-2">
                 {uploadedFiles.map((f) => (
                   <div key={f.id} className="flex items-center gap-2">
@@ -487,7 +520,7 @@ export default function ProductFormPage() {
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => removeFileFromQueue(f.id)}
+                      onClick={() => removeFileFromQueue(f)}
                     >
                       <TrashIcon className="w-4 h-4" />
                     </Button>
@@ -700,8 +733,8 @@ export default function ProductFormPage() {
 
           {/* PRZYCISKI */}
           <div className="flex gap-4 mt-6">
-            <Button type="submit" variant="default">
-              Save
+            <Button type="submit" variant="default" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              {t('Save')}
             </Button>
             <Button
               type="button"

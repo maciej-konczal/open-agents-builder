@@ -48,5 +48,6 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
 
 export async function GET(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
-    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.databaseIdHash)));
+    const storageSchema = await authorizeStorageSchema(request, response);
+    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.databaseIdHash, storageSchema)));
 }
