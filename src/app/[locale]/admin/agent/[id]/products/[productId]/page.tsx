@@ -514,6 +514,14 @@ export default function ProductFormPage() {
           }}
         >
 
+        {productContext.loaderStatus === 'loading' ? (
+          
+            <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+              <DataLoader />
+            </div>
+          
+          ) : (null) }
+
         <Tabs defaultValue="basic">
            <TabsList className="grid grid-cols-2">
              <TabsTrigger value="basic" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Basic')}</TabsTrigger>

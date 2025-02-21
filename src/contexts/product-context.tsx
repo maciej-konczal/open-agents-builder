@@ -69,12 +69,17 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
       };   
 
     const loadProduct = async (productId: string): Promise<Product> => {
+        setLoaderStatus(DataLoadingStatus.Loading);
         const client = await setupApiClient();
         const response = await client.get(productId);
-        if (response && response.total > 0)
+        if (response && response.total > 0) {
+            setLoaderStatus(DataLoadingStatus.Success);
             return Product.fromDTO(response.rows[0])
-        else 
-         throw new Error(t('Product not found'));
+        }
+        else {
+            setLoaderStatus(DataLoadingStatus.Error);
+            throw new Error(t('Product not found'));
+        }
     }
 
 
