@@ -170,6 +170,9 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
 
   async create(item: OrderDTO): Promise<OrderDTO> {
     const db = await this.db();
+
+    item = this.calcTotals(item);
+
     const dbRecord = await this.toDbRecord(item);
     const inserted = await create(dbRecord, orders, db);
     return await this.fromDbRecord(inserted);
@@ -182,6 +185,8 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     if (query.id) {
       existing = db.select().from(orders).where(eq(orders.id, query.id)).get();
     }
+
+    item = this.calcTotals(item);
 
     if (!existing) {
       // create
