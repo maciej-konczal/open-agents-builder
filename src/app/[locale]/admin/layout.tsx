@@ -13,6 +13,7 @@ import { AuditContextProvider } from '@/contexts/audit-context';
 import { ConfigContextProvider } from '@/contexts/config-context';
 import { DatabaseContextProvider } from '@/contexts/db-context';
 import { KeyContextProvider } from '@/contexts/key-context';
+import { OrderProvider } from '@/contexts/order-context';
 import { ProductProvider } from '@/contexts/product-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
 import { StatsContextProvider } from '@/contexts/stats-context';
@@ -42,20 +43,22 @@ export default async function GeneralAgentLayout({
                   <AgentProvider>
                     <TemplateProvider>
                       <ProductProvider>
-                      <div className={`hidden h-screen flex-col ${process.env.NEXT_PUBLIC_ENV === 'dev' ? '' : 'sm:flex xs:flex'} md:hidden text-sm p-4`}>
-                        <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10 pb-4"/> 
-                        Mobile layout is not yet supported for the admin app. <br />Please do use tablet or desktop resolutions to acces the app. Sorry!
-                      </div>
-                      <div className={`flex h-screen flex-col ${process.env.NEXT_PUBLIC_ENV === 'dev' ? '' : 'sm:hidden xs:hidden'} md:flex`}>
-                        <Header />
-                        <AgentHeader />
-                        <SaaSNotifications />
-                        <OnboardingDialog />
-
-                        <div className="flex flex-1 overflow-hidden">
-                          {children}
+                        <OrderProvider>
+                        <div className={`hidden h-screen flex-col ${process.env.NEXT_PUBLIC_ENV === 'dev' ? '' : 'sm:flex xs:flex'} md:hidden text-sm p-4`}>
+                          <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10 pb-4"/> 
+                          Mobile layout is not yet supported for the admin app. <br />Please do use tablet or desktop resolutions to acces the app. Sorry!
                         </div>
-                      </div>
+                        <div className={`flex h-screen flex-col ${process.env.NEXT_PUBLIC_ENV === 'dev' ? '' : 'sm:hidden xs:hidden'} md:flex`}>
+                          <Header />
+                          <AgentHeader />
+                          <SaaSNotifications />
+                          <OnboardingDialog />
+
+                          <div className="flex flex-1 overflow-hidden">
+                            {children}
+                          </div>
+                        </div>
+                        </OrderProvider>
                       </ProductProvider>
                     </TemplateProvider>
                   </AgentProvider>

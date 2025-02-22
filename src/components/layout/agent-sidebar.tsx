@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -47,13 +47,6 @@ const sidebarItems = [
     pattern: '/admin/agent/[id]/safety'
   },
   { 
-    icon: BoxesIcon, 
-    label: 'Products and services', 
-    href: '/admin/agent/[id]/products',
-    pattern: '(.*)/products/(.*)',
-    activeOnlyOnSavedAgent: true
-  },
-  { 
     icon: MessageCircleMore, 
     label: 'Sessions', 
     href: '/admin/agent/[id]/sessions',
@@ -65,6 +58,20 @@ const sidebarItems = [
     label: 'Results', 
     href: '/admin/agent/[id]/results',
     pattern: '/admin/agent/[id]/results',
+    activeOnlyOnSavedAgent: true
+  },
+  { 
+    icon: BoxesIcon, 
+    label: 'Products and services', 
+    href: '/admin/agent/[id]/products',
+    pattern: '(.*)/products/(.*)',
+    activeOnlyOnSavedAgent: true
+  },
+  { 
+    icon: ListOrderedIcon, 
+    label: 'Orders', 
+    href: '/admin/agent/[id]/orders',
+    pattern: '(.*)/orders/(.*)',
     activeOnlyOnSavedAgent: true
   },
   { 
