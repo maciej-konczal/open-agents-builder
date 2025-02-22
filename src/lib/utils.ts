@@ -4,6 +4,7 @@ import { ZodError, ZodIssue, string } from "zod"
 
 import chalk from 'chalk'
 import dedent from 'dedent'
+import { Price } from "@/data/client/models"
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -185,3 +186,8 @@ export function safeJsonParse(str: string, defaultValue: any) {
     return defaultValue;
   }
 };
+
+
+export function createPrice(value: number, currency: string): Price {
+  return { value: Number(value.toFixed(2)), currency };
+}

@@ -1,7 +1,7 @@
 import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO, ProductDTO, OrderDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
-import { getCurrentTS } from "@/lib/utils";
+import { createPrice, getCurrentTS } from "@/lib/utils";
 import { Message } from "ai";
 import moment from "moment";
 
@@ -826,32 +826,73 @@ export interface Price {
   
     createdAt: string;
     updatedAt: string;
-
-    calcTotals() {
-        let sumNet = 0;
-        let sumGross = 0;
-        this.items?.forEach(line => {
-          const net = (line.price?.value || 0) * (line.quantity || 1);
-          let gross = 0;
-          if (line.priceInclTax) {
-            gross = line.priceInclTax.value * (line.quantity || 1);
+   
+    calcTotals(): void {
+        if (!this.items || this.items.length === 0) {
+          // If no items, reset everything
+          const fallbackCurrency = this.subtotal?.currency || "USD";
+          this.subtotal = createPrice(0, fallbackCurrency);
+          this.subTotalInclTax = createPrice(0, fallbackCurrency);
+          this.subtotalTaxValue = createPrice(0, fallbackCurrency);
+          this.total = createPrice(0, fallbackCurrency);
+          this.totalInclTax = createPrice(0, fallbackCurrency);
+          return;
+        }
+    
+        // Bierzemy currency z 1. itema (fallback = 'USD')
+        const currency = this.items[0].price?.currency || "USD";
+    
+        let subtotalValue = 0;
+        let subtotalInclTaxValue = 0;
+        let subtotalTaxValue = 0;
+    
+        // Przeliczenie każdej linii:
+        for (const item of this.items) {
+          const itemCurrency = item.price?.currency || currency;
+          const lineNet = (item.price?.value || 0) * (item.quantity || 1);
+    
+          // lineValue
+          item.lineValue = createPrice(lineNet, itemCurrency);
+    
+          // lineValueInclTax
+          let lineGross = 0;
+          if (item.priceInclTax) {
+            lineGross = item.priceInclTax.value * item.quantity;
           } else {
-            const taxRate = line.taxRate || 0;
-            gross = net * (1 + taxRate);
+            if (item.taxRate !== undefined && item.taxRate !== null) {
+              lineGross = lineNet * (1 + item.taxRate);
+            } else {
+              lineGross = lineNet;
+            }
           }
-          line.lineValue = { value: net, currency: line.price?.currency || "USD" };
-          line.lineValueInclTax = { value: gross, currency: line.price?.currency || "USD" };
-          line.lineTaxValue = {
-            value: gross - net,
-            currency: line.price?.currency || "USD"
-          };
-          sumNet += net;
-          sumGross += gross;
-        });
-        this.subtotal = { value: sumNet, currency: "USD" };
-        this.total = { value: sumGross, currency: "USD" };
+          item.lineValueInclTax = createPrice(lineGross, itemCurrency);
+    
+          // lineTaxValue
+          const lineTax = lineGross - lineNet;
+          item.lineTaxValue = createPrice(lineTax, itemCurrency);
+    
+          // sum to sub-totals
+          subtotalValue += lineNet;
+          subtotalInclTaxValue += lineGross;
+          subtotalTaxValue += lineTax;
+        }
+    
+        // Setting subTotal, subTotalInclTax, etc.
+        this.subtotal = createPrice(subtotalValue, currency);
+        this.subTotalInclTax = createPrice(subtotalInclTaxValue, currency);
+        this.subtotalTaxValue = createPrice(subtotalTaxValue, currency);
+    
+        // shipping
+        const shippingValue = this.shippingPrice?.value || 0;
+        const shippingInclValue = this.shippingPriceInclTax?.value || 0;
+    
+        const totalNet = subtotalValue + shippingValue;
+        const totalGross = subtotalInclTaxValue + shippingInclValue;
+    
+        this.total = createPrice(totalNet, currency);
+        this.totalInclTax = createPrice(totalGross, currency);
       }
-      
+    
   
     constructor(dto: OrderDTO) {
       this.id = dto.id;

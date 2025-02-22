@@ -7,7 +7,7 @@ import { create } from "./generic-repository";
 import { getCurrentTS, safeJsonParse } from "@/lib/utils";
 import { orders } from "./db-schema-commerce";
 import { EncryptionUtils } from "@/lib/crypto";
-import { Price } from "../client/models";
+import { Order, Price } from "../client/models";
 
 export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
 
@@ -83,85 +83,6 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
   }
 
 
-  private calcTotals(order: OrderDTO): OrderDTO {
-    if (!order.items || order.items.length === 0) {
-      // if no items, reset everything:
-      order.subtotal = this.createPrice(0, order.subtotal?.currency || "USD");
-      order.subTotalInclTax = this.createPrice(0, order.subtotal?.currency || "USD");
-      order.subtotalTaxValue = this.createPrice(0, order.subtotal?.currency || "USD");
-      order.total = this.createPrice(0, order.subtotal?.currency || "USD");
-      order.totalInclTax = this.createPrice(0, order.subtotal?.currency || "USD");
-      return order;
-    }
-
-    // Assuming the entire order has one currency (taken from the first item, fallback to "USD")
-    const currency = order.items[0].price?.currency || "USD";
-
-    let subtotalValue = 0;
-    let subtotalInclTaxValue = 0;
-    let subtotalTaxValue = 0;
-
-    // ---------------------------------
-    // 1. Calculate values for each item
-    // ---------------------------------
-    for (const item of order.items) {
-      // Currency in item.price
-      const itemCurrency = item.price?.currency || currency;
-
-      // Calculate lineValue = price.value * quantity
-      const lineNet = (item.price?.value || 0) * (item.quantity || 1);
-
-      // lineValue
-      item.lineValue = this.createPrice(lineNet, itemCurrency);
-
-      // If we have priceInclTax => lineValueInclTax
-      let lineGross = 0;
-      if (item.priceInclTax) {
-        lineGross = item.priceInclTax.value * item.quantity;
-      } else {
-        // alternatively calculate lineGross = lineNet * (1 + taxRate)
-        if (item.taxRate !== undefined && item.taxRate !== null) {
-          lineGross = lineNet * (1 + item.taxRate);
-        } else {
-          lineGross = lineNet;
-        }
-      }
-      item.lineValueInclTax = this.createPrice(lineGross, itemCurrency);
-
-      // lineTaxValue = difference between lineValueInclTax and lineValue
-      const lineTax = lineGross - lineNet;
-      item.lineTaxValue = this.createPrice(lineTax, itemCurrency);
-
-      // Save originalPrice and originalPriceInclTax etc. in case of discounts
-      // ... (optional)
-
-      // Sum to sub-totals
-      subtotalValue += lineNet;
-      subtotalInclTaxValue += lineGross;
-      subtotalTaxValue += lineTax;
-    }
-
-    // ---------------------------------
-    // 2. Set sub-total and tax
-    // ---------------------------------
-    order.subtotal = this.createPrice(subtotalValue, currency);
-    order.subTotalInclTax = this.createPrice(subtotalInclTaxValue, currency);
-    order.subtotalTaxValue = this.createPrice(subtotalTaxValue, currency);
-
-    // ---------------------------------
-    // 3. Calculate total => subTotal + shipping
-    // ---------------------------------
-    const shippingValue = order.shippingPrice?.value || 0;
-    const shippingInclValue = order.shippingPriceInclTax?.value || 0;
-
-    const totalNet = subtotalValue + shippingValue;
-    const totalGross = subtotalInclTaxValue + shippingInclValue;
-
-    order.total = this.createPrice(totalNet, currency);
-    order.totalInclTax = this.createPrice(totalGross, currency);
-
-    return order;
-  }
 
   // Helper for creating Price
   private createPrice(value: number, currency: string): Price {
@@ -171,9 +92,10 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
   async create(item: OrderDTO): Promise<OrderDTO> {
     const db = await this.db();
 
-    item = this.calcTotals(item);
-
-    const dbRecord = await this.toDbRecord(item);
+    const order = Order.fromDTO(item);
+    order.calcTotals(); 
+    
+    const dbRecord = await this.toDbRecord(order.toDTO());
     const inserted = await create(dbRecord, orders, db);
     return await this.fromDbRecord(inserted);
   }
@@ -186,11 +108,12 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
       existing = db.select().from(orders).where(eq(orders.id, query.id)).get();
     }
 
-    item = this.calcTotals(item);
+    const order = Order.fromDTO(item);
+    order.calcTotals();  // double call first was on the client - to make sure it's recalculated    
 
     if (!existing) {
       // create
-      return this.create(item);
+      return this.create(order.toDTO());
     } else {
       // update
       const updated = { ...(await this.toDbRecord(item)) };
