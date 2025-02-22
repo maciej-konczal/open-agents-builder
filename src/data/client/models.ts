@@ -826,6 +826,32 @@ export interface Price {
   
     createdAt: string;
     updatedAt: string;
+
+    calcTotals() {
+        let sumNet = 0;
+        let sumGross = 0;
+        this.items?.forEach(line => {
+          const net = (line.price?.value || 0) * (line.quantity || 1);
+          let gross = 0;
+          if (line.priceInclTax) {
+            gross = line.priceInclTax.value * (line.quantity || 1);
+          } else {
+            const taxRate = line.taxRate || 0;
+            gross = net * (1 + taxRate);
+          }
+          line.lineValue = { value: net, currency: line.price?.currency || "USD" };
+          line.lineValueInclTax = { value: gross, currency: line.price?.currency || "USD" };
+          line.lineTaxValue = {
+            value: gross - net,
+            currency: line.price?.currency || "USD"
+          };
+          sumNet += net;
+          sumGross += gross;
+        });
+        this.subtotal = { value: sumNet, currency: "USD" };
+        this.total = { value: sumGross, currency: "USD" };
+      }
+      
   
     constructor(dto: OrderDTO) {
       this.id = dto.id;
