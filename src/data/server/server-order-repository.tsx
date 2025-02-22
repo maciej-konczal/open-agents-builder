@@ -6,21 +6,34 @@ import { asc, count, desc, eq, like, or } from "drizzle-orm";
 import { create } from "./generic-repository";
 import { getCurrentTS, safeJsonParse } from "@/lib/utils";
 import { orders } from "./db-schema-commerce";
+import { EncryptionUtils } from "@/lib/crypto";
 
 export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
+
+    storageKey: string | null | undefined;
+    encUtils: EncryptionUtils | null = null;
+
+    constructor(databaseIdHash: string, databaseSchema: string = '', storageKey: string | null | undefined, databasePartition: string ='') {
+        super(databaseIdHash, databaseSchema, databasePartition);
+        this.storageKey = storageKey
+        if (storageKey){
+            this.encUtils = new EncryptionUtils(storageKey);
+        }
+    }
+
 // 1) Mapping to database (JSON)
-  private toDbRecord(dto: OrderDTO): any {
+  private async toDbRecord(dto: OrderDTO): Promise<any> {
     return {
       id: dto.id,
-      billingAddress: JSON.stringify(dto.billingAddress || {}),
-      shippingAddress: JSON.stringify(dto.shippingAddress || {}),
-      attributes: JSON.stringify(dto.attributes || {}),
-      notes: JSON.stringify(dto.notes || []),
+      billingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.billingAddress || {})),
+      shippingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.shippingAddress || {})),
+      attributes: await this.encUtils?.encrypt(JSON.stringify(dto.attributes || {})),
+      notes: await this.encUtils?.encrypt(JSON.stringify(dto.notes || [])),
       statusChanges: JSON.stringify(dto.statusChanges || []),
-      customer: JSON.stringify(dto.customer || {}),
+      customer: await this.encUtils?.encrypt(JSON.stringify(dto.customer || {})),
 
       status: dto.status || "",
-      email: dto.email || "",
+      email: await this.encUtils?.encrypt(dto.email || ""),
 
     // Price fields => JSON
       subtotal: JSON.stringify(dto.subtotal || {}),
@@ -39,19 +52,19 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
   }
 
 // 2) Reading from database => JSON.parse
-  private fromDbRecord(record: any): OrderDTO {
+  private async fromDbRecord(record: any): Promise<OrderDTO> {
 
     return {
       id: record.id,
-      billingAddress: safeJsonParse(record.billingAddress, {}),
-      shippingAddress: safeJsonParse(record.shippingAddress, {}),
-      attributes: safeJsonParse(record.attributes, {}),
-      notes: safeJsonParse(record.notes, []),
+      billingAddress: safeJsonParse(await this.encUtils?.decrypt(record.billingAddress) || '', {}),
+      shippingAddress: safeJsonParse(await this.encUtils?.decrypt(record.shippingAddress) || '', {}),
+      attributes: safeJsonParse(await this.encUtils?.decrypt(record.attributes) || '', {}),
+      notes: safeJsonParse(await this.encUtils?.decrypt(record.notes) || '', []),
       statusChanges: safeJsonParse(record.statusChanges, []),
-      customer: safeJsonParse(record.customer, {}),
+      customer: safeJsonParse(await this.encUtils?.decrypt(record.customer) || '', {}),
 
       status: record.status,
-      email: record.email,
+      email: await this.encUtils?.decrypt(record.email) || '',
 
       subtotal: safeJsonParse(record.subtotal, {}),
       subTotalInclTax: safeJsonParse(record.subTotalInclTax, {}),
