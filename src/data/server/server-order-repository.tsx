@@ -83,9 +83,9 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
 
   async create(item: OrderDTO): Promise<OrderDTO> {
     const db = await this.db();
-    const dbRecord = this.toDbRecord(item);
-    const inserted = create(dbRecord, orders, db);
-    return this.fromDbRecord(inserted);
+    const dbRecord = await this.toDbRecord(item);
+    const inserted = await create(dbRecord, orders, db);
+    return await this.fromDbRecord(inserted);
   }
 
   async upsert(query: Record<string, any>, item: OrderDTO): Promise<OrderDTO> {
@@ -101,7 +101,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
       return this.create(item);
     } else {
       // update
-      const updated = { ...this.toDbRecord(item) };
+      const updated = { ...(await this.toDbRecord(item)) };
       updated.updatedAt = getCurrentTS();
       db.update(orders).set(updated).where(eq(orders.id, query.id)).run();
       return this.fromDbRecord(updated);
@@ -131,7 +131,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     }
 
     const rows = dbQuery.all();
-    return rows.map((r) => this.fromDbRecord(r));
+    return await Promise.all(rows.map((r) => this.fromDbRecord(r)));
   }
 
   async queryAll({ id, limit, offset, orderBy, query }: 
@@ -186,7 +186,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     const total = (await countQuery)[0].count;
 
     // Convert to OrderDTO
-    const rows = dbRecords.map((r) => this.fromDbRecord(r));
+    const rows = await Promise.all(dbRecords.map((r) => this.fromDbRecord(r)));
 
     return {
       rows,
