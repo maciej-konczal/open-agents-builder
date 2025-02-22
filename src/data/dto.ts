@@ -285,10 +285,6 @@ const productAttributeSchema = z.object({
   defaultValue: z.string().optional(),
 });
 
-const priceSchema = z.object({
-  value: z.number().min(0),
-  currency: z.string().min(1),
-});
 
 const productVariantSchema = z.object({
   id: z.string().optional(),    
@@ -377,6 +373,114 @@ export const ProductDTOEncSettings = {
   ],
 };
 
+// Price object => { value: number, currency: string }
+const priceSchema = z.object({
+  value: z.number().min(0),
+  currency: z.string(),
+});
+
+// Address
+const addressSchema = z.object({
+  address1: z.string().optional(),
+  address2: z.string().optional(),
+  city: z.string().optional(),
+  company: z.string().optional(),
+  country: z.any().optional(),
+  countryCode: z.string().optional(),
+  firstName: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  name: z.string().optional(),
+  phone: z.string().optional(),
+  province: z.string().optional(),
+  provinceCode: z.string().optional(),
+  street: z.string().optional(),
+  summary: z.string().optional(),
+  zip: z.string().optional(),
+});
+
+// Note
+const noteSchema = z.object({
+  date: z.string(),
+  message: z.string(),
+  author: z.string().optional(),
+});
+
+// Status change
+const statusChangeSchema = z.object({
+  date: z.string(),
+  message: z.string(),
+  oldStatus: z.string().optional(),
+  newStatus: z.string(),
+});
+
+// Customer
+const customerSchema = z.object({
+  id: z.string().optional(),
+  name: z.string().optional(),
+  email: z.string().optional(),
+});
+
+// A single item in the order
+const orderItemSchema = z.object({
+  id: z.string(),
+  message: z.string().optional(),
+  customOptions: z.array(z.object({ name: z.string(), value: z.string() })).optional(),
+
+  originalPrice: priceSchema.optional(),
+  price: priceSchema, 
+  priceInclTax: priceSchema.optional(),
+  taxValue: priceSchema.optional(),
+  
+  quantity: z.number().min(1),
+  successfully_fulfilled_quantity: z.number().min(0).optional(),
+
+  title: z.string().optional(),
+
+  lineValue: priceSchema.optional(),
+  lineValueInclTax: priceSchema.optional(),
+  lineTaxValue: priceSchema.optional(),
+  originalPriceInclTax: priceSchema.optional(),
+
+  taxRate: z.number().min(0).max(1).optional(),
+
+  variant: z.any().optional(),
+  productId: z.string().optional(),
+  variantId: z.string().optional(),
+});
+
+export const orderDTOSchema = z.object({
+  id: z.string().optional(),
+
+  billingAddress: addressSchema.optional(),
+  shippingAddress: addressSchema.optional(),
+
+  attributes: z.record(z.any()).optional(),
+  notes: z.array(noteSchema).optional(),
+  statusChanges: z.array(statusChangeSchema).optional(),
+  status: z.string().optional(),
+  email: z.string().email().optional(),
+  customer: customerSchema.optional(),
+
+  // Price fields => Price
+  subtotal: priceSchema.optional(),
+  subTotalInclTax: priceSchema.optional(),
+  subtotalTaxValue: priceSchema.optional(),
+  total: priceSchema.optional(),
+  totalInclTax: priceSchema.optional(),
+  shippingPrice: priceSchema.optional(),
+  shippingPriceInclTax: priceSchema.optional(),
+
+  items: z.array(orderItemSchema).optional(),
+
+  createdAt: z.string().default(() => getCurrentTS()),
+  updatedAt: z.string().default(() => getCurrentTS()),
+});
+
+export type OrderDTO = z.infer<typeof orderDTOSchema>;
+export const OrderDTOEncSettings = {
+  ecnryptedFields: [
+  ],
+};
 
 
 

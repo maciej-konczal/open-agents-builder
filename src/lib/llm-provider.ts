@@ -1,5 +1,4 @@
 import { createOpenAI, openai } from "@ai-sdk/openai";
-import { createOllama, ollama } from "ollama-ai-provider";
 
 export function llmProviderSetup() {
     if (process.env.LLM_PROVIDER === 'ollama') {
