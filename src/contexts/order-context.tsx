@@ -5,7 +5,7 @@ import { DatabaseContext } from "./db-context";
 import { SaaSContext } from "./saas-context";
 import { DataLoadingStatus } from "@/data/client/models"; 
 import { Order } from "@/data/client/models"; // klasa modelu (Order.fromDTO, toDTO)
-import { OrderApiClient, DeleteOrderResponse } from "@/data/client/order-api-client";
+import { OrderApiClient, DeleteOrderResponse, PutOrderResponseSuccess } from "@/data/client/order-api-client";
 import { useTranslation } from "react-i18next";
 import { PaginatedQuery, PaginatedResult } from "@/data/dto";
 
@@ -63,7 +63,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
       const client = await setupApiClient();
       const orderDTOs = await client.get(); // bez param => wszystkie
       // Zakładam, że client.get() zwraca tablicę OrderDTO
-      const fetched = orderDTOs.map((dto) => Order.fromDTO(dto));
+      const fetched = orderDTOs.rows.map((dto) => Order.fromDTO(dto));
       setOrders(fetched);
       setLoaderStatus(DataLoadingStatus.Success);
       return fetched;
@@ -80,8 +80,8 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     try {
       const client = await setupApiClient();
       const dtos = await client.get(orderId); // get(orderId) → tablica (z jednym elementem?)
-      if (dtos && dtos.length > 0) {
-        const loaded = Order.fromDTO(dtos[0]);
+      if (dtos && dtos.rows.length > 0) {
+        const loaded = Order.fromDTO(dtos.rows[0]);
         setLoaderStatus(DataLoadingStatus.Success);
         return loaded;
       } else {
