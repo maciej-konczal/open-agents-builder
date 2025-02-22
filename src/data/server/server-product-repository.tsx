@@ -194,8 +194,8 @@ export default class ServerProductRepository extends BaseRepository<ProductDTO> 
       case "name":
         orderColumn = asc(products.name);
         break;
-      case "priceValue":
-        orderColumn = asc(products.priceValue);
+      case "price":
+        orderColumn = asc(products.price);
         break;
       // inne pola, np. updatedAt, brand, itp.
       case "createdAt":

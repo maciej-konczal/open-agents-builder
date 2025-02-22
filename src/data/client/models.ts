@@ -1,4 +1,4 @@
-import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO, ProductDTO } from "@/data/dto";
+import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO, ProductDTO, OrderDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
 import { getCurrentTS } from "@/lib/utils";
@@ -751,6 +751,139 @@ export class Product {
         } as Product);
     }
 }
+
+// models.ts
+
+export interface Price {
+    value: number;
+    currency: string;
+  }
+  
+  export interface Address {
+    // ...
+  }
+  export interface Note {
+    date: string;
+    message: string;
+    author?: string;
+  }
+  export interface StatusChange {
+    date: string;
+    message: string;
+    oldStatus?: string;
+    newStatus: string;
+  }
+  export interface CustomerInfo {
+    id?: string;
+    name?: string;
+    email?: string;
+  }
+  export interface OrderItem {
+    id: string;
+    message?: string;
+    customOptions?: { name: string; value: string }[];
+    originalPrice?: Price;
+    price: Price;
+    priceInclTax?: Price;
+    taxValue?: Price;
+  
+    quantity: number;
+    successfully_fulfilled_quantity?: number;
+  
+    title?: string;
+  
+    lineValue?: Price;
+    lineValueInclTax?: Price;
+    lineTaxValue?: Price;
+    originalPriceInclTax?: Price;
+    taxRate?: number;
+  
+    variant?: any;
+    productId?: string;
+    variantId?: string;
+  }
+  
+  export class Order {
+    id?: string;
+    billingAddress?: Address;
+    shippingAddress?: Address;
+    attributes?: Record<string, any>;
+    notes?: Note[];
+    statusChanges?: StatusChange[];
+    status?: string;
+    email?: string;
+    customer?: CustomerInfo;
+  
+    subtotal?: Price;
+    subTotalInclTax?: Price;
+    subtotalTaxValue?: Price;
+    total?: Price;
+    totalInclTax?: Price;
+    shippingPrice?: Price;
+    shippingPriceInclTax?: Price;
+  
+    items?: OrderItem[];
+  
+    createdAt: string;
+    updatedAt: string;
+  
+    constructor(dto: OrderDTO) {
+      this.id = dto.id;
+      this.billingAddress = dto.billingAddress;
+      this.shippingAddress = dto.shippingAddress;
+      this.attributes = dto.attributes;
+      this.notes = dto.notes;
+      this.statusChanges = dto.statusChanges;
+      this.status = dto.status;
+      this.email = dto.email;
+      this.customer = dto.customer;
+  
+      this.subtotal = dto.subtotal;
+      this.subTotalInclTax = dto.subTotalInclTax;
+      this.subtotalTaxValue = dto.subtotalTaxValue;
+      this.total = dto.total;
+      this.totalInclTax = dto.totalInclTax;
+      this.shippingPrice = dto.shippingPrice;
+      this.shippingPriceInclTax = dto.shippingPriceInclTax;
+  
+      this.items = dto.items;
+  
+      this.createdAt = dto.createdAt || new Date().toISOString();
+      this.updatedAt = dto.updatedAt || new Date().toISOString();
+    }
+  
+    static fromDTO(dto: OrderDTO) {
+      return new Order(dto);
+    }
+  
+    toDTO(): OrderDTO {
+      return {
+        id: this.id,
+        billingAddress: this.billingAddress,
+        shippingAddress: this.shippingAddress,
+        attributes: this.attributes,
+        notes: this.notes,
+        statusChanges: this.statusChanges,
+        status: this.status,
+        email: this.email,
+        customer: this.customer,
+  
+        subtotal: this.subtotal,
+        subTotalInclTax: this.subTotalInclTax,
+        subtotalTaxValue: this.subtotalTaxValue,
+        total: this.total,
+        totalInclTax: this.totalInclTax,
+        shippingPrice: this.shippingPrice,
+        shippingPriceInclTax: this.shippingPriceInclTax,
+  
+        items: this.items,
+  
+        createdAt: this.createdAt,
+        updatedAt: this.updatedAt,
+      };
+    }
+  }
+  
 
 
 export class DatabaseRefreshRequest {

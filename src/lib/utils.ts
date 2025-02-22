@@ -177,3 +177,11 @@ export function checkApiKey(name: string, key: string, value: string): string {
 
   throw Error(`Please provide the ${name} in the environment variable ${key}`);
 }
+
+export function safeJsonParse(str: string, defaultValue: any) {
+  try {
+    return JSON.parse(str);
+  } catch {
+    return defaultValue;
+  }
+};
