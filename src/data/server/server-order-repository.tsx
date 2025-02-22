@@ -1,8 +1,8 @@
 // server-order-repository.ts
 
 import { BaseRepository, IQuery } from "./base-repository";
-import { OrderDTO } from "../dto";
-import { eq } from "drizzle-orm";
+import { OrderDTO, PaginatedResult } from "../dto";
+import { asc, count, desc, eq, like, or } from "drizzle-orm";
 import { create } from "./generic-repository";
 import { getCurrentTS, safeJsonParse } from "@/lib/utils";
 import { orders } from "./db-schema-commerce";
@@ -121,5 +121,68 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     return rows.map((r) => this.fromDbRecord(r));
   }
 
+  async queryAll({ id, limit, offset, orderBy, query }: 
+    { limit: number; offset: number; orderBy: string; query: string; id?: string; }
+  ): Promise<PaginatedResult<OrderDTO[]>> {
+    const db = await this.db();
+
+    // Default sorting – e.g., by date descending
+    let orderColumn = desc(orders.createdAt);
+
+    switch (orderBy) {
+      case "status":
+        orderColumn = asc(orders.status);
+        break;
+      case "email":
+        orderColumn = asc(orders.email);
+        break;
+      case "createdAt":
+      default:
+        orderColumn = desc(orders.createdAt);
+        break;
+    }
+
+    let whereCondition = null;
+    if (query) {
+      whereCondition = or(
+        like(orders.email, `%${query}%`),
+        like(orders.status, `%${query}%`)
+      );
+    }
+
+    if (id) {
+      whereCondition = eq(orders.id, id); // select single order by id
+    }
+
+    const countQuery = db
+      .select({ count: count() })
+      .from(orders)
+      .where(whereCondition ?? undefined)
+      .execute();
+
+    // Fetch records
+    let dbRecords = db
+      .select()
+      .from(orders)
+      .where(whereCondition ?? undefined)
+      .orderBy(orderColumn)
+      .limit(limit)
+      .offset(offset)
+      .all();
+
+    const total = (await countQuery)[0].count;
+
+    // Convert to OrderDTO
+    const rows = dbRecords.map((r) => this.fromDbRecord(r));
+
+    return {
+      rows,
+      total,
+      limit,
+      offset,
+      orderBy,
+      query,
+    };
+  }
   
 }
