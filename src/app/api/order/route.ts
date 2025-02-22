@@ -2,7 +2,7 @@
 
 import { orderDTOSchema } from "@/data/dto"; 
 import ServerOrderRepository from "@/data/server/server-order-repository";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
 
 export async function GET(request: NextRequest) {
