@@ -286,6 +286,12 @@ const productAttributeSchema = z.object({
 });
 
 
+// Price object => { value: number, currency: string }
+const priceSchema = z.object({
+  value: z.number().min(0),
+  currency: z.string(),
+});
+
 const productVariantSchema = z.object({
   id: z.string().optional(),    
   sku: z.string().min(1),
@@ -373,11 +379,6 @@ export const ProductDTOEncSettings = {
   ],
 };
 
-// Price object => { value: number, currency: string }
-const priceSchema = z.object({
-  value: z.number().min(0),
-  currency: z.string(),
-});
 
 // Address
 const addressSchema = z.object({
