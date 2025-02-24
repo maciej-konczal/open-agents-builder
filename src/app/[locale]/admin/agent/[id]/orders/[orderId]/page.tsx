@@ -226,7 +226,7 @@ export default function OrderFormPage() {
       const gross = shippingPrice * (1 + r);
       setValue("shippingPriceInclTax", parseFloat(gross.toFixed(2)));
     }
-  }, [shippingPrice]);
+  }, [shippingPrice, shippingPriceTaxRate]);
 
   useEffect(() => {
     if (!shippingPriceTaxRate) return;
@@ -235,7 +235,7 @@ export default function OrderFormPage() {
       const net = shippingPriceInclTax / (1 + r);
       setValue("shippingPrice", parseFloat(net.toFixed(2)));
     }
-  }, [shippingPriceInclTax]);
+  }, [shippingPriceInclTax, shippingPriceTaxRate]);
 
   // 5) Obsługa items => product / variant
   const { fields: lineFields, append: appendLine, remove: removeLine } = useFieldArray({
@@ -299,20 +299,32 @@ export default function OrderFormPage() {
     const item = watch(`items.${index}`);
     const r = (item.taxRate || 23) / 100;
     if (field === "price") {
-      const incl = newValue  * (1 + r);
-      setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
+      if (newValue >= 0) {
+        const incl = newValue  * (1 + r);
+        setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
+      } else {
+        setValue(`items.${index}.price`, 0);
+      }
     } else {
-      const net = newValue / (1 + r);
-      setValue(`items.${index}.price`, parseFloat(net.toFixed(2)));
+      if(newValue >= 0) {
+        const net = newValue / (1 + r);
+        setValue(`items.${index}.price`, parseFloat(net.toFixed(2)));
+      } else { 
+        setValue(`items.${index}.priceInclTax`, 0);
+      }
     }
     setTotalsRefreshSync(nanoid());
   };
   const handleItemTaxRateChange = (index: number, newValue: number) => {
-    const item = watch(`items.${index}`);
-    const r = (newValue || 0)/100;
-    const incl = item.price * (1 + r);
-    setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
-    setTotalsRefreshSync(nanoid());
+    if (newValue >= 0) {
+      const item = watch(`items.${index}`);
+      const r = (newValue || 0)/100;
+      const incl = item.price * (1 + r);
+      setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
+      setTotalsRefreshSync(nanoid());
+    } else {
+      setValue(`items.${index}.taxRate`, 0);
+    }
   };
 
   // 6) Podsumowanie
@@ -663,7 +675,13 @@ export default function OrderFormPage() {
                       <label className="block text-sm font-medium">{t("Quantity")}</label>
                       <Input
                         type="number"
-                        {...register(`items.${idx}.quantity`, { valueAsNumber: true })}
+                        {...register(`items.${idx}.quantity`, { valueAsNumber: true, onChange: (e) => {
+                          if (parseFloat(e.target.value) >= 0) {
+                            setTotalsRefreshSync(nanoid()) 
+                          } else {
+                            setValue(`items.${idx}.quantity`, 0);
+                          }
+                        }})}
                         className="w-20"
                       />
                       {lineErr?.quantity && <p className="text-red-500 text-sm">{lineErr.quantity.message}</p>}
@@ -675,8 +693,8 @@ export default function OrderFormPage() {
                       <Input
                         type="number"
                         step="0.01"
-                        {...register(`items.${idx}.price`, { valueAsNumber: true })}
-                        onChange={(e) => handleItemPriceChange(idx, parseFloat(e.target.value), "price")}
+                        {...register(`items.${idx}.price`, { valueAsNumber: true, onChange: (e) => handleItemPriceChange(idx, parseFloat(e.target.value), "price")})}
+                        
                         className="w-24"
                       />
                       {lineErr?.price && <p className="text-red-500 text-sm">{lineErr.price.message}</p>}
@@ -809,12 +827,12 @@ export default function OrderFormPage() {
                 <div key={nf.id} className="relative border p-2 mb-2">
                   <Textarea rows={2} {...register(`notes.${idx}.message`)} />
                   <Button
-                    className="absolute top-1 right-1"
-                    variant="destructive"
+                    className="absolute top-4 right-4"
+                    variant="outline"
                     size="sm"
                     onClick={() => removeNoteArr(idx)}
                   >
-                    {t("Remove")}
+                    <TrashIcon className="w-4 h-4 " />
                   </Button>
                   {noteErr?.message && (
                     <p className="text-red-500 text-sm">{noteErr.message}</p>

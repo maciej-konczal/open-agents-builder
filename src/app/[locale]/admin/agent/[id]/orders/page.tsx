@@ -57,7 +57,7 @@ export default function OrdersPage() {
     query: "",
   });
 
-  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [ordersLoading, setOrdersLoading] = useState(true);
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 4; // kolejny przyrost paginacji
 
@@ -177,7 +177,7 @@ export default function OrdersPage() {
                 >
                   <FolderOpenIcon className="w-4 h-4" />
                 </Button>
-                <span>{t("Order")} #{order.id}</span>
+                <Link href={`/admin/agent/${agentContext.current?.id}/orders/${order.id}`}>{t("Order")} #{order.id}</Link>
               </CardTitle>
             </CardHeader>
             <CardContent className="text-sm flex">
