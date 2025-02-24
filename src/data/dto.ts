@@ -425,7 +425,7 @@ const customerSchema = z.object({
 const orderItemSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
-  sku: z.string().optional,
+  sku: z.string().optional(),
   message: z.string().optional(),
   customOptions: z.array(z.object({ name: z.string(), value: z.string() })).optional(),
 
