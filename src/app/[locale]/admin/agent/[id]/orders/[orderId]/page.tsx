@@ -552,7 +552,7 @@ export default function OrderFormPage() {
                     onChange={(e) => {
                       setValue(`items.${idx}.name`, e.target.value);
                       setSearchingLineIndex(idx);
-                      setDebouncedSearchQuery(e.target.value);
+                      setCurrentSearchQuery(e.target.value);
                     }}
                   />
 
