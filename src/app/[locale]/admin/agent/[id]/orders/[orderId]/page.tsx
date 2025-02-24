@@ -20,6 +20,7 @@ import { Order, Product } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
+import { CopyIcon } from "lucide-react";
 
 // 1) Zod schema z wymaganiami
 // Dodajemy orderNumber, shippingPriceTaxRate, 
@@ -440,11 +441,35 @@ export default function OrderFormPage() {
                   {errors.billingAddress.postalCode.message as string}
                 </p>
               )}
+
+              <label className="block text-sm">{t("City")}</label>
+              <Input {...register("billingAddress.city")} />
+              {errors.billingAddress?.city && (
+                <p className="text-red-500 text-sm">y
+                  {errors.billingAddress.city.message as string}
+                </p>
+              )}
+
+            <label className="block text-sm">{t("Address line 1 (Street etc)")}</label>
+              <Input {...register("billingAddress.address1")} />
+              {errors.billingAddress?.address1 && (
+                <p className="text-red-500 text-sm">y
+                  {errors.billingAddress.address1.message as string}
+                </p>
+              )}
               {/* city, address1, etc. */}
             </div>
 
             <div className="flex-1 border p-2">
-              <h3 className="font-semibold mb-2">{t("Shipping Address")}</h3>
+              <h3 className="font-semibold mb-2">{t("Shipping Address")}
+                <Button variant="secondary" title={t("Copy from billing")} size="sm" onClick={(e) => {
+                  e.preventDefault();
+                  setValue("shippingAddress", methods.getValues("billingAddress"));
+                }}>
+                    <CopyIcon className="w-4 h-4" />
+                </Button>
+
+              </h3>
               <label className="block text-sm">{t("Name")}</label>
               <Input {...register("shippingAddress.name")} />
               {errors.shippingAddress?.name && (
@@ -460,6 +485,24 @@ export default function OrderFormPage() {
                   {errors.shippingAddress.postalCode.message as string}
                 </p>
               )}
+
+              <label className="block text-sm">{t("City")}</label>
+              <Input {...register("shippingAddress.city")} />
+              {errors.shippingAddress?.city && (
+                <p className="text-red-500 text-sm">
+                  {errors.shippingAddress.city.message as string}
+                </p>
+              )}
+
+            <label className="block text-sm">{t("Address Line 1 (Street etc.) ")}</label>
+              <Input {...register("shippingAddress.address1")} />
+              {errors.shippingAddress?.address1 && (
+                <p className="text-red-500 text-sm">
+                  {errors.shippingAddress.address1.message as string}
+                </p>
+              )}
+
+
               {/* city, address1, etc. */}
             </div>
           </div>
