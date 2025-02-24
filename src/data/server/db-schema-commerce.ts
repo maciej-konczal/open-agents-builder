@@ -68,6 +68,7 @@ export const orders = sqliteTable('orders', {
   subtotalTaxValue: text('subtotalTaxValue', { mode: 'json' }),
   total: text('total', { mode: 'json' }),
   totalInclTax: text('totalInclTax', { mode: 'json' }),
+  shippingMethod: text('shippingMethod', { mode: 'json' }),
   shippingPrice: text('shippingPrice', { mode: 'json' }),
   shippingPriceTaxRate: text('shippingPriceTaxRate', { mode: 'json' }),
   shippingPriceInclTax: text('shippingPriceInclTax', { mode: 'json' }),

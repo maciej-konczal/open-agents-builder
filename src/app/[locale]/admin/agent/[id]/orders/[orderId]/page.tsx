@@ -63,7 +63,8 @@ const orderFormSchema = z.object({
 
   items: z.array(z.object({
     id: z.string(),
-    productSkuOrName: z.string().optional(),
+    name: z.string().optional(),
+    sku: z.string().optional(),
     variantId: z.string().optional(),
     quantity: z.number().min(1).default(1),
 
@@ -198,7 +199,7 @@ export default function OrderFormPage() {
       shippingPriceTaxRate: (o.shippingPriceTaxRate || 0)*100, // zakładamy w modelu 0-1
       items: (o.items || []).map((it) => ({
         id: it.id,
-        productSkuOrName: "", // brak w DB
+        productSkuOrName: it.name,
         variantId: it.variantId || "",
         quantity: it.quantity,
         price: it.price?.value || 0,
@@ -240,7 +241,7 @@ export default function OrderFormPage() {
 
   // Stan do przechowywania wariantów
   const [lineVariants, setLineVariants] = useState<Record<number, Product["variants"]>>({});
-  const [foundProduct, setFoundProduct] = useState<Record<number, Product | null>>({});
+  const [foundProducts, setFoundProducts] = useState<Record<number, Product[] | null>>({});
 
   // Debounce
   const itemsValue = watch("items");
@@ -278,27 +279,8 @@ export default function OrderFormPage() {
           });
           return;
         }
-        // Bierzemy pierwszy
-        const p = Product.fromDTO(response.rows[0]);
-        setFoundProduct(prev => ({ ...prev, [searchingLineIndex]: p}));
-        
-        if (p.variants && p.variants.length > 0) {
-          setLineVariants(prev => ({
-            ...prev,
-            [searchingLineIndex]: p.variants,
-          }));
-        } else {
-          // brak wariantów => usuń
-          setLineVariants(prev => {
-            const c = { ...prev };
-            delete c[searchingLineIndex];
-            return c;
-          });
-          // można ustawić line.price, line.priceInclTax = p.price, p.priceInclTax
-          setValue(`items.${searchingLineIndex}.price`, p.price.value);
-          setValue(`items.${searchingLineIndex}.priceInclTax`, p.priceInclTax?.value || 0);
-          setValue(`items.${searchingLineIndex}.taxRate`, (p.taxRate||0)*100);
-        }
+
+        setFoundProducts(prev => ({ ...prev, [searchingLineIndex]: response.rows.map(Product.fromDTO) }));
       } catch (error) {
         console.error(error);
         toast.error("Error querying product: " + getErrorMessage(error));
@@ -369,7 +351,8 @@ export default function OrderFormPage() {
 
       items: data.items.map((li) => ({
         id: li.id,
-        sku: li.productSkuOrName || "",
+        name: li.name ||| "",
+        sku: li.sku || "",
         variantId: li.variantId,
         quantity: li.quantity,
         price: { value: li.price, currency: "USD" },
@@ -627,9 +610,50 @@ export default function OrderFormPage() {
                       setDebouncedSearchQuery(e.target.value);
                     }}
                   />
+                  
                   {lineErr?.productSkuOrName && (
                     <p className="text-red-500 text-sm">{lineErr.productSkuOrName.message}</p>
                   )}
+
+                  {idx !== null && foundProducts[idx] ? (
+
+                    <div className="flex-row mt-2 text-xs">
+                      {t('Select product: ')}
+                      {foundProducts[idx].map(p=>Product.fromDTO(p)).map((p) => (
+                          <Button size="sm" className="m-2" variant={"outline"} onClick={(e) => {
+                            
+                            e.preventDefault();
+                            
+                            if (p.variants && p.variants.length > 0) {
+                              setLineVariants(prev => ({
+                                ...prev,
+                                [idx]: p.variants,
+                              }));
+                            } else {
+                              // brak wariantów => usuń
+                              setLineVariants(prev => {
+                                const c = { ...prev };
+                                delete c[idx];
+                                return c;
+                              });
+                              // można ustawić line.price, line.priceInclTax = p.price, p.priceInclTax
+                              setValue(`items.${idx}.name`, p.name);
+                              setValue(`items.${idx}.sku`, p.sku);
+                              setValue(`items.${idx}.price`, p.price.value);
+                              setValue(`items.${idx}.priceInclTax`, p.priceInclTax?.value || 0);
+                              setValue(`items.${idx}.taxRate`, (p.taxRate||0)*100);
+                            }
+
+                            setFoundProducts(prev => { delete prev[idx]; return prev });                            
+                          }}>
+
+                            {p.name}
+                          </Button>
+                      ))}
+
+                    </div>
+
+                  ): null}
 
                   {idx !== null && foundProduct[idx] ? (
                     <div className="mt-2">

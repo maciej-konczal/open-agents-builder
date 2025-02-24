@@ -760,7 +760,21 @@ export interface Price {
   }
   
   export interface Address {
-    // ...
+    address1?: string;
+    address2?: string;
+    city?: string;
+    company?: string;
+    country?: any;
+    countryCode?: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    name?: string;
+    phone?: string;
+    province?: string;
+    provinceCode?: string;
+    street?: string;
+    summary?: string;
+    postalCode?: string;
   }
   export interface Note {
     date: string;
@@ -780,6 +794,7 @@ export interface Price {
   }
   export interface OrderItem {
     id: string;
+    name?: string;
     message?: string;
     customOptions?: { name: string; value: string }[];
     originalPrice?: Price;
@@ -820,6 +835,7 @@ export interface Price {
     total?: Price;
     totalInclTax?: Price;
     shippingPrice?: Price;
+    shippingMethod?: string;
     shippingPriceTaxRate?: Price;
     shippingPriceInclTax?: Price;
   
@@ -937,6 +953,7 @@ export interface Price {
     toDTO(): OrderDTO {
       return {
         id: this.id,
+        name: this.name,
         billingAddress: this.billingAddress,
         shippingAddress: this.shippingAddress,
         attributes: this.attributes,

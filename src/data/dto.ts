@@ -396,7 +396,7 @@ const addressSchema = z.object({
   provinceCode: z.string().optional(),
   street: z.string().optional(),
   summary: z.string().optional(),
-  zip: z.string().optional(),
+  postalCode: z.string().optional(),
 });
 
 // Note
@@ -424,6 +424,7 @@ const customerSchema = z.object({
 // A single item in the order
 const orderItemSchema = z.object({
   id: z.string(),
+  name: z.string().optional(),
   message: z.string().optional(),
   customOptions: z.array(z.object({ name: z.string(), value: z.string() })).optional(),
 
@@ -476,6 +477,7 @@ export const orderDTOSchema = z.object({
   subtotalTaxValue: priceSchema.optional(),
   total: priceSchema.optional(),
   totalInclTax: priceSchema.optional(),
+  shippingMethod: z.string().optional(),
   shippingPrice: priceSchema.optional(),
   shippingPriceInclTax: priceSchema.optional(),
   shippingPriceTaxRate: priceSchema.optional(),
