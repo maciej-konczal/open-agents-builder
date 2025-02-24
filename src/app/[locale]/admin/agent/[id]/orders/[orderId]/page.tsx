@@ -21,6 +21,7 @@ import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
 import { CopyIcon } from "lucide-react";
+import { useAgentContext } from "@/contexts/agent-context";
 
 // 1) Zod schema z wymaganiami
 // Dodajemy orderNumber, shippingPriceTaxRate, 
@@ -76,6 +77,7 @@ export default function OrderFormPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
+  const agentContext = useAgentContext();
   const orderContext = useOrderContext();
 
   // Zamiast poprzednich stałych:
@@ -379,7 +381,7 @@ export default function OrderFormPage() {
 
       const saved = await orderContext.updateOrder(order, true);
       toast.success(t("Order saved!"));
-      router.push("/admin/orders");
+      router.push(`/admin/agent/${agentContext.current?.id}/orders`);
     } catch (error) {
       console.error(error);
       toast.error("Error saving order: " + getErrorMessage(error));
