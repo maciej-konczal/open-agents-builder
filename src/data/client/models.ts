@@ -835,6 +835,7 @@ export const ORDER_STATUSES = [
   
   export class Order {
     id?: string;
+    agentId?: string;
     billingAddress?: Address;
     shippingAddress?: Address;
     attributes?: Record<string, any>;
@@ -945,6 +946,7 @@ export const ORDER_STATUSES = [
   
     constructor(dto: OrderDTO) {
       this.id = dto.id;
+      this.agentId = dto.agentId;
       this.billingAddress = dto.billingAddress;
       this.shippingAddress = dto.shippingAddress;
       this.attributes = dto.attributes;
@@ -977,7 +979,7 @@ export const ORDER_STATUSES = [
     toDTO(): OrderDTO {
       return {
         id: this.id,
-        name: this.name,
+        agentId: this.agentId,
         billingAddress: this.billingAddress,
         shippingAddress: this.shippingAddress,
         attributes: this.attributes,

@@ -26,6 +26,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
   private async toDbRecord(dto: OrderDTO): Promise<any> {
     return {
       id: dto.id,
+      agentId: dto.agentId
       billingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.billingAddress || {})),
       shippingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.shippingAddress || {})),
       attributes: await this.encUtils?.encrypt(JSON.stringify(dto.attributes || {})),
@@ -59,6 +60,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
 
     return {
       id: record.id,
+      agentId: record.agentId,
       billingAddress: safeJsonParse(await this.encUtils?.decrypt(record.billingAddress) || '', {}),
       shippingAddress: safeJsonParse(await this.encUtils?.decrypt(record.shippingAddress) || '', {}),
       attributes: safeJsonParse(await this.encUtils?.decrypt(record.attributes) || '', {}),

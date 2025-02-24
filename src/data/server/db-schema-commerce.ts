@@ -49,6 +49,7 @@ export const products = sqliteTable('products', {
 // Table orders (1 row => 1 order)
 export const orders = sqliteTable('orders', {
   id: text('id').primaryKey(),
+  agentId: text('agentId'),
 
   // billingAddress, shippingAddress, attributes, items, notes, etc. => JSON
   billingAddress: text('billingAddress', { mode: 'json' }),
