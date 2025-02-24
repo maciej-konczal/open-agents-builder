@@ -25,6 +25,7 @@ import { PaginatedQuery, PaginatedResult } from "@/data/dto";
 // Ikony przykładowe
 import { BoxIcon, ListOrderedIcon } from "lucide-react";
 import { useAgentContext } from "@/contexts/agent-context";
+import moment from "moment";
 
 /**
  * Strona z listą zamówień, analogiczna do "ProductsPage"
@@ -188,14 +189,6 @@ export default function OrdersPage() {
                   </div>
                 )}
 
-                {/* Suma zamówienia */}
-                {order.total && (
-                  <div className="mb-2">
-                    <strong>{t("Total")}:</strong>{" "}
-                    {order.total.value} {order.total.currency}
-                  </div>
-                )}
-
                 {/* Ilość pozycji */}
                 {order.items && (
                   <div className="mb-2">
@@ -203,21 +196,48 @@ export default function OrdersPage() {
                   </div>
                 )}
 
+
                 {/* Daty */}
                 <div className="mb-2">
-                  <strong>{t("Created")}:</strong> {order.createdAt}
+                  <strong>{t("Created")}:</strong> {moment(order.createdAt).format("YYYY-MM-DD")}
                 </div>
               </div>
-              <div>
-                <div>
-                  {order.items?.map(i=> (
-                    <div>
-                      {i.quantity} x <strong>{i.name}</strong> {i.price.value} {i.price.currency}
+              <div className="ml-4">
+                <div className="mb-2">
+                  {order.items && ((order.items?.length || 0) > 3 ? (order.items?.slice(0, 3)) : order.items ?? []).map(i=> (
+                    <div className="border-b pb-2">
+                      {i.quantity} x <strong>{i.name}</strong> - {i.price.value} {i.price.currency}
                     </div>
 
                     )
                   )}
+                  {order.items && order.items.length > 3 ? (
+                   <span className="text-sm pb-4">{order.items.length-3} {t('more ...')}</span> 
+                  ): null}
                 </div>
+
+
+                {/* Suma zamówienia */}
+                {order.subTotalInclTax && (
+                  <div className="mb-2 grid grid-cols-2">
+                    <div className="pr-2"><strong>{t("Subtotal incl. tax")}:</strong>{" "}</div>
+                    <div>{order.subTotalInclTax.value} {order.subTotalInclTax.currency}</div>
+                  </div>
+                )}                
+
+                {order.shippingPriceInclTax && (
+                  <div className="mb-2 grid grid-cols-2">
+                    <div className="pr-2"><strong>{t("Shipping cost")}:</strong>{" "}</div>
+                    <div>{order.shippingPriceInclTax?.value} {order.shippingPriceInclTax?.currency}</div>
+                  </div>
+                )}                
+                {order.totalInclTax && (
+                  <div className="mb-2 grid grid-cols-2">
+                    <div className="pr-2"><strong>{t("Total incl. tax")}:</strong>{" "}</div>
+                    <div>{order.totalInclTax.value} {order.totalInclTax.currency}</div>
+                  </div>
+                )}                
+
               </div>
               {/* ewentualnie przycisk do usunięcia (lub dialog) */}
               {/* <OrderDeleteDialog order={order} /> */}

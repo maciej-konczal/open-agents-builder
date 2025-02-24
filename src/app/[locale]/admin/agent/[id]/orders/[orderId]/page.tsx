@@ -196,7 +196,8 @@ export default function OrderFormPage() {
       shippingPriceTaxRate: (o.shippingPriceTaxRate || 0)*100, // zakładamy w modelu 0-1
       items: (o.items || []).map((it) => ({
         id: it.id,
-        productSkuOrName: it.name,
+        name: it.name,
+        sku: it.sku,
         variantId: it.variantId || "",
         quantity: it.quantity,
         price: it.price?.value || 0,
@@ -535,11 +536,11 @@ export default function OrderFormPage() {
                       <div className="w-full mb-2 border-b p-2">{t('Select product: ')}</div>
                       <div className="w-full">
                         {foundProducts[idx].map(p=>Product.fromDTO(p)).map((p) => (
-                          <div  className="grid grid-cols-4 w-full place-items-center">
-                            <div className="items-center col-span-2 items-center">{p.sku}: {p.name}</div>
-                            <div><Price currency={p.priceInclTax?.currency || ''} price={p.priceInclTax?.value || 0} /></div>
-                            <div className="items-center">
-                              <Button size="sm" className="m-2" variant={"outline"} onClick={(e) => {
+                          <div  className="grid grid-cols-4 w-full place-items-stretch">
+                            <div className="items-left text-left col-span-2 p-2">{p.sku}: {p.name}</div>
+                            <div className="p-2"><Price currency={p.priceInclTax?.currency || ''} price={p.priceInclTax?.value || 0} /></div>
+                            <div className="items-center align-middle p-2">
+                              <Button size="sm" variant={"outline"} onClick={(e) => {
                                 
                                 e.preventDefault();
                                 

@@ -795,6 +795,7 @@ export interface Price {
   export interface OrderItem {
     id: string;
     name?: string;
+    sku?: string;
     message?: string;
     customOptions?: { name: string; value: string }[];
     originalPrice?: Price;
