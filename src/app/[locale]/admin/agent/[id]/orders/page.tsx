@@ -24,12 +24,14 @@ import { PaginatedQuery, PaginatedResult } from "@/data/dto";
 
 // Ikony przykładowe
 import { BoxIcon, ListOrderedIcon } from "lucide-react";
+import { useAgentContext } from "@/contexts/agent-context";
 
 /**
  * Strona z listą zamówień, analogiczna do "ProductsPage"
  */
 export default function OrdersPage() {
   const { t } = useTranslation();
+  const agentContext = useAgentContext();
   const router = useRouter();
 
   // Kontekst do obsługi zamówień
@@ -130,7 +132,7 @@ export default function OrdersPage() {
     <div className="space-y-6">
       {/* Przykładowy link do "create new order" */}
       <div className="flex space-x-2">
-        <Link href={`/admin/orders/new`}>
+        <Link href={`/admin/agent/${agentContext.current?.id}/orders/new`}>
           <Button size="sm" variant="outline">
             <BoxIcon className="w-4 h-4 mr-2" />
             {t("Add new order...")}

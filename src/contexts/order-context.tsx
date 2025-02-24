@@ -8,6 +8,7 @@ import { Order } from "@/data/client/models"; // klasa modelu (Order.fromDTO, to
 import { OrderApiClient, DeleteOrderResponse, PutOrderResponseSuccess } from "@/data/client/order-api-client";
 import { useTranslation } from "react-i18next";
 import { PaginatedQuery, PaginatedResult } from "@/data/dto";
+import { nanoid } from "nanoid";
 
 // Typ kontekstu:
 type OrderContextType = {
@@ -100,6 +101,9 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
       const client = await setupApiClient();
+
+      if (!order.id || order.id === 'new') order.id = nanoid(); // assign new id
+
       const dto = order.toDTO();
       const response = await client.put(dto);
       if (response.status !== 200) {
@@ -109,7 +113,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
 
       // Zwrócona data to OrderDTO => konwertujemy do modelu
       // cast do success
-      const updatedOrder = Order.fromDTO(response.data);
+      const updatedOrder = Order.fromDTO((response as PutOrderResponseSuccess).data);
 
       // Aktualizujemy stan
       setOrders((prev) => {

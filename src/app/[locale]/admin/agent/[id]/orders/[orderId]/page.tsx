@@ -12,16 +12,14 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Combobox } from "@/components/ui/combobox"; // Twój combobox (np. shadcn)
 import { Select } from "@/components/ui/select"; // ewentualny select do statusu
 import { Card } from "@/components/ui/card";
 
 import { getErrorMessage } from "@/lib/utils";
 import { OrderApiClient } from "@/data/client/order-api-client";
-import { OrderDTO, Price } from "@/data/dto";
-import { Order, OrderItem, Note, StatusChange, Address } from "@/data/client/models/order";
+import { OrderDTO } from "@/data/dto";
+import { Order, OrderItem, Note, StatusChange, Address, Product } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
-import { Product } from "@/data/client/models/product";
 
 // Kontekst
 import { useOrderContext } from "@/contexts/order-context";
@@ -79,13 +77,14 @@ const orderFormSchema = z.object({
 // 2) Typ
 type OrderFormData = z.infer<typeof orderFormSchema>;
 
-// Lista statusów:
-const ORDER_STATUSES = ["New", "Processing", "Shipped", "Completed", "Cancelled"];
 
 export default function OrderFormPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
+
+  // Lista statusów:
+const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Completed", "Cancelled"];
 
   const orderContext = useOrderContext();
   const productApi = new ProductApiClient("");
@@ -494,14 +493,18 @@ export default function OrderFormPage() {
                   {variants.length > 0 && (
                     <div className="mt-2">
                       <label className="block text-sm font-medium">{t("Variant")}</label>
-                      <Combobox
-                        items={variants.map((v) => ({
-                          label: v.name,
-                          value: v.id,
-                        }))}
+                      <select
+                        {...register(`items.${idx}.variantId`)}
                         value={line.variantId || ""}
-                        onChange={(val) => handleVariantSelect(idx, val)}
-                      />
+                        onChange={(e) => handleVariantSelect(idx, e.target.value)}
+                      >
+                        <option value="">{t("Select a variant")}</option>
+                        {variants.map((v) => (
+                          <option key={v.id} value={v.id}>
+                            {v.name}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                   )}
 
