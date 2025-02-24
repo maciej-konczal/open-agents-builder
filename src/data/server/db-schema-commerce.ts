@@ -49,6 +49,7 @@ export const products = sqliteTable('products', {
 // Table orders (1 row => 1 order)
 export const orders = sqliteTable('orders', {
   id: text('id').primaryKey(),
+  agentId: text('agentId'),
 
   // billingAddress, shippingAddress, attributes, items, notes, etc. => JSON
   billingAddress: text('billingAddress', { mode: 'json' }),
@@ -68,7 +69,9 @@ export const orders = sqliteTable('orders', {
   subtotalTaxValue: text('subtotalTaxValue', { mode: 'json' }),
   total: text('total', { mode: 'json' }),
   totalInclTax: text('totalInclTax', { mode: 'json' }),
+  shippingMethod: text('shippingMethod', { mode: 'json' }),
   shippingPrice: text('shippingPrice', { mode: 'json' }),
+  shippingPriceTaxRate: text('shippingPriceTaxRate', { mode: 'json' }),
   shippingPriceInclTax: text('shippingPriceInclTax', { mode: 'json' }),
 
   // items => array of objects (each with price, priceInclTax, etc.)

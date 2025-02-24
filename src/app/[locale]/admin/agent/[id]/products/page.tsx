@@ -160,7 +160,7 @@ export default function ProductsPage() {
                 >
                 <FolderOpenIcon className="w-4 h-4" />
             </Button>
-            {product.name}</CardTitle>
+            <Link href={"/admin/agent/" + encodeURIComponent(agentContext.current?.id || '') + "/products/" + encodeURIComponent(product.id || '')}>{product.name}</Link></CardTitle>
             <div className="flex items-center text-sm space-x-2 mt-4">
                 <div className="flex space-x-2"><TagIcon className="w-4 h-4 mr-2" /> {t('Price: ')} </div>
                 <div>
@@ -233,7 +233,7 @@ export default function ProductsPage() {
         next={loadMore}
         threshold={1}
       >
-        {hasMore && productsLoading && (
+        {productsLoading && (
           <div className="flex justify-center">
             <Loader2 className="my-4 h-8 w-8 animate-spin" />
           </div>

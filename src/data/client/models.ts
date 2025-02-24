@@ -1,7 +1,7 @@
 import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO, ProductDTO, OrderDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
-import { getCurrentTS } from "@/lib/utils";
+import { createPrice, getCurrentTS } from "@/lib/utils";
 import { Message } from "ai";
 import moment from "moment";
 
@@ -760,7 +760,21 @@ export interface Price {
   }
   
   export interface Address {
-    // ...
+    address1?: string;
+    address2?: string;
+    city?: string;
+    company?: string;
+    country?: any;
+    countryCode?: string;
+    firstName?: string | null;
+    lastName?: string | null;
+    name?: string;
+    phone?: string;
+    province?: string;
+    provinceCode?: string;
+    street?: string;
+    summary?: string;
+    postalCode?: string;
   }
   export interface Note {
     date: string;
@@ -780,6 +794,13 @@ export interface Price {
   }
   export interface OrderItem {
     id: string;
+    name?: string;
+    productSku?: string;
+    variantSku?: string;
+    variantName?: string;
+    productId?: string;
+    variantId?: string;
+
     message?: string;
     customOptions?: { name: string; value: string }[];
     originalPrice?: Price;
@@ -799,12 +820,22 @@ export interface Price {
     taxRate?: number;
   
     variant?: any;
-    productId?: string;
-    variantId?: string;
   }
+
+
+export const ORDER_STATUSES = [
+    { label: ("Shopping Cart"), value: "shopping_cart" },
+    { label: ("Quote"), value: "quote" },
+    { label: ("New"), value: "new" },
+    { label: ("Processing"), value: "processing" },
+    { label: ("Shipped"), value: "shipped" },
+    { label: ("Completed"), value: "completed" },
+    { label: ("Cancelled"), value: "cancelled" },
+];
   
   export class Order {
     id?: string;
+    agentId?: string;
     billingAddress?: Address;
     shippingAddress?: Address;
     attributes?: Record<string, any>;
@@ -820,15 +851,102 @@ export interface Price {
     total?: Price;
     totalInclTax?: Price;
     shippingPrice?: Price;
+    shippingMethod?: string;
+    shippingPriceTaxRate?: number;
     shippingPriceInclTax?: Price;
   
     items?: OrderItem[];
   
     createdAt: string;
     updatedAt: string;
+   
+    calcTotals(): void {
+        if (!this.items || this.items.length === 0) {
+          // If no items, reset everything
+          const fallbackCurrency = this.subtotal?.currency || "USD";
+          this.subtotal = createPrice(0, fallbackCurrency);
+          this.subTotalInclTax = createPrice(0, fallbackCurrency);
+          this.subtotalTaxValue = createPrice(0, fallbackCurrency);
+          this.total = createPrice(0, fallbackCurrency);
+          this.totalInclTax = createPrice(0, fallbackCurrency);
+          return;
+        }
+    
+        // Bierzemy currency z 1. itema (fallback = 'USD')
+        const currency = this.items[0].price?.currency || "USD";
+    
+        let subtotalValue = 0;
+        let subtotalInclTaxValue = 0;
+        let subtotalTaxValue = 0;
+    
+        // Przeliczenie każdej linii:
+        for (const item of this.items) {
+          if (item.price.value < 0) item.price.value = 0;
+          if ((item.priceInclTax?.value ?? 0) < 0) item.priceInclTax = createPrice(0, currency);
+          item.taxRate = Math.max(0, item.taxRate || 0);
+
+          const itemCurrency = item.price?.currency ?? currency;
+          const lineNet = (item.price?.value ?? 0) * (item.quantity || 1);
+    
+          // lineValue
+          item.lineValue = createPrice(lineNet, itemCurrency);
+    
+          // lineValueInclTax
+          let lineGross = 0;
+          if (item.priceInclTax) {
+            lineGross = item.priceInclTax.value * item.quantity;
+          } else {
+            if (item.taxRate !== undefined && item.taxRate !== null) {
+              lineGross = lineNet * (1 + item.taxRate);
+            } else {
+              lineGross = lineNet;
+            }
+          }
+          item.lineValueInclTax = createPrice(lineGross, itemCurrency);
+    
+          // lineTaxValue
+          const lineTax = lineGross - lineNet;
+          item.lineTaxValue = createPrice(lineTax, itemCurrency);
+    
+          // sum to sub-totals
+          subtotalValue += lineNet;
+          subtotalInclTaxValue += lineGross;
+          subtotalTaxValue += lineTax;
+        }
+    
+        // Setting subTotal, subTotalInclTax, etc.
+        this.subtotal = createPrice(subtotalValue, currency);
+        this.subTotalInclTax = createPrice(subtotalInclTaxValue, currency);
+        this.subtotalTaxValue = createPrice(subtotalTaxValue, currency);
+
+        let shippingValue = this.shippingPrice?.value || 0;
+        shippingValue = Math.max(0, shippingValue);
+        if ((this.shippingPriceTaxRate ?? 0) < 0) this.shippingPriceTaxRate = 0;
+
+        // shipping
+        let shippingInclValue = Math.max(this.shippingPriceInclTax?.value || 0, 0);
+
+        if (!this.shippingPriceInclTax && this.shippingPrice && this.shippingPriceTaxRate) {
+            shippingInclValue = this.shippingPrice.value * (1 + this.shippingPriceTaxRate);
+        }
+
+        if (this.shippingPriceInclTax && this.shippingPriceTaxRate) {
+            const shippingTaxRate = this.shippingPriceTaxRate;
+            shippingValue = this.shippingPriceInclTax.value / (1 + shippingTaxRate);
+            this.shippingPrice = createPrice(shippingValue, currency);
+        } 
+    
+        const totalNet = subtotalValue + shippingValue;
+        const totalGross = subtotalInclTaxValue + shippingInclValue;
+    
+        this.total = createPrice(totalNet, currency);
+        this.totalInclTax = createPrice(totalGross, currency);
+      }
+    
   
     constructor(dto: OrderDTO) {
       this.id = dto.id;
+      this.agentId = dto.agentId;
       this.billingAddress = dto.billingAddress;
       this.shippingAddress = dto.shippingAddress;
       this.attributes = dto.attributes;
@@ -844,6 +962,8 @@ export interface Price {
       this.total = dto.total;
       this.totalInclTax = dto.totalInclTax;
       this.shippingPrice = dto.shippingPrice;
+      this.shippingMethod = dto.shippingMethod;
+      this.shippingPriceTaxRate = dto.shippingPriceTaxRate;
       this.shippingPriceInclTax = dto.shippingPriceInclTax;
   
       this.items = dto.items;
@@ -859,6 +979,7 @@ export interface Price {
     toDTO(): OrderDTO {
       return {
         id: this.id,
+        agentId: this.agentId,
         billingAddress: this.billingAddress,
         shippingAddress: this.shippingAddress,
         attributes: this.attributes,
@@ -874,6 +995,8 @@ export interface Price {
         total: this.total,
         totalInclTax: this.totalInclTax,
         shippingPrice: this.shippingPrice,
+        shippingMethod: this.shippingMethod,
+        shippingPriceTaxRate: this.shippingPriceTaxRate,
         shippingPriceInclTax: this.shippingPriceInclTax,
   
         items: this.items,

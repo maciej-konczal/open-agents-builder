@@ -353,7 +353,7 @@ export const productDTOSchema = z.object({
   weightUnit: z.string().optional(),
 
   brand: z.string().optional(),
-  status: z.string().optional(), // np. "active", "inactive", "deleted"
+  status: z.string().optional(),
 
   imageUrl: z.string().url().optional().nullable(),
 
@@ -396,7 +396,7 @@ const addressSchema = z.object({
   provinceCode: z.string().optional(),
   street: z.string().optional(),
   summary: z.string().optional(),
-  zip: z.string().optional(),
+  postalCode: z.string().optional(),
 });
 
 // Note
@@ -424,6 +424,13 @@ const customerSchema = z.object({
 // A single item in the order
 const orderItemSchema = z.object({
   id: z.string(),
+  name: z.string().optional(),
+  productSku: z.string().optional(),
+  variantSku: z.string().optional(),
+  productId: z.string().optional(),
+  variantId: z.string().optional(),
+
+  variantName: z.string().optional(),
   message: z.string().optional(),
   customOptions: z.array(z.object({ name: z.string(), value: z.string() })).optional(),
 
@@ -445,12 +452,11 @@ const orderItemSchema = z.object({
   taxRate: z.number().min(0).max(1).optional(),
 
   variant: z.any().optional(),
-  productId: z.string().optional(),
-  variantId: z.string().optional(),
 });
 
 export const orderDTOSchema = z.object({
   id: z.string().optional(),
+  agentId: z.string().optional(),
 
   billingAddress: addressSchema.optional(),
   shippingAddress: addressSchema.optional(),
@@ -458,7 +464,15 @@ export const orderDTOSchema = z.object({
   attributes: z.record(z.any()).optional(),
   notes: z.array(noteSchema).optional(),
   statusChanges: z.array(statusChangeSchema).optional(),
-  status: z.string().optional(),
+  status: z.enum([
+    "shopping_cart",
+    "quote",
+    "new",
+    "processing",
+    "shipped",
+    "completed",
+    "cancelled",
+  ]).default("shopping_cart"),
   email: z.string().email().optional(),
   customer: customerSchema.optional(),
 
@@ -468,8 +482,10 @@ export const orderDTOSchema = z.object({
   subtotalTaxValue: priceSchema.optional(),
   total: priceSchema.optional(),
   totalInclTax: priceSchema.optional(),
+  shippingMethod: z.string().optional(),
   shippingPrice: priceSchema.optional(),
   shippingPriceInclTax: priceSchema.optional(),
+  shippingPriceTaxRate: z.number().optional(),
 
   items: z.array(orderItemSchema).optional(),
 

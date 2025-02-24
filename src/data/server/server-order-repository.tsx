@@ -2,12 +2,12 @@
 
 import { BaseRepository, IQuery } from "./base-repository";
 import { OrderDTO, PaginatedResult } from "../dto";
-import { asc, count, desc, eq, like, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, like, or, SQL } from "drizzle-orm";
 import { create } from "./generic-repository";
 import { getCurrentTS, safeJsonParse } from "@/lib/utils";
 import { orders } from "./db-schema-commerce";
 import { EncryptionUtils } from "@/lib/crypto";
-import { Price } from "../client/models";
+import { Order, Price } from "../client/models";
 
 export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
 
@@ -26,6 +26,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
   private async toDbRecord(dto: OrderDTO): Promise<any> {
     return {
       id: dto.id,
+      agentId: dto.agentId,
       billingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.billingAddress || {})),
       shippingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.shippingAddress || {})),
       attributes: await this.encUtils?.encrypt(JSON.stringify(dto.attributes || {})),
@@ -43,6 +44,8 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
       total: JSON.stringify(dto.total || {}),
       totalInclTax: JSON.stringify(dto.totalInclTax || {}),
       shippingPrice: JSON.stringify(dto.shippingPrice || {}),
+      shippingMethod: dto.shippingMethod || "",
+      shippingPriceTaxRate: dto.shippingPriceTaxRate,
       shippingPriceInclTax: JSON.stringify(dto.shippingPriceInclTax || {}),
 
       items: JSON.stringify(dto.items || []),
@@ -57,6 +60,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
 
     return {
       id: record.id,
+      agentId: record.agentId,
       billingAddress: safeJsonParse(await this.encUtils?.decrypt(record.billingAddress) || '', {}),
       shippingAddress: safeJsonParse(await this.encUtils?.decrypt(record.shippingAddress) || '', {}),
       attributes: safeJsonParse(await this.encUtils?.decrypt(record.attributes) || '', {}),
@@ -73,6 +77,8 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
       total: safeJsonParse(record.total, {}),
       totalInclTax: safeJsonParse(record.totalInclTax, {}),
       shippingPrice: safeJsonParse(record.shippingPrice, {}),
+      shippingMethod: record.shippingMethod,
+      shippingPriceTaxRate: record.shippingPriceTaxRate,
       shippingPriceInclTax: safeJsonParse(record.shippingPriceInclTax, {}),
 
       items: safeJsonParse(record.items, []),
@@ -83,85 +89,6 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
   }
 
 
-  private calcTotals(order: OrderDTO): OrderDTO {
-    if (!order.items || order.items.length === 0) {
-      // if no items, reset everything:
-      order.subtotal = this.createPrice(0, order.subtotal?.currency || "USD");
-      order.subTotalInclTax = this.createPrice(0, order.subtotal?.currency || "USD");
-      order.subtotalTaxValue = this.createPrice(0, order.subtotal?.currency || "USD");
-      order.total = this.createPrice(0, order.subtotal?.currency || "USD");
-      order.totalInclTax = this.createPrice(0, order.subtotal?.currency || "USD");
-      return order;
-    }
-
-    // Assuming the entire order has one currency (taken from the first item, fallback to "USD")
-    const currency = order.items[0].price?.currency || "USD";
-
-    let subtotalValue = 0;
-    let subtotalInclTaxValue = 0;
-    let subtotalTaxValue = 0;
-
-    // ---------------------------------
-    // 1. Calculate values for each item
-    // ---------------------------------
-    for (const item of order.items) {
-      // Currency in item.price
-      const itemCurrency = item.price?.currency || currency;
-
-      // Calculate lineValue = price.value * quantity
-      const lineNet = (item.price?.value || 0) * (item.quantity || 1);
-
-      // lineValue
-      item.lineValue = this.createPrice(lineNet, itemCurrency);
-
-      // If we have priceInclTax => lineValueInclTax
-      let lineGross = 0;
-      if (item.priceInclTax) {
-        lineGross = item.priceInclTax.value * item.quantity;
-      } else {
-        // alternatively calculate lineGross = lineNet * (1 + taxRate)
-        if (item.taxRate !== undefined && item.taxRate !== null) {
-          lineGross = lineNet * (1 + item.taxRate);
-        } else {
-          lineGross = lineNet;
-        }
-      }
-      item.lineValueInclTax = this.createPrice(lineGross, itemCurrency);
-
-      // lineTaxValue = difference between lineValueInclTax and lineValue
-      const lineTax = lineGross - lineNet;
-      item.lineTaxValue = this.createPrice(lineTax, itemCurrency);
-
-      // Save originalPrice and originalPriceInclTax etc. in case of discounts
-      // ... (optional)
-
-      // Sum to sub-totals
-      subtotalValue += lineNet;
-      subtotalInclTaxValue += lineGross;
-      subtotalTaxValue += lineTax;
-    }
-
-    // ---------------------------------
-    // 2. Set sub-total and tax
-    // ---------------------------------
-    order.subtotal = this.createPrice(subtotalValue, currency);
-    order.subTotalInclTax = this.createPrice(subtotalInclTaxValue, currency);
-    order.subtotalTaxValue = this.createPrice(subtotalTaxValue, currency);
-
-    // ---------------------------------
-    // 3. Calculate total => subTotal + shipping
-    // ---------------------------------
-    const shippingValue = order.shippingPrice?.value || 0;
-    const shippingInclValue = order.shippingPriceInclTax?.value || 0;
-
-    const totalNet = subtotalValue + shippingValue;
-    const totalGross = subtotalInclTaxValue + shippingInclValue;
-
-    order.total = this.createPrice(totalNet, currency);
-    order.totalInclTax = this.createPrice(totalGross, currency);
-
-    return order;
-  }
 
   // Helper for creating Price
   private createPrice(value: number, currency: string): Price {
@@ -171,9 +98,10 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
   async create(item: OrderDTO): Promise<OrderDTO> {
     const db = await this.db();
 
-    item = this.calcTotals(item);
-
-    const dbRecord = await this.toDbRecord(item);
+    const order = Order.fromDTO(item);
+    order.calcTotals(); 
+    
+    const dbRecord = await this.toDbRecord(order.toDTO());
     const inserted = await create(dbRecord, orders, db);
     return await this.fromDbRecord(inserted);
   }
@@ -186,11 +114,12 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
       existing = db.select().from(orders).where(eq(orders.id, query.id)).get();
     }
 
-    item = this.calcTotals(item);
+    const order = Order.fromDTO(item);
+    order.calcTotals();  // double call first was on the client - to make sure it's recalculated    
 
     if (!existing) {
       // create
-      return this.create(item);
+      return this.create(order.toDTO());
     } else {
       // update
       const updated = { ...(await this.toDbRecord(item)) };
@@ -226,8 +155,8 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     return await Promise.all(rows.map((r) => this.fromDbRecord(r)));
   }
 
-  async queryAll({ id, limit, offset, orderBy, query }: 
-    { limit: number; offset: number; orderBy: string; query: string; id?: string; }
+  async queryAll({ id, agentId, limit, offset, orderBy, query }: 
+    { agentId: string, limit: number; offset: number; orderBy: string; query: string; id?: string; }
   ): Promise<PaginatedResult<OrderDTO[]>> {
     const db = await this.db();
 
@@ -247,16 +176,17 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
         break;
     }
 
-    let whereCondition = null;
+    let whereCondition = eq(orders.agentId, agentId);
     if (query) {
-      whereCondition = or(
+      whereCondition = and(whereCondition, or(
         like(orders.email, `%${query}%`),
+        like(orders.id, `%${query}%`),
         like(orders.status, `%${query}%`)
-      );
+      )) as SQL<unknown>;
     }
 
     if (id) {
-      whereCondition = eq(orders.id, id); // select single order by id
+      whereCondition = and(whereCondition, eq(orders.id, id)) as SQL<unknown>;; // select single order by id
     }
 
     const countQuery = db

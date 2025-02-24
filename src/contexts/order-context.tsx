@@ -5,9 +5,10 @@ import { DatabaseContext } from "./db-context";
 import { SaaSContext } from "./saas-context";
 import { DataLoadingStatus } from "@/data/client/models"; 
 import { Order } from "@/data/client/models"; // klasa modelu (Order.fromDTO, toDTO)
-import { OrderApiClient, DeleteOrderResponse, PutOrderResponseSuccess } from "@/data/client/order-api-client";
+import { OrderApiClient, DeleteOrderResponse, PutOrderResponseSuccess, PutOrderResponseError } from "@/data/client/order-api-client";
 import { useTranslation } from "react-i18next";
 import { PaginatedQuery, PaginatedResult } from "@/data/dto";
+import { nanoid } from "nanoid";
 
 // Typ kontekstu:
 type OrderContextType = {
@@ -27,7 +28,7 @@ type OrderContextType = {
   setLoaderStatus: (status: DataLoadingStatus) => void;
 
   // Jeśli potrzebujesz paginacji/filtr, analogicznie do queryProducts
-  queryOrders: (params: PaginatedQuery) => Promise<PaginatedResult<Order[]>>;
+  queryOrders: (params: PaginatedQuery & { agentId: string }) => Promise<PaginatedResult<Order[]>>;
 };
 
 // Tworzymy kontekst
@@ -100,16 +101,22 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
       const client = await setupApiClient();
+
+    if (!order.id || order.id === 'new') {
+      const uniqueId = `ORD-${nanoid(5).toUpperCase()}`;
+      order.id = uniqueId; // assign new unique id
+    }
+
       const dto = order.toDTO();
       const response = await client.put(dto);
       if (response.status !== 200) {
         console.error("updateOrder error:", response);
-        throw new Error(t("Error saving order"));
+        throw new Error(t("Error saving order: ") + (response as PutOrderResponseError).message);
       }
 
       // Zwrócona data to OrderDTO => konwertujemy do modelu
       // cast do success
-      const updatedOrder = Order.fromDTO(response.data);
+      const updatedOrder = Order.fromDTO((response as PutOrderResponseSuccess).data);
 
       // Aktualizujemy stan
       setOrders((prev) => {
@@ -161,7 +168,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // 5. (Opcjonalnie) Paginacja i filtry
-  const queryOrders = async (params: PaginatedQuery): Promise<PaginatedResult<Order[]>> => {
+  const queryOrders = async (params: PaginatedQuery & { agentId: string }): Promise<PaginatedResult<Order[]>> => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
       const client = await setupApiClient();

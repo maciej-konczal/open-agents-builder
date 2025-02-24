@@ -36,6 +36,27 @@
       "when": 1740222936206,
       "tag": "0004_remarkable_captain_britain",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1740390287276,
+      "tag": "0005_messy_jean_grey",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1740395488347,
+      "tag": "0006_fine_the_hunter",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1740419173233,
+      "tag": "0007_blue_elektra",
+      "breakpoints": true
     }
   ]
 }

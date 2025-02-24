@@ -24,7 +24,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AttachmentApiClient } from "@/data/client/attachment-api-client";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
-import { StorageSchemas } from "@/data/dto";
+import { ProductDTO, StorageSchemas } from "@/data/dto";
 import ZoomableImage from "@/components/zoomable-image";
 import { set } from "date-fns";
 import { ProductApiClient } from "@/data/client/product-api-client";
@@ -94,6 +94,26 @@ const sortedCurrencyList = [
   ...ALL_CURRENCIES.filter((c) => !FAVOURITE_CURRENCIES.includes(c)),
 ];
 
+export const defaultVariantSku = (prod:ProductDTO | null= null) => {
+
+  if(prod !== null)
+    return 'VAR-' + prod.sku.replace('PROD-','') + '-' + (prod.variants?.length ?? 0 +1);
+else 
+  return 'VAR-' + defaultProductSku().replace('PROD-','');
+
+}
+
+export const defaultProductSku = () => {
+  const today = new Date();
+  const year = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
+
+  return `PROD-${year}-${mm}-${dd}-${rand}`;    
+}
+
+
 export default function ProductFormPage() {
   const { t, i18n } = useTranslation();
   const productContext = useProductContext();
@@ -108,13 +128,14 @@ export default function ProductFormPage() {
   const defaultTaxRate = i18n.language === "pl" ? 23 : 0;
   const defaultCurrency = i18n.language === "pl" ? "PLN" : "USD";
 
+
   // 3a) Inicjalizacja formularza (Zod, domyślne wartości)
   const methods = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
       name: "",
       description: "",
-      sku: nanoid(),
+      sku: defaultProductSku(),
       price: 0,
       priceInclTax: 0,
       taxRate: defaultTaxRate,
@@ -171,7 +192,7 @@ export default function ProductFormPage() {
     return {
       name: loadedDto.name || "",
       description: loadedDto.description || "",
-      sku: loadedDto.sku || nanoid(),
+      sku: loadedDto.sku || defaultProductSku(),
       price: loadedDto.price?.value || 0,
       priceInclTax: loadedDto.priceInclTax?.value || 0,
       taxRate: taxRatePercent > 100 ? 100 : taxRatePercent,
@@ -184,7 +205,7 @@ export default function ProductFormPage() {
       })),
       tags: (loadedDto.tags || []).join(", "),
       variants: (loadedDto.variants || []).map((v: any) => ({
-        sku: v.sku || nanoid(),
+        sku: v.sku || defaultVariantSku(loadedDto),
         name: v.name || "",
         price: v.price?.value || 0,
         priceInclTax: v.priceInclTax?.value || 0,
@@ -233,7 +254,7 @@ export default function ProductFormPage() {
     combos.forEach((combo) => {
       const variantName = combo.map((x) => x.attributeValue).join(" / ");
       appendVariant({
-        sku: nanoid(),
+        sku: defaultVariantSku(productFromFormData(methods.getValues())),
         name: variantName,
         price: mainPrice,
         priceInclTax: mainPriceInclTax,
@@ -803,7 +824,7 @@ export default function ProductFormPage() {
                 variant="secondary"
                 onClick={() =>
                   appendVariant({
-                    sku: nanoid(),
+                    sku: defaultVariantSku(productFromFormData(methods.getValues())),
                     name: "",
                     price: 0,
                     priceInclTax: 0,

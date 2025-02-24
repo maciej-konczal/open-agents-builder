@@ -33,11 +33,11 @@ export class OrderApiClient extends AdminApiClient {
     super(baseUrl, dbContext, saasContext, encryptionConfig);
   }
 
-  async query(params: { limit: number; offset: number; orderBy?: string; query?: string; }): Promise<GetOrdersPaginatedResponse> {
+  async query(params: { agentId: string, limit: number; offset: number; orderBy?: string; query?: string; }): Promise<GetOrdersPaginatedResponse> {
     const { limit, offset, orderBy, query } = params;
     const queryParams = urlParamsForQuery({ limit, offset, orderBy: orderBy || '', query: query || '' });
     return this.request<GetOrdersPaginatedResponse>(
-      `/api/order?${queryParams}`,
+      `/api/order?${queryParams}&agentId=${encodeURIComponent(params.agentId)}`,
       "GET",
       { ecnryptedFields: [] }
     ) as Promise<GetOrdersPaginatedResponse>;

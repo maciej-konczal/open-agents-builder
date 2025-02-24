@@ -2,13 +2,13 @@
 
 import React, { useRef, useEffect, useCallback } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
-import { nanoid } from "nanoid";
 
 // shadcn UI
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrashIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { defaultVariantSku } from "@/app/[locale]/admin/agent/[id]/products/[productId]/page";
 
 // Definicja atrybutu wariantu
 type VariantAttribute = {
@@ -94,10 +94,10 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
       <div className="flex gap-2 mb-2">
         {/* Nazwa wariantu */}
         <div className="flex-1">
-          <label className="block text-sm font-medium">Variant Name</label>
+          <label className="block text-sm font-medium">{t('Variant Name')}</label>
           <Input
             {...register(`variants.${index}.name`)}
-            placeholder="Variant Name"
+            placeholder={t("Variant Name")}
           />
           {variantErrors?.name && (
             <p className="text-red-500 text-sm">
@@ -108,13 +108,13 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
 
         {/* SKU */}
         <div className="flex-1">
-          <label className="block text-sm font-medium">SKU</label>
+          <label className="block text-sm font-medium">{t('SKU')}</label>
           <Input
             {...register(`variants.${index}.sku`)}
-            placeholder="SKU"
+            placeholder={t("SKU")}
             onBlur={(e) => {
               if (!e.target.value) {
-                setValue(`variants.${index}.sku`, nanoid());
+                setValue(`variants.${index}.sku`, defaultVariantSku() + '-' +index);
               }
             }}
           />
@@ -129,7 +129,7 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
       <div className="flex gap-2 mb-2">
         {/* Price - NET */}
         <div className="flex-1">
-          <label className="block text-sm font-medium">Price (net)</label>
+          <label className="block text-sm font-medium">{t('Price (net)')}</label>
           <Input
             type="number"
             step="0.01"
@@ -148,7 +148,7 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
 
         {/* Price incl. tax - GROSS */}
         <div className="flex-1">
-          <label className="block text-sm font-medium">Price (incl. tax)</label>
+          <label className="block text-sm font-medium">{t('Price (incl. tax)')}</label>
           <Input
             type="number"
             step="0.01"
@@ -167,7 +167,7 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
 
         {/* Stawka podatku (%) */}
         <div className="flex-1">
-          <label className="block text-sm font-medium">Tax Rate (%)</label>
+          <label className="block text-sm font-medium">{t('Tax Rate (%)')}</label>
           <Input
             type="number"
             step="1"
@@ -185,7 +185,7 @@ export function ProductVariantRow({ field, index, removeVariant }: ProductVarian
 
       {variantValue?.variantAttributes?.length > 0 && (
         <div className="mb-2">
-          <label className="block text-sm font-medium">Variant Attributes</label>
+          <label className="block text-sm font-medium">{t('Variant Attributes')}</label>
           <div className="ml-2 mt-1 space-y-1">
             {variantValue.variantAttributes.map((att: any, idxA: number) => (
               <div key={idxA} className="text-xs text-gray-600">
