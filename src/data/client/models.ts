@@ -797,6 +797,7 @@ export interface Price {
     name?: string;
     productSku?: string;
     variantSku?: string;
+    variantName?: string;
     productId?: string;
     variantId?: string;
 
@@ -879,6 +880,10 @@ export const ORDER_STATUSES = [
     
         // Przeliczenie każdej linii:
         for (const item of this.items) {
+          if (item.price.value < 0) item.price.value = 0;
+          if (item.priceInclTax?.value || 0 < 0) item.priceInclTax = createPrice(0, currency);
+          if (item.taxRate || 0 < 0) item.taxRate = 0;
+
           const itemCurrency = item.price?.currency || currency;
           const lineNet = (item.price?.value || 0) * (item.quantity || 1);
     
@@ -914,9 +919,13 @@ export const ORDER_STATUSES = [
         this.subtotalTaxValue = createPrice(subtotalTaxValue, currency);
 
         let shippingValue = this.shippingPrice?.value || 0;
+        if (shippingValue < 0) shippingValue = 0;
+        if (this.shippingPriceTaxRate || 0 < 0) this.shippingPriceTaxRate = 0;
 
         // shipping
         let shippingInclValue = this.shippingPriceInclTax?.value || 0;
+        if (shippingInclValue || 0 < 0) shippingInclValue = 0;
+
         if (!this.shippingPriceInclTax && this.shippingPrice && this.shippingPriceTaxRate) {
             shippingInclValue = this.shippingPrice.value * (1 + this.shippingPriceTaxRate);
         }

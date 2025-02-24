@@ -427,6 +427,10 @@ const orderItemSchema = z.object({
   name: z.string().optional(),
   productSku: z.string().optional(),
   variantSku: z.string().optional(),
+  productId: z.string().optional(),
+  variantId: z.string().optional(),
+
+  variantName: z.string().optional(),
   message: z.string().optional(),
   customOptions: z.array(z.object({ name: z.string(), value: z.string() })).optional(),
 
@@ -448,8 +452,6 @@ const orderItemSchema = z.object({
   taxRate: z.number().min(0).max(1).optional(),
 
   variant: z.any().optional(),
-  productId: z.string().optional(),
-  variantId: z.string().optional(),
 });
 
 export const orderDTOSchema = z.object({

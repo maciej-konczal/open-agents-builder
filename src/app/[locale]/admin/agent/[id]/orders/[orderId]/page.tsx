@@ -20,7 +20,7 @@ import { Order, ORDER_STATUSES, Product } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
-import { BoxIcon, CopyIcon, FileIcon, ListEnd, ListIcon, MoveLeftIcon, PlusSquareIcon, PointerIcon, RefreshCwIcon, TrashIcon } from "lucide-react";
+import { BoxIcon, CopyIcon, FileIcon, ListEnd, ListIcon, MoveLeftIcon, PlusSquareIcon, PointerIcon, RefreshCwIcon, TextIcon, TrashIcon } from "lucide-react";
 import { useAgentContext } from "@/contexts/agent-context";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
@@ -68,6 +68,7 @@ const orderFormSchema = z.object({
     name: z.string().optional(),
     productSku: z.string().optional(),
     variantSku: z.string().optional(),
+    variantName: z.string().optional(),
     productId: z.string().optional(),
     variantId: z.string().optional(),
     quantity: z.number().min(1).default(1),
@@ -170,7 +171,7 @@ export default function OrderFormPage() {
   const mapOrderToFormData = (o: Order): OrderFormData => {
     return {
       id: o.id || '',
-      email: o.email,
+      email: o.email || '',
       billingAddress: {
         name: o.billingAddress?.name || "",
         address1: o.billingAddress?.address1,
@@ -197,6 +198,7 @@ export default function OrderFormPage() {
         productSku: it.productSku,
         productId: it.productId,
         variantSku: it.variantSku,
+        variantName: it.variantName,
         variantId: it.variantId || "",
         quantity: it.quantity,
         price: it.price?.value || 0,
@@ -214,20 +216,34 @@ export default function OrderFormPage() {
   const [lastChangedShippingField, setLastChangedShippingField] = useState<"net" | "gross" | null>(null);
 
   useEffect(() => {
-    if (!shippingPriceTaxRate) return;
-    const r = shippingPriceTaxRate / 100;
-    if (lastChangedShippingField === "net") {
-      const gross = shippingPrice * (1 + r);
-      setValue("shippingPriceInclTax", parseFloat(gross.toFixed(2)));
+    if (shippingPriceTaxRate < 0 )
+      setValue('shippingPriceTaxRate', 0);
+
+    if (shippingPrice >=0) {
+      if (!shippingPriceTaxRate) return;
+      const r = shippingPriceTaxRate / 100;
+      if (lastChangedShippingField === "net") {
+        const gross = shippingPrice * (1 + r);
+        setValue("shippingPriceInclTax", parseFloat(gross.toFixed(2)));
+      }
+    } else {
+      setValue("shippingPrice", 0);
     }
   }, [shippingPrice, shippingPriceTaxRate]);
 
   useEffect(() => {
-    if (!shippingPriceTaxRate) return;
-    const r = shippingPriceTaxRate / 100;
-    if (lastChangedShippingField === "gross") {
-      const net = shippingPriceInclTax / (1 + r);
-      setValue("shippingPrice", parseFloat(net.toFixed(2)));
+    if (shippingPriceTaxRate < 0 )
+      setValue('shippingPriceTaxRate', 0);
+
+    if (shippingPriceInclTax >=0) {
+      if (!shippingPriceTaxRate) return;
+      const r = shippingPriceTaxRate / 100;
+      if (lastChangedShippingField === "gross") {
+        const net = shippingPriceInclTax / (1 + r);
+        setValue("shippingPrice", parseFloat(net.toFixed(2)));
+      }
+    } else {
+      setValue("shippingPriceInclTax", 0);
     }
   }, [shippingPriceInclTax, shippingPriceTaxRate]);
 
@@ -354,6 +370,7 @@ export default function OrderFormPage() {
     // Uzupełniamy shippingPriceTaxRate, items
     const dto: OrderDTO = {
       id: data.id,
+      email: data.email,
       orderNumber: data.id,
       billingAddress: {
         ...data.billingAddress,
@@ -378,6 +395,7 @@ export default function OrderFormPage() {
         id: li.id,
         name: li.name || "",
         productSku: li.productSku || "",
+        variantName: li.variantName,
         variantSku: li.variantSku || "",
         variantId: li.variantId,
         productId: li.productId,
@@ -453,7 +471,7 @@ export default function OrderFormPage() {
           <div>
             <label className="block font-medium mb-1">{t("Order e-mail")}</label>
             <Input {...register("email")} />
-            {errors.id && (
+            {errors.email && (
               <p className="text-red-500 text-sm">
                 {errors.email?.message as string}
               </p>
@@ -590,11 +608,18 @@ export default function OrderFormPage() {
                   />
 
                   {line.productSku ? (     
-                    <span className="text-xs">{t('Product SKU')}: {line.productSku}</span>
+                    <div><span className="text-xs">{t('Product SKU')}</span>: <span className="text-xs ml-2 font-bold">{line.productSku}</span></div>
                   ) : null }
 
                   {line.variantSku ? (     
-                    <span className="text-xs">{t('Product SKU')}: {line.variantSku}</span>
+                    <div><span className="text-xs">{t('Variant SKU')}</span>: <span className="text-xs ml-2 font-bold">{line.variantSku} / {line.variantName}</span> 
+                    <Button title={t('Change variant')} size={"sm"} variant={"outline"} onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentSearchQuery(line.productSku || "");
+                    }}>
+                      <TextIcon className="w-4 h-4 mr-2" />
+                    </Button>
+                    </div>
                   ) : null }
 
 
@@ -622,6 +647,8 @@ export default function OrderFormPage() {
                                     [idx]: p.variants,
                                   }));
                                   setValue(`items.${idx}.variantSku`, p.variants && p.variants.length > 0 ? p.variants[0].sku : "");
+                                  setValue(`items.${idx}.variantId`, p.variants && p.variants.length > 0 ? p.variants[0].id : "");
+                                  setValue(`items.${idx}.variantName`, p.variants && p.variants.length > 0 ? p.variants[0].name : "");
                                 } else {
                                   // brak wariantów => usuń
                                   setLineVariants(prev => {
@@ -666,9 +693,11 @@ export default function OrderFormPage() {
                         setValue(`items.${idx}.variantId`, val);
                         const foundVar = variants.find((vv) => vv.id === val);
                         if (foundVar) {
-                        setValue(`items.${idx}.price`, foundVar.price.value);
-                        setValue(`items.${idx}.priceInclTax`, foundVar.priceInclTax?.value || 0);
-                        setValue(`items.${idx}.taxRate`, (foundVar.taxRate || 0) * 100);
+                          setValue(`items.${idx}.variantSku`, foundVar.sku);
+                          setValue(`items.${idx}.variantName`, foundVar.name);
+                          setValue(`items.${idx}.price`, foundVar.price.value);
+                          setValue(`items.${idx}.priceInclTax`, foundVar.priceInclTax?.value || 0);
+                          setValue(`items.${idx}.taxRate`, (foundVar.taxRate || 0) * 100);
                         }
                       }}
                       className="border p-2 rounded text-sm"
