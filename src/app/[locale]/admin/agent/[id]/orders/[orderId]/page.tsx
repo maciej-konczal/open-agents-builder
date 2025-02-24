@@ -20,11 +20,12 @@ import { Order, Product } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
-import { BoxIcon, CopyIcon, FileIcon, ListEnd, ListIcon, PlusSquareIcon, PointerIcon, TrashIcon } from "lucide-react";
+import { BoxIcon, CopyIcon, FileIcon, ListEnd, ListIcon, PlusSquareIcon, PointerIcon, RefreshCwIcon, TrashIcon } from "lucide-react";
 import { useAgentContext } from "@/contexts/agent-context";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
 import { Price } from "@/components/price";
+import { nanoid } from "nanoid";
 
 // 1) Zod schema z wymaganiami
 // Dodajemy orderNumber, shippingPriceTaxRate, 
@@ -210,6 +211,7 @@ export default function OrderFormPage() {
     };
   };
 
+  const formState = watch();
   // 4) Dwustronne shipping net/brutto z shippingPriceTaxRate
   const shippingPrice = watch("shippingPrice");
   const shippingPriceInclTax = watch("shippingPriceInclTax");
@@ -249,9 +251,10 @@ export default function OrderFormPage() {
 
   // Gdy user zmienia productSkuOrName
   const [searchingLineIndex, setSearchingLineIndex] = useState<number | null>(null);
-  const [debounceSearchingLineIndex] = useDebounce(searchingLineIndex, 400);
   const [currentSearchQuery, setCurrentSearchQuery] = useState(""); 
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useDebounce(currentSearchQuery, 400);
+
+  const [totalsRefreshSync, setTotalsRefreshSync] = useState("");
 
   useEffect(() => {
     if (searchingLineIndex === null) return;
@@ -282,6 +285,7 @@ export default function OrderFormPage() {
         }
 
         setFoundProducts(prev => ({ ...prev, [searchingLineIndex]: response.rows.map(Product.fromDTO) }));
+        setTotalsRefreshSync(nanoid());
       } catch (error) {
         console.error(error);
         toast.error("Error querying product: " + getErrorMessage(error));
@@ -290,22 +294,24 @@ export default function OrderFormPage() {
   }, [debouncedSearchQuery]);
 
   // Dwustronna net/brutto w items
-  const handleItemPriceChange = (index: number, field: "price" | "priceInclTax") => {
+  const handleItemPriceChange = (index: number, newValue: number, field: "price" | "priceInclTax") => {
     const item = watch(`items.${index}`);
     const r = (item.taxRate || 23) / 100;
     if (field === "price") {
-      const incl = item.price * (1 + r);
+      const incl = newValue  * (1 + r);
       setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
     } else {
-      const net = item.priceInclTax / (1 + r);
+      const net = newValue / (1 + r);
       setValue(`items.${index}.price`, parseFloat(net.toFixed(2)));
     }
+    setTotalsRefreshSync(nanoid());
   };
-  const handleItemTaxRateChange = (index: number) => {
+  const handleItemTaxRateChange = (index: number, newValue: number) => {
     const item = watch(`items.${index}`);
-    const r = (item.taxRate || 0)/100;
+    const r = (newValue || 0)/100;
     const incl = item.price * (1 + r);
     setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
+    setTotalsRefreshSync(nanoid());
   };
 
   // 6) Podsumowanie
@@ -316,15 +322,21 @@ export default function OrderFormPage() {
   const [total, setTotal] = useState({ value: 0, currency: "USD" });
   const [totalInclTax, setTotalInclTax] = useState({ value: 0, currency: "USD" });
 
-  useEffect(() => {
+
+  const updateTotals = () => {
     const formOrder = formDataToOrder(methods.getValues());
     formOrder.calcTotals(); // liczy shipping, line items
     setSubTotal(formOrder.subtotal || { value: 0, currency: "USD" });
     setTotal(formOrder.total || { value: 0, currency: "USD" });
     setSubTotalInclTax(formOrder.subTotalInclTax || { value: 0, currency: "USD" });
     setTotalInclTax(formOrder.totalInclTax || { value: 0, currency: "USD" });
+  }
+
+  useEffect(() => {
+    updateTotals();
   }, [
     itemsValue,
+    totalsRefreshSync,
     watch("shippingPrice"),
     watch("shippingPriceInclTax"),
     watch("shippingPriceTaxRate"),
@@ -650,7 +662,7 @@ export default function OrderFormPage() {
                         type="number"
                         step="0.01"
                         {...register(`items.${idx}.price`, { valueAsNumber: true })}
-                        onChange={() => handleItemPriceChange(idx, "price")}
+                        onChange={(e) => handleItemPriceChange(idx, parseFloat(e.target.value), "price")}
                         className="w-24"
                       />
                       {lineErr?.price && <p className="text-red-500 text-sm">{lineErr.price.message}</p>}
@@ -663,7 +675,7 @@ export default function OrderFormPage() {
                         type="number"
                         step="0.01"
                         {...register(`items.${idx}.priceInclTax`, { valueAsNumber: true })}
-                        onChange={() => handleItemPriceChange(idx, "priceInclTax")}
+                        onChange={(e) => handleItemPriceChange(idx, parseFloat(e.target.value), "priceInclTax")}
                         className="w-24"
                       />
                       {lineErr?.priceInclTax && <p className="text-red-500 text-sm">{lineErr.priceInclTax.message}</p>}
@@ -676,7 +688,7 @@ export default function OrderFormPage() {
                         type="number"
                         step="1"
                         {...register(`items.${idx}.taxRate`, { valueAsNumber: true })}
-                        onChange={() => handleItemTaxRateChange(idx)}
+                        onChange={(e) => handleItemTaxRateChange(idx, parseFloat(e.target.value))}
                         className="w-16"
                       />
                     </div>
@@ -808,6 +820,9 @@ export default function OrderFormPage() {
 
           {/* Podsumowanie */}
           <div className="border p-2 mt-4 text-sm">
+            <Button className="mb-2" variant="secondary" onClick={(e)=> {e.preventDefault(); updateTotals() }}>
+              <RefreshCwIcon className="w-4 h-4 mr-2"></RefreshCwIcon>{t('Refresh totals')}
+            </Button>
             <div className="grid grid-cols-2 p-2">
               <div><strong>{t("Subtotal")}:</strong></div> <div> {subTotal.value.toFixed(2)} {subTotal.currency}</div> 
             </div>
