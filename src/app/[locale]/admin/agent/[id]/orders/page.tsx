@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { Loader2 } from "lucide-react";
+import { FolderOpenIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -171,10 +171,10 @@ export default function OrdersPage() {
                   size="sm"
                   onClick={() => {
                     // np. /admin/orders/ORDER_ID
-                    router.push(`/admin/orders/${order.id}`);
+                    router.push(`/admin/agent/${agentContext.current?.id}/orders/${order.id}`);
                   }}
                 >
-                  <ListOrderedIcon className="w-4 h-4" />
+                  <FolderOpenIcon className="w-4 h-4" />
                 </Button>
                 <span>{t("Order")} #{order.id}</span>
               </CardTitle>

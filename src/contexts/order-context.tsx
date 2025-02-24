@@ -102,7 +102,10 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
     try {
       const client = await setupApiClient();
 
-      if (!order.id || order.id === 'new') order.id = nanoid(); // assign new id
+    if (!order.id || order.id === 'new') {
+      const uniqueId = `ORD-${nanoid(5).toUpperCase()}`;
+      order.id = uniqueId; // assign new unique id
+    }
 
       const dto = order.toDTO();
       const response = await client.put(dto);

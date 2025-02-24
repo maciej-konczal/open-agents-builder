@@ -23,6 +23,7 @@ import { ProductApiClient } from "@/data/client/product-api-client";
 
 // Kontekst
 import { useOrderContext } from "@/contexts/order-context";
+import { useAgentContext } from "@/contexts/agent-context";
 
 // 1) Zod schema (formularz):
 // Uproszczony, ale zawiera kluczowe pola
@@ -87,6 +88,7 @@ export default function OrderFormPage() {
 const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Completed", "Cancelled"];
 
   const orderContext = useOrderContext();
+  const agentContext = useAgentContext();
   const productApi = new ProductApiClient("");
 
   // react-hook-form
@@ -343,7 +345,7 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
 
       toast.success(t("Order saved"));
       // redirect
-      router.push(`/admin/orders`);
+      router.push(`/admin/agent/${agentContext.current?.id}/orders`);
     } catch (error) {
       console.error(error);
       toast.error(t("Error saving order: ") + getErrorMessage(error));
