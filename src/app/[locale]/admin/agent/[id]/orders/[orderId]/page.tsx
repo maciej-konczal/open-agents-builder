@@ -299,6 +299,7 @@ export default function OrderFormPage() {
           const p = Product.fromDTO(response.rows[0]);
           setValue(`items.${searchingLineIndex}.productSku`, p.sku);
           setValue(`items.${searchingLineIndex}.productId`, p.id);
+          setValue(`items.${searchingLineIndex}.name`, p.name);
           setLineVariants(prev => ({ ...prev, [searchingLineIndex]: p.variants }));          
 
           return;
@@ -616,31 +617,13 @@ export default function OrderFormPage() {
                     }}
                   />
 
-                  {line.productSku ? (     
-                    <div><span className="text-xs">{t('Product SKU')}</span>: <span className="text-xs ml-2 font-bold">{line.productSku}</span></div>
-                  ) : null }
-
-                  {line.variantSku ? (     
-                    <div><span className="text-xs">{t('Variant SKU')}</span>: <span className="text-xs ml-2 font-bold">{line.variantSku} / {line.variantName}</span> 
-                    <Button title={t('Change variant')} size={"sm"} variant={"ghost"} onClick={(e) => {
-                      e.preventDefault();
-                      setSearchingLineIndex(idx);
-                      setCurrentSearchQuery('');
-                      setCurrentSearchQuery(line.productSku || "");
-                    }}>
-                      <TextIcon className="w-4 h-4 mr-2" />
-                    </Button>
-                    </div>
-                  ) : null }
-
-
                   {lineErr?.name && (
                     <p className="text-red-500 text-sm">{lineErr.name.message}</p>
                   )}
 
                   {idx !== null && foundProducts[idx] ? (
 
-                    <div className="flex-row mt-2 text-xs">
+                    <div className="flex-row mt-2 text-xs border">
                       <div className="w-full mb-2 border-b p-2">{t('Select product: ')}</div>
                       <div className="w-full">
                         {foundProducts[idx].map(p=>Product.fromDTO(p)).map((p) => (
@@ -672,6 +655,9 @@ export default function OrderFormPage() {
                                   setValue(`items.${idx}.price`, p.price.value);
                                   setValue(`items.${idx}.priceInclTax`, p.priceInclTax?.value || 0);
                                   setValue(`items.${idx}.taxRate`, (p.taxRate||0)*100);
+                                  setValue(`items.${idx}.variantId`, '');
+                                  setValue(`items.${idx}.variantSku`, '');
+                                  setValue(`items.${idx}.variantName`, '');
                                 }
 
                                 setValue(`items.${idx}.name`, p.name);
@@ -691,6 +677,27 @@ export default function OrderFormPage() {
                     </div>
 
                   ): null}
+
+                  {line.productSku ? (     
+                    <div><span className="text-xs">{t('Product SKU')}</span>: <span className="text-xs ml-2 font-bold">{line.productSku}</span></div>
+                  ) : null }
+
+                  {line.variantSku ? (     
+                    <div><span className="text-xs">{t('Variant SKU')}</span>: <span className="text-xs ml-2 font-bold">{line.variantSku} / {line.variantName}</span> 
+                    {(!variants || variants.length === 0) ? (
+                      <Button title={t('Change variant')} size={"sm"} variant={"ghost"} onClick={(e) => {
+                        e.preventDefault();
+                        setSearchingLineIndex(idx);
+                        setCurrentSearchQuery('');
+                        setCurrentSearchQuery(line.productSku || "");
+                      }}>
+                        <TextIcon className="w-4 h-4 mr-2" />
+                      </Button>
+                    ): null }
+                    </div>
+                  ) : null }
+
+
 
                   {/* Combo do wariantów */}
                   {variants.length > 0 && (

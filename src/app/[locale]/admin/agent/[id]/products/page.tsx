@@ -233,7 +233,7 @@ export default function ProductsPage() {
         next={loadMore}
         threshold={1}
       >
-        {hasMore && productsLoading && (
+        {productsLoading && (
           <div className="flex justify-center">
             <Loader2 className="my-4 h-8 w-8 animate-spin" />
           </div>
