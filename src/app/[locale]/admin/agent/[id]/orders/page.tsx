@@ -63,30 +63,33 @@ export default function OrdersPage() {
 
   // 1) useEffect => wczytanie 1. strony (offset=0) za każdym razem, gdy zmienia się debouncedSearchQuery
   useEffect(() => {
-    (async () => {
-      setOrdersLoading(true);
-      try {
-        const response = await orderContext.queryOrders({
-          limit: debouncedSearchQuery.limit,
-          offset: 0,
-          orderBy: debouncedSearchQuery.orderBy,
-          query: debouncedSearchQuery.query,
-        });
-        // response => PaginatedResult z polami {rows, total, limit, offset, ...}
-        // Zakładam, że rowy to OrderDTO => mapujemy do Order
-        const mappedRows = response.rows.map((dto) => Order.fromDTO(dto));
-        setOrdersData({
-          ...response,
-          rows: mappedRows,
-        });
-        setHasMore(mappedRows.length < response.total);
-      } catch (error) {
-        toast.error(getErrorMessage(error));
-      }
-      setOrdersLoading(false);
-    })();
+      if (agentContext && agentContext.current) {
+      (async () => {
+        setOrdersLoading(true);
+        try {
+          const response = await orderContext.queryOrders({
+            agentId: agentContext.current?.id || "",
+            limit: debouncedSearchQuery.limit,
+            offset: 0,
+            orderBy: debouncedSearchQuery.orderBy,
+            query: debouncedSearchQuery.query,
+          });
+          // response => PaginatedResult z polami {rows, total, limit, offset, ...}
+          // Zakładam, że rowy to OrderDTO => mapujemy do Order
+          const mappedRows = response.rows.map((dto) => Order.fromDTO(dto));
+          setOrdersData({
+            ...response,
+            rows: mappedRows,
+          });
+          setHasMore(mappedRows.length < response.total);
+        } catch (error) {
+          toast.error(getErrorMessage(error));
+        }
+        setOrdersLoading(false);
+      })();
+    }
     // Kiedy odświeżać - ewentualnie orderContext.refreshDataSync
-  }, [debouncedSearchQuery, orderContext.refreshDataSync]);
+  }, [debouncedSearchQuery, orderContext.refreshDataSync,  agentContext?.current]);
 
   // 2) useEffect => ustawia hasMore
   useEffect(() => {
@@ -105,6 +108,7 @@ export default function OrdersPage() {
 
     try {
       const response = await orderContext.queryOrders({
+        agentId: agentContext.current?.id || '',
         limit: pageSize,
         offset: newOffset,
         orderBy: ordersData.orderBy,

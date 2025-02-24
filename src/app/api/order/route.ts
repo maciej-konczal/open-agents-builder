@@ -18,6 +18,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
     const orderBy = url.searchParams.get("orderBy") ?? "createdAt";
     const id = url.searchParams.get("id") ?? undefined;
     const queryStr = url.searchParams.get("query") ?? "";
+    const agentId = url.searchParams.get("agentId") ?? "";  
 
     let limit = 10;
     let offset = 0;
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
       limit = parseInt(limitParam, 10) || 10;
       offset = parseInt(offsetParam, 10) || 0;
     }
-    const result = await repo.queryAll({ id, limit, offset, orderBy, query: queryStr });
+    const result = await repo.queryAll({ id, agentId, limit, offset, orderBy, query: queryStr });
     return Response.json(result);
 
   } catch (err) {

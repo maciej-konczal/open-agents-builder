@@ -2,7 +2,7 @@
 
 import { BaseRepository, IQuery } from "./base-repository";
 import { OrderDTO, PaginatedResult } from "../dto";
-import { asc, count, desc, eq, like, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, like, or, SQL } from "drizzle-orm";
 import { create } from "./generic-repository";
 import { getCurrentTS, safeJsonParse } from "@/lib/utils";
 import { orders } from "./db-schema-commerce";
@@ -26,7 +26,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
   private async toDbRecord(dto: OrderDTO): Promise<any> {
     return {
       id: dto.id,
-      agentId: dto.agentId
+      agentId: dto.agentId,
       billingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.billingAddress || {})),
       shippingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.shippingAddress || {})),
       attributes: await this.encUtils?.encrypt(JSON.stringify(dto.attributes || {})),
@@ -155,8 +155,8 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     return await Promise.all(rows.map((r) => this.fromDbRecord(r)));
   }
 
-  async queryAll({ id, limit, offset, orderBy, query }: 
-    { limit: number; offset: number; orderBy: string; query: string; id?: string; }
+  async queryAll({ id, agentId, limit, offset, orderBy, query }: 
+    { agentId: string, limit: number; offset: number; orderBy: string; query: string; id?: string; }
   ): Promise<PaginatedResult<OrderDTO[]>> {
     const db = await this.db();
 
@@ -176,17 +176,17 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
         break;
     }
 
-    let whereCondition = null;
+    let whereCondition = eq(orders.agentId, agentId);
     if (query) {
-      whereCondition = or(
+      whereCondition = and(whereCondition, or(
         like(orders.email, `%${query}%`),
         like(orders.id, `%${query}%`),
         like(orders.status, `%${query}%`)
-      );
+      )) as SQL<unknown>;
     }
 
     if (id) {
-      whereCondition = eq(orders.id, id); // select single order by id
+      whereCondition = and(whereCondition, eq(orders.id, id)) as SQL<unknown>;; // select single order by id
     }
 
     const countQuery = db

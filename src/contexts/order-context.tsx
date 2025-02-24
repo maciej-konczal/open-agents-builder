@@ -28,7 +28,7 @@ type OrderContextType = {
   setLoaderStatus: (status: DataLoadingStatus) => void;
 
   // Jeśli potrzebujesz paginacji/filtr, analogicznie do queryProducts
-  queryOrders: (params: PaginatedQuery) => Promise<PaginatedResult<Order[]>>;
+  queryOrders: (params: PaginatedQuery & { agentId: string }) => Promise<PaginatedResult<Order[]>>;
 };
 
 // Tworzymy kontekst
@@ -168,7 +168,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // 5. (Opcjonalnie) Paginacja i filtry
-  const queryOrders = async (params: PaginatedQuery): Promise<PaginatedResult<Order[]>> => {
+  const queryOrders = async (params: PaginatedQuery & { agentId: string }): Promise<PaginatedResult<Order[]>> => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
       const client = await setupApiClient();
