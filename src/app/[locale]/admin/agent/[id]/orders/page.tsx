@@ -162,7 +162,7 @@ export default function OrdersPage() {
       {/* Lista zamówień */}
       <div className="grid grid-cols-2 gap-6">
         {ordersData.rows.map((order) => (
-          <Card key={order.id}>
+          <Card key={order.id} className=" min-w-[250px]">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 {/* przycisk otwierający szczegóły zamówienia */}
@@ -179,35 +179,46 @@ export default function OrdersPage() {
                 <span>{t("Order")} #{order.id}</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm">
+            <CardContent className="text-sm flex">
+              <div>
+                {/* Status zamówienia */}
+                {order.status && (
+                  <div className="mb-2">
+                    <strong>{t("Status")}:</strong> {order.status}
+                  </div>
+                )}
 
-              {/* Status zamówienia */}
-              {order.status && (
+                {/* Suma zamówienia */}
+                {order.total && (
+                  <div className="mb-2">
+                    <strong>{t("Total")}:</strong>{" "}
+                    {order.total.value} {order.total.currency}
+                  </div>
+                )}
+
+                {/* Ilość pozycji */}
+                {order.items && (
+                  <div className="mb-2">
+                    <strong>{t("Items")}:</strong> {order.items.length}
+                  </div>
+                )}
+
+                {/* Daty */}
                 <div className="mb-2">
-                  <strong>{t("Status")}:</strong> {order.status}
+                  <strong>{t("Created")}:</strong> {order.createdAt}
                 </div>
-              )}
-
-              {/* Suma zamówienia */}
-              {order.total && (
-                <div className="mb-2">
-                  <strong>{t("Total")}:</strong>{" "}
-                  {order.total.value} {order.total.currency}
-                </div>
-              )}
-
-              {/* Ilość pozycji */}
-              {order.items && (
-                <div className="mb-2">
-                  <strong>{t("Items")}:</strong> {order.items.length}
-                </div>
-              )}
-
-              {/* Daty */}
-              <div className="mb-2">
-                <strong>{t("Created")}:</strong> {order.createdAt}
               </div>
+              <div>
+                <div>
+                  {order.items?.map(i=> (
+                    <div>
+                      {i.quantity} x <strong>{i.name}</strong> {i.price.value} {i.price.currency}
+                    </div>
 
+                    )
+                  )}
+                </div>
+              </div>
               {/* ewentualnie przycisk do usunięcia (lub dialog) */}
               {/* <OrderDeleteDialog order={order} /> */}
             </CardContent>
