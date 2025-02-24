@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext, use } from "react";
 import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,8 +20,10 @@ import { Order, Product } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
-import { CopyIcon } from "lucide-react";
+import { BoxIcon, CopyIcon, ListEnd, ListIcon, PlusSquareIcon, TrashIcon } from "lucide-react";
 import { useAgentContext } from "@/contexts/agent-context";
+import { DatabaseContext } from "@/contexts/db-context";
+import { SaaSContext } from "@/contexts/saas-context";
 
 // 1) Zod schema z wymaganiami
 // Dodajemy orderNumber, shippingPriceTaxRate, 
@@ -79,6 +81,8 @@ export default function OrderFormPage() {
   const params = useParams();
   const agentContext = useAgentContext();
   const orderContext = useOrderContext();
+  const dbContext = useContext(DatabaseContext);
+  const saasContext = useContext(SaaSContext);
 
   // Zamiast poprzednich stałych:
   const ORDER_STATUSES = [
@@ -92,7 +96,7 @@ export default function OrderFormPage() {
   ];
 
 
-  const productApi = new ProductApiClient("");
+  const productApi = new ProductApiClient("", dbContext, saasContext);
 
   // react-hook-form
   const methods = useForm<OrderFormData>({
@@ -236,16 +240,20 @@ export default function OrderFormPage() {
 
   // Stan do przechowywania wariantów
   const [lineVariants, setLineVariants] = useState<Record<number, Product["variants"]>>({});
+  const [foundProduct, setFoundProduct] = useState<Record<number, Product | null>>({});
 
   // Debounce
   const itemsValue = watch("items");
-  const [debouncedItems] = useDebounce(itemsValue, 400);
 
   // Gdy user zmienia productSkuOrName
   const [searchingLineIndex, setSearchingLineIndex] = useState<number | null>(null);
+  const [debounceSearchingLineIndex] = useDebounce(searchingLineIndex, 400);
+  const [currentSearchQuery, setCurrentSearchQuery] = useState(""); 
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useDebounce(currentSearchQuery, 400);
+
   useEffect(() => {
     if (searchingLineIndex === null) return;
-    const line = debouncedItems[searchingLineIndex];
+    const line = itemsValue[searchingLineIndex];
     if (!line) return;
 
     const query = line.productSkuOrName?.trim();
@@ -272,6 +280,8 @@ export default function OrderFormPage() {
         }
         // Bierzemy pierwszy
         const p = Product.fromDTO(response.rows[0]);
+        setFoundProduct(prev => ({ ...prev, [searchingLineIndex]: p}));
+        
         if (p.variants && p.variants.length > 0) {
           setLineVariants(prev => ({
             ...prev,
@@ -294,7 +304,7 @@ export default function OrderFormPage() {
         toast.error("Error querying product: " + getErrorMessage(error));
       }
     })();
-  }, [debouncedItems, searchingLineIndex]);
+  }, [debouncedSearchQuery]);
 
   // Dwustronna net/brutto w items
   const handleItemPriceChange = (index: number, field: "price" | "priceInclTax") => {
@@ -614,32 +624,46 @@ export default function OrderFormPage() {
                     onChange={(e) => {
                       setValue(`items.${idx}.productSkuOrName`, e.target.value);
                       setSearchingLineIndex(idx);
+                      setDebouncedSearchQuery(e.target.value);
                     }}
                   />
                   {lineErr?.productSkuOrName && (
                     <p className="text-red-500 text-sm">{lineErr.productSkuOrName.message}</p>
                   )}
 
+                  {idx !== null && foundProduct[idx] ? (
+                    <div className="mt-2">
+                      <strong>{foundProduct[idx]?.name}</strong>
+                      <div className="text-xs">({t('SKU - ')} {foundProduct[idx].sku}) </div>
+                    </div>
+                  ) : (null)}
+
                   {/* Combo do wariantów */}
                   {variants.length > 0 && (
                     <div className="mt-2">
                       <label className="block text-sm font-medium">{t("Variant")}</label>
-                      <Combobox
-                        items={variants.map((v) => ({
-                          label: v.name,
-                          value: v.id,
-                        }))}
-                        value={line.variantId || ""}
-                        onChange={(val) => {
-                          setValue(`items.${idx}.variantId`, val);
-                          const foundVar = variants.find((vv) => vv.id === val);
-                          if (foundVar) {
-                            setValue(`items.${idx}.price`, foundVar.price.value);
-                            setValue(`items.${idx}.priceInclTax`, foundVar.priceInclTax?.value || 0);
-                            setValue(`items.${idx}.taxRate`, (foundVar.taxRate||0)*100);
-                          }
-                        }}
-                      />
+                      <select
+                      {...register(`items.${idx}.variantId`)}
+                      value={line.variantId || ""}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setValue(`items.${idx}.variantId`, val);
+                        const foundVar = variants.find((vv) => vv.id === val);
+                        if (foundVar) {
+                        setValue(`items.${idx}.price`, foundVar.price.value);
+                        setValue(`items.${idx}.priceInclTax`, foundVar.priceInclTax?.value || 0);
+                        setValue(`items.${idx}.taxRate`, (foundVar.taxRate || 0) * 100);
+                        }
+                      }}
+                      className="border p-2 rounded text-sm"
+                      >
+                      <option value="">{t("Select a variant")}</option>
+                      {variants.map((v) => (
+                        <option key={v.id} value={v.id}>
+                        {v.name}
+                        </option>
+                      ))}
+                      </select>
                     </div>
                   )}
 
@@ -695,12 +719,12 @@ export default function OrderFormPage() {
                   </div>
 
                   <Button
-                    variant="destructive"
+                    variant="outline"
                     size="sm"
                     className="mt-2"
-                    onClick={() => remove(idx)}
+                    onClick={() => removeItem(idx)}
                   >
-                    {t("Remove line")}
+                    <TrashIcon className="w-4 h-4 mr-2"/> {t("Remove line")}
                   </Button>
                 </Card>
               );
@@ -721,7 +745,7 @@ export default function OrderFormPage() {
                 });
               }}
             >
-              {t("Add line")}
+              <ListEnd className="w-4 h-4 mr-2"/> {t("Add line")}
             </Button>
           </div>
 
