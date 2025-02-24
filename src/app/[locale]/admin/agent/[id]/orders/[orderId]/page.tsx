@@ -66,7 +66,9 @@ const orderFormSchema = z.object({
   items: z.array(z.object({
     id: z.string(),
     name: z.string().optional(),
-    sku: z.string().optional(),
+    productSku: z.string().optional(),
+    variantSku: z.string().optional(),
+    productId: z.string().optional(),
     variantId: z.string().optional(),
     quantity: z.number().min(1).default(1),
 
@@ -193,6 +195,7 @@ export default function OrderFormPage() {
         id: it.id,
         name: it.name,
         productSku: it.productSku,
+        productId: it.productId,
         variantSku: it.variantSku,
         variantId: it.variantId || "",
         quantity: it.quantity,
@@ -377,6 +380,7 @@ export default function OrderFormPage() {
         productSku: li.productSku || "",
         variantSku: li.variantSku || "",
         variantId: li.variantId,
+        productId: li.productId,
         quantity: li.quantity,
         price: { value: li.price, currency: "USD" },
         priceInclTax: { value: li.priceInclTax, currency: "USD" },
@@ -634,6 +638,7 @@ export default function OrderFormPage() {
 
                                 setValue(`items.${idx}.name`, p.name);
                                 setValue(`items.${idx}.productSku`, p.sku);
+                                setValue(`items.${idx}.productId`, p.id);
 
 
                                 setFoundProducts(prev => { delete prev[idx]; return prev });                            
