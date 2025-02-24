@@ -293,6 +293,15 @@ export default function OrderFormPage() {
             return c;
           });
           return;
+        } 
+
+        if (response.rows.length === 1) {
+          const p = Product.fromDTO(response.rows[0]);
+          setValue(`items.${searchingLineIndex}.productSku`, p.sku);
+          setValue(`items.${searchingLineIndex}.productId`, p.id);
+          setLineVariants(prev => ({ ...prev, [searchingLineIndex]: p.variants }));          
+
+          return;
         }
 
         setFoundProducts(prev => ({ ...prev, [searchingLineIndex]: response.rows.map(Product.fromDTO) }));
@@ -613,8 +622,10 @@ export default function OrderFormPage() {
 
                   {line.variantSku ? (     
                     <div><span className="text-xs">{t('Variant SKU')}</span>: <span className="text-xs ml-2 font-bold">{line.variantSku} / {line.variantName}</span> 
-                    <Button title={t('Change variant')} size={"sm"} variant={"outline"} onClick={(e) => {
+                    <Button title={t('Change variant')} size={"sm"} variant={"ghost"} onClick={(e) => {
                       e.preventDefault();
+                      setSearchingLineIndex(idx);
+                      setCurrentSearchQuery('');
                       setCurrentSearchQuery(line.productSku || "");
                     }}>
                       <TextIcon className="w-4 h-4 mr-2" />
