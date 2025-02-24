@@ -16,7 +16,7 @@ import { Card } from "@/components/ui/card";
 import { getErrorMessage } from "@/lib/utils";
 import { useOrderContext } from "@/contexts/order-context";
 import { OrderDTO } from "@/data/dto";
-import { Order, Product } from "@/data/client/models";
+import { Order, ORDER_STATUSES, Product } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
@@ -33,6 +33,7 @@ import DataLoader from "@/components/data-loader";
 // Adresy: name, postalCode => required
 const orderFormSchema = z.object({
   id:  z.string().describe("Unique user-editable order number"),
+  email: z.string().email().describe("Order e-mail"),
 
   billingAddress: z.object({
     name: z.string().min(1, "Name is required"),
@@ -85,18 +86,6 @@ export default function OrderFormPage() {
   const orderContext = useOrderContext();
   const dbContext = useContext(DatabaseContext);
   const saasContext = useContext(SaaSContext);
-
-  // Zamiast poprzednich stałych:
-  const ORDER_STATUSES = [
-    { label: t("Shopping Cart"), value: "shopping_cart" },
-    { label: t("Quote"), value: "quote" },
-    { label: t("New"), value: "new" },
-    { label: t("Processing"), value: "processing" },
-    { label: t("Shipped"), value: "shipped" },
-    { label: t("Completed"), value: "completed" },
-    { label: t("Cancelled"), value: "cancelled" },
-  ];
-
 
   const productApi = new ProductApiClient("", dbContext, saasContext);
 
@@ -179,6 +168,7 @@ export default function OrderFormPage() {
   const mapOrderToFormData = (o: Order): OrderFormData => {
     return {
       id: o.id || '',
+      email: o.email,
       billingAddress: {
         name: o.billingAddress?.name || "",
         address1: o.billingAddress?.address1,
@@ -202,7 +192,8 @@ export default function OrderFormPage() {
       items: (o.items || []).map((it) => ({
         id: it.id,
         name: it.name,
-        sku: it.sku,
+        productSku: it.productSku,
+        variantSku: it.variantSku,
         variantId: it.variantId || "",
         quantity: it.quantity,
         price: it.price?.value || 0,
@@ -383,7 +374,8 @@ export default function OrderFormPage() {
       items: data.items.map((li) => ({
         id: li.id,
         name: li.name || "",
-        sku: li.sku || "",
+        productSku: li.productSku || "",
+        variantSku: li.variantSku || "",
         variantId: li.variantId,
         quantity: li.quantity,
         price: { value: li.price, currency: "USD" },
@@ -452,6 +444,17 @@ export default function OrderFormPage() {
               </p>
             )}
           </div>
+
+          {/* ORDER E-mail */}
+          <div>
+            <label className="block font-medium mb-1">{t("Order e-mail")}</label>
+            <Input {...register("email")} />
+            {errors.id && (
+              <p className="text-red-500 text-sm">
+                {errors.email?.message as string}
+              </p>
+            )}
+          </div>          
 
           {/* BILLING / SHIPPING */}
           <div className="flex space-x-4">
@@ -582,9 +585,14 @@ export default function OrderFormPage() {
                     }}
                   />
 
-                  {line.sku ? (     
-                    <span className="text-xs">{t('SKU')}: {line.sku}</span>
+                  {line.productSku ? (     
+                    <span className="text-xs">{t('Product SKU')}: {line.productSku}</span>
                   ) : null }
+
+                  {line.variantSku ? (     
+                    <span className="text-xs">{t('Product SKU')}: {line.variantSku}</span>
+                  ) : null }
+
 
                   {lineErr?.name && (
                     <p className="text-red-500 text-sm">{lineErr.name.message}</p>
@@ -609,6 +617,7 @@ export default function OrderFormPage() {
                                     ...prev,
                                     [idx]: p.variants,
                                   }));
+                                  setValue(`items.${idx}.variantSku`, p.variants && p.variants.length > 0 ? p.variants[0].sku : "");
                                 } else {
                                   // brak wariantów => usuń
                                   setLineVariants(prev => {
@@ -617,14 +626,14 @@ export default function OrderFormPage() {
                                     return c;
                                   });
                                   // można ustawić line.price, line.priceInclTax = p.price, p.priceInclTax
-                                  setValue(`items.${idx}.sku`, p.sku);
+                                  setValue(`items.${idx}.productSku`, p.sku);
                                   setValue(`items.${idx}.price`, p.price.value);
                                   setValue(`items.${idx}.priceInclTax`, p.priceInclTax?.value || 0);
                                   setValue(`items.${idx}.taxRate`, (p.taxRate||0)*100);
                                 }
 
                                 setValue(`items.${idx}.name`, p.name);
-                                setValue(`items.${idx}.sku`, p.sku);
+                                setValue(`items.${idx}.productSku`, p.sku);
 
 
                                 setFoundProducts(prev => { delete prev[idx]; return prev });                            

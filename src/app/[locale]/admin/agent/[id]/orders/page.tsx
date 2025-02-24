@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 import { useOrderContext } from "@/contexts/order-context";
 
 // Modele
-import { Order } from "@/data/client/models";
+import { Order, ORDER_STATUSES } from "@/data/client/models";
 import { PaginatedQuery, PaginatedResult } from "@/data/dto";
 
 // Ikony przykładowe
@@ -185,7 +185,7 @@ export default function OrdersPage() {
                 {/* Status zamówienia */}
                 {order.status && (
                   <div className="mb-2">
-                    <strong>{t("Status")}:</strong> {order.status}
+                    <strong>{t("Status")}:</strong> {ORDER_STATUSES.find(os => os.value == order.status)?.label || order.status}
                   </div>
                 )}
 

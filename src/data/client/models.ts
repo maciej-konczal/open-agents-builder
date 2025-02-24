@@ -795,7 +795,11 @@ export interface Price {
   export interface OrderItem {
     id: string;
     name?: string;
-    sku?: string;
+    productSku?: string;
+    variantSku?: string;
+    productId?: string;
+    variantId?: string;
+
     message?: string;
     customOptions?: { name: string; value: string }[];
     originalPrice?: Price;
@@ -815,9 +819,18 @@ export interface Price {
     taxRate?: number;
   
     variant?: any;
-    productId?: string;
-    variantId?: string;
   }
+
+
+export const ORDER_STATUSES = [
+    { label: ("Shopping Cart"), value: "shopping_cart" },
+    { label: ("Quote"), value: "quote" },
+    { label: ("New"), value: "new" },
+    { label: ("Processing"), value: "processing" },
+    { label: ("Shipped"), value: "shipped" },
+    { label: ("Completed"), value: "completed" },
+    { label: ("Cancelled"), value: "cancelled" },
+];
   
   export class Order {
     id?: string;
