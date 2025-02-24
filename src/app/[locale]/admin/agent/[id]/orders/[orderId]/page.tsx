@@ -16,11 +16,11 @@ import { Card } from "@/components/ui/card";
 import { getErrorMessage } from "@/lib/utils";
 import { useOrderContext } from "@/contexts/order-context";
 import { OrderDTO } from "@/data/dto";
-import { Order, ORDER_STATUSES, Product } from "@/data/client/models";
+import { Order, ORDER_STATUSES, Product, StatusChange } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
-import { BoxIcon, CopyIcon, FileIcon, ListEnd, ListIcon, MoveLeftIcon, PlusSquareIcon, PointerIcon, RefreshCwIcon, TextIcon, TrashIcon } from "lucide-react";
+import { BoxIcon, CopyIcon, DatabaseIcon, FileIcon, ListEnd, ListIcon, MoveLeftIcon, PlusSquareIcon, PointerIcon, RefreshCwIcon, TextIcon, TimerIcon, TrashIcon } from "lucide-react";
 import { useAgentContext } from "@/contexts/agent-context";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
@@ -125,6 +125,23 @@ export default function OrderFormPage() {
     name: "notes",
   });
 
+
+  const currentStatus = watch('status');
+  useEffect(() => {
+    let lastStatus = null
+    if (statusChanges.length > 0) {
+      lastStatus = statusChanges[statusChanges.length - 1].newStatus;
+    }
+    if (currentStatus && lastStatus && lastStatus !== currentStatus) {
+      statusChanges.push({
+        date: new Date().toISOString(),
+        message: '',
+        oldStatus: lastStatus,
+        newStatus: currentStatus || "shopping_cart",
+      });
+    }
+  }, [currentStatus]);
+
   useEffect(() => {
     if (params.orderId === "new") {
       setValue("status", "shopping_cart"); 
@@ -160,6 +177,7 @@ export default function OrderFormPage() {
         toast.error(t("Order not found"));
         return;
       }
+      setStatusChanges(o.statusChanges || []);
       const formData = mapOrderToFormData(o);
       reset(formData);
     } catch (err) {
@@ -214,6 +232,8 @@ export default function OrderFormPage() {
   const shippingPriceInclTax = watch("shippingPriceInclTax");
   const shippingPriceTaxRate = watch("shippingPriceTaxRate");
   const [lastChangedShippingField, setLastChangedShippingField] = useState<"net" | "gross" | null>(null);
+
+  const [statusChanges, setStatusChanges] = useState<StatusChange[]>([]);
 
   useEffect(() => {
     if (shippingPriceTaxRate < 0 )
@@ -389,6 +409,7 @@ export default function OrderFormPage() {
         ...data.shippingAddress,
       },
       status: data.status,
+      statusChanges: statusChanges,
       notes: data.notes,
       shippingMethod: data.shippingMethod,
       shippingPrice: {
@@ -877,6 +898,21 @@ export default function OrderFormPage() {
           )}
         </div>
 
+
+
+          { statusChanges && statusChanges.length > 0 ? (
+            <div>
+              <label className="block font-medium mb-1">{t("Status changes")}</label>
+              {statusChanges.map((st) => {
+                return (
+                  <div key={st.date} className="grid grid-cols-2 border p-2 mb-2 text-sm">
+                    <div className="flex"><DatabaseIcon className="w-4 h-4 mr-2"/>{st.newStatus}</div>
+                    <div className="flex"><TimerIcon className="w-4 h-4 mr-2"/> {st.date}</div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null }
 
 
           {/* NOTES */}

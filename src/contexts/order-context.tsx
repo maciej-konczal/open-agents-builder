@@ -5,7 +5,7 @@ import { DatabaseContext } from "./db-context";
 import { SaaSContext } from "./saas-context";
 import { DataLoadingStatus } from "@/data/client/models"; 
 import { Order } from "@/data/client/models"; // klasa modelu (Order.fromDTO, toDTO)
-import { OrderApiClient, DeleteOrderResponse, PutOrderResponseSuccess } from "@/data/client/order-api-client";
+import { OrderApiClient, DeleteOrderResponse, PutOrderResponseSuccess, PutOrderResponseError } from "@/data/client/order-api-client";
 import { useTranslation } from "react-i18next";
 import { PaginatedQuery, PaginatedResult } from "@/data/dto";
 import { nanoid } from "nanoid";
@@ -111,7 +111,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
       const response = await client.put(dto);
       if (response.status !== 200) {
         console.error("updateOrder error:", response);
-        throw new Error(t("Error saving order"));
+        throw new Error(t("Error saving order: ") + (response as PutOrderResponseError).message);
       }
 
       // Zwrócona data to OrderDTO => konwertujemy do modelu

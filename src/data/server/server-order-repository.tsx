@@ -178,6 +178,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     if (query) {
       whereCondition = or(
         like(orders.email, `%${query}%`),
+        like(orders.id, `%${query}%`),
         like(orders.status, `%${query}%`)
       );
     }
