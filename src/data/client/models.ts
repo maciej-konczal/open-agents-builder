@@ -939,6 +939,8 @@ export interface Price {
       this.total = dto.total;
       this.totalInclTax = dto.totalInclTax;
       this.shippingPrice = dto.shippingPrice;
+      this.shippingMethod = dto.shippingMethod;
+      this.shippingPriceTaxRate = dto.shippingPriceTaxRate;
       this.shippingPriceInclTax = dto.shippingPriceInclTax;
   
       this.items = dto.items;
@@ -970,6 +972,8 @@ export interface Price {
         total: this.total,
         totalInclTax: this.totalInclTax,
         shippingPrice: this.shippingPrice,
+        shippingMethod: this.shippingMethod,
+        shippingPriceTaxRate: this.shippingPriceTaxRate,
         shippingPriceInclTax: this.shippingPriceInclTax,
   
         items: this.items,

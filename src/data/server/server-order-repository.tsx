@@ -43,6 +43,8 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
       total: JSON.stringify(dto.total || {}),
       totalInclTax: JSON.stringify(dto.totalInclTax || {}),
       shippingPrice: JSON.stringify(dto.shippingPrice || {}),
+      shippingMethod: dto.shippingMethod || "",
+      shippingPriceTaxRate: dto.shippingPriceTaxRate,
       shippingPriceInclTax: JSON.stringify(dto.shippingPriceInclTax || {}),
 
       items: JSON.stringify(dto.items || []),
@@ -73,6 +75,8 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
       total: safeJsonParse(record.total, {}),
       totalInclTax: safeJsonParse(record.totalInclTax, {}),
       shippingPrice: safeJsonParse(record.shippingPrice, {}),
+      shippingMethod: record.shippingMethod,
+      shippingPriceTaxRate: record.shippingPriceTaxRate,
       shippingPriceInclTax: safeJsonParse(record.shippingPriceInclTax, {}),
 
       items: safeJsonParse(record.items, []),

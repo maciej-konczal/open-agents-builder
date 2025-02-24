@@ -37,12 +37,13 @@ const orderFormSchema = z.object({
     address1: z.string().optional(),
     city: z.string().optional(),
     postalCode: z.string().min(1, "Postal code is required"),
-    // dodać resztę pól wedle potrzeb...
+    phone: z.string().optional(),
   }),
   shippingAddress: z.object({
     name: z.string().min(1, "Name is required"),
     address1: z.string().optional(),
     city: z.string().optional(),
+    phone: z.string().optional(),
     postalCode: z.string().min(1, "Postal code is required"),
   }),
 
@@ -180,12 +181,14 @@ export default function OrderFormPage() {
         name: o.billingAddress?.name || "",
         address1: o.billingAddress?.address1,
         city: o.billingAddress?.city,
+        phone: o.billingAddress?.phone || "",
         postalCode: o.billingAddress?.postalCode || "",
       },
       shippingAddress: {
         name: o.shippingAddress?.name || "",
         address1: o.shippingAddress?.address1,
         city: o.shippingAddress?.city,
+        phone: o.shippingAddress?.phone,
         postalCode: o.shippingAddress?.postalCode || "",
       },
       status: o.status,
@@ -308,13 +311,18 @@ export default function OrderFormPage() {
   // 6) Podsumowanie
   // Bieżące sumy
   const [subTotal, setSubTotal] = useState({ value: 0, currency: "USD" });
+  const [subTotalInclTax, setSubTotalInclTax] = useState({ value: 0, currency: "USD" });
+
   const [total, setTotal] = useState({ value: 0, currency: "USD" });
+  const [totalInclTax, setTotalInclTax] = useState({ value: 0, currency: "USD" });
 
   useEffect(() => {
     const formOrder = formDataToOrder(methods.getValues());
     formOrder.calcTotals(); // liczy shipping, line items
     setSubTotal(formOrder.subtotal || { value: 0, currency: "USD" });
     setTotal(formOrder.total || { value: 0, currency: "USD" });
+    setSubTotalInclTax(formOrder.subTotalInclTax || { value: 0, currency: "USD" });
+    setTotalInclTax(formOrder.totalInclTax || { value: 0, currency: "USD" });
   }, [
     itemsValue,
     watch("shippingPrice"),
@@ -443,13 +451,21 @@ export default function OrderFormPage() {
                 </p>
               )}
 
-            <label className="block text-sm">{t("Address line 1 (Street etc)")}</label>
+              <label className="block text-sm">{t("Address line 1 (Street etc)")}</label>
               <Input {...register("billingAddress.address1")} />
               {errors.billingAddress?.address1 && (
                 <p className="text-red-500 text-sm">y
                   {errors.billingAddress.address1.message as string}
                 </p>
               )}
+
+            <label className="block text-sm">{t("Phone")}</label>
+              <Input {...register("billingAddress.phone")} />
+              {errors.billingAddress?.phone && (
+                <p className="text-red-500 text-sm">y
+                  {errors.billingAddress.phone.message as string}
+                </p>
+              )}              
               {/* city, address1, etc. */}
             </div>
 
@@ -494,7 +510,13 @@ export default function OrderFormPage() {
                   {errors.shippingAddress.address1.message as string}
                 </p>
               )}
-
+            <label className="block text-sm">{t("Phone")}</label>
+              <Input {...register("shippingAddress.phone")} />
+              {errors.shippingAddress?.phone && (
+                <p className="text-red-500 text-sm">y
+                  {errors.shippingAddress.phone.message as string}
+                </p>
+              )}       
 
               {/* city, address1, etc. */}
             </div>
@@ -734,7 +756,7 @@ export default function OrderFormPage() {
           <label className="block font-medium mb-1">{t("Status")}</label>
           <select
             {...register("status")}
-            className="border p-2 rounded"
+            className="border p-2 rounded text-sm"
             // ewentualnie defaultValue="shopping_cart" jeśli nie robisz .default w Zod
           >
             {ORDER_STATUSES.map((st) => (
@@ -785,13 +807,27 @@ export default function OrderFormPage() {
 
 
           {/* Podsumowanie */}
-          <div className="border p-2 mt-4">
-            <div>
-              <strong>{t("Subtotal")}:</strong> {subTotal.value.toFixed(2)} {subTotal.currency}
+          <div className="border p-2 mt-4 text-sm">
+            <div className="grid grid-cols-2 p-2">
+              <div><strong>{t("Subtotal")}:</strong></div> <div> {subTotal.value.toFixed(2)} {subTotal.currency}</div> 
             </div>
-            <div>
-              <strong>{t("Total")}:</strong> {total.value.toFixed(2)} {total.currency}
+            <div className="grid grid-cols-2 p-2">
+              <div><strong>{t("Shipping")}:</strong></div> <div> {shippingPrice.toFixed(2)} {total.currency}</div> 
             </div>
+            <div className="grid grid-cols-2 p-2">
+              <div><strong>{t("Total")}:</strong></div> <div> {total.value.toFixed(2)} {total.currency}</div> 
+            </div>
+            <div className="grid grid-cols-2 p-2">
+              <div><strong>{t("Subtotal incl. tax.")}:</strong></div> <div> {subTotalInclTax.value.toFixed(2)} {subTotal.currency}</div> 
+            </div>
+            <div className="grid grid-cols-2 p-2">
+              <div><strong>{t("Shipping incl. tax.")}:</strong></div> <div> {shippingPriceInclTax.toFixed(2)} {total.currency}</div> 
+            </div>
+
+            <div className="grid grid-cols-2 p-2">
+              <div><strong>{t("Total incl. tax.")}:</strong></div><div> {totalInclTax.value.toFixed(2)} {total.currency}</div>
+            </div>
+
           </div>
 
           <div className="flex gap-4 mt-6">
