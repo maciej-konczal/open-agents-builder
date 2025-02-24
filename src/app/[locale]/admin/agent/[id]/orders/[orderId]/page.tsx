@@ -400,6 +400,7 @@ export default function OrderFormPage() {
     // Uzupełniamy shippingPriceTaxRate, items
     const dto: OrderDTO = {
       id: data.id,
+      agentId: agentContext.current?.id || "",
       email: data.email,
       orderNumber: data.id,
       billingAddress: {
