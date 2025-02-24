@@ -20,12 +20,13 @@ import { Order, Product } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
-import { BoxIcon, CopyIcon, FileIcon, ListEnd, ListIcon, PlusSquareIcon, PointerIcon, RefreshCwIcon, TrashIcon } from "lucide-react";
+import { BoxIcon, CopyIcon, FileIcon, ListEnd, ListIcon, MoveLeftIcon, PlusSquareIcon, PointerIcon, RefreshCwIcon, TrashIcon } from "lucide-react";
 import { useAgentContext } from "@/contexts/agent-context";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
 import { Price } from "@/components/price";
 import { nanoid } from "nanoid";
+import DataLoader from "@/components/data-loader";
 
 // 1) Zod schema z wymaganiami
 // Dodajemy orderNumber, shippingPriceTaxRate, 
@@ -415,10 +416,15 @@ export default function OrderFormPage() {
   return (
     <FormProvider {...methods}>
       <div className="max-w-4xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">
-          {params?.orderId && params.orderId !== "new" ? t("Edit Order") : t("New Order")}
-        </h1>
+        <Button className="mb-6" size="sm" variant="outline" onClick={() => history.back()}><MoveLeftIcon /> {t('Back to orders')}</Button>
 
+        {orderContext.loaderStatus === 'loading' ? (
+          
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+            <DataLoader />
+          </div>
+        
+        ) : (null) }
         <form onSubmit={(e) => {
           e.preventDefault();
           handleSubmit(onSubmit)();
@@ -438,7 +444,15 @@ export default function OrderFormPage() {
           {/* BILLING / SHIPPING */}
           <div className="flex space-x-4">
             <div className="flex-1 border p-2">
-              <h3 className="font-semibold mb-2">{t("Billing Address")}</h3>
+              <h3 className="font-semibold mb-2">{t("Billing Address")}
+
+              <Button variant="secondary" title={t("Copy from shipping")} size="sm" onClick={(e) => {
+                  e.preventDefault();
+                  setValue("billingAddress", methods.getValues("shippingAddress"));
+                }}>
+                    <CopyIcon className="w-4 h-4" />
+                </Button>                
+              </h3>
               <label className="block text-sm">{t("Name")}</label>
               <Input {...register("billingAddress.name")} />
               {errors.billingAddress?.name && (
