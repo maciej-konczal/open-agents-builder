@@ -425,6 +425,7 @@ const customerSchema = z.object({
 const orderItemSchema = z.object({
   id: z.string(),
   name: z.string().optional(),
+  sku: z.string().optional,
   message: z.string().optional(),
   customOptions: z.array(z.object({ name: z.string(), value: z.string() })).optional(),
 
@@ -480,7 +481,7 @@ export const orderDTOSchema = z.object({
   shippingMethod: z.string().optional(),
   shippingPrice: priceSchema.optional(),
   shippingPriceInclTax: priceSchema.optional(),
-  shippingPriceTaxRate: priceSchema.optional(),
+  shippingPriceTaxRate: z.number().optional(),
 
   items: z.array(orderItemSchema).optional(),
 

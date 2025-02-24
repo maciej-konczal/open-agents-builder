@@ -836,7 +836,7 @@ export interface Price {
     totalInclTax?: Price;
     shippingPrice?: Price;
     shippingMethod?: string;
-    shippingPriceTaxRate?: Price;
+    shippingPriceTaxRate?: number;
     shippingPriceInclTax?: Price;
   
     items?: OrderItem[];

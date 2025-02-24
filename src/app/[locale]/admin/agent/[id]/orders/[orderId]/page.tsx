@@ -20,19 +20,17 @@ import { Order, Product } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
-import { BoxIcon, CopyIcon, ListEnd, ListIcon, PlusSquareIcon, TrashIcon } from "lucide-react";
+import { BoxIcon, CopyIcon, FileIcon, ListEnd, ListIcon, PlusSquareIcon, PointerIcon, TrashIcon } from "lucide-react";
 import { useAgentContext } from "@/contexts/agent-context";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from "@/contexts/saas-context";
+import { Price } from "@/components/price";
 
 // 1) Zod schema z wymaganiami
 // Dodajemy orderNumber, shippingPriceTaxRate, 
 // Adresy: name, postalCode => required
 const orderFormSchema = z.object({
-  id: z.string().optional(),
-
-  // Nowy klucz orderNumber
-  orderNumber: z.string().describe("Unique user-editable order number"),
+  id:  z.string().describe("Unique user-editable order number"),
 
   billingAddress: z.object({
     name: z.string().min(1, "Name is required"),
@@ -56,7 +54,7 @@ const orderFormSchema = z.object({
   })).optional(),
 
   // shipping
-  deliveryMethod: z.string().optional(),
+  shippingMethod: z.string().optional(),
   shippingPrice: z.number().default(0),
   shippingPriceInclTax: z.number().default(0),
   shippingPriceTaxRate: z.number().min(0).max(100).default(23),  // nowy klucz
@@ -149,14 +147,14 @@ export default function OrderFormPage() {
       const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
 
       const defaultOrderNumber = `ORD-${year}-${mm}-${dd}-${rand}`;
-      setValue("orderNumber", defaultOrderNumber);
+      setValue("id", defaultOrderNumber);
     }
   }, [params.orderId, setValue]);
 
   // 3) Ładowanie zamówienia (edycja)
   useEffect(() => {
     if (params?.orderId && params.orderId !== "new") {
-      loadOrder(params.orderId);
+      loadOrder(params.orderId as string);
     }
   }, [params?.orderId]);
 
@@ -177,8 +175,7 @@ export default function OrderFormPage() {
 
   const mapOrderToFormData = (o: Order): OrderFormData => {
     return {
-      id: o.id,
-      orderNumber: o.orderNumber || "",
+      id: o.id || '',
       billingAddress: {
         name: o.billingAddress?.name || "",
         address1: o.billingAddress?.address1,
@@ -193,7 +190,7 @@ export default function OrderFormPage() {
       },
       status: o.status,
       notes: o.notes || [],
-      deliveryMethod: o.deliveryMethod,
+      shippingMethod: o.shippingMethod,
       shippingPrice: o.shippingPrice?.value || 0,
       shippingPriceInclTax: o.shippingPriceInclTax?.value || 0,
       shippingPriceTaxRate: (o.shippingPriceTaxRate || 0)*100, // zakładamy w modelu 0-1
@@ -257,7 +254,7 @@ export default function OrderFormPage() {
     const line = itemsValue[searchingLineIndex];
     if (!line) return;
 
-    const query = line.productSkuOrName?.trim();
+    const query = line.name?.trim();
     if (!query) return;
 
     // Zamiast search => productApi.query
@@ -329,7 +326,7 @@ export default function OrderFormPage() {
     // Uzupełniamy shippingPriceTaxRate, items
     const dto: OrderDTO = {
       id: data.id,
-      orderNumber: data.orderNumber,
+      orderNumber: data.id,
       billingAddress: {
         ...data.billingAddress,
       },
@@ -338,7 +335,7 @@ export default function OrderFormPage() {
       },
       status: data.status,
       notes: data.notes,
-      deliveryMethod: data.deliveryMethod,
+      shippingMethod: data.shippingMethod,
       shippingPrice: {
         value: data.shippingPrice,
         currency: "USD",
@@ -351,7 +348,7 @@ export default function OrderFormPage() {
 
       items: data.items.map((li) => ({
         id: li.id,
-        name: li.name ||| "",
+        name: li.name || "",
         sku: li.sku || "",
         variantId: li.variantId,
         quantity: li.quantity,
@@ -409,10 +406,10 @@ export default function OrderFormPage() {
           {/* ORDER NUMBER */}
           <div>
             <label className="block font-medium mb-1">{t("Order Number")}</label>
-            <Input {...register("orderNumber")} />
-            {errors.orderNumber && (
+            <Input {...register("id")} />
+            {errors.id && (
               <p className="text-red-500 text-sm">
-                {errors.orderNumber.message as string}
+                {errors.id?.message as string}
               </p>
             )}
           </div>
@@ -502,93 +499,6 @@ export default function OrderFormPage() {
             </div>
           </div>
 
-          {/* STATUS */}
-          <div>
-          <label className="block font-medium mb-1">{t("Status")}</label>
-          <select
-            {...register("status")}
-            className="border p-2 rounded"
-            // ewentualnie defaultValue="shopping_cart" jeśli nie robisz .default w Zod
-          >
-            {ORDER_STATUSES.map((st) => (
-              <option key={st.value} value={st.value}>
-                {st.label}
-              </option>
-            ))}
-          </select>
-          {errors.status && (
-            <p className="text-red-500 text-sm">
-              {errors.status.message as string}
-            </p>
-          )}
-        </div>
-
-          {/* NOTES */}
-          <div>
-            <label className="block font-medium mb-1">{t("Notes")}</label>
-            {noteFieldsArr.map((nf, idx) => {
-              const noteErr = errors.notes?.[idx];
-              return (
-                <div key={nf.id} className="relative border p-2 mb-2">
-                  <Textarea rows={2} {...register(`notes.${idx}.message`)} />
-                  <Button
-                    className="absolute top-1 right-1"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => removeNoteArr(idx)}
-                  >
-                    {t("Remove")}
-                  </Button>
-                  {noteErr?.message && (
-                    <p className="text-red-500 text-sm">{noteErr.message}</p>
-                  )}
-                </div>
-              );
-            })}
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={addNote}
-            >
-              {t("Add note")}
-            </Button>
-          </div>
-
-          {/* Delivery method */}
-          <div>
-            <label className="block font-medium mb-1">{t("Delivery Method")}</label>
-            <Input {...register("deliveryMethod")} placeholder="e.g. DHL" />
-          </div>
-
-          {/* Shipping net/brutto/taxRate */}
-          <div className="flex space-x-2">
-            <div>
-              <label className="block font-medium mb-1">{t("Shipping Price (net)")}</label>
-              <Input
-                type="number"
-                step="0.01"
-                {...register("shippingPrice", { valueAsNumber: true })}
-                onFocus={() => setLastChangedShippingField("net")}
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">{t("Shipping Price (incl.tax)")}</label>
-              <Input
-                type="number"
-                step="0.01"
-                {...register("shippingPriceInclTax", { valueAsNumber: true })}
-                onFocus={() => setLastChangedShippingField("gross")}
-              />
-            </div>
-            <div>
-              <label className="block font-medium mb-1">{t("Shipping Tax Rate (%)")}</label>
-              <Input
-                type="number"
-                step="1"
-                {...register("shippingPriceTaxRate", { valueAsNumber: true })}
-              />
-            </div>
-          </div>
 
           {/* Items */}
           <div>
@@ -603,64 +513,71 @@ export default function OrderFormPage() {
                 <Card key={field.id} className="p-3 mb-2">
                   <Input
                     placeholder={t("SKU or product name")}
-                    value={line.productSkuOrName || ""}
+                    value={line.name || ""}
                     onChange={(e) => {
-                      setValue(`items.${idx}.productSkuOrName`, e.target.value);
+                      setValue(`items.${idx}.name`, e.target.value);
                       setSearchingLineIndex(idx);
                       setDebouncedSearchQuery(e.target.value);
                     }}
                   />
-                  
-                  {lineErr?.productSkuOrName && (
-                    <p className="text-red-500 text-sm">{lineErr.productSkuOrName.message}</p>
+
+                  {line.sku ? (     
+                    <span className="text-xs">{t('SKU')}: {line.sku}</span>
+                  ) : null }
+
+                  {lineErr?.name && (
+                    <p className="text-red-500 text-sm">{lineErr.name.message}</p>
                   )}
 
                   {idx !== null && foundProducts[idx] ? (
 
                     <div className="flex-row mt-2 text-xs">
-                      {t('Select product: ')}
-                      {foundProducts[idx].map(p=>Product.fromDTO(p)).map((p) => (
-                          <Button size="sm" className="m-2" variant={"outline"} onClick={(e) => {
-                            
-                            e.preventDefault();
-                            
-                            if (p.variants && p.variants.length > 0) {
-                              setLineVariants(prev => ({
-                                ...prev,
-                                [idx]: p.variants,
-                              }));
-                            } else {
-                              // brak wariantów => usuń
-                              setLineVariants(prev => {
-                                const c = { ...prev };
-                                delete c[idx];
-                                return c;
-                              });
-                              // można ustawić line.price, line.priceInclTax = p.price, p.priceInclTax
-                              setValue(`items.${idx}.name`, p.name);
-                              setValue(`items.${idx}.sku`, p.sku);
-                              setValue(`items.${idx}.price`, p.price.value);
-                              setValue(`items.${idx}.priceInclTax`, p.priceInclTax?.value || 0);
-                              setValue(`items.${idx}.taxRate`, (p.taxRate||0)*100);
-                            }
+                      <div className="w-full mb-2 border-b p-2">{t('Select product: ')}</div>
+                      <div className="w-full">
+                        {foundProducts[idx].map(p=>Product.fromDTO(p)).map((p) => (
+                          <div  className="grid grid-cols-4 w-full place-items-center">
+                            <div className="items-center col-span-2 items-center">{p.sku}: {p.name}</div>
+                            <div><Price currency={p.priceInclTax?.currency || ''} price={p.priceInclTax?.value || 0} /></div>
+                            <div className="items-center">
+                              <Button size="sm" className="m-2" variant={"outline"} onClick={(e) => {
+                                
+                                e.preventDefault();
+                                
+                                if (p.variants && p.variants.length > 0) {
+                                  setLineVariants(prev => ({
+                                    ...prev,
+                                    [idx]: p.variants,
+                                  }));
+                                } else {
+                                  // brak wariantów => usuń
+                                  setLineVariants(prev => {
+                                    const c = { ...prev };
+                                    delete c[idx];
+                                    return c;
+                                  });
+                                  // można ustawić line.price, line.priceInclTax = p.price, p.priceInclTax
+                                  setValue(`items.${idx}.sku`, p.sku);
+                                  setValue(`items.${idx}.price`, p.price.value);
+                                  setValue(`items.${idx}.priceInclTax`, p.priceInclTax?.value || 0);
+                                  setValue(`items.${idx}.taxRate`, (p.taxRate||0)*100);
+                                }
 
-                            setFoundProducts(prev => { delete prev[idx]; return prev });                            
-                          }}>
+                                setValue(`items.${idx}.name`, p.name);
+                                setValue(`items.${idx}.sku`, p.sku);
 
-                            {p.name}
-                          </Button>
-                      ))}
 
+                                setFoundProducts(prev => { delete prev[idx]; return prev });                            
+                              }}>
+
+                                <PointerIcon className="w-4 h-4 mr-2" />{t('Select')}
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
 
                   ): null}
-
-                  {idx !== null && foundProduct[idx] ? (
-                    <div className="mt-2">
-                      <strong>{foundProduct[idx]?.name}</strong>
-                      <div className="text-xs">({t('SKU - ')} {foundProduct[idx].sku}) </div>
-                    </div>
-                  ) : (null)}
 
                   {/* Combo do wariantów */}
                   {variants.length > 0 && (
@@ -760,7 +677,8 @@ export default function OrderFormPage() {
               onClick={() => {
                 appendItem({
                   id: uuidv4(),
-                  productSkuOrName: "",
+                  name: "",
+                  sku: "",
                   variantId: "",
                   quantity: 1,
                   price: 0,
@@ -772,6 +690,98 @@ export default function OrderFormPage() {
               <ListEnd className="w-4 h-4 mr-2"/> {t("Add line")}
             </Button>
           </div>
+
+          {/* Delivery method */}
+          <div>
+            <label className="block font-medium mb-1">{t("Shipping Method")}</label>
+            <Input {...register("shippingMethod")} placeholder="e.g. DHL" />
+          </div>
+
+          {/* Shipping net/brutto/taxRate */}
+          <div className="flex space-x-2">
+            <div>
+              <label className="block font-medium mb-1">{t("Shipping Price (net)")}</label>
+              <Input
+                type="number"
+                step="0.01"
+                {...register("shippingPrice", { valueAsNumber: true })}
+                onFocus={() => setLastChangedShippingField("net")}
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">{t("Shipping Price (incl.tax)")}</label>
+              <Input
+                type="number"
+                step="0.01"
+                {...register("shippingPriceInclTax", { valueAsNumber: true })}
+                onFocus={() => setLastChangedShippingField("gross")}
+              />
+            </div>
+            <div>
+              <label className="block font-medium mb-1">{t("Shipping Tax Rate (%)")}</label>
+              <Input
+                type="number"
+                step="1"
+                {...register("shippingPriceTaxRate", { valueAsNumber: true })}
+              />
+            </div>
+          </div>          
+
+
+          {/* STATUS */}
+          <div>
+          <label className="block font-medium mb-1">{t("Status")}</label>
+          <select
+            {...register("status")}
+            className="border p-2 rounded"
+            // ewentualnie defaultValue="shopping_cart" jeśli nie robisz .default w Zod
+          >
+            {ORDER_STATUSES.map((st) => (
+              <option key={st.value} value={st.value}>
+                {st.label}
+              </option>
+            ))}
+          </select>
+          {errors.status && (
+            <p className="text-red-500 text-sm">
+              {errors.status.message as string}
+            </p>
+          )}
+        </div>
+
+
+
+          {/* NOTES */}
+          <div>
+            <label className="block font-medium mb-1">{t("Notes")}</label>
+            {noteFieldsArr.map((nf, idx) => {
+              const noteErr = errors.notes?.[idx];
+              return (
+                <div key={nf.id} className="relative border p-2 mb-2">
+                  <Textarea rows={2} {...register(`notes.${idx}.message`)} />
+                  <Button
+                    className="absolute top-1 right-1"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeNoteArr(idx)}
+                  >
+                    {t("Remove")}
+                  </Button>
+                  {noteErr?.message && (
+                    <p className="text-red-500 text-sm">{noteErr.message}</p>
+                  )}
+                </div>
+              );
+            })}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={addNote}
+            >
+              <FileIcon className="w-4 h-4 mr-2" /> {t("Add note")}
+            </Button>
+          </div>
+
 
           {/* Podsumowanie */}
           <div className="border p-2 mt-4">
