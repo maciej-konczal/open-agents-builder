@@ -905,11 +905,11 @@ export interface Price {
         // shipping
         let shippingInclValue = this.shippingPriceInclTax?.value || 0;
         if (!this.shippingPriceInclTax && this.shippingPrice && this.shippingPriceTaxRate) {
-            shippingInclValue = this.shippingPrice.value * (1 + this.shippingPriceTaxRate.value);
+            shippingInclValue = this.shippingPrice.value * (1 + this.shippingPriceTaxRate);
         }
 
         if (this.shippingPriceInclTax && this.shippingPriceTaxRate) {
-            const shippingTaxRate = this.shippingPriceTaxRate.value;
+            const shippingTaxRate = this.shippingPriceTaxRate;
             shippingValue = this.shippingPriceInclTax.value / (1 + shippingTaxRate);
             this.shippingPrice = createPrice(shippingValue, currency);
         } 
