@@ -353,7 +353,15 @@ export const productDTOSchema = z.object({
   weightUnit: z.string().optional(),
 
   brand: z.string().optional(),
-  status: z.string().optional(), // np. "active", "inactive", "deleted"
+  status: z.enum([
+    "shopping_cart",
+    "quote",
+    "new",
+    "processing",
+    "shipped",
+    "completed",
+    "cancelled",
+  ]).default("shopping_cart"),
 
   imageUrl: z.string().url().optional().nullable(),
 
@@ -470,6 +478,7 @@ export const orderDTOSchema = z.object({
   totalInclTax: priceSchema.optional(),
   shippingPrice: priceSchema.optional(),
   shippingPriceInclTax: priceSchema.optional(),
+  shippingPriceTaxRate: priceSchema.optional(),
 
   items: z.array(orderItemSchema).optional(),
 

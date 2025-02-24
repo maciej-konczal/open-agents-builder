@@ -820,6 +820,7 @@ export interface Price {
     total?: Price;
     totalInclTax?: Price;
     shippingPrice?: Price;
+    shippingPriceTaxRate?: Price;
     shippingPriceInclTax?: Price;
   
     items?: OrderItem[];
@@ -881,10 +882,20 @@ export interface Price {
         this.subtotal = createPrice(subtotalValue, currency);
         this.subTotalInclTax = createPrice(subtotalInclTaxValue, currency);
         this.subtotalTaxValue = createPrice(subtotalTaxValue, currency);
-    
+
+        let shippingValue = this.shippingPrice?.value || 0;
+
         // shipping
-        const shippingValue = this.shippingPrice?.value || 0;
-        const shippingInclValue = this.shippingPriceInclTax?.value || 0;
+        let shippingInclValue = this.shippingPriceInclTax?.value || 0;
+        if (!this.shippingPriceInclTax && this.shippingPrice && this.shippingPriceTaxRate) {
+            shippingInclValue = this.shippingPrice.value * (1 + this.shippingPriceTaxRate.value);
+        }
+
+        if (this.shippingPriceInclTax && this.shippingPriceTaxRate) {
+            const shippingTaxRate = this.shippingPriceTaxRate.value;
+            shippingValue = this.shippingPriceInclTax.value / (1 + shippingTaxRate);
+            this.shippingPrice = createPrice(shippingValue, currency);
+        } 
     
         const totalNet = subtotalValue + shippingValue;
         const totalGross = subtotalInclTaxValue + shippingInclValue;

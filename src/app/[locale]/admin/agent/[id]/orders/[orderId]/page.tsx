@@ -4,7 +4,6 @@ import React, { useEffect, useState, useRef } from "react";
 import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useDebounce } from "use-debounce";
 import { useTranslation } from "react-i18next";
 import { useRouter, useParams } from "next/navigation";
 import { toast } from "sonner";
@@ -12,94 +11,97 @@ import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Select } from "@/components/ui/select"; // ewentualny select do statusu
 import { Card } from "@/components/ui/card";
 
 import { getErrorMessage } from "@/lib/utils";
-import { OrderApiClient } from "@/data/client/order-api-client";
-import { OrderDTO } from "@/data/dto";
-import { Order, OrderItem, Note, StatusChange, Address, Product } from "@/data/client/models";
-import { ProductApiClient } from "@/data/client/product-api-client";
-
-// Kontekst
 import { useOrderContext } from "@/contexts/order-context";
-import { useAgentContext } from "@/contexts/agent-context";
+import { OrderDTO } from "@/data/dto";
+import { Order, Product } from "@/data/client/models";
+import { ProductApiClient } from "@/data/client/product-api-client";
+import { v4 as uuidv4 } from "uuid";
+import { useDebounce } from "use-debounce";
 
-// 1) Zod schema (formularz):
-// Uproszczony, ale zawiera kluczowe pola
+// 1) Zod schema z wymaganiami
+// Dodajemy orderNumber, shippingPriceTaxRate, 
+// Adresy: name, postalCode => required
 const orderFormSchema = z.object({
   id: z.string().optional(),
 
-  // addresses:
+  // Nowy klucz orderNumber
+  orderNumber: z.string().describe("Unique user-editable order number"),
+
   billingAddress: z.object({
+    name: z.string().min(1, "Name is required"),
     address1: z.string().optional(),
     city: z.string().optional(),
-  }).optional(),
+    postalCode: z.string().min(1, "Postal code is required"),
+    // dodać resztę pól wedle potrzeb...
+  }),
   shippingAddress: z.object({
+    name: z.string().min(1, "Name is required"),
     address1: z.string().optional(),
     city: z.string().optional(),
-  }).optional(),
+    postalCode: z.string().min(1, "Postal code is required"),
+  }),
 
-  // status + statusChanges
   status: z.string().optional(),
-  statusChanges: z.array(z.object({
-    date: z.string(),
-    message: z.string().optional(),
-    oldStatus: z.string().optional(),
-    newStatus: z.string(),
-  })).optional(),
-
-  // notes
   notes: z.array(z.object({
     date: z.string(),
     message: z.string(),
     author: z.string().optional(),
   })).optional(),
 
-  deliveryMethod: z.string().optional(),
-
   // shipping
-  shippingPrice: z.number().optional(),
-  shippingPriceInclTax: z.number().optional(),
+  deliveryMethod: z.string().optional(),
+  shippingPrice: z.number().default(0),
+  shippingPriceInclTax: z.number().default(0),
+  shippingPriceTaxRate: z.number().min(0).max(100).default(23),  // nowy klucz
 
-  // items
   items: z.array(z.object({
     id: z.string(),
     productSkuOrName: z.string().optional(),
     variantId: z.string().optional(),
     quantity: z.number().min(1).default(1),
-    // Dwustronna aktualizacja
+
     price: z.number().min(0).default(0),
     priceInclTax: z.number().min(0).default(0),
     taxRate: z.number().min(0).max(100).default(23),
   })).default([]),
 });
 
-// 2) Typ
 type OrderFormData = z.infer<typeof orderFormSchema>;
-
 
 export default function OrderFormPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const params = useParams();
-
-  // Lista statusów:
-const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Completed", "Cancelled"];
-
   const orderContext = useOrderContext();
-  const agentContext = useAgentContext();
+
+  // Zamiast poprzednich stałych:
+  const ORDER_STATUSES = [
+    { label: t("Shopping Cart"), value: "shopping_cart" },
+    { label: t("Quote"), value: "quote" },
+    { label: t("New"), value: "new" },
+    { label: t("Processing"), value: "processing" },
+    { label: t("Shipped"), value: "shipped" },
+    { label: t("Completed"), value: "completed" },
+    { label: t("Cancelled"), value: "cancelled" },
+  ];
+
+
   const productApi = new ProductApiClient("");
 
   // react-hook-form
   const methods = useForm<OrderFormData>({
     resolver: zodResolver(orderFormSchema),
     defaultValues: {
-      items: [],
-      notes: [],
-      statusChanges: [],
+      // defaulty
+      billingAddress: { name: "", postalCode: "" },
+      shippingAddress: { name: "", postalCode: "" },
       shippingPrice: 0,
       shippingPriceInclTax: 0,
+      shippingPriceTaxRate: 23,
+      items: [],
     },
   });
   const {
@@ -112,151 +114,44 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
     formState: { errors },
   } = methods;
 
-  // FieldArray do items
+  // Field arrays do items i notes
   const { fields: itemFields, append: appendItem, remove: removeItem } = useFieldArray({
     control,
     name: "items",
   });
-  // FieldArray do notes
   const { fields: noteFields, append: appendNote, remove: removeNote } = useFieldArray({
     control,
     name: "notes",
   });
 
-  // FieldArray do statusChanges, jeśli chcesz także UI do dodawania/usuwać
-  // ... analogicznie
-
-  // Stan do przechowywania "wariantów" dla linii
-  const [lineVariants, setLineVariants] = useState<Record<number, Product["variants"]>>({});
-
-  // Debounce do obsługi SKU/nazwy:
-  const itemsValue = watch("items");
-  const [debouncedItems] = useDebounce(itemsValue, 400);
-
-  // Gdy user wpisze SKU/nazwę => wyszukujemy product
-  const [searchingIndex, setSearchingIndex] = useState<number | null>(null);
   useEffect(() => {
-    if (searchingIndex === null) return;
-    const item = debouncedItems[searchingIndex];
-    if (!item) return;
-    const query = item.productSkuOrName?.trim();
-    if (!query) return;
-
-    (async () => {
-      try {
-        const found = await productApi.search(query);
-        if (found.length === 0) {
-          // no product
-          toast.error(t("No product found for ") + query);
-          setLineVariants(prev => {
-            const c = { ...prev };
-            delete c[searchingIndex];
-            return c;
-          });
-          return;
-        }
-        // Bierzemy 1-szy
-        const p = Product.fromDTO(found[0]);
-        if (p.variants && p.variants.length > 0) {
-          setLineVariants(prev => ({
-            ...prev,
-            [searchingIndex]: p.variants,
-          }));
-        } else {
-          // brak wariantów => usuń
-          setLineVariants(prev => {
-            const c = { ...prev };
-            delete c[searchingIndex];
-            return c;
-          });
-          // od razu uzupełnij cenę
-          setValue(`items.${searchingIndex}.price`, p.price.value);
-          setValue(`items.${searchingIndex}.priceInclTax`, p.priceInclTax?.value || 0);
-        }
-      } catch (error) {
-        console.error(error);
-        toast.error(getErrorMessage(error));
-      }
-    })();
-  }, [debouncedItems, searchingIndex]);
-
-  // Po wybraniu wariantu:
-  const handleVariantSelect = (lineIndex: number, variantId: string) => {
-    setValue(`items.${lineIndex}.variantId`, variantId);
-    const variant = lineVariants[lineIndex]?.find(v => v.id === variantId);
-    if (variant) {
-      setValue(`items.${lineIndex}.price`, variant.price.value);
-      setValue(`items.${lineIndex}.priceInclTax`, variant.priceInclTax?.value || 0);
-      setValue(`items.${lineIndex}.taxRate`, (variant.taxRate || 0)*100);
+    if (params.orderId === "new") {
+      setValue("status", "shopping_cart"); 
     }
-  };
+  }, [params.orderId, setValue]);  
 
-  // Dwustronne aktualizacje cen w itemach (net/brutto) + stawka vat
-  // Słuchamy watch("items") i jeśli user zmieni price => oblicz priceInclTax, i odwrotnie
-  // lub w onChange
-  const handleItemPriceChange = (index: number, field: "price" | "priceInclTax") => {
-    const item = watch(`items.${index}`);
-    // item.taxRate => 0-100
-    const r = (item.taxRate ?? 23) / 100;
-    if (field === "price") {
-      // priceInclTax = price * (1 + r)
-      const incl = item.price * (1 + r);
-      setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
-    } else {
-      // price = priceInclTax / (1 + r)
-      const net = item.priceInclTax / (1 + r);
-      setValue(`items.${index}.price`, parseFloat(net.toFixed(2)));
-    }
-  };
-  const handleItemTaxRateChange = (index: number) => {
-    // Recount net/brutto
-    const item = watch(`items.${index}`);
-    const r = (item.taxRate ?? 23)/100;
-    // liczymy na podstawie price => priceInclTax
-    const incl = item.price * (1 + r);
-    setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
-  };
-
-  // Dwustronna aktualizacja shipping price
-  const shippingPrice = watch("shippingPrice");
-  const shippingPriceInclTax = watch("shippingPriceInclTax");
-  const shippingTaxRate = 0.23; // przykładowo 23% stawka
-  const [lastChangedShippingField, setLastChangedShippingField] = useState<"net"|"gross"|null>(null);
+  // 2) Domyślny orderNumber dla nowych zamówień
+  // ORD-{YYYY}-{MM}-{DD}-{3 random letters}
   useEffect(() => {
-    if (lastChangedShippingField === "net") {
-      const gross = (shippingPrice || 0) * (1 + shippingTaxRate);
-      setValue("shippingPriceInclTax", parseFloat(gross.toFixed(2)));
-    }
-  }, [shippingPrice]);
-  useEffect(() => {
-    if (lastChangedShippingField === "gross") {
-      const net = (shippingPriceInclTax || 0) / (1 + shippingTaxRate);
-      setValue("shippingPrice", parseFloat(net.toFixed(2)));
-    }
-  }, [shippingPriceInclTax]);
+    if (params.orderId === "new") {
+      const today = new Date();
+      const year = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
+      const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
 
-  // Zliczanie totals na bieżąco:
-  // Niech w useEffect lub w handleSubmit finalnym
-  // Lepiej w handleSubmit finalnym = bo i tak serwer to przeliczy.
-  // Ale jeśli chcesz UI "na żywo", możesz zrobić:
-  const [subTotal, setSubTotal] = useState<Price>({ value: 0, currency: "USD" });
-  const [total, setTotal] = useState<Price>({ value: 0, currency: "USD" });
-  useEffect(() => {
-    // oblicz sumy na bieżąco => lub zrobisz order.calcTotals()
-    const formOrder = formDataToOrder(methods.getValues());
-    formOrder.calcTotals(); 
-    setSubTotal(formOrder.subtotal || { value: 0, currency: "USD" });
-    setTotal(formOrder.total || { value: 0, currency: "USD" });
-  }, [itemsValue, shippingPrice, shippingPriceInclTax]);
+      const defaultOrderNumber = `ORD-${year}-${mm}-${dd}-${rand}`;
+      setValue("orderNumber", defaultOrderNumber);
+    }
+  }, [params.orderId, setValue]);
 
-  // Ładowanie istniejącego zamówienia (edycja)
+  // 3) Ładowanie zamówienia (edycja)
   useEffect(() => {
     if (params?.orderId && params.orderId !== "new") {
       loadOrder(params.orderId);
     }
   }, [params?.orderId]);
 
-  // Funkcja do wczytania z kontekstu
   const loadOrder = async (orderId: string) => {
     try {
       const o = await orderContext.loadOrder(orderId);
@@ -266,102 +161,243 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
       }
       const formData = mapOrderToFormData(o);
       reset(formData);
-    } catch (error) {
-      console.error(error);
-      toast.error(getErrorMessage(error));
+    } catch (err) {
+      console.error(err);
+      toast.error("Error loading order: " + getErrorMessage(err));
     }
   };
 
-  // mapujemy Order -> OrderFormData
   const mapOrderToFormData = (o: Order): OrderFormData => {
     return {
       id: o.id,
-      billingAddress: o.billingAddress ? {
-        address1: o.billingAddress.address1,
-        city: o.billingAddress.city,
-        // ...
-      } : undefined,
-      shippingAddress: o.shippingAddress ? {
-        address1: o.shippingAddress.address1,
-        city: o.shippingAddress.city,
-      } : undefined,
+      orderNumber: o.orderNumber || "",
+      billingAddress: {
+        name: o.billingAddress?.name || "",
+        address1: o.billingAddress?.address1,
+        city: o.billingAddress?.city,
+        postalCode: o.billingAddress?.postalCode || "",
+      },
+      shippingAddress: {
+        name: o.shippingAddress?.name || "",
+        address1: o.shippingAddress?.address1,
+        city: o.shippingAddress?.city,
+        postalCode: o.shippingAddress?.postalCode || "",
+      },
       status: o.status,
-      statusChanges: o.statusChanges || [],
       notes: o.notes || [],
       deliveryMethod: o.deliveryMethod,
       shippingPrice: o.shippingPrice?.value || 0,
       shippingPriceInclTax: o.shippingPriceInclTax?.value || 0,
+      shippingPriceTaxRate: (o.shippingPriceTaxRate || 0)*100, // zakładamy w modelu 0-1
       items: (o.items || []).map((it) => ({
         id: it.id,
-        productSkuOrName: "", // do wypełnienia jeśli przechowujesz w DB
-        variantId: it.variantId,
+        productSkuOrName: "", // brak w DB
+        variantId: it.variantId || "",
         quantity: it.quantity,
         price: it.price?.value || 0,
         priceInclTax: it.priceInclTax?.value || 0,
-        taxRate: (it.taxRate||0)*100,
+        taxRate: (it.taxRate || 0)*100,
       })),
     };
   };
 
-  // Konwersja form -> model
+  // 4) Dwustronne shipping net/brutto z shippingPriceTaxRate
+  const shippingPrice = watch("shippingPrice");
+  const shippingPriceInclTax = watch("shippingPriceInclTax");
+  const shippingPriceTaxRate = watch("shippingPriceTaxRate");
+  const [lastChangedShippingField, setLastChangedShippingField] = useState<"net" | "gross" | null>(null);
+
+  useEffect(() => {
+    if (!shippingPriceTaxRate) return;
+    const r = shippingPriceTaxRate / 100;
+    if (lastChangedShippingField === "net") {
+      const gross = shippingPrice * (1 + r);
+      setValue("shippingPriceInclTax", parseFloat(gross.toFixed(2)));
+    }
+  }, [shippingPrice]);
+
+  useEffect(() => {
+    if (!shippingPriceTaxRate) return;
+    const r = shippingPriceTaxRate / 100;
+    if (lastChangedShippingField === "gross") {
+      const net = shippingPriceInclTax / (1 + r);
+      setValue("shippingPrice", parseFloat(net.toFixed(2)));
+    }
+  }, [shippingPriceInclTax]);
+
+  // 5) Obsługa items => product / variant
+  const { fields: lineFields, append: appendLine, remove: removeLine } = useFieldArray({
+    control,
+    name: "items",
+  });
+
+  // Stan do przechowywania wariantów
+  const [lineVariants, setLineVariants] = useState<Record<number, Product["variants"]>>({});
+
+  // Debounce
+  const itemsValue = watch("items");
+  const [debouncedItems] = useDebounce(itemsValue, 400);
+
+  // Gdy user zmienia productSkuOrName
+  const [searchingLineIndex, setSearchingLineIndex] = useState<number | null>(null);
+  useEffect(() => {
+    if (searchingLineIndex === null) return;
+    const line = debouncedItems[searchingLineIndex];
+    if (!line) return;
+
+    const query = line.productSkuOrName?.trim();
+    if (!query) return;
+
+    // Zamiast search => productApi.query
+    (async () => {
+      try {
+        // Parametry paginacji np. limit=10, offset=0, orderBy, query
+        const response = await productApi.query({
+          limit: 10,
+          offset: 0,
+          query: query,
+        });
+        // response => { rows: ProductDTO[], total, limit, ... } (zgodnie z definicją)
+        if (response.rows.length === 0) {
+          toast.error(t(`No product found for ${query}`));
+          setLineVariants(prev => {
+            const c = { ...prev };
+            delete c[searchingLineIndex];
+            return c;
+          });
+          return;
+        }
+        // Bierzemy pierwszy
+        const p = Product.fromDTO(response.rows[0]);
+        if (p.variants && p.variants.length > 0) {
+          setLineVariants(prev => ({
+            ...prev,
+            [searchingLineIndex]: p.variants,
+          }));
+        } else {
+          // brak wariantów => usuń
+          setLineVariants(prev => {
+            const c = { ...prev };
+            delete c[searchingLineIndex];
+            return c;
+          });
+          // można ustawić line.price, line.priceInclTax = p.price, p.priceInclTax
+          setValue(`items.${searchingLineIndex}.price`, p.price.value);
+          setValue(`items.${searchingLineIndex}.priceInclTax`, p.priceInclTax?.value || 0);
+          setValue(`items.${searchingLineIndex}.taxRate`, (p.taxRate||0)*100);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Error querying product: " + getErrorMessage(error));
+      }
+    })();
+  }, [debouncedItems, searchingLineIndex]);
+
+  // Dwustronna net/brutto w items
+  const handleItemPriceChange = (index: number, field: "price" | "priceInclTax") => {
+    const item = watch(`items.${index}`);
+    const r = (item.taxRate || 23) / 100;
+    if (field === "price") {
+      const incl = item.price * (1 + r);
+      setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
+    } else {
+      const net = item.priceInclTax / (1 + r);
+      setValue(`items.${index}.price`, parseFloat(net.toFixed(2)));
+    }
+  };
+  const handleItemTaxRateChange = (index: number) => {
+    const item = watch(`items.${index}`);
+    const r = (item.taxRate || 0)/100;
+    const incl = item.price * (1 + r);
+    setValue(`items.${index}.priceInclTax`, parseFloat(incl.toFixed(2)));
+  };
+
+  // 6) Podsumowanie
+  // Bieżące sumy
+  const [subTotal, setSubTotal] = useState({ value: 0, currency: "USD" });
+  const [total, setTotal] = useState({ value: 0, currency: "USD" });
+
+  useEffect(() => {
+    const formOrder = formDataToOrder(methods.getValues());
+    formOrder.calcTotals(); // liczy shipping, line items
+    setSubTotal(formOrder.subtotal || { value: 0, currency: "USD" });
+    setTotal(formOrder.total || { value: 0, currency: "USD" });
+  }, [
+    itemsValue,
+    watch("shippingPrice"),
+    watch("shippingPriceInclTax"),
+    watch("shippingPriceTaxRate"),
+  ]);
+
+  // Konwersja FormData -> Order
   const formDataToOrder = (data: OrderFormData): Order => {
-    // Składasz DTO i tworzysz Order
+    // Uzupełniamy shippingPriceTaxRate, items
     const dto: OrderDTO = {
       id: data.id,
-      billingAddress: data.billingAddress,
-      shippingAddress: data.shippingAddress,
+      orderNumber: data.orderNumber,
+      billingAddress: {
+        ...data.billingAddress,
+      },
+      shippingAddress: {
+        ...data.shippingAddress,
+      },
       status: data.status,
-      statusChanges: data.statusChanges,
       notes: data.notes,
       deliveryMethod: data.deliveryMethod,
-      shippingPrice: { value: data.shippingPrice || 0, currency: "USD" },
-      shippingPriceInclTax: { value: data.shippingPriceInclTax || 0, currency: "USD" },
-      items: data.items.map((it) => ({
-        id: it.id,
-        variantId: it.variantId,
-        quantity: it.quantity,
-        price: { value: it.price, currency: "USD" },
-        priceInclTax: { value: it.priceInclTax, currency: "USD" },
-        taxRate: (it.taxRate||0)/100,
+      shippingPrice: {
+        value: data.shippingPrice,
+        currency: "USD",
+      },
+      shippingPriceInclTax: {
+        value: data.shippingPriceInclTax,
+        currency: "USD",
+      },
+      shippingPriceTaxRate: (data.shippingPriceTaxRate || 0)/100, // w modelu 0-1
+
+      items: data.items.map((li) => ({
+        id: li.id,
+        sku: li.productSkuOrName || "",
+        variantId: li.variantId,
+        quantity: li.quantity,
+        price: { value: li.price, currency: "USD" },
+        priceInclTax: { value: li.priceInclTax, currency: "USD" },
+        taxRate: li.taxRate / 100,
       })),
-      // w modelu calcTotals zsumuje
+
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
     return Order.fromDTO(dto);
   };
 
-  // Ostateczny submit
+  // 7) Submit
   const onSubmit = async (data: OrderFormData) => {
     try {
       let order = formDataToOrder(data);
+      order.calcTotals(); // kliencka kalkulacja
 
-      // calcTotals() po stronie klienta
-      order.calcTotals();
-
-      // Sprawdzamy czy status się zmienił -> dodajemy statusChanges
-      // np. stara wartość w useRef, itp. (pomijam implementację)
-
-      // wysyłamy do kontekstu
       const saved = await orderContext.updateOrder(order, true);
-
-      toast.success(t("Order saved"));
-      // redirect
-      router.push(`/admin/agent/${agentContext.current?.id}/orders`);
+      toast.success(t("Order saved!"));
+      router.push("/admin/orders");
     } catch (error) {
       console.error(error);
-      toast.error(t("Error saving order: ") + getErrorMessage(error));
+      toast.error("Error saving order: " + getErrorMessage(error));
     }
   };
 
-  // Dodanie notatki
+  // Dodawanie/usuwanie notatek
+  const { fields: noteFieldsArr, append: appendNoteArr, remove: removeNoteArr } = useFieldArray({
+    control,
+    name: "notes",
+  });
   const addNote = () => {
-    appendNote({
+    appendNoteArr({
       date: new Date().toISOString(),
       message: "",
-      author: "Admin", // np. z contextu
+      author: "Admin",
     });
   };
 
-  // UI
   return (
     <FormProvider {...methods}>
       <div className="max-w-4xl mx-auto">
@@ -369,44 +405,124 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
           {params?.orderId && params.orderId !== "new" ? t("Edit Order") : t("New Order")}
         </h1>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit(onSubmit)();
-          }}
-          className="space-y-4"
-        >
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(onSubmit)();
+        }} className="space-y-4">
+
+          {/* ORDER NUMBER */}
+          <div>
+            <label className="block font-medium mb-1">{t("Order Number")}</label>
+            <Input {...register("orderNumber")} />
+            {errors.orderNumber && (
+              <p className="text-red-500 text-sm">
+                {errors.orderNumber.message as string}
+              </p>
+            )}
+          </div>
+
+          {/* BILLING / SHIPPING */}
+          <div className="flex space-x-4">
+            <div className="flex-1 border p-2">
+              <h3 className="font-semibold mb-2">{t("Billing Address")}</h3>
+              <label className="block text-sm">{t("Name")}</label>
+              <Input {...register("billingAddress.name")} />
+              {errors.billingAddress?.name && (
+                <p className="text-red-500 text-sm">
+                  {errors.billingAddress.name.message as string}
+                </p>
+              )}
+
+              <label className="block text-sm">{t("Postal Code")}</label>
+              <Input {...register("billingAddress.postalCode")} />
+              {errors.billingAddress?.postalCode && (
+                <p className="text-red-500 text-sm">
+                  {errors.billingAddress.postalCode.message as string}
+                </p>
+              )}
+              {/* city, address1, etc. */}
+            </div>
+
+            <div className="flex-1 border p-2">
+              <h3 className="font-semibold mb-2">{t("Shipping Address")}</h3>
+              <label className="block text-sm">{t("Name")}</label>
+              <Input {...register("shippingAddress.name")} />
+              {errors.shippingAddress?.name && (
+                <p className="text-red-500 text-sm">
+                  {errors.shippingAddress.name.message as string}
+                </p>
+              )}
+
+              <label className="block text-sm">{t("Postal Code")}</label>
+              <Input {...register("shippingAddress.postalCode")} />
+              {errors.shippingAddress?.postalCode && (
+                <p className="text-red-500 text-sm">
+                  {errors.shippingAddress.postalCode.message as string}
+                </p>
+              )}
+              {/* city, address1, etc. */}
+            </div>
+          </div>
+
           {/* STATUS */}
           <div>
-            <label className="block font-medium mb-1">{t("Status")}</label>
-            <select {...register("status")} className="border p-2 rounded">
-              <option value="">{t("Pick status")}</option>
-              {ORDER_STATUSES.map((st) => (
-                <option key={st} value={st}>{st}</option>
-              ))}
-            </select>
+          <label className="block font-medium mb-1">{t("Status")}</label>
+          <select
+            {...register("status")}
+            className="border p-2 rounded"
+            // ewentualnie defaultValue="shopping_cart" jeśli nie robisz .default w Zod
+          >
+            {ORDER_STATUSES.map((st) => (
+              <option key={st.value} value={st.value}>
+                {st.label}
+              </option>
+            ))}
+          </select>
+          {errors.status && (
+            <p className="text-red-500 text-sm">
+              {errors.status.message as string}
+            </p>
+          )}
+        </div>
+
+          {/* NOTES */}
+          <div>
+            <label className="block font-medium mb-1">{t("Notes")}</label>
+            {noteFieldsArr.map((nf, idx) => {
+              const noteErr = errors.notes?.[idx];
+              return (
+                <div key={nf.id} className="relative border p-2 mb-2">
+                  <Textarea rows={2} {...register(`notes.${idx}.message`)} />
+                  <Button
+                    className="absolute top-1 right-1"
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => removeNoteArr(idx)}
+                  >
+                    {t("Remove")}
+                  </Button>
+                  {noteErr?.message && (
+                    <p className="text-red-500 text-sm">{noteErr.message}</p>
+                  )}
+                </div>
+              );
+            })}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={addNote}
+            >
+              {t("Add note")}
+            </Button>
           </div>
 
-          {/* ADRESY */}
-          <div className="flex space-x-4">
-            <div className="flex-1">
-              <label className="block font-medium mb-1">{t("Billing Address")}</label>
-              <Input {...register("billingAddress.address1")} placeholder={t("Address line 1")} />
-              <Input {...register("billingAddress.city")} placeholder={t("City")} />
-              {/* ... etc. */}
-            </div>
-            <div className="flex-1">
-              <label className="block font-medium mb-1">{t("Shipping Address")}</label>
-              <Input {...register("shippingAddress.address1")} placeholder={t("Address line 1")} />
-              <Input {...register("shippingAddress.city")} placeholder={t("City")} />
-            </div>
-          </div>
-
-          {/* Dostawa */}
+          {/* Delivery method */}
           <div>
             <label className="block font-medium mb-1">{t("Delivery Method")}</label>
-            <Input {...register("deliveryMethod")} placeholder={t("e.g. 'DHL'")} />
+            <Input {...register("deliveryMethod")} placeholder="e.g. DHL" />
           </div>
+
+          {/* Shipping net/brutto/taxRate */}
           <div className="flex space-x-2">
             <div>
               <label className="block font-medium mb-1">{t("Shipping Price (net)")}</label>
@@ -426,156 +542,131 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
                 onFocus={() => setLastChangedShippingField("gross")}
               />
             </div>
+            <div>
+              <label className="block font-medium mb-1">{t("Shipping Tax Rate (%)")}</label>
+              <Input
+                type="number"
+                step="1"
+                {...register("shippingPriceTaxRate", { valueAsNumber: true })}
+              />
+            </div>
           </div>
 
-          {/* NOTATKI */}
-          <div>
-            <label className="block font-medium mb-1">{t("Notes")}</label>
-            {noteFields.map((nf, idx) => {
-              const noteError = errors.notes?.[idx];
-              return (
-                <div key={nf.id} className="border p-2 mb-2 relative">
-                  <Textarea
-                    {...register(`notes.${idx}.message`)}
-                    rows={2}
-                  />
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => removeNote(idx)}
-                    className="absolute top-1 right-1"
-                  >
-                    {t("Remove")}
-                  </Button>
-                  {noteError?.message && (
-                    <p className="text-red-500 text-sm">{noteError.message as string}</p>
-                  )}
-                </div>
-              );
-            })}
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                appendNote({
-                  date: new Date().toISOString(),
-                  message: "",
-                  author: "Admin",
-                });
-              }}
-            >
-              {t("Add note")}
-            </Button>
-          </div>
-
-          {/* LINES */}
+          {/* Items */}
           <div>
             <label className="block font-medium mb-1">{t("Order Items")}</label>
             {itemFields.map((field, idx) => {
               const line = watch(`items.${idx}`);
-              const itemErr = errors.items?.[idx];
+              const lineErr = errors.items?.[idx];
+              // Warianty
               const variants = lineVariants[idx] || [];
 
               return (
-                <Card key={field.id} className="p-2 mb-2">
-                  {/* SKU / nazwa */}
+                <Card key={field.id} className="p-3 mb-2">
                   <Input
                     placeholder={t("SKU or product name")}
                     value={line.productSkuOrName || ""}
                     onChange={(e) => {
                       setValue(`items.${idx}.productSkuOrName`, e.target.value);
-                      setSearchingIndex(idx);
+                      setSearchingLineIndex(idx);
                     }}
                   />
-                  {itemErr?.productSkuOrName && (
-                    <p className="text-red-500 text-sm">{itemErr.productSkuOrName.message}</p>
+                  {lineErr?.productSkuOrName && (
+                    <p className="text-red-500 text-sm">{lineErr.productSkuOrName.message}</p>
                   )}
 
-                  {/* combobox do wariantów */}
+                  {/* Combo do wariantów */}
                   {variants.length > 0 && (
                     <div className="mt-2">
                       <label className="block text-sm font-medium">{t("Variant")}</label>
-                      <select
-                        {...register(`items.${idx}.variantId`)}
+                      <Combobox
+                        items={variants.map((v) => ({
+                          label: v.name,
+                          value: v.id,
+                        }))}
                         value={line.variantId || ""}
-                        onChange={(e) => handleVariantSelect(idx, e.target.value)}
-                      >
-                        <option value="">{t("Select a variant")}</option>
-                        {variants.map((v) => (
-                          <option key={v.id} value={v.id}>
-                            {v.name}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={(val) => {
+                          setValue(`items.${idx}.variantId`, val);
+                          const foundVar = variants.find((vv) => vv.id === val);
+                          if (foundVar) {
+                            setValue(`items.${idx}.price`, foundVar.price.value);
+                            setValue(`items.${idx}.priceInclTax`, foundVar.priceInclTax?.value || 0);
+                            setValue(`items.${idx}.taxRate`, (foundVar.taxRate||0)*100);
+                          }
+                        }}
+                      />
                     </div>
                   )}
 
-                  {/* quantity + price + priceInclTax + vat */}
                   <div className="flex space-x-2 mt-2">
+                    {/* quantity */}
                     <div>
                       <label className="block text-sm font-medium">{t("Quantity")}</label>
                       <Input
                         type="number"
                         {...register(`items.${idx}.quantity`, { valueAsNumber: true })}
-                        className="w-24"
+                        className="w-20"
                       />
+                      {lineErr?.quantity && <p className="text-red-500 text-sm">{lineErr.quantity.message}</p>}
                     </div>
+
+                    {/* Price net */}
                     <div>
                       <label className="block text-sm font-medium">{t("Price (net)")}</label>
                       <Input
                         type="number"
                         step="0.01"
                         {...register(`items.${idx}.price`, { valueAsNumber: true })}
-                        className="w-24"
-                        onFocus={() => {
-                          // user edytuje net
-                        }}
                         onChange={() => handleItemPriceChange(idx, "price")}
+                        className="w-24"
                       />
+                      {lineErr?.price && <p className="text-red-500 text-sm">{lineErr.price.message}</p>}
                     </div>
+
+                    {/* Price incl tax */}
                     <div>
-                      <label className="block text-sm font-medium">{t("Price (incl.tax)")}</label>
+                      <label className="block text-sm font-medium">{t("Price (incl. tax)")}</label>
                       <Input
                         type="number"
                         step="0.01"
                         {...register(`items.${idx}.priceInclTax`, { valueAsNumber: true })}
-                        className="w-24"
-                        onFocus={() => {
-                          // user edytuje brutto
-                        }}
                         onChange={() => handleItemPriceChange(idx, "priceInclTax")}
+                        className="w-24"
                       />
+                      {lineErr?.priceInclTax && <p className="text-red-500 text-sm">{lineErr.priceInclTax.message}</p>}
                     </div>
+
+                    {/* taxRate */}
                     <div>
                       <label className="block text-sm font-medium">{t("Tax Rate (%)")}</label>
                       <Input
                         type="number"
                         step="1"
                         {...register(`items.${idx}.taxRate`, { valueAsNumber: true })}
-                        className="w-16"
                         onChange={() => handleItemTaxRateChange(idx)}
+                        className="w-16"
                       />
                     </div>
                   </div>
 
-                  {/* remove line */}
                   <Button
                     variant="destructive"
                     size="sm"
                     className="mt-2"
-                    onClick={() => removeItem(idx)}
+                    onClick={() => remove(idx)}
                   >
                     {t("Remove line")}
                   </Button>
                 </Card>
               );
             })}
+
             <Button
               type="button"
               variant="secondary"
               onClick={() => {
                 appendItem({
-                  id: crypto.randomUUID(),
+                  id: uuidv4(),
                   productSkuOrName: "",
                   variantId: "",
                   quantity: 1,
@@ -589,7 +680,7 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
             </Button>
           </div>
 
-          {/* Podsumowanie na dole (na bieżąco) */}
+          {/* Podsumowanie */}
           <div className="border p-2 mt-4">
             <div>
               <strong>{t("Subtotal")}:</strong> {subTotal.value.toFixed(2)} {subTotal.currency}
@@ -599,7 +690,6 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
             </div>
           </div>
 
-          {/* Buttons */}
           <div className="flex gap-4 mt-6">
             <Button type="submit" variant="default">
               {t("Save")}
@@ -610,7 +700,6 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
               onClick={() => {
                 handleSubmit(async (data) => {
                   await onSubmit(data);
-                  // i ewentualnie reset do nowego
                   reset();
                 })();
               }}
@@ -618,6 +707,7 @@ const ORDER_STATUSES = ["Shopping cart", "New", "Processing", "Shipped", "Comple
               {t("Save and add next")}
             </Button>
           </div>
+
         </form>
       </div>
     </FormProvider>
