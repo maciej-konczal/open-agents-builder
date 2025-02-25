@@ -1,29 +1,29 @@
 {
     "id": "pl_OYlEowbN9b5hGp-1uW1oW",
-    "displayName": "InstaFit - fitness shop for Instagram",
+    "displayName": "InstaFit - sklep fitness na Instagramie",
     "options": {
-        "welcomeMessage": "Hey! Welcome to my store with **ActiveWearPro** brand products! Check out our top products, ask for details, choose your size, and order!",
-        "termsAndConditions": "**Instagram Store Terms and Conditions**\n\n**1. General Provisions**\n1.1. These terms and conditions define the rules of the store operated via a chatbot on Instagram.\n1.2. The owner of the store is \\[Company Name], located at \\[address], VAT \\[number], REGON \\[number].\n1.3. Contact: \\[email address], \\[phone number].\n\n**2. Order Placement Rules**\n2.1. Orders are placed via chat on Instagram.\n2.2. The order is binding upon confirmation by the seller.\n2.3. Prices provided in messages are gross and include VAT.\n2.4. The customer can choose the delivery and payment method according to the available options.\n\n**3. Payments and Delivery**\n3.1. Available payment methods: bank transfer, BLIK, fast online payments.\n3.2. Delivery costs are indicated when placing the order.\n3.3. The order processing time is up to \\[X] business days from the moment the payment is credited.\n\n**4. Returns and Complaints**\n4.1. The consumer has the right to withdraw from the contract within 14 days of receiving the product without giving any reason.\n4.2. Complaints can be submitted to the email address: \\[address].\n4.3. The seller will consider the complaint within 14 days of receiving it.\n\n**5. Personal Data Protection**\n5.1. The administrator of personal data is \\[Company Name].\n5.2. Data is processed in accordance with GDPR for the purpose of order fulfillment and customer service.\n5.3. The customer has the right to access, correct, and delete their data.\n\n**6. Final Provisions**\n6.1. The terms and conditions may change, and the current version will be available on Instagram.\n6.2. In matters not regulated, the provisions of the Civil Code and the Consumer Rights Act apply.\n6.3. Disputes will be resolved by the court competent for the seller's registered office.",
-        "mustConfirmTerms": true,
-        "resultEmail": "",
-        "collectUserEmail": true,
-        "collectUserName": true
+      "welcomeMessage": "Cześć! Witamy w moim sklepie z produktami marki **ActiveWearPro**! Sprawdź nasze topowe produkty, zapytaj o szczegóły, wybierz rozmiar i zamów!",
+      "termsAndConditions": "**Regulamin sklepu na Instagramie**\n\n**1. Postanowienia ogólne**\n1.1. Niniejszy regulamin określa zasady działania sklepu prowadzonego za pośrednictwem chatbota na Instagramie.\n1.2. Właścicielem sklepu jest \\[Company Name], z siedzibą przy \\[address], NIP \\[number], REGON \\[number].\n1.3. Kontakt: \\[adres e-mail], \\[numer telefonu].\n\n**2. Zasady składania zamówień**\n2.1. Zamówienia składa się poprzez czat na Instagramie.\n2.2. Zamówienie jest wiążące po potwierdzeniu przez sprzedawcę.\n2.3. Ceny podane w wiadomościach są cenami brutto i zawierają podatek VAT.\n2.4. Klient może wybrać sposób dostawy i płatności spośród dostępnych opcji.\n\n**3. Płatności i dostawa**\n3.1. Dostępne metody płatności: przelew bankowy, BLIK, szybkie płatności online.\n3.2. Koszty dostawy są wskazywane w trakcie składania zamówienia.\n3.3. Realizacja zamówienia następuje w ciągu maksymalnie \\[X] dni roboczych od momentu zaksięgowania płatności.\n\n**4. Zwroty i reklamacje**\n4.1. Konsument ma prawo odstąpić od umowy w ciągu 14 dni od otrzymania produktu bez podania przyczyny.\n4.2. Reklamacje można składać na adres e-mail: \\[address].\n4.3. Sprzedawca rozpatrzy reklamację w ciągu 14 dni od jej otrzymania.\n\n**5. Ochrona danych osobowych**\n5.1. Administratorem danych osobowych jest \\[Company Name].\n5.2. Dane są przetwarzane zgodnie z RODO w celu realizacji zamówień i obsługi klienta.\n5.3. Klient ma prawo dostępu do swoich danych, ich poprawiania i usunięcia.\n\n**6. Postanowienia końcowe**\n6.1. Regulamin może ulec zmianie, a aktualna wersja będzie dostępna na Instagramie.\n6.2. W sprawach nieuregulowanych zastosowanie mają przepisy Kodeksu cywilnego oraz Ustawy o prawach konsumenta.\n6.3. Spory będą rozstrzygane przez sąd właściwy dla siedziby sprzedawcy.",
+      "mustConfirmTerms": true,
+      "resultEmail": "",
+      "collectUserEmail": true,
+      "collectUserName": true
     },
-    "prompt": "You are an assistant in an online store. You help customers choose and order products from our assortment. Answer all questions about the products. Show their photos. Show their variants and attributes. Let them choose variants.\n\nAt the start, proactively ask what the customer is interested in and show 3  products from the catalog with photos as a table: photo, product name, price, available variants. Always show products this way. In the alt text of product photos, provide \"product-{id}\" where {id} is the product number.\n\nManage a cart for the customer - collecting products they want to order.\n\nIf the customer changes their mind, save their cart as a sales opportunity rather than an order.\n\nIf the customer wants to place an order, save the order in the expected format.\n\nAs for payment methods, the customer will receive a link to pay for the order (sent manually by store staff) after placing the order.",
-    "expectedResult": "The result is an order. Before placing the order, summarize the cart by listing the products, prices, quantities, and the total order value.\n\nIf the customer wants to place an order - ask the customer for all the necessary data for the order, which are:\n\nFirst and last name\n\nEmail\n\nDelivery address (city, postal code, street)\nInvoice address if different from the delivery address\n\nThe result should be an order in **markdown** format with a nice table of ordered goods and all the data needed to fulfill the order",
-    "safetyRules": "Do not let the customers to add zero-priced products to the cart. Do not let customers to order products out of catalog.",
+    "prompt": "Jesteś asystentem w sklepie internetowym. Pomagasz klientom w wyborze i zamawianiu produktów z naszego asortymentu. Odpowiadaj na wszystkie pytania dotyczące produktów. Pokazuj ich zdjęcia, warianty i atrybuty. Pozwól klientom wybierać warianty.\n\nNa początku, proaktywnie zapytaj, czym klient jest zainteresowany, i wyświetl 3 produkty z katalogu wraz ze zdjęciami w formie tabeli: zdjęcie, nazwa produktu, cena, dostępne warianty. Zawsze prezentuj produkty w ten sposób. W tekście alternatywnym do zdjęć produktów umieszczaj \"product-{id}\", gdzie {id} to numer produktu.\n\nZarządzaj koszykiem klienta — zbieraj produkty, które klient chce zamówić.\n\nJeśli klient się rozmyśli, zapisz jego koszyk jako szansę sprzedaży, a nie jako zamówienie.\n\nJeśli klient chce złożyć zamówienie, zapisz je w oczekiwanym formacie.\n\nJeśli chodzi o metody płatności, klient otrzyma link do opłacenia zamówienia (wysyłany ręcznie przez obsługę sklepu) po złożeniu zamówienia.",
+    "expectedResult": "Rezultatem jest zamówienie. Przed złożeniem zamówienia podsumuj koszyk, wyliczając produkty, ceny, ilości i łączną wartość zamówienia.\n\nJeśli klient chce złożyć zamówienie – poproś go o wszystkie niezbędne dane do zamówienia, które obejmują:\n\nImię i nazwisko\n\nAdres e-mail\n\nAdres dostawy (miasto, kod pocztowy, ulica)\nAdres do faktury, jeśli jest inny niż adres dostawy\n\nWynik powinien być zamówieniem w formacie **markdown** z ładną tabelą zamówionych towarów i wszystkimi danymi potrzebnymi do realizacji zamówienia",
+    "safetyRules": "Nie pozwól klientom dodawać produktów o cenie zero do koszyka. Nie pozwól klientom zamawiać produktów spoza katalogu.",
     "events": {},
     "tools": {
-        "tool-1740483491887": {
-            "tool": "listProducts",
-            "description": "",
-            "options": {}
-        },
-        "tool-1740483500288": {
-            "tool": "createOrderTool",
-            "description": "",
-            "options": {}
-        }
+      "tool-1740483491887": {
+        "tool": "listProducts",
+        "description": "",
+        "options": {}
+      },
+      "tool-1740483500288": {
+        "tool": "createOrderTool",
+        "description": "",
+        "options": {}
+      }
     },
     "createdAt": "2025-02-25T11:24:18.696Z",
     "updatedAt": "2025-02-25 14:10:45",
@@ -32,6 +32,7 @@
     "status": "active",
     "icon": "instashop.webp",
     "extra": {
-        "importProductsFromUrl": "/template-assets/insta-products-pl.zip"
+      "importProductsFromUrl": "/template-assets/insta-products-pl.zip"
     }
-}
+  }
+  
