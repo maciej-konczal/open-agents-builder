@@ -25,6 +25,8 @@ Po utworzeniu lub zaktualizowaniu zamówienia zawsze pokaż użytkownikowi zaktu
 
 Upewnij się, że ilości i ceny są zawsze większe niż zero. Nie pozwól użytkownikom kupować produktów o zerowej cenie, chyba że w sekcji <client-expectations> podano inne instrukcje.
 
+Jeśli `listProducts` zwraca zero wyników, weź wszystkie produkty i spróbuj znaleźć coś podobnego do tego, czego szuka użytkownik, na własną rękę.
+
 
 <agent-info>
 id agenta: {{ agent.id }}
