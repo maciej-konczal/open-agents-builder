@@ -26,7 +26,7 @@ export function createListProductsTool(
         const { query, limit, offset } = params;
 
         try {
-          const productRepo = new ServerProductRepository(databaseIdHash);
+          const productRepo = new ServerProductRepository(databaseIdHash, "commerce");
           let all: ProductDTO[];
 
           if (query && query.trim().length > 0) {
