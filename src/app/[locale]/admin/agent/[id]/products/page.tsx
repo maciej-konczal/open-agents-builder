@@ -78,7 +78,7 @@ export default function ProductsPage() {
 
   useEffect(() => {
     setHasMore(
-      productsData.offset + productsData.limit < productsData.total
+      (productsData.offset + productsData.limit) < productsData.total
     );
   }, [productsData]);
 
@@ -146,7 +146,7 @@ export default function ProductsPage() {
         </NoRecordsAlert>
       ) : null}
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xxl:grid-cols-8 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xxl:grid-cols-6 gap-6">
       {productsData.rows.map((product) => (
         <Card key={product.id} className="">
           <CardHeader>
@@ -233,7 +233,7 @@ export default function ProductsPage() {
         next={loadMore}
         threshold={1}
       >
-        {productsLoading && (
+        {hasMore && (
           <div className="flex justify-center">
             <Loader2 className="my-4 h-8 w-8 animate-spin" />
           </div>

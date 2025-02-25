@@ -18,6 +18,7 @@ import { MDXEditorMethods } from '@mdxeditor/editor';
 import { LocaleSelect } from '@/components/locale-select';
 import { AgentTypeSelect } from '@/components/agent-type-select';
 import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
+import DataLoader from '@/components/data-loader';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
@@ -149,7 +150,7 @@ export default function GeneralPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
-  const { setStatus, status, removeStatus, current: agent, updateAgent } = useAgentContext();
+  const { setStatus, status, removeStatus, current: agent, updateAgent, loaderStatus } = useAgentContext();
 
   const methods = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
@@ -179,6 +180,14 @@ export default function GeneralPage() {
    
   return (
     <div className="space-y-6">
+        {loaderStatus === 'loading' ? (
+          
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+            <DataLoader />
+          </div>
+        
+        ) : (null) }
+              
       { isDirty ? (
         <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
       ) : (
