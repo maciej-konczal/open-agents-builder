@@ -5,7 +5,7 @@ import { DataLoadingStatus } from "@/data/client/models";
 import { Product } from "@/data/client/models";
 import { ProductApiClient, DeleteProductResponse, PutProductResponseSuccess } from "@/data/client/product-api-client";
 import { useTranslation } from "react-i18next";
-import { PaginatedQuery, PaginatedResult, ProductDTO } from "@/data/dto";
+import { AttachmentDTO, PaginatedQuery, PaginatedResult, ProductDTO } from "@/data/dto";
 import JSZip from "jszip";
 import { AttachmentApiClient } from "@/data/client/attachment-api-client";
 import { toast } from "sonner";
@@ -68,10 +68,11 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
                 try {
                     const newImages = [];
                     let index = 0;
-                    if (prod.images) {
+                    const uploadedAttachments: AttachmentDTO[] = [];
 
-                        for (const img of prod.images) {xp
-                            const imageFile = zipFile.file('images/' + img.storageKey);
+                    if (prod.images) {
+                        for (const img of prod.images) {
+                            const imageFile = zipFile.file(img.url);
                             if (imageFile) {
                                 const fileContent = await imageFile.async("arraybuffer");
 
@@ -81,15 +82,18 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
                                     })
                                     toast.info('Uploading attachment: ' + img.alt);
 
-                                    const encryptedFile = new File([fileContent], img.storageKey ?? `${prod.sku}-${index}`, { type: attachment.mimeType });
+                                    const encryptedFile = new File([fileContent], img.fileName ? img.fileName : `${prod.sku}-${index}`, { type: img.mimeType });
                                     const formData = new FormData();
                                     formData.append("file", encryptedFile); // TODO: encrypt file here
 
                                     const result = await apiClient.put(formData);
                                     if (result.status === 200) {
-                                    const decryptedAttachmentDTO: AttachmentDTO = (encFilter ? await encFilter.decrypt(result.data, EncryptedAttachmentDTOEncSettings) : result.data) as EncryptedAttachmentDTO;
-                                    console.log('Attachment saved', decryptedAttachmentDTO);
-                                    uploadedAttachments.push(decryptedAttachmentDTO);
+                                        const uploadedAtt = result.data as AttachmentDTO;
+                                        console.log('Attachment saved', uploadedAtt);
+                                        uploadedAttachments.push(uploadedAtt);
+                                    } else {
+                                        console.error('Error saving attachment', result);
+                                        toast.error(t('Error saving attachment: ') + result.message);
                                     }
                                 } catch (error) {
                                     console.error(error);
@@ -100,8 +104,16 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
                             }
                         }
                     }
-                    prod.images = newImages;
+                    prod.images = uploadedAttachments.map((a) => ({
+                        alt: a.displayName,
+                        fileName: a.displayName,
+                        url: a.storageKey,
+                        storageKey: a.storageKey,
+                        mimeType: a.mimeType ?? `application/binary`,
+                    }));
                     await updateProduct(prod); // assume updateProduct is available
+
+                    
                 } catch (error) {
                     console.error('Error importing product', prod, error);
                     toast.error(t('Error importing product: ') + prod.sku);
