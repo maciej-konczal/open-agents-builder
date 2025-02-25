@@ -145,7 +145,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                         const apiClient = new AdminApiClient('', dbContext, saasContext)
                         toast.info('Downloading examples ...');
                   
-                        const examplesArrayBuffer = await apiClient.getArrayBuffer('/onboarding/DoctorDok-onboarding.zip');
+                        const examplesArrayBuffer = await apiClient.getArrayBuffer(templateMeta['importProductsFromUrl']);
                         await productContext.importProducts(examplesArrayBuffer as ArrayBuffer);
                         toast.success(t('Example products imported successfully'));
                       } catch (error) {

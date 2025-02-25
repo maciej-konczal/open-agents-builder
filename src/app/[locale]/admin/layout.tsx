@@ -40,9 +40,9 @@ export default async function GeneralAgentLayout({
             <AuthorizationGuard>
               <KeyContextProvider>
                 <StatsContextProvider>
-                  <AgentProvider>
-                    <TemplateProvider>
-                      <ProductProvider>
+                  <ProductProvider>
+                    <AgentProvider>
+                      <TemplateProvider>
                         <OrderProvider>
                         <div className={`hidden h-screen flex-col ${process.env.NEXT_PUBLIC_ENV === 'dev' ? '' : 'sm:flex xs:flex'} md:hidden text-sm p-4`}>
                           <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10 pb-4"/> 
@@ -59,9 +59,9 @@ export default async function GeneralAgentLayout({
                           </div>
                         </div>
                         </OrderProvider>
-                      </ProductProvider>
-                    </TemplateProvider>
-                  </AgentProvider>
+                      </TemplateProvider>
+                    </AgentProvider>
+                  </ProductProvider>
                 </StatsContextProvider>
               </KeyContextProvider>
             </AuthorizationGuard>
