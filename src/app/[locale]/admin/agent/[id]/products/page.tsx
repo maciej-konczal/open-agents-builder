@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { BoxIcon, FolderOpenIcon, Loader2, OptionIcon, TagIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
+import { BoxIcon, FolderOpenIcon, Loader2, OptionIcon, ShareIcon, TagIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -127,7 +127,21 @@ export default function ProductsPage() {
                 <BoxIcon className="w-4 h-4 mr-2" />
                 {t("Add new product...")}</Button>
         </Link>
+
+        {productsData.rows.length > 0 && (
+        <Button size="sm" variant="outline" onClick={() => {
+          try {
+            productContext.exportProducts();
+          } catch (e) {
+            console.error(e);
+            toast.error(t(getErrorMessage(e)));
+          }
+        }}><ShareIcon className='w-4 h-4' /> {t('Export products ...')}</Button>
+      )}
+        
         </div>
+
+
 
       <Input
         placeholder={"Search products..."}

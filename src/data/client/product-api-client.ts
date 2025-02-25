@@ -99,4 +99,10 @@ export class ProductApiClient extends AdminApiClient {
       { ecnryptedFields: [] }
     ) as Promise<DeleteProductResponse>;
   }
+
+
+  async export(): Promise<any> {
+    return this.getArrayBuffer('/api/product/export') as Promise<any>;
+  }
+    
 }

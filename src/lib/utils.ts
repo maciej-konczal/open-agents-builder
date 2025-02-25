@@ -191,3 +191,4 @@ export function safeJsonParse(str: string, defaultValue: any) {
 export function createPrice(value: number, currency: string): Price {
   return { value: Number(value.toFixed(2)), currency };
 }
+

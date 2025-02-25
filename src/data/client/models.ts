@@ -1080,4 +1080,70 @@ export const defaultVariantSku = (prod:ProductDTO | null= null) => {
   
     return `PROD-${year}-${mm}-${dd}-${rand}`;    
   }
+
+
+  export function renderProductToMarkdown(product: Product, imagesDir: string): string {
+      let md = `# ${product.name}\n\n`;
+      md += `**SKU**: ${product.sku}\n\n`;
+      if (product.description) {
+          md += `**Description**: ${product.description}\n\n`;
+      }
+      if (product.price) {
+          md += `**Price**: ${product.price.value} ${product.price.currency}\n\n`;
+      }
+      if (product.priceInclTax) {
+          md += `**Price (incl. tax)**: ${product.priceInclTax.value} ${product.priceInclTax.currency}\n\n`;
+      }
+      if (product.taxRate) {
+          md += `**Tax Rate**: ${product.taxRate}%\n\n`;
+      }
+      if (product.taxValue) {
+          md += `**Tax Value**: ${product.taxValue}\n\n`;
+      }
+      if (product.brand) {
+          md += `**Brand**: ${product.brand}\n\n`;
+      }
+      if (product.status) {
+          md += `**Status**: ${product.status}\n\n`;
+      }
+      if (product.images && product.images.length > 0) {
+          md += `## Images\n\n`;
+          for (const image of product.images) {
+              md += `![${image.alt || 'Image'}](${imagesDir + '/' + image.storageKey})\n\n`;
+          }
+      }
+      if (product.attributes && product.attributes.length > 0) {
+          md += `## Attributes\n\n`;
+          for (const attribute of product.attributes) {
+              md += `**${attribute.name}**: ${attribute.values?.join(', ') || attribute.defaultValue || ''}\n\n`;
+          }
+      }
+      if (product.variants && product.variants.length > 0) {
+          md += `## Variants\n\n`;
+          for (const variant of product.variants) {
+              md += `### ${variant.name || variant.sku}\n\n`;
+              md += `**SKU**: ${variant.sku}\n\n`;
+              if (variant.price) {
+                  md += `**Price**: ${variant.price.value} ${variant.price.currency}\n\n`;
+              }
+              if (variant.priceInclTax) {
+                  md += `**Price (incl. tax)**: ${variant.priceInclTax.value} ${variant.priceInclTax.currency}\n\n`;
+              }
+              if (variant.taxRate) {
+                  md += `**Tax Rate**: ${variant.taxRate}%\n\n`;
+              }
+              if (variant.taxValue) {
+                  md += `**Tax Value**: ${variant.taxValue}\n\n`;
+              }
+              if (variant.brand) {
+                  md += `**Brand**: ${variant.brand}\n\n`;
+              }
+              if (variant.status) {
+                  md += `**Status**: ${variant.status}\n\n`;
+              }
+          }
+      }
+      return md;
+  }
+  
   

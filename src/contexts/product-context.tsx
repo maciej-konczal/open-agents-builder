@@ -23,6 +23,8 @@ type ProductContextType = {
     setLoaderStatus: (status: DataLoadingStatus) => void;
 
     queryProducts: (params: PaginatedQuery) => Promise<PaginatedResult<Product[]>>;
+
+    exportProducts: () => void;
 };
 
 // Tworzymy kontekst
@@ -48,6 +50,16 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         const client = new ProductApiClient("", dbContext, saasContext, encryptionConfig);
         return client;
     };
+
+
+    const exportProducts = async () => {        
+        const apiClient = new ProductApiClient('', dbContext, saasContext);
+        const a = document.createElement('a');
+        const file = new Blob([await apiClient.export() ?? ''], {type: 'application/zip'});
+        a.href= URL.createObjectURL(file);
+        a.download = `products.zip`;
+        a.click();
+    }    
 
     const queryProducts = async (params: PaginatedQuery): Promise<PaginatedResult<Product[]>> => {
         setLoaderStatus(DataLoadingStatus.Loading);
@@ -167,6 +179,7 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         queryProducts,
         loadProduct,
         refreshDataSync,
+        exportProducts
     };
 
     return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;
