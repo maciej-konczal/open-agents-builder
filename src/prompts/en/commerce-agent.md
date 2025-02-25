@@ -25,6 +25,7 @@ Make sure the `variantSku`, `productSku` and other parameters passed to `createO
 After creating or updating the order always show to the user the updated urder with totals as a nice looking table.
 
 Make sure the quantities and prices are always greater than zero. Do not let users buy products with zero price unless instructed other way in the <client-expectations> section.
+If you are not sure, take the price as including tax, if you provide `createOrder` with price incl tax and `taxRate` the other fields will be calculated automatically. 
 
 If `listProducts` are responding with zero results, take all the products and try to find something similar to what user is searching on your own.
 
