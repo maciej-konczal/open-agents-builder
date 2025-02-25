@@ -320,7 +320,24 @@ export default function OrderFormPage() {
           setValue(`items.${searchingLineIndex}.productSku`, p.sku);
           setValue(`items.${searchingLineIndex}.productId`, p.id);
           setValue(`items.${searchingLineIndex}.name`, p.name);
+
+          setValue(`items.${searchingLineIndex}.price`, p.price.value);
+          setValue(`items.${searchingLineIndex}.priceInclTax`, p.priceInclTax?.value || 0);
+          setValue(`items.${searchingLineIndex}.taxRate`, (p.taxRate || 0) * 100);
+
+          if(p.variants && p.variants.length > 0) {
+            const firstVariant = p.variants[0];
+            setValue(`items.${searchingLineIndex}.price`, firstVariant.price.value);
+            setValue(`items.${searchingLineIndex}.priceInclTax`, firstVariant.priceInclTax?.value || 0);
+            setValue(`items.${searchingLineIndex}.taxRate`, (firstVariant.taxRate || 0) * 100);
+            setValue(`items.${searchingLineIndex}.variantId`, firstVariant.id);
+            setValue(`items.${searchingLineIndex}.variantSku`, firstVariant.sku);
+            setValue(`items.${searchingLineIndex}.variantName`, firstVariant.name);
+          }
+
+
           setLineVariants(prev => ({ ...prev, [searchingLineIndex]: p.variants }));          
+          setTotalsRefreshSync(nanoid()) 
 
           return;
         }
@@ -630,6 +647,7 @@ export default function OrderFormPage() {
               return (
                 <Card key={field.id} className="p-3 mb-2">
                   <Input
+                  autoFocus
                     placeholder={t("SKU or product name")}
                     value={line.name || ""}
                     onChange={(e) => {
@@ -823,7 +841,7 @@ export default function OrderFormPage() {
 
             <Button
               type="button"
-              variant="secondary"
+              variant="default"
               onClick={() => {
                 appendItem({
                   id: uuidv4(),
@@ -976,7 +994,7 @@ export default function OrderFormPage() {
           </div>
 
           <div className="flex gap-4 mt-6">
-            <Button type="submit" variant="default">
+            <Button type="submit" variant="default" className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
               {t("Save")}
             </Button>
             <Button

@@ -176,7 +176,9 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
         break;
     }
 
-    let whereCondition = eq(orders.agentId, agentId);
+    let whereCondition = undefined;
+    if (agentId) whereCondition = eq(orders.agentId, agentId);
+    
     if (query) {
       whereCondition = and(whereCondition, or(
         like(orders.email, `%${query}%`),

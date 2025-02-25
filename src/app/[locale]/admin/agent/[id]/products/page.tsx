@@ -146,7 +146,7 @@ export default function ProductsPage() {
         </NoRecordsAlert>
       ) : null}
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xxl:grid-cols-8 gap-6">
       {productsData.rows.map((product) => (
         <Card key={product.id} className="">
           <CardHeader>

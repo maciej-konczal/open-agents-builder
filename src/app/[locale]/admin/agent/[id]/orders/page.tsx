@@ -165,7 +165,7 @@ export default function OrdersPage() {
       ) : null}
 
       {/* Lista zamówień */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xxl:grid-cols-8 gap-6">
         {ordersData.rows.map((order) => (
           <Card key={order.id} className=" min-w-[250px]">
             <CardHeader>
