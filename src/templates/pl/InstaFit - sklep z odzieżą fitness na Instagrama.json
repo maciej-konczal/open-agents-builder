@@ -30,5 +30,8 @@
     "locale": "pl",
     "agentType": "commerce-agent",
     "status": "active",
-    "icon": "instashop.webp"
+    "icon": "instashop.webp",
+    "extra": {
+        "importProductsFromUrl": "/template-assets/insta-products-pl.zip"
+    }
 }

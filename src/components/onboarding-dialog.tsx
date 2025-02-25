@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { Checkbox } from "./ui/checkbox";
 import { Label } from "@uiw/react-json-view";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { toast } from "sonner";
 
 export function OnboardingDialog() {
 
@@ -62,10 +63,15 @@ export function OnboardingDialog() {
                                     </div>
                                 </div>
                                 <Button variant="outline" className="w-full text-sm" onClick={async (e) => {
-                                    const newAgent = await agentContext.newFromTemplate(template)
-                                    templateContext?.setTemplatePopupOpen(false);
-                                    templateContext?.setOnboardingOpen(false);
-                                    router.push(`/admin/agent/${newAgent.id}/general`);                                    
+                                    try {
+                                        const newAgent = await agentContext.newFromTemplate(template)
+                                        templateContext?.setTemplatePopupOpen(false);
+                                        templateContext?.setOnboardingOpen(false);
+                                        router.push(`/admin/agent/${newAgent.id}/general`);                                    
+                                    } catch (e) {
+                                        toast.error(t('Failed to create agent from template'));
+                                    }
+
                                 }}>
                                     {t('Use Template')}
                                     <ArrowRight className="w-3 h-3 ml-2" />

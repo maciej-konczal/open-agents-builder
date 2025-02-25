@@ -1,4 +1,4 @@
-import { ApiEncryptionConfig } from '@/data/client/admin-api-client';
+import { AdminApiClient, ApiEncryptionConfig } from '@/data/client/admin-api-client';
 import { Agent, DataLoadingStatus, Session, Result, AgentStatus } from '@/data/client/models';
 import { AgentDTO, PaginatedQuery, PaginatedResult } from '@/data/dto';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
@@ -12,6 +12,7 @@ import { AuditContext } from './audit-context';
 import { DeleteResultResponse, ResultApiClient } from '@/data/client/result-api-client';
 import { DeleteSessionResponse, SessionApiClient } from '@/data/client/session-api-client';
 import { detailedDiff } from 'deep-object-diff';
+import { useProductContext } from './product-context';
 
 export type AgentStatusType = {
     id: string;
@@ -60,6 +61,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
     const [agentDeleteDialogOpen, setAgentDeleteDialogOpen] = useState<boolean>(false);
     const auditContext = useContext(AuditContext);
+    const productContext = useProductContext();
 
     const { t, i18n } = useTranslation();
 
@@ -113,7 +115,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 
     };
 
-    const newFromTemplate = (template: Agent): Promise<Agent> => {
+    const newFromTemplate = async (template: Agent): Promise<Agent> => {
         const newAgent = new Agent(
             {
                 id: 'new',
@@ -132,7 +134,31 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
             } as Agent
         )
 
-        return updateAgent(newAgent, true);
+        try {
+            const updatedAgent = await updateAgent(newAgent, true);
+
+            if (template.extra) {
+                const templateMeta = template.extra as Record<string, string>;
+
+                if(templateMeta['importProductsFromUrl']) {
+                    try {
+                        const apiClient = new AdminApiClient('', dbContext, saasContext)
+                        toast.info('Downloading examples ...');
+                  
+                        const examplesArrayBuffer = await apiClient.getArrayBuffer('/onboarding/DoctorDok-onboarding.zip');
+                        await productContext.importProducts(examplesArrayBuffer as ArrayBuffer);
+                        toast.success(t('Example products imported successfully'));
+                      } catch (error) {
+                        toast.error(t('Error while downloading examples'));
+                      }
+                  
+                }
+            }
+            return updatedAgent;
+        } catch (e) {
+            console.error(e);
+            throw e;
+        }
     }
 
     const newAgent = (): Agent => {

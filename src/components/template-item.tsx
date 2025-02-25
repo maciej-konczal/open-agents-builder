@@ -29,10 +29,14 @@ export default function TemplateItem({ template, selected, onClick }: { template
       <div className="flex-1" onClick={(e) => { e.preventDefault(); }} >
         <div className="font-medium">{template.displayName}</div>
         <div><Button size="sm" variant="outline" onClick={async (e) => {
-            const newAgent = await agentContext.newFromTemplate(template)
-            templateContext?.setTemplatePopupOpen(false);
+            try {
+              const newAgent = await agentContext.newFromTemplate(template)
+              templateContext?.setTemplatePopupOpen(false);
 
-            router.push(`/admin/agent/${newAgent.id}/general`);
+              router.push(`/admin/agent/${newAgent.id}/general`);
+            } catch (e) {
+              toast.error(t('Failed to create agent from template'));
+            }
           }
         }><FilePlusIcon /> {t('Use template')}
           </Button>
