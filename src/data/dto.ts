@@ -320,6 +320,8 @@ const productImageSchema = z.object({
   storageKey: z.string().optional(),
   url: z.string().url(),
   alt: z.string().optional(),
+  fileName: z.string().optional(),
+  mimeType: z.string().optional()
 });
 
 export enum StorageSchemas  {

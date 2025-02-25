@@ -5,7 +5,10 @@ import { DataLoadingStatus } from "@/data/client/models";
 import { Product } from "@/data/client/models";
 import { ProductApiClient, DeleteProductResponse, PutProductResponseSuccess } from "@/data/client/product-api-client";
 import { useTranslation } from "react-i18next";
-import { PaginatedQuery, PaginatedResult } from "@/data/dto";
+import { PaginatedQuery, PaginatedResult, ProductDTO } from "@/data/dto";
+import JSZip from "jszip";
+import { AttachmentApiClient } from "@/data/client/attachment-api-client";
+import { toast } from "sonner";
 
 type ProductContextType = {
     current: Product | null;
@@ -50,6 +53,66 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         const client = new ProductApiClient("", dbContext, saasContext, encryptionConfig);
         return client;
     };
+
+
+    const importProducts = async (zipFileInput:ArrayBuffer) => {
+        const zip = new JSZip();
+        const zipFile = await zip.loadAsync(zipFileInput);
+        const dataFile = zipFile.file("products.json");
+        if (!dataFile) return;
+        const rawData = await dataFile.async("string");
+        const products = JSON.parse(rawData);
+
+        try {
+            for (const prod of (products as ProductDTO[]).map((p) => Product.fromDTO(p))) {
+                try {
+                    const newImages = [];
+                    let index = 0;
+                    if (prod.images) {
+
+                        for (const img of prod.images) {xp
+                            const imageFile = zipFile.file('images/' + img.storageKey);
+                            if (imageFile) {
+                                const fileContent = await imageFile.async("arraybuffer");
+
+                                try {
+                                    const apiClient = new AttachmentApiClient('', 'commerce', dbContext, saasContext, {
+                                    useEncryption: false  // for FormData we're encrypting records by ourselves - above
+                                    })
+                                    toast.info('Uploading attachment: ' + img.alt);
+
+                                    const encryptedFile = new File([fileContent], img.storageKey ?? `${prod.sku}-${index}`, { type: attachment.mimeType });
+                                    const formData = new FormData();
+                                    formData.append("file", encryptedFile); // TODO: encrypt file here
+
+                                    const result = await apiClient.put(formData);
+                                    if (result.status === 200) {
+                                    const decryptedAttachmentDTO: AttachmentDTO = (encFilter ? await encFilter.decrypt(result.data, EncryptedAttachmentDTOEncSettings) : result.data) as EncryptedAttachmentDTO;
+                                    console.log('Attachment saved', decryptedAttachmentDTO);
+                                    uploadedAttachments.push(decryptedAttachmentDTO);
+                                    }
+                                } catch (error) {
+                                    console.error(error);
+                                    toast.error('Error saving attachment: ' + error);
+                                } 
+            
+                                // upload fileContent here, then push new info to newImages
+                            }
+                        }
+                    }
+                    prod.images = newImages;
+                    await updateProduct(prod); // assume updateProduct is available
+                } catch (error) {
+                    console.error('Error importing product', prod, error);
+                    toast.error(t('Error importing product: ') + prod.sku);
+                }
+            }
+        } catch (error) {
+            console.error('Error importing products', error);
+            toast.error(t('Error importing products. Check the file format.'));
+        }
+        
+    }
 
 
     const exportProducts = async () => {        

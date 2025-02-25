@@ -6,6 +6,7 @@ import filenamify from 'filenamify';
 import ServerProductRepository from "@/data/server/server-product-repository";
 import { Product, renderProductToMarkdown } from "@/data/client/models";
 import { StorageService } from "@/lib/storage-service";
+import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
 
 
 
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
     const converter = new showdown.Converter({ tables: true, completeHTMLDocument: true, openLinksInNewWindow: true });
     converter.setFlavor('github');
     const stg = new StorageService(requestContext.databaseIdHash, 'commerce');
+    const attRepo = new ServerAttachmentRepository(requestContext.databaseIdHash, 'commerce');
 
     let indexMd = '# Agent Doodle Products Export\n\n';
 
@@ -33,9 +35,19 @@ export async function GET(request: NextRequest, response: NextResponse) {
                 zip.folder('images');
 
                 for (const i of result.images) {
+                    const att = await attRepo.findOne({ storageKey: i.storageKey });
+                    
                     if (i.storageKey) {
-                        zip.file(`images/` + i.storageKey, stg.readAttachment(i.storageKey as string));
-                        i.url = `images/` + i.storageKey;
+                        if (att) {
+                            i.fileName = att.displayName;
+                            i.mimeType = att.mimeType || 'application/binary';
+                        } else { 
+                            i.fileName = i.storageKey;
+                            i.mimeType = 'application/binary';
+                        }
+                        const destImgFile = `images/` + (i.fileName ? i.fileName : i.storageKey)
+                        zip.file(destImgFile, stg.readAttachment(i.storageKey as string));
+                        i.url = destImgFile;
                     }
                 }    
             } 

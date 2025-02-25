@@ -581,6 +581,8 @@ export interface ProductImage {
     url: string;
     alt?: string;
     storageKey?: string;
+    mimeType?: string;
+    fileName?: string;
 }
 
 export class Product {
@@ -1109,7 +1111,7 @@ export const defaultVariantSku = (prod:ProductDTO | null= null) => {
       if (product.images && product.images.length > 0) {
           md += `## Images\n\n`;
           for (const image of product.images) {
-              md += `![${image.alt || 'Image'}](${imagesDir + '/' + image.storageKey})\n\n`;
+              md += `![${image.alt || 'Image'}](${image.url})\n\n`;
           }
       }
       if (product.attributes && product.attributes.length > 0) {
