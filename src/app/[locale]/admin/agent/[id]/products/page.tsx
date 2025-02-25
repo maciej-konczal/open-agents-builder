@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { BoxIcon, FolderOpenIcon, Loader2, OptionIcon, ShareIcon, TagIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
+import { BoxIcon, FolderOpenIcon, ImportIcon, Loader2, OptionIcon, ShareIcon, TagIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -24,6 +24,7 @@ import ZoomableImage from "@/components/zoomable-image";
 import { ProductDeleteDialog } from "@/components/product-delete-dialog";
 import Image from "next/image";
 import { Price } from "@/components/price";
+import { useFilePicker } from "use-file-picker";
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -54,6 +55,19 @@ export default function ProductsPage() {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 4; // przyrost kolejnych stron
 
+
+  const { openFilePicker, filesContent, loading } = useFilePicker({
+    accept: '.zip',
+    readAs: 'ArrayBuffer',
+    onFilesSuccessfullySelected: async () => {
+      filesContent.map(async (fileContent) => {
+        await productContext.importProducts(fileContent.content);
+        toast(t('Products imported successfully'));
+      });
+    }
+  });
+
+  
   useEffect(() => {
     (async () => {
       setProductsLoading(true);
@@ -138,6 +152,11 @@ export default function ProductsPage() {
           }
         }}><ShareIcon className='w-4 h-4' /> {t('Export products ...')}</Button>
       )}
+
+        <Button size="sm" variant="outline" onClick={openFilePicker} disabled={loading}>
+          <ImportIcon className="w-4 h-4 mr-2" />
+          {t("Import products ...")}
+        </Button>
         
         </div>
 

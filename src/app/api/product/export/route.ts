@@ -39,6 +39,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
                     
                     if (i.storageKey) {
                         if (att) {
+                            i.id = `${att.id}`;
                             i.fileName = att.displayName;
                             i.mimeType = att.mimeType || 'application/binary';
                         } else { 

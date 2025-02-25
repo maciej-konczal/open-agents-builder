@@ -9,6 +9,8 @@ import { AttachmentDTO, PaginatedQuery, PaginatedResult, ProductDTO } from "@/da
 import JSZip from "jszip";
 import { AttachmentApiClient } from "@/data/client/attachment-api-client";
 import { toast } from "sonner";
+import { getCurrentTS } from "@/lib/utils";
+import { v4 as uuidv4 } from "uuid";
 
 type ProductContextType = {
     current: Product | null;
@@ -28,6 +30,7 @@ type ProductContextType = {
     queryProducts: (params: PaginatedQuery) => Promise<PaginatedResult<Product[]>>;
 
     exportProducts: () => void;
+    importProducts: (zipFileInput: ArrayBuffer) => void;
 };
 
 // Tworzymy kontekst
@@ -82,9 +85,26 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
                                     })
                                     toast.info('Uploading attachment: ' + img.alt);
 
-                                    const encryptedFile = new File([fileContent], img.fileName ? img.fileName : `${prod.sku}-${index}`, { type: img.mimeType });
+                                    const file = new File([fileContent], img.fileName ? img.fileName : `${prod.sku}-${index}`, { type: img.mimeType });
                                     const formData = new FormData();
-                                    formData.append("file", encryptedFile); // TODO: encrypt file here
+
+                                    const attachmentDTO: AttachmentDTO = {
+
+                                        id: img.id ? parseInt(img.id) : undefined,
+                                        displayName: file.name,
+                                        description: '',
+                                        
+                                        mimeType: img.mimeType,
+                                        size: file.size,
+                                        
+                                        createdAt: getCurrentTS(),
+                                        updatedAt: getCurrentTS(),         
+                                                  
+                                        storageKey: img.storageKey ? img.storageKey : uuidv4(),
+                                    };
+
+                                    formData.append("file", file); // TODO: encrypt file here
+                                    formData.append("attachmentDTO", JSON.stringify(attachmentDTO));
 
                                     const result = await apiClient.put(formData);
                                     if (result.status === 200) {
@@ -107,13 +127,16 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
                     prod.images = uploadedAttachments.map((a) => ({
                         alt: a.displayName,
                         fileName: a.displayName,
-                        url: a.storageKey,
+                        url: `${process.env.NEXT_PUBLIC_APP_URL}/storage/product/${dbContext?.databaseIdHash}/${a.storageKey}`,
                         storageKey: a.storageKey,
                         mimeType: a.mimeType ?? `application/binary`,
                     }));
+
+
+                    prod.imageUrl = prod.images.length > 0 ? prod.images[0].url : '';
                     await updateProduct(prod); // assume updateProduct is available
 
-                    
+
                 } catch (error) {
                     console.error('Error importing product', prod, error);
                     toast.error(t('Error importing product: ') + prod.sku);
@@ -254,7 +277,8 @@ export const ProductProvider = ({ children }: { children: ReactNode }) => {
         queryProducts,
         loadProduct,
         refreshDataSync,
-        exportProducts
+        exportProducts,
+        importProducts
     };
 
     return <ProductContext.Provider value={value}>{children}</ProductContext.Provider>;

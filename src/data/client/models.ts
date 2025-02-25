@@ -581,6 +581,7 @@ export interface ProductImage {
     url: string;
     alt?: string;
     storageKey?: string;
+    id?: string;
     mimeType?: string;
     fileName?: string;
 }
