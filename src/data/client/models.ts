@@ -228,6 +228,7 @@ export class Agent {
     createdAt: string;
     updatedAt: string;
     icon?: string | null;
+    extra?: any | null;
 
     constructor(agentDTO: AgentDTO | Agent) {
         this.id = agentDTO.id;
@@ -249,6 +250,7 @@ export class Agent {
         this.status = agentDTO.status === 'deleted' ? AgentStatus.Deleted : AgentStatus.Active;
 
         this.icon = agentDTO.icon;
+        this.extra = typeof agentDTO.extra === 'string' ? JSON.parse(agentDTO.extra as string) : agentDTO.extra;
     }
 
     static fromDTO(agentDTO: AgentDTO): Agent {
@@ -270,7 +272,8 @@ export class Agent {
             status: this.status,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
-            icon: this.icon
+            icon: this.icon,
+            extra: JSON.stringify(this.extra)
         };
     }
 

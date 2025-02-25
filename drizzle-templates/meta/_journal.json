@@ -43,6 +43,13 @@
       "when": 1739884135883,
       "tag": "0005_military_komodo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1740504020380,
+      "tag": "0006_soft_naoko",
+      "breakpoints": true
     }
   ]
 }
