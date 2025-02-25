@@ -1085,6 +1085,7 @@ export const defaultVariantSku = (prod:ProductDTO | null= null) => {
   }
 
 
+  // TODO: migrate this tool to use the `renderTemplate` from `prompt-template.ts` instead and make the templates switchable
   export function renderProductToMarkdown(product: Product, imagesDir: string): string {
       let md = `# ${product.name}\n\n`;
       md += `**SKU**: ${product.sku}\n\n`;
