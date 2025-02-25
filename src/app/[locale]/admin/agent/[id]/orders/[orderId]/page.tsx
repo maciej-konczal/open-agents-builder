@@ -667,7 +667,7 @@ export default function OrderFormPage() {
                       <div className="w-full mb-2 border-b p-2">{t('Select product: ')}</div>
                       <div className="w-full">
                         {foundProducts[idx].map(p=>Product.fromDTO(p)).map((p) => (
-                          <div  className="grid grid-cols-4 w-full place-items-stretch">
+                          <div  key={p.id} className="grid grid-cols-4 w-full place-items-stretch">
                             <div className="items-left text-left col-span-2 p-2">{p.sku}: {p.name}</div>
                             <div className="p-2"><Price currency={p.priceInclTax?.currency || ''} price={p.priceInclTax?.value || 0} /></div>
                             <div className="items-center align-middle p-2">

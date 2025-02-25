@@ -209,7 +209,7 @@ export default function OrdersPage() {
               <div className="ml-4">
                 <div className="mb-2">
                   {order.items && ((order.items?.length || 0) > 3 ? (order.items?.slice(0, 3)) : order.items ?? []).map(i=> (
-                    <div className="border-b pb-2">
+                    <div key={i.id} className="border-b pb-2">
                       {i.quantity} x <strong>{i.name}</strong> {i.variantName ? (i.variantName) : (null)} - {i.price.value} {i.price.currency}
                     </div>
 
