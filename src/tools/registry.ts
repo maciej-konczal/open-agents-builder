@@ -7,6 +7,8 @@ import { create } from 'domain';
 import { createCalendarScheduleTool } from './calendarScheduleTool';
 import { createCalendarListTool } from './calendarListTool';
 import { dayNameTool } from './dayNameTool';
+import { createCreateOrderTool } from './createOrderTool';
+import { createListProductsTool } from './listProductsTool';
 
 
 export type ToolDescriptor = {
@@ -26,7 +28,9 @@ export const toolRegistry = {
       currentDate: currentDateTool,
       calendarSchedule: createCalendarScheduleTool(agentId, sessionId, databaseIdHash, storageKey),
       calendarList: createCalendarListTool(agentId, sessionId, databaseIdHash, storageKey),
-      dayName: dayNameTool
+      dayName: dayNameTool,
+      createOrder: createCreateOrderTool(databaseIdHash, agentId, sessionId, storageKey),
+      listProducts: createListProductsTool(databaseIdHash)
     }
 
     return availableTools;

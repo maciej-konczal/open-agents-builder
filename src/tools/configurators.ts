@@ -4,6 +4,8 @@ import { CurrentDateConfigurator } from './currentDateTool-configurator';
 import { CalendarListConfigurator } from './calendarListTool-configurator';
 import { CalendarScheduleConfigurator } from './calendarScheduleTool-configurator';
 import { DayNameConfigurator } from './dayNameTool-configurator';
+import { CreateOrderToolConfigurator } from './createOrderTool-configurator';
+import { ListProductsConfigurator } from './listProductsTool-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -30,5 +32,13 @@ export const toolConfigurators: Record<string, ToolConfiguratorDescriptor> = {
   dayName: {
     displayName: 'Get the day name',
     configurator: DayNameConfigurator
+  },
+  createOrderTool: {
+    displayName: 'Create order',
+    configurator: CreateOrderToolConfigurator
+  },
+  listProducts: {
+    displayName: 'List products',
+    configurator: ListProductsConfigurator
   }
 }

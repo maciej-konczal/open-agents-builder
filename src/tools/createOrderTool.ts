@@ -76,7 +76,8 @@ const createOrderParamsSchema = z.object({
 export function createCreateOrderTool(
   databaseIdHash: string,
   agentId: string,
-  storageKey?: string
+  sessionId: string,
+  storageKey?: string | undefined | null
 ): ToolDescriptor {
   return {
     displayName: "Create order tool",

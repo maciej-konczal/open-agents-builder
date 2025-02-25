@@ -8,14 +8,14 @@ type CalendarListOptions = {
 };
 
 
-type CalendarListConfiguratorProps = {
+type CreateOrderToolConfiguratorProps = {
   // This tool needs no special options, but we keep the shape for consistency:
   options: CalendarListOptions;
   onChange: (updated: CalendarListOptions) => void;
 };
 
 
-export function CalendarListConfigurator({ options, onChange }: CalendarListConfiguratorProps) {
+export function CreateOrderToolConfigurator({ options, onChange }: CreateOrderToolConfiguratorProps) {
   const { t } = useTranslation();
   const [virtualProducts, setVirtualProducts] = React.useState(options.virtualProducts);
   // No config needed, but here's a placeholder:
