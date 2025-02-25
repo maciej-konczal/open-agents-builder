@@ -10,6 +10,7 @@ export const products = sqliteTable('products', {
   id: text('id').primaryKey(),
 
   agentId: text('agentId'),
+  sessionId: text('sessionId'),
 
   sku: text('sku'),
   name: text('name'),

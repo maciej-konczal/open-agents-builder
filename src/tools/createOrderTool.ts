@@ -157,6 +157,8 @@ export function createCreateOrderTool(
           const dto: OrderDTO = {
             // id: undefined
             id: id ?? defaultOrderId(),
+            agentId,
+            sessionId,
             items: validatedLines,
             shippingPrice,
             shippingPriceInclTax,

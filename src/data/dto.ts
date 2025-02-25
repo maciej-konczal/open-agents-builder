@@ -457,6 +457,7 @@ const orderItemSchema = z.object({
 export const orderDTOSchema = z.object({
   id: z.string().optional(),
   agentId: z.string().optional(),
+  sessionId: z.string().optional(),
 
   billingAddress: addressSchema.optional(),
   shippingAddress: addressSchema.optional(),

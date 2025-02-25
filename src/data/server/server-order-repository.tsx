@@ -27,6 +27,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     return {
       id: dto.id,
       agentId: dto.agentId,
+      sessionId: dto.sessionId,
       billingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.billingAddress || {})),
       shippingAddress: await this.encUtils?.encrypt(JSON.stringify(dto.shippingAddress || {})),
       attributes: await this.encUtils?.encrypt(JSON.stringify(dto.attributes || {})),
@@ -61,6 +62,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
     return {
       id: record.id,
       agentId: record.agentId,
+      sessionId: record.sessionId,
       billingAddress: safeJsonParse(await this.encUtils?.decrypt(record.billingAddress) || '', {}),
       shippingAddress: safeJsonParse(await this.encUtils?.decrypt(record.shippingAddress) || '', {}),
       attributes: safeJsonParse(await this.encUtils?.decrypt(record.attributes) || '', {}),
@@ -178,7 +180,7 @@ export default class ServerOrderRepository extends BaseRepository<OrderDTO> {
 
     let whereCondition = undefined;
     if (agentId) whereCondition = eq(orders.agentId, agentId);
-    
+
     if (query) {
       whereCondition = and(whereCondition, or(
         like(orders.email, `%${query}%`),
