@@ -287,7 +287,7 @@ const productAttributeSchema = z.object({
 
 
 // Price object => { value: number, currency: string }
-const priceSchema = z.object({
+export const priceSchema = z.object({
   value: z.number().min(0),
   currency: z.string(),
 });
