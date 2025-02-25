@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { TrashIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { defaultVariantSku } from "@/app/[locale]/admin/agent/[id]/products/[productId]/page";
+import { defaultVariantSku } from "@/data/client/models";
 
 // Definicja atrybutu wariantu
 type VariantAttribute = {

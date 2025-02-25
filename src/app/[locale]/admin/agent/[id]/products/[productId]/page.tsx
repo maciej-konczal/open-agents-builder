@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 import { ProductVariantRow } from "@/components/product-variant-row";
-import { FileUploadStatus, UploadedFile, Product, ProductImage, Attachment } from "@/data/client/models";
+import { FileUploadStatus, UploadedFile, Product, ProductImage, Attachment, defaultProductSku, defaultVariantSku } from "@/data/client/models";
 import { useProductContext } from "@/contexts/product-context";
 import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@radix-ui/react-tabs";
@@ -93,25 +93,6 @@ const sortedCurrencyList = [
   ...FAVOURITE_CURRENCIES,
   ...ALL_CURRENCIES.filter((c) => !FAVOURITE_CURRENCIES.includes(c)),
 ];
-
-export const defaultVariantSku = (prod:ProductDTO | null= null) => {
-
-  if(prod !== null)
-    return 'VAR-' + prod.sku.replace('PROD-','') + '-' + (prod.variants?.length ?? 0 +1);
-else 
-  return 'VAR-' + defaultProductSku().replace('PROD-','');
-
-}
-
-export const defaultProductSku = () => {
-  const today = new Date();
-  const year = today.getFullYear();
-  const mm = String(today.getMonth() + 1).padStart(2, "0");
-  const dd = String(today.getDate()).padStart(2, "0");
-  const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
-
-  return `PROD-${year}-${mm}-${dd}-${rand}`;    
-}
 
 
 export default function ProductFormPage() {

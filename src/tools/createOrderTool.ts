@@ -6,7 +6,7 @@ import ServerProductRepository from "@/data/server/server-product-repository";
 import ServerOrderRepository from "@/data/server/server-order-repository";
 import { ProductDTO, OrderDTO, priceSchema } from "@/data/dto";
 import { getCurrentTS, getErrorMessage } from "@/lib/utils";
-import { Order, ORDER_STATUSES, Product } from "@/data/client/models";
+import { defaultOrderId, Order, ORDER_STATUSES, Product } from "@/data/client/models";
 import { nanoid } from "nanoid";
 
 
@@ -156,6 +156,7 @@ export function createCreateOrderTool(
           // Składamy OrderDTO
           const dto: OrderDTO = {
             // id: undefined
+            id: id ?? defaultOrderId(),
             items: validatedLines,
             shippingPrice,
             shippingPriceInclTax,

@@ -16,7 +16,7 @@ import { Card } from "@/components/ui/card";
 import { getErrorMessage } from "@/lib/utils";
 import { useOrderContext } from "@/contexts/order-context";
 import { OrderDTO } from "@/data/dto";
-import { Order, ORDER_STATUSES, Product, StatusChange } from "@/data/client/models";
+import { defaultOrderId, Order, ORDER_STATUSES, Product, StatusChange } from "@/data/client/models";
 import { ProductApiClient } from "@/data/client/product-api-client";
 import { v4 as uuidv4 } from "uuid";
 import { useDebounce } from "use-debounce";
@@ -152,14 +152,7 @@ export default function OrderFormPage() {
   // ORD-{YYYY}-{MM}-{DD}-{3 random letters}
   useEffect(() => {
     if (params.orderId === "new") {
-      const today = new Date();
-      const year = today.getFullYear();
-      const mm = String(today.getMonth() + 1).padStart(2, "0");
-      const dd = String(today.getDate()).padStart(2, "0");
-      const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
-
-      const defaultOrderNumber = `ORD-${year}-${mm}-${dd}-${rand}`;
-      setValue("id", defaultOrderNumber);
+      setValue("id", defaultOrderId());
     }
   }, [params.orderId, setValue]);
 

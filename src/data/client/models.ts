@@ -1047,3 +1047,34 @@ export enum FileUploadStatus {
   ERROR = 'error',
   ENCRYPTING = 'encrypting'
 }
+
+
+export const defaultVariantSku = (prod:ProductDTO | null= null) => {
+
+    if(prod !== null)
+      return 'VAR-' + prod.sku.replace('PROD-','') + '-' + (prod.variants?.length ?? 0 +1);
+  else 
+    return 'VAR-' + defaultProductSku().replace('PROD-','');
+  
+  }
+  
+  export const defaultOrderId = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
+  
+    return `ORD-${year}-${mm}-${dd}-${rand}`;
+  }
+  
+  export const defaultProductSku = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, "0");
+    const dd = String(today.getDate()).padStart(2, "0");
+    const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
+  
+    return `PROD-${year}-${mm}-${dd}-${rand}`;    
+  }
+  

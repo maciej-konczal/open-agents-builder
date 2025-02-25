@@ -29,7 +29,7 @@ export const toolRegistry = {
       calendarSchedule: createCalendarScheduleTool(agentId, sessionId, databaseIdHash, storageKey),
       calendarList: createCalendarListTool(agentId, sessionId, databaseIdHash, storageKey),
       dayName: dayNameTool,
-      createOrder: createCreateOrderTool(databaseIdHash, agentId, sessionId, storageKey),
+      createOrderTool: createCreateOrderTool(databaseIdHash, agentId, sessionId, storageKey),
       listProducts: createListProductsTool(databaseIdHash)
     }
 
