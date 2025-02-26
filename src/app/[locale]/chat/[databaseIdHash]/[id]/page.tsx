@@ -2,7 +2,9 @@
 
 import { Chat } from "@/components/chat";
 import { ChatInitForm } from "@/components/chat-init-form";
+import { CookieConsentBannerComponent } from "@/components/cookie-consent-banner";
 import DataLoader from "@/components/data-loader";
+import FeedbackWidget from "@/components/feedback-widget";
 import { useChatContext } from "@/contexts/chat-context";
 import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
@@ -98,6 +100,8 @@ export default function ChatPage({children,
             )
           )
         )}
+        <FeedbackWidget />
+        <CookieConsentBannerComponent />
         </div>
     )
 }

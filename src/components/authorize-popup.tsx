@@ -46,7 +46,7 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
         <FeedbackWidget />
         {saasContext?.userId ? (
           <div className="text-xs w-96 p-3 border-2 border-green-500 background-green-200 text-sm font-semibold text-green-500">
-            {t('Hello')}{t('! Welcome to Agent Doodle. Read ')}<a className="underline" target="_blank" href={"/content/terms" (i18n.language === 'pl' ? '-pl' : '') }>terms</a>{t(' and ')}<a className="underline" target="_blank" href={"/content/privacy" + (i18n.language === 'pl' ? '-pl' : '') }>{t('privacy')}</a>{t(' before using the app.')}
+            {t('Hello')}{t('! Welcome to Agent Doodle. Read ')}<a className="underline" target="_blank" href={"/content/terms" + (i18n.language === 'pl' ? '-pl' : '') }>terms</a>{t(' and ')}<a className="underline" target="_blank" href={"/content/privacy" + (i18n.language === 'pl' ? '-pl' : '') }>{t('privacy')}</a>{t(' before using the app.')}
           </div>
         ): (null)}
         
