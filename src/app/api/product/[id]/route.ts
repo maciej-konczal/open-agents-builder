@@ -22,6 +22,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     // Ewentualnie usunięcie powiązanych danych
     return Response.json(await genericDELETE(request, repo, { id: recordId }));
   } catch (error) {
-    return Response.json({ message: getErrorMessage(error), status: 500 }, { status: 500 });
+    return Response.json({ message: getErrorMessage(error), status: 499 }, { status: 499 });
   }
 }

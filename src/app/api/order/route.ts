@@ -37,32 +37,36 @@ export async function GET(request: NextRequest, response: NextResponse) {
 
 
 export async function PUT(request: NextRequest) {
-  const requestContext = await authorizeRequestContext(request);
-  const body = await request.json();
-  const saasContext = await authorizeSaasContext(request);
+    try {
+        const requestContext = await authorizeRequestContext(request);
+        const body = await request.json();
+        const saasContext = await authorizeSaasContext(request);
 
-  const parseResult = orderDTOSchema.safeParse(body);
-  if (!parseResult.success) {
-    return Response.json({ status: 400, error: parseResult.error }, { status: 400 });
-  }
-  const repo = new ServerOrderRepository(requestContext.databaseIdHash, "commerce", saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
+        const parseResult = orderDTOSchema.safeParse(body);
+        if (!parseResult.success) {
+            return Response.json({ status: 400, error: parseResult.error }, { status: 400 });
+        }
+        const repo = new ServerOrderRepository(requestContext.databaseIdHash, "commerce", saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
 
-  const existingOrder = await repo.findOne({ id: body.id });
-  // upsert => by id
-  const result = await repo.upsert({ id: body.id }, parseResult.data);
-  if (!existingOrder) {
-    auditLog({
-        eventName: 'createOrder',
-        diff: JSON.stringify(parseResult.data),
-        recordLocator: JSON.stringify({ id: result.id })
-    }, request, requestContext, saasContext);
-  } else {
-    const changes = existingOrder ?  detailedDiff(existingOrder, result as OrderDTO) : {};
-    auditLog({
-        eventName: 'updateOrder',
-        diff: JSON.stringify(changes),
-        recordLocator: JSON.stringify({ id: result.id })
-    }, request, requestContext, saasContext);
-  }
-  return Response.json({ status: 200, data: result }, { status: 200 });
+        const existingOrder = await repo.findOne({ id: body.id });
+        // upsert => by id
+        const result = await repo.upsert({ id: body.id }, parseResult.data);
+        if (!existingOrder) {
+            auditLog({
+                eventName: 'createOrder',
+                diff: JSON.stringify(parseResult.data),
+                recordLocator: JSON.stringify({ id: result.id })
+            }, request, requestContext, saasContext);
+        } else {
+            const changes = existingOrder ?  detailedDiff(existingOrder, result as OrderDTO) : {};
+            auditLog({
+                eventName: 'updateOrder',
+                diff: JSON.stringify(changes),
+                recordLocator: JSON.stringify({ id: result.id })
+            }, request, requestContext, saasContext);
+        }
+        return Response.json({ status: 200, data: result }, { status: 200 });
+    } catch (error) {
+        return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
+    } 
 }

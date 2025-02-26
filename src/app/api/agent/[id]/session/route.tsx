@@ -5,11 +5,11 @@ import { ApiError } from "next/dist/server/api-utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest, { params }: { params: { id: string }}, response: NextResponse) {
-    const requestContext = await authorizeRequestContext(request, response);
-    const saasContext = await authorizeSaasContext(request, true);
-    const repo = new ServerSessionRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
-
     try {
+        const requestContext = await authorizeRequestContext(request, response);
+        const saasContext = await authorizeSaasContext(request, true);
+        const repo = new ServerSessionRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
+
         const limit = parseInt(request.nextUrl.searchParams.get('limit') ?? '');
         const offset = parseInt(request.nextUrl.searchParams.get('offset') ?? '');
         const orderBy = request.nextUrl.searchParams.get('orderBy') ?? 'createdAt';
@@ -23,6 +23,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         });
         return Response.json(results);
     } catch (error) {
-        return Response.json(new ApiError(500, getErrorMessage(error)), { status: 500 });
+        return Response.json(new ApiError(499, getErrorMessage(error)), { status: 499 });
     }
 }

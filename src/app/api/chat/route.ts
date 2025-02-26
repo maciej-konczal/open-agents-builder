@@ -64,58 +64,58 @@ function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined,
 
 
 export async function POST(req: NextRequest) {
-  const { messages }: { messages: CoreMessage[] } = await req.json();
-  const databaseIdHash = req.headers.get('Database-Id-Hash');
-  const sessionId = req.headers.get('Agent-Session-Id') || nanoid();
-  const agentId = req.headers.get('Agent-Id');
+  try {
+    const { messages }: { messages: CoreMessage[] } = await req.json();
+    const databaseIdHash = req.headers.get('Database-Id-Hash');
+    const sessionId = req.headers.get('Agent-Session-Id') || nanoid();
+    const agentId = req.headers.get('Agent-Id');
 
-  if(!databaseIdHash || !agentId || !sessionId) {
-    return Response.json('The required HTTP headers: Database-Id-Hash, Agent-Session-Id and Agent-Id missing', { status: 400 });
-  }
+    if(!databaseIdHash || !agentId || !sessionId) {
+      return Response.json('The required HTTP headers: Database-Id-Hash, Agent-Session-Id and Agent-Id missing', { status: 400 });
+    }
 
-  const repo = new ServerAgentRepository(databaseIdHash);
+    const repo = new ServerAgentRepository(databaseIdHash);
 
-  const agent = Agent.fromDTO(await repo.findOne({
-    id: agentId // TODO: fix seearching as it always return the same record!
-  }) as AgentDTO);
+    const agent = Agent.fromDTO(await repo.findOne({
+      id: agentId // TODO: fix seearching as it always return the same record!
+    }) as AgentDTO);
 
-  const locale = req.headers.get('Agent-Locale') || agent.locale || 'en';
-  const saasContext = await authorizeSaasContext(req, true);
-
-
-  const currentDateTimeIso = req.headers.get('Current-Datetime-Iso') || new Date().toISOString();
-  const currentLocalDateTime = req.headers.get('Current-Datetime') || new Date().toLocaleString();
-  const currentTimezone = req.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const locale = req.headers.get('Agent-Locale') || agent.locale || 'en';
+    const saasContext = await authorizeSaasContext(req, true);
 
 
-  if (saasContext.isSaasMode) {
-      if (!saasContext.hasAccess) {
-          return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
-      } else {
+    const currentDateTimeIso = req.headers.get('Current-Datetime-Iso') || new Date().toISOString();
+    const currentLocalDateTime = req.headers.get('Current-Datetime') || new Date().toLocaleString();
+    const currentTimezone = req.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-          if (saasContext.saasContex) {
-              const resp = await validateTokenQuotas(saasContext.saasContex)
-              if (resp?.status !== 200) {
-                  return Response.json(resp)
-              }
-          } else {
-              return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
-          }
-      }
-  }  
 
-  const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
-  let existingSession = await sessionRepo.findOne({ id: sessionId });
+    if (saasContext.isSaasMode) {
+        if (!saasContext.hasAccess) {
+            return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+        } else {
 
-  const promptName = agent.agentType ? agent.agentType : 'survey-agent';
-  const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events, currentDateTimeIso, currentLocalDateTime, currentTimezone });
+            if (saasContext.saasContex) {
+                const resp = await validateTokenQuotas(saasContext.saasContex)
+                if (resp?.status !== 200) {
+                    return Response.json(resp)
+                }
+            } else {
+                return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+            }
+        }
+    }  
 
-  messages.unshift( {
-    role: 'system',
-    content: systemPrompt
-  })
+    const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
+    let existingSession = await sessionRepo.findOne({ id: sessionId });
 
-    try {
+    const promptName = agent.agentType ? agent.agentType : 'survey-agent';
+    const systemPrompt = await renderPrompt(locale, promptName, { session: existingSession, agent, events: agent.events, currentDateTimeIso, currentLocalDateTime, currentTimezone });
+
+    messages.unshift( {
+      role: 'system',
+      content: systemPrompt
+    })
+
     const result = await streamText({
       model: llmProviderSetup(),
       maxSteps: 10,  
@@ -164,7 +164,7 @@ export async function POST(req: NextRequest) {
     console.error(e);
     return Response.json({
       message: getErrorMessage(e),
-      status: 500
+      status: 499
     });
   }
 }

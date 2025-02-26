@@ -10,13 +10,17 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export async function PUT(request: NextRequest, response: NextResponse) {
-    if (request.headers.get("Content-Type") === "application/json") {
-        const inputJson = await request.json();
-        return await handlePUTRequest(inputJson, request, response);
-    } else {
-        const formData = await request.formData();
-        return await handlePUTRequest(JSON.parse(formData.get("attachmentDTO") as string), request, response, formData.get("file") as File);
-    }
+    try {
+        if (request.headers.get("Content-Type") === "application/json") {
+            const inputJson = await request.json();
+            return await handlePUTRequest(inputJson, request, response);
+        } else {
+            const formData = await request.formData();
+            return await handlePUTRequest(JSON.parse(formData.get("attachmentDTO") as string), request, response, formData.get("file") as File);
+        }
+    } catch (error) {
+        return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
+    } 
 }
 
 async function handlePUTRequest(inputJson: any, request: NextRequest, response: NextResponse, file?: File) {

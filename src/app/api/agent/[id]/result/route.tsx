@@ -1,15 +1,14 @@
 import ServerResultRepository from "@/data/server/server-result-repository";
 import { authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { ApiError } from "next/dist/server/api-utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest, { params }: { params: { id: string }}, response: NextResponse) {
-    const requestContext = await authorizeRequestContext(request, response);
-    const saasContext = await authorizeSaasContext(request);
-    const repo = new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
-
     try {
+        const requestContext = await authorizeRequestContext(request, response);
+        const saasContext = await authorizeSaasContext(request);
+        const repo = new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
+
         const limit = parseInt(request.nextUrl.searchParams.get('limit') ?? '');
         const offset = parseInt(request.nextUrl.searchParams.get('offset') ?? '');
         const orderBy = request.nextUrl.searchParams.get('orderBy') ?? 'createdAt';
@@ -23,6 +22,6 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         });
         return Response.json(results);
     } catch (error) {
-        return Response.json(new ApiError(500, getErrorMessage(error)), { status: 500 });
-    }
+        return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
+    } 
 }

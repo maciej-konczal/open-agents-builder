@@ -30,6 +30,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
             return Response.json({ message: "Not found", status: 404 }, { status: 404 });
         }
     } catch (error) {
-        return Response.json({ message: getErrorMessage(error), status: 500 }, { status: 500 });
+        return Response.json({ message: getErrorMessage(error), status: 499 }, { status: 499 });
     }
 }

@@ -5,19 +5,23 @@ import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse, userAgent } from "next/server";
 
 export async function PUT(request: NextRequest, response: NextResponse) {
-    const requestContext = await authorizeRequestContext(request, response);
-    const saasContext = await authorizeSaasContext(request); // authorize SaaS context
+    try {
+        const requestContext = await authorizeRequestContext(request, response);
+        const saasContext = await authorizeSaasContext(request); // authorize SaaS context
 
-    const inputObj = (await request.json())
-    const valRes = auditDTOSchema.safeParse(inputObj);
-    if(!valRes.success) {
-        return Response.json({ message: 'Invalid input', issues: valRes.error.issues }, { status: 400 });
-    }
+        const inputObj = (await request.json())
+        const valRes = auditDTOSchema.safeParse(inputObj);
+        if(!valRes.success) {
+            return Response.json({ message: 'Invalid input', issues: valRes.error.issues }, { status: 400 });
+        }
 
-    const logObj = valRes.data;
-    const apiResult = await auditLog(logObj, request, requestContext, saasContext);
+        const logObj = valRes.data;
+        const apiResult = await auditLog(logObj, request, requestContext, saasContext);
 
-    return Response.json(apiResult, { status: apiResult.status });
+        return Response.json(apiResult, { status: apiResult.status });
+    } catch (error) {
+        return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
+    } 
 }
 
 

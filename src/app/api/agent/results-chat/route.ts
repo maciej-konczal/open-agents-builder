@@ -21,67 +21,67 @@ import { NextRequest } from 'next/server';
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest) {
-  const { messages }: { messages: CoreMessage[] } = await req.json();
-  const databaseIdHash = req.headers.get('Database-Id-Hash');
-  const agentId = req.headers.get('Agent-Id');
-  const locale = req.headers.get('Agent-Locale') || 'en';
-  const sessionId = req.headers.get('Session-Id') || '';
-
-  if(!databaseIdHash || !agentId) {
-    return Response.json('The required HTTP headers: Database-Id-Hash and Agent-Id missing', { status: 400 });
-  }
-
-  const saasContext = await authorizeSaasContext(req);
-
-  if (saasContext?.isSaasMode) {
-      if (!saasContext.hasAccess) {
-          return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
-      } else {
-
-          if (saasContext.saasContex) {
-              const resp = await validateTokenQuotas(saasContext.saasContex)
-              if (resp?.status !== 200) {
-                  return Response.json(resp)
-              }
-          } else {
-              return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
-          }
-      }
-  }
-
-  const repo = new ServerAgentRepository(databaseIdHash);
-
-  const agent = Agent.fromDTO(await repo.findOne({
-    id: agentId // TODO: fix seearching as it always return the same record!
-  }) as AgentDTO);
-
-  const currentDateTimeIso = req.headers.get('Current-Datetime-Iso') || new Date().toISOString();
-  const currentLocalDateTime = req.headers.get('Current-Datetime') || new Date().toLocaleString();
-  const currentTimezone = req.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-  const resultsRepo = new ServerResultRepository(databaseIdHash, saasContext.saasContex?.storageKey);
-  const filter = sessionId ? {
-      sessionId
-    } : { agentId };
-  const results = await await resultsRepo.findAll({
-    filter
-  })
-
-  const resultMessages = results.map((result: ResultDTO) => {
-    return {
-      role: 'system',
-      content: `Session Id: ${result.sessionId}, E-mail: ${result.userEmail} User name: ${result.userName} [created at: ${result.createdAt}] - ${result.content}`
-    } as CoreMessage
-  })
-
-  const systemPrompt = await renderPrompt(locale, 'results-chat', { agent, currentDateTimeIso, currentLocalDateTime, currentTimezone  });
-
-  messages.unshift({
-    role: 'system',
-    content: systemPrompt
-  } as CoreMessage, ...resultMessages)
-
   try {
+    const { messages }: { messages: CoreMessage[] } = await req.json();
+    const databaseIdHash = req.headers.get('Database-Id-Hash');
+    const agentId = req.headers.get('Agent-Id');
+    const locale = req.headers.get('Agent-Locale') || 'en';
+    const sessionId = req.headers.get('Session-Id') || '';
+
+    if(!databaseIdHash || !agentId) {
+      return Response.json('The required HTTP headers: Database-Id-Hash and Agent-Id missing', { status: 400 });
+    }
+
+    const saasContext = await authorizeSaasContext(req);
+
+    if (saasContext?.isSaasMode) {
+        if (!saasContext.hasAccess) {
+            return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+        } else {
+
+            if (saasContext.saasContex) {
+                const resp = await validateTokenQuotas(saasContext.saasContex)
+                if (resp?.status !== 200) {
+                    return Response.json(resp)
+                }
+            } else {
+                return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+            }
+        }
+    }
+
+    const repo = new ServerAgentRepository(databaseIdHash);
+
+    const agent = Agent.fromDTO(await repo.findOne({
+      id: agentId // TODO: fix seearching as it always return the same record!
+    }) as AgentDTO);
+
+    const currentDateTimeIso = req.headers.get('Current-Datetime-Iso') || new Date().toISOString();
+    const currentLocalDateTime = req.headers.get('Current-Datetime') || new Date().toLocaleString();
+    const currentTimezone = req.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    const resultsRepo = new ServerResultRepository(databaseIdHash, saasContext.saasContex?.storageKey);
+    const filter = sessionId ? {
+        sessionId
+      } : { agentId };
+    const results = await await resultsRepo.findAll({
+      filter
+    })
+
+    const resultMessages = results.map((result: ResultDTO) => {
+      return {
+        role: 'system',
+        content: `Session Id: ${result.sessionId}, E-mail: ${result.userEmail} User name: ${result.userName} [created at: ${result.createdAt}] - ${result.content}`
+      } as CoreMessage
+    })
+
+    const systemPrompt = await renderPrompt(locale, 'results-chat', { agent, currentDateTimeIso, currentLocalDateTime, currentTimezone  });
+
+    messages.unshift({
+      role: 'system',
+      content: systemPrompt
+    } as CoreMessage, ...resultMessages)
+
     const result = await streamText({
       model: llmProviderSetup(),
       maxSteps: 10,  

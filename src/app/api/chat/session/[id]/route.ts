@@ -45,6 +45,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
     } catch (error) {
         console.error(error);
-        return Response.json({ message: `Invalid request ${getErrorMessage(error)}`, status: 400 }, {status: 400});
+        return Response.json({ message: `Invalid request ${getErrorMessage(error)}`, status: 499 }, {status: 499});
     }
 }

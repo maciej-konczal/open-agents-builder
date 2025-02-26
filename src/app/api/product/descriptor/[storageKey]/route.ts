@@ -22,72 +22,72 @@ import { parse } from 'path';
 export const maxDuration = 30;
 
 export async function POST(req: NextRequest, { params }: { params: { storageKey: string  } }) {
-  const databaseIdHash = req.headers.get('Database-Id-Hash');
-  const locale = req.headers.get('Agent-Locale') || 'en';
-
-  if(!databaseIdHash ) {
-    return Response.json('The required HTTP headers: Database-Id-Hash', { status: 400 });
-  }
-
-  const saasContext = await authorizeSaasContext(req);
-
-  if (saasContext?.isSaasMode) {
-      if (!saasContext.hasAccess) {
-          return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
-      } else {
-
-          if (saasContext.saasContex) {
-              const resp = await validateTokenQuotas(saasContext.saasContex)
-              if (resp?.status !== 200) {
-                  return Response.json(resp)
-              }
-          } else {
-              return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
-          }
-      }
-  }
-
-  const attRepo = new ServerAttachmentRepository(databaseIdHash, 'commerce');
-
-  const attachment = Attachment.fromDTO(await attRepo.findOne({storageKey: params.storageKey}) as AttachmentDTO);  
-  const parsed = await productDTOSchema.safeParse(await req.json());
-
-  if(parsed.success === false) {
-    return Response.json({ message: parsed.error.message, status: 400 }, { status: 400 });
-  } 
-
-  if (!attachment || !attachment.mimeType?.startsWith('image')) {
-    return Response.json({ message: "Invalid attachment", status: 400 }, { status: 400 });
-  }
-
-  if (!parsed.data) {
-    return Response.json({ message: "Invalid product", status: 400 }, { status: 400 });
-  }
-
-  const srv: StorageService = new StorageService(databaseIdHash, 'commerce');
-  const imageContent = srv.readAttachment(attachment.storageKey);
-
-  const systemPrompt = await renderPrompt(locale, 'describe-product', { product: parsed.data });
-
-  const messages:CoreMessage[] = [
-    {
-      content: systemPrompt,
-      role: 'user',          
-    },
-    {
-      role: 'user',
-      content: [{
-                  type: 'image',
-                  image: `data:${attachment.mimeType};base64,${Buffer.from(imageContent).toString('base64')}`
-               }]
-    },
-    {
-      role: 'user',
-      content: JSON.stringify(parsed.data)
-    }
-  ] as CoreMessage[]
-
   try {
+    const databaseIdHash = req.headers.get('Database-Id-Hash');
+    const locale = req.headers.get('Agent-Locale') || 'en';
+
+    if(!databaseIdHash ) {
+      return Response.json('The required HTTP headers: Database-Id-Hash', { status: 400 });
+    }
+
+    const saasContext = await authorizeSaasContext(req);
+
+    if (saasContext?.isSaasMode) {
+        if (!saasContext.hasAccess) {
+            return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+        } else {
+
+            if (saasContext.saasContex) {
+                const resp = await validateTokenQuotas(saasContext.saasContex)
+                if (resp?.status !== 200) {
+                    return Response.json(resp)
+                }
+            } else {
+                return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
+            }
+        }
+    }
+
+    const attRepo = new ServerAttachmentRepository(databaseIdHash, 'commerce');
+
+    const attachment = Attachment.fromDTO(await attRepo.findOne({storageKey: params.storageKey}) as AttachmentDTO);  
+    const parsed = await productDTOSchema.safeParse(await req.json());
+
+    if(parsed.success === false) {
+      return Response.json({ message: parsed.error.message, status: 400 }, { status: 400 });
+    } 
+
+    if (!attachment || !attachment.mimeType?.startsWith('image')) {
+      return Response.json({ message: "Invalid attachment", status: 400 }, { status: 400 });
+    }
+
+    if (!parsed.data) {
+      return Response.json({ message: "Invalid product", status: 400 }, { status: 400 });
+    }
+
+    const srv: StorageService = new StorageService(databaseIdHash, 'commerce');
+    const imageContent = srv.readAttachment(attachment.storageKey);
+
+    const systemPrompt = await renderPrompt(locale, 'describe-product', { product: parsed.data });
+
+    const messages:CoreMessage[] = [
+      {
+        content: systemPrompt,
+        role: 'user',          
+      },
+      {
+        role: 'user',
+        content: [{
+                    type: 'image',
+                    image: `data:${attachment.mimeType};base64,${Buffer.from(imageContent).toString('base64')}`
+                }]
+      },
+      {
+        role: 'user',
+        content: JSON.stringify(parsed.data)
+      }
+    ] as CoreMessage[]
+
     const { object }  = await generateObject({
       model: llmProviderSetup(),
       maxSteps: 10,  

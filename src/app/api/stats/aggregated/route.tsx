@@ -5,10 +5,10 @@ import { getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest, response: NextResponse) {
-    const requestContext = await authorizeRequestContext(request, response);
+    try {
+        const requestContext = await authorizeRequestContext(request, response);
 
-    const statsRepo = new ServerStatRepository(requestContext.databaseIdHash, 'stats');
-    try { 
+        const statsRepo = new ServerStatRepository(requestContext.databaseIdHash, 'stats');
         const statsAggregated = await statsRepo.thisAndLastMonth();
         return Response.json({
             message: 'Stats aggregated!',

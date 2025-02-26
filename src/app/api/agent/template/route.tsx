@@ -6,35 +6,40 @@ import path from "path";
 import fs from 'fs/promises';
 import { createCache } from 'simple-in-memory-cache';
 import { detailedDiff } from "deep-object-diff";
+import { getErrorMessage } from "@/lib/utils";
 const { set, get } = createCache({ expiration: { minutes: 15 } });
 
 
 export async function PUT(request: NextRequest, response: NextResponse) {
-    const requestContext = await authorizeRequestContext(request, response);
-    const inputObj = (await request.json())
+    try {
+        const requestContext = await authorizeRequestContext(request, response);
+        const inputObj = (await request.json())
 
-    const repo = new ServerAgentRepository(requestContext.databaseIdHash, 'templates')
-    const apiResult = await genericPUT<AgentDTO>(inputObj, agentDTOSchema, repo, 'id');
-    const existingTemplate = await repo.findOne({
-        id: inputObj.id
-    });
-    
-    const saasContext = await authorizeSaasContext(request); // authorize SaaS context
-    if (!existingTemplate) {
-        auditLog({
-            eventName: 'createTemplate',
-            diff: JSON.stringify(inputObj),
-            recordLocator: JSON.stringify({ id: apiResult.data.id })
-        }, request, requestContext, saasContext);
-    } else {
-        const changes = existingTemplate ?  detailedDiff(existingTemplate, apiResult.data as AgentDTO) : {};
-        auditLog({
-            eventName: 'updateTemplate',
-            diff: JSON.stringify(changes),
-            recordLocator: JSON.stringify({ id: apiResult.data.id })
-        }, request, requestContext, saasContext);
-    }
-    return Response.json(apiResult, { status: apiResult.status });
+        const repo = new ServerAgentRepository(requestContext.databaseIdHash, 'templates')
+        const apiResult = await genericPUT<AgentDTO>(inputObj, agentDTOSchema, repo, 'id');
+        const existingTemplate = await repo.findOne({
+            id: inputObj.id
+        });
+        
+        const saasContext = await authorizeSaasContext(request); // authorize SaaS context
+        if (!existingTemplate) {
+            auditLog({
+                eventName: 'createTemplate',
+                diff: JSON.stringify(inputObj),
+                recordLocator: JSON.stringify({ id: apiResult.data.id })
+            }, request, requestContext, saasContext);
+        } else {
+            const changes = existingTemplate ?  detailedDiff(existingTemplate, apiResult.data as AgentDTO) : {};
+            auditLog({
+                eventName: 'updateTemplate',
+                diff: JSON.stringify(changes),
+                recordLocator: JSON.stringify({ id: apiResult.data.id })
+            }, request, requestContext, saasContext);
+        }
+        return Response.json(apiResult, { status: apiResult.status });
+    } catch (error) {
+        return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
+    } 
 
 }
 
