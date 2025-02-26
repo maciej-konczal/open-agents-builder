@@ -32,6 +32,7 @@ import { nanoid } from "nanoid";
 import { Credenza, CredenzaContent, CredenzaTrigger } from "@/components/credenza";
 import { Chat } from "@/components/chat";
 import { useChat } from "ai/react";
+import { OrderDeleteDialog } from "@/components/order-delete-dialog";
 
 /**
  * Strona z listą zamówień, analogiczna do "ProductsPage"
@@ -303,9 +304,10 @@ export default function OrdersPage() {
                 )}                
 
               </div>
-              {/* ewentualnie przycisk do usunięcia (lub dialog) */}
-              {/* <OrderDeleteDialog order={order} /> */}
             </CardContent>
+            <div className="flex justify-end p-2 pb-4">
+              <OrderDeleteDialog order={order} />
+            </div>
           </Card>
         ))}
       </div>
