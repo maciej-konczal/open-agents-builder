@@ -1,6 +1,7 @@
 import { StorageSchemas } from "@/data/dto";
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
 import { StorageService } from "@/lib/storage-service";
+import { getErrorMessage } from "@/lib/utils";
 
 
 export async function GET(request: Request, { params }: { params: { id: string, databaseIdHash: string }}) {

@@ -59,7 +59,7 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
                 return 'Session not found, please check the sessionId';
               }
 
-              const existingResult = resultRepo.findOne({ sessionId });
+              const existingResult = await resultRepo.findOne({ sessionId });
 
               const storedResult = {
                 sessionId,

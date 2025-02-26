@@ -28,13 +28,14 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 export async function GET(request: NextRequest, response: NextResponse) {
     try {
         const requestContext = await authorizeRequestContext(request, response);
+        const saasContext = await authorizeSaasContext(request);
         const now = new Date();
         let dbPartition = `${now.getFullYear()}-${now.getMonth()}`; // partition daily
 
         if (request.nextUrl.searchParams.has('partition')) {
             dbPartition = request.nextUrl.searchParams.get('partition') as string;
         }
-        return Response.json(await genericGET<AuditDTO>(request, new ServerAuditRepository(requestContext.databaseIdHash, 'audit', dbPartition)));
+        return Response.json(await genericGET<AuditDTO>(request, new ServerAuditRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, 'audit', dbPartition)));
     } catch (error) {
         return Response.json({ message: 'Error accessing audit partition ' + getErrorMessage(error), status: 400 });
         console.error(error);

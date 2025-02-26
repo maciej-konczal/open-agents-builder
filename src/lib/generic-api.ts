@@ -257,7 +257,7 @@ export async function auditLog(logObj: AuditDTO, request: NextRequest | null, re
     // TODO: Add audit rotation
     const now = new Date();
     const dbPartition = `${now.getFullYear()}-${now.getMonth()}`; // partition daily
-    const apiResult = await genericPUT<AuditDTO>(logObj, auditDTOSchema, new ServerAuditRepository(requestContext.databaseIdHash, 'audit', dbPartition), 'id');
+    const apiResult = await genericPUT<AuditDTO>(logObj, auditDTOSchema, new ServerAuditRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, 'audit', dbPartition), 'id');
 
     if (saasContext.apiClient) {
         saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
