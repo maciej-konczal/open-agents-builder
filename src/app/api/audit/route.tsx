@@ -31,7 +31,7 @@ export async function PUT(request: NextRequest, response: NextResponse) {
          saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
             eventName: logObj.eventName as string,
             databaseIdHash: requestContext.databaseIdHash,
-            params: { recordLocator: JSON.parse(valRes.data.recordLocator as string)}
+            params: { recordLocator: JSON.parse(valRes.data.recordLocator as string), diff: JSON.parse(logObj.encryptedDiff ?? '{}') } 
         });
     }
 

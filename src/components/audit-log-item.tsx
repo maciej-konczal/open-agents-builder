@@ -12,12 +12,14 @@ import JsonViewEditor from "@uiw/react-json-view/editor";
 import { githubLightTheme } from '@uiw/react-json-view/githubLight';
 import { githubDarkTheme } from '@uiw/react-json-view/githubDark';
 import { useTheme } from "next-themes";
+import { useTranslation } from "react-i18next";
 
 export default function AuditLogItem({ audit, selected, onClick }: { audit: AuditDTO, selected: boolean, onClick: (e: any) => void}) {
   const keysContext = useContext(KeyContext);
   const auditContext = useContext(AuditContext )
   const dbContext = useContext(DatabaseContext);
   const { theme, systemTheme } = useTheme();
+  const { t } = useTranslation();
   const currentTheme = (theme === 'system' ? systemTheme : theme)
 
   const currentKey = keysContext.keys.find((key) => key.keyLocatorHash === audit.keyLocatorHash);
@@ -29,18 +31,18 @@ export default function AuditLogItem({ audit, selected, onClick }: { audit: Audi
     >
       <div className="grid grid-cols-3 w-full block">
         <div className="font-medium text-zinc-500 dark:text-zinc-400">{audit.eventName}</div>
-        <div className="text-xs text-zinc-500 dark:text-zinc-400">Key: {currentKey ? currentKey?.displayName : (audit.keyLocatorHash !== dbContext?.keyLocatorHash ? audit.keyLocatorHash?.slice(0, 8) + '...' : 'Your User Key')}</div>
-        <div className="text-xs text-zinc-500 dark:text-zinc-400">Date: {audit.createdAt}</div>
+        <div className="text-xs text-zinc-500 dark:text-zinc-400">{t('Key:')} {currentKey ? currentKey?.displayName : (audit.keyLocatorHash !== dbContext?.keyLocatorHash ? audit.keyLocatorHash?.slice(0, 8) + '...' : t('Your User Key'))}</div>
+        <div className="text-xs text-zinc-500 dark:text-zinc-400">{t('Date:')} {audit.createdAt}</div>
         {selected ? (
         <div className="grid col-span-3 w-full block text-xs">
           <div className="w-full block max-h-[100px] overflow-y-scroll">
-            <div>Record locator:</div>
+            <div>{t('Record locator')}:</div>
             <JsonViewEditor style={currentTheme === 'dark' ? githubDarkTheme : githubLightTheme } className="w-full" value={JSON.parse(audit.recordLocator ?? '{}')} />
           </div>
 
           {audit.encryptedDiff ? (
             <div className="w-full block max-h-[100px] overflow-y-scroll">
-              <div>Scope:</div>
+              <div>{t('Scope')}:</div>
               <JsonViewEditor style={currentTheme === 'dark' ? githubDarkTheme : githubLightTheme } className="w-full" value={JSON.parse(audit.encryptedDiff ?? '{}')} />
             </div>
           ) : null}
