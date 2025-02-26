@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Agent } from "@/data/client/models";
 import { nanoid } from "nanoid";
 
-export function SaveAgentAsTemplateButton({ agent, onSaved }: { agent: Agent | null; onSaved: () => void }) {
+export function SaveAgentAsTemplateButton({ getFormValues, agent, onSaved }: { getFormValues: ()=> Record<string, any>, agent: Agent | null; onSaved: () => void }) {
 
     const { t, i18n } = useTranslation();
     const templateContext = useContext(TemplateContext);
@@ -20,7 +20,7 @@ export function SaveAgentAsTemplateButton({ agent, onSaved }: { agent: Agent | n
             try {
                 e.preventDefault();
                 if (agentContext.current) {
-                    await templateContext?.updateTemplate(new Agent({ ...agentContext.current, id: nanoid(), locale: i18n.language } as Agent));
+                    await templateContext?.updateTemplate(new Agent({ ...Agent.fromForm(getFormValues(), agentContext.current), id: nanoid(), locale: i18n.language } as Agent));
                     toast.info(t('Current agent has been saved as a template'))
                 }              
             } catch (e) {

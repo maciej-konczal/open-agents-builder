@@ -284,7 +284,7 @@ export default function GeneralPage() {
         {t('Save')}
         </Button>
 
-        <SaveAgentAsTemplateButton agent={agent} onSaved={function (): void {
+        <SaveAgentAsTemplateButton getFormValues={getValues} agent={agent} onSaved={function (): void {
             } } />
       </div>
       </form>
