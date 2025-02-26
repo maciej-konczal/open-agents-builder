@@ -5,9 +5,22 @@
 
 .markdown h1, .markdown h2, .markdown h3 {
   border-bottom: 1px solid;
+  padding-top: 0.3em;
   padding-bottom: 0.3em;
-  font-size: 1.2em;
   font-weight: bold;
+}
+
+.markdown h1 {
+  font-size: 1.2em;
+}
+
+.markdown h2 {
+  font-size: 1em;
+} 
+
+
+.markdown h3 {
+  font-size: 0.9em;
 }
 
 .markdown p {
