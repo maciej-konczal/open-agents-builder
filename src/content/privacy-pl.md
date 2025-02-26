@@ -23,7 +23,7 @@ Korzystając dalej z naszej Strony, Platformy oraz Usług, przyjmujesz do wiadom
 
 ---
 
-## INFORMACJE, KTÓRE GROMADZIMY
+## 1. INFORMACJE, KTÓRE GROMADZIMY
 
 Gromadzimy dane osobowe dotyczące Ciebie lub pochodzące od Ciebie w następujący sposób:
 
@@ -47,7 +47,7 @@ Gromadzimy dane osobowe dotyczące Ciebie lub pochodzące od Ciebie w następuj�
 
 ---
 
-## CELE PRZETWARZANIA
+## 2. CELE PRZETWARZANIA
 
 Przetwarzamy dane osobowe w następujących celach:
 
@@ -71,7 +71,7 @@ Przetwarzamy dane osobowe w następujących celach:
 
 ---
 
-## PODSTAWY PRAWNE PRZETWARZANIA
+## 3. PODSTAWY PRAWNE PRZETWARZANIA
 
 W zależności od kontekstu przetwarzania Twoich danych, opieramy się na następujących podstawach prawnych:
 
@@ -89,7 +89,7 @@ W zależności od kontekstu przetwarzania Twoich danych, opieramy się na nastę
 
 ---
 
-## ODBIORCY DANYCH ORAZ TRANSFERY
+## 4. ODBIORCY DANYCH ORAZ TRANSFERY
 
 - **Dostęp Wewnętrzny:** Dane osobowe są udostępniane wyłącznie upoważnionemu personelowi (np. zespołom wsparcia, działowi finansowemu, administratorom systemów).  
 - **Zewnętrzni Dostawcy Usług:** Możemy udostępniać dane podmiotom (np. dostawcom płatności, usług hostingowych, usług analitycznych), które mają umowne zobowiązania do ochrony tych danych.  
@@ -97,7 +97,7 @@ W zależności od kontekstu przetwarzania Twoich danych, opieramy się na nastę
 
 ---
 
-## OKRES PRZECHOWYWANIA DANYCH
+## 5. OKRES PRZECHOWYWANIA DANYCH
 
 Przechowujemy dane osobowe tylko przez okres niezbędny do realizacji celów wskazanych w niniejszej Polityce lub wymagany przepisami prawa:
 
@@ -109,13 +109,13 @@ Po upływie powyższych okresów dane są bezpiecznie usuwane lub anonimizowane.
 
 ---
 
-## BEZPIECZEŃSTWO DANYCH
+## 6. BEZPIECZEŃSTWO DANYCH
 
 Wdrażamy komercyjnie uzasadnione techniczne i organizacyjne środki, aby chronić dane osobowe przed nieuprawnionym dostępem, ujawnieniem lub zniszczeniem. Obejmują one m.in. bezpieczne przechowywanie danych, szyfrowanie tam, gdzie jest to stosowne, kontrolę dostępu opartą na rolach oraz okresowe audyty bezpieczeństwa.
 
 ---
 
-## TWOJE PRAWA ZGODNIE Z RODO
+## 7. TWOJE PRAWA ZGODNIE Z RODO
 
 Z zastrzeżeniem wyjątków prawnych i umownych, przysługują Ci następujące prawa związane z Twoimi danymi osobowymi:
 
@@ -129,7 +129,7 @@ Jeśli jesteś Użytkownikiem Upoważnionym, niektóre żądania (np. usunięcie
 
 ---
 
-## TWOJE PRAWA ZGODNIE Z CCPA
+## 8. TWOJE PRAWA ZGODNIE Z CCPA
 
 Jeżeli jesteś rezydentem Kalifornii, przysługują Ci dodatkowe prawa na mocy CCPA. Obejmują one:
 
@@ -140,7 +140,7 @@ Jeżeli jesteś rezydentem Kalifornii, przysługują Ci dodatkowe prawa na mocy 
 
 ---
 
-## JAK WYKONAĆ SWOJE PRAWA I SKONTAKTOWAĆ SIĘ Z NAMI (SEKCJA 9)
+## 9. JAK WYKONAĆ SWOJE PRAWA I SKONTAKTOWAĆ SIĘ Z NAMI (SEKCJA 9)
 
 Aby złożyć wniosek lub zapytanie dotyczące Twoich danych osobowych lub skontaktować się z nami w przypadku pytań lub wątpliwości co do niniejszej Polityki czy naszych praktyk związanych z danymi:
 
@@ -152,7 +152,7 @@ Odpowiemy w rozsądnym terminie i zgodnie z obowiązującymi przepisami prawa. W
 
 ---
 
-## AKTUALIZACJE NINIEJSZEJ POLITYKI PRYWATNOŚCI
+## 10. AKTUALIZACJE NINIEJSZEJ POLITYKI PRYWATNOŚCI
 
 Możemy okresowo aktualizować niniejszą Politykę, aby odzwierciedlić zmiany w naszych praktykach przetwarzania danych lub w przepisach prawa. Gdy to zrobimy, zmienimy datę „Ostatnia aktualizacja” podaną powyżej i, w odpowiednich przypadkach, poinformujemy Cię o tym poprzez wiadomość e-mail lub w ramach naszej strony internetowej.
 

@@ -19,7 +19,7 @@ By continuing to use our Site, Platform, and Services, you acknowledge that you 
 
 ---
 
-## INFORMATION WE COLLECT
+## 1. INFORMATION WE COLLECT
 
 We collect personal data from or about you in the following ways:
 
@@ -43,7 +43,7 @@ We collect personal data from or about you in the following ways:
 
 ---
 
-## PURPOSES OF PROCESSING
+## 2.PURPOSES OF PROCESSING
 
 We process personal data for:
 
@@ -67,7 +67,7 @@ We process personal data for:
 
 ---
 
-## LEGAL BASES FOR PROCESSING
+## 3. LEGAL BASES FOR PROCESSING
 
 Depending on the specific context in which we process your data, our legal bases include:
 
@@ -85,7 +85,7 @@ Depending on the specific context in which we process your data, our legal bases
 
 ---
 
-## DATA RECIPIENTS AND TRANSFERS
+## 4. DATA RECIPIENTS AND TRANSFERS
 
 - **Internal Access:** Personal data is accessed only by authorized personnel (e.g., support teams, finance, system administrators).  
 - **Third-Party Service Providers:** We may share data with vendors (e.g., payment processors, hosting providers, analytics services) who are contractually required to protect your data.  
@@ -93,7 +93,7 @@ Depending on the specific context in which we process your data, our legal bases
 
 ---
 
-## DATA RETENTION
+## 5. DATA RETENTION
 
 We retain personal data only for as long as necessary to fulfill the purposes stated in this Policy or as required by law:
 
@@ -105,13 +105,13 @@ Afterward, data is securely deleted or anonymized.
 
 ---
 
-## DATA SECURITY
+## 6. DATA SECURITY
 
 We implement commercially reasonable technical and organizational measures to help safeguard personal data from unauthorized access, disclosure, or destruction. These measures include, for example, secure data storage, encryption where applicable, role-based access controls, and periodic security assessments.
 
 ---
 
-## YOUR RIGHTS UNDER GDPR
+## 7. YOUR RIGHTS UNDER GDPR
 
 Subject to legal and contractual exceptions, you may have the following rights regarding your personal data:
 
@@ -125,7 +125,7 @@ Please note, if you are an Authorized User, certain requests (e.g., erasure) may
 
 ---
 
-## YOUR RIGHTS UNDER THE CCPA
+## 8. YOUR RIGHTS UNDER THE CCPA
 
 If you are a California resident, you have additional rights under the CCPA. These rights include:
 
@@ -136,7 +136,7 @@ If you are a California resident, you have additional rights under the CCPA. The
 
 ---
 
-## HOW TO EXERCISE YOUR RIGHTS AND CONTACT US (SECTION 9)
+## 9. HOW TO EXERCISE YOUR RIGHTS AND CONTACT US (SECTION 9)
 
 To submit requests or inquiries regarding your personal data or just contact us if you have any questions or concerns about this Policy or our data practices:
 
@@ -148,7 +148,7 @@ We will respond within a reasonable timeframe and in compliance with applicable 
 
 ---
 
-## UPDATES TO THIS PRIVACY POLICY
+## 10. UPDATES TO THIS PRIVACY POLICY
 
 We may update this Policy from time to time to reflect changes in our data practices or legal requirements. When we do, we will revise the “Last Updated” date at the top and, where appropriate, notify you via email or on our website.
 

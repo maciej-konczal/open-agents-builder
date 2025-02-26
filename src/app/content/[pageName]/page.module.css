@@ -11,16 +11,16 @@
 }
 
 .markdown h1 {
-  font-size: 1.2em;
+  font-size: 1.4em;
 }
 
 .markdown h2 {
-  font-size: 1em;
+  font-size: 1.2em;
 } 
 
 
 .markdown h3 {
-  font-size: 0.9em;
+  font-size: 1em;
 }
 
 .markdown p {
@@ -50,8 +50,13 @@
   list-style: decimal;
 }
 
+.markdown ul li {
+  list-style: lower-alpha;
+}
+
 .markdown ol li {
   list-style-position: outside;
+  list-style: decimal;
 }
 
 .markdown code {
