@@ -1,5 +1,6 @@
 'use client'
 
+import { AIConsentBannerComponent } from "@/components/ai-consent-banner";
 import { Chat } from "@/components/chat";
 import { ChatInitForm } from "@/components/chat-init-form";
 import { CookieConsentBannerComponent } from "@/components/cookie-consent-banner";
@@ -68,6 +69,8 @@ export default function ChatPage({children,
       }, [chatContext.agent, chatContext.initFormRequired, chatContext.initFormDone]);
 
     return (
+      <div>
+        <AIConsentBannerComponent />
         <div className="pt-10">
           {isInitializing ? (
             <div className="text-center">
@@ -103,5 +106,6 @@ export default function ChatPage({children,
         <FeedbackWidget />
         <CookieConsentBannerComponent />
         </div>
+      </div>
     )
 }

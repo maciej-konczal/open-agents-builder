@@ -1,9 +1,5 @@
 # Open this document in 🇺🇸 [English](/content/privacy)
 
-Poniżej znajduje się przetłumaczona wersja dokumentu na język polski, z zachowaniem formatu **Markdown** oraz układu nagłówków, w tym odwołań do Sekcji 9.
-
----
-
 # POLITYKA PRYWATNOŚCI
 
 **Ostatnia aktualizacja: 26 lutego 2025 r.**
