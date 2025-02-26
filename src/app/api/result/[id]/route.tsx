@@ -10,6 +10,6 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: n
     if(!recordLocator){
         return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
     } else { 
-        return Response.json(await genericDELETE(request, new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null), { id: recordLocator}));
+        return Response.json(await genericDELETE(request, new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null), { sessionId: recordLocator}));
     }
 }

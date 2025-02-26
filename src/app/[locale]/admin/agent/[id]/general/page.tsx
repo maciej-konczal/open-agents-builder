@@ -19,6 +19,7 @@ import { LocaleSelect } from '@/components/locale-select';
 import { AgentTypeSelect } from '@/components/agent-type-select';
 import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 import DataLoader from '@/components/data-loader';
+import { InfoIcon } from 'lucide-react';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
@@ -227,6 +228,11 @@ export default function GeneralPage() {
         </label>
         <MarkdownEditor markdown={getValues('termsConditions') ?? agent?.options?.termsAndConditions} ref={editors.termsConditions ?? ''} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
         {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{t('If you require terms to be accepted by the user, you should provide them.')}</p>}
+      </div>
+      <div className="text-xs p-2 flex">
+        <div><InfoIcon className="w-4 h-4 mr-2" /></div>
+        <div><strong>{t('Important note on GDPR and Terms: ')}</strong> {t('if your agent is about to process the personal data of the users, you SHOULD provide the terms and conditions and ask for the user consent. If you offer a commerce service you SHOULD also apply the Consumer Laws and provide the user with the right to return the product.')}
+        </div>
       </div>
       <div>
         <label htmlFor="confirmTerms" className="flex items-center text-sm font-medium">
