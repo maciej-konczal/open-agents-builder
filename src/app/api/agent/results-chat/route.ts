@@ -90,8 +90,9 @@ export async function POST(req: NextRequest) {
         calendarSchedule: createCalendarScheduleTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey).tool,
         calendarListEvents: createCalendarListTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey, true).tool,
         ordersList: createOrderListTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey).tool,
-        listProducts: createListProductsTool(databaseIdHash).tool,
         createOrderTool: createCreateOrderTool(databaseIdHash, agentId, sessionId, saasContext.saasContex?.storageKey).tool,
+
+        listProducts: createListProductsTool(databaseIdHash).tool,
         updateResults: createUpdateResultTool(databaseIdHash, saasContext.saasContex?.storageKey).tool
       },
       async onFinish({ response, usage }) {
