@@ -1,181 +1,190 @@
-# Otwórz ten dokument w 🇵🇱 [języku Polskim](/content/data-processing-pl)
+# Open this document in 🇺🇸 [English](/content/data-processing)
 
-# **DATA PROCESSING ADDENDUM**
+# **ANEKS DOTYCZĄCY PRZETWARZANIA DANYCH** 
 
-**This Data Processing Addendum** (this “**DPA**”), including its annexes, establishes the terms under which **CT Tornado spółka z o.o.**, a company duly incorporated and existing under the laws of the Republic of Poland, with its principal place of business in Wroclaw (address: ul. Wyspa Słodowa 7, 50-266 Wroclaw, Poland; registration: District Court for Wroclaw-Fabryczna in Wroclaw, KRS/company no.: 873910; EU VAT no.: PL8982262377; share capital: PLN 5,000.00; “**CTT**”), as the Processor, will handle Personal Data on behalf of the Client, who acts as the Controller. This arrangement is part of the Agent Doodle services (the “**Services**”) available through CTT’s platform (the “**Platform**”).  
-This DPA supplements the agreement for the Services entered into by and between CTT and the Client (the “**Agreement**”) under the Terms of Service, which can be found at [https://agentdoodle.com](https://agentdoodle.com)/content/terms, and becomes effective on the same date as the Agreement. It will remain in effect for the duration of the Agreement. Any terms not defined in this DPA will carry the same meanings as specified in the Agreement.  
-Should any inconsistency arise between this DPA and the Agreement, the terms of this DPA will override the Agreement to the extent of the conflict. CTT regularly updates these terms. The Client can access previous versions of this DPA in CTT’s archives at [https://agentdoodle.com](https://agentdoodle.com).
+**Niniejszy Aneks dotyczący Przetwarzania Danych** (dalej „**DPA**”), w tym jego załączniki, określa warunki, na jakich **CT Tornado spółka z o.o.**, spółka należycie zarejestrowana i istniejąca zgodnie z prawem Rzeczypospolitej Polskiej, z siedzibą we Wrocławiu (adres: ul. Wyspa Słodowa 7, 50-266 Wrocław, Polska; rejestracja: Sąd Rejonowy dla Wrocławia-Fabrycznej we Wrocławiu, KRS/nr firmy: 873910; EU VAT nr: PL8982262377; kapitał zakładowy: 5.000,00 PLN; dalej „**CTT**”), jako Podmiot Przetwarzający, będzie przetwarzać Dane Osobowe w imieniu Klienta, który pełni rolę Administratora. Niniejsze ustalenie stanowi część usług Agent Doodle (dalej „**Usługi**”) świadczonych za pośrednictwem platformy CTT (dalej „**Platforma**”).  
+Ten DPA stanowi uzupełnienie umowy dotyczącej Usług zawartej między CTT a Klientem (dalej „**Umowa**”) na podstawie Warunków Świadczenia Usług, dostępnych pod adresem [https://agentdoodle.com](https://agentdoodle.com)/content/terms. Obowiązuje od tej samej daty co Umowa i zachowuje ważność przez cały okres jej trwania. Pojęcia niezdefiniowane w niniejszym DPA mają znaczenie nadane w Umowie.  
+W przypadku jakichkolwiek sprzeczności między niniejszym DPA a Umową, postanowienia niniejszego DPA mają pierwszeństwo w zakresie objętym konfliktem. CTT regularnie aktualizuje niniejsze warunki. Klient może uzyskać dostęp do poprzednich wersji tego DPA w archiwum CTT pod adresem [https://agentdoodle.com](https://agentdoodle.com).
 
-## 1. **DEFINITIONS**  
-1. “**California Personal Information**”**:** Personal Data that falls under the protection of the California Consumer Privacy Act (CCPA).  
-2. “**CCPA**”: The California Civil Code Sections 1798.100 et seq., including the amendments under the California Privacy Rights Act of 2020\.  
-3. “**Consumer, Business, Sell, Service Provider, Share**”: These terms have the meanings defined under the CCPA.  
-4. “**Controller**”: Any natural or legal person, public authority, agency, or other body that determines the purposes and means of Processing Personal Data.  
-5. “**Data Privacy Framework**”: Includes the EU-U.S. Data Privacy Framework, the Swiss-U.S. Data Privacy Framework, and the UK Extension to the EU-U.S. Data Privacy Framework, managed by the U.S. Department of Commerce. These frameworks may be updated or replaced over time.  
-6. “**Data Privacy Framework Principles**”: The core and supplementary principles outlined in the Data Privacy Framework, subject to amendments or replacements.  
-7. “**Data Protection Laws**”: All relevant global legislation related to data protection and privacy that applies to the parties involved in Processing Personal Data under the Agreement, including but not limited to European Data Protection Laws, the CCPA, other U.S. federal and state privacy laws, and the data protection laws of countries like Australia, Singapore, and Japan. These laws may be amended or replaced.  
-8. “**Data Subject**”: An individual to whom Personal Data pertains.  
-9. “**Europe**”: Encompasses the European Union, the European Economic Area, their member states, Switzerland, and the United Kingdom.  
-10. “**European Data**”: Personal Data protected under European Data Protection Laws.  
-11. “**European Data Protection Laws**”: Includes the General Data Protection Regulation (GDPR), Directive 2002/58/EC (the e-Privacy Directive), and their applicable national implementations or adaptations such as the UK GDPR and the Swiss Federal Data Protection Act.  
-12. “**Instructions**”: Documented directives issued by the Controller to the Processor, specifying actions to be taken with regard to Personal Data, which may include processing, storing, deleting, or handling of the data.  
-13. “**Personal Data**”: Any information that relates to an identified or identifiable individual, protected under applicable Data Protection Laws.  
-14. “**Personal Data Breach**”: Any security breach that leads to the accidental or unlawful destruction, loss, alteration, or unauthorized disclosure of Personal Data. This does not include unsuccessful attempts that do not compromise Personal Data security, such as failed login attempts or network attacks on firewalls.  
-15. “**Processing**”: Any operation or set of operations performed on Personal Data, including but not limited to collection, storage, retrieval, modification, disclosure, and destruction. Related terms are “Process”, “Processes”, and “Processed”.  
-16. “**Processor**”: A natural or legal person, public authority, agency, or other body that Processes Personal Data on behalf of the Controller.  
-17. “**Standard Contractual Clauses**”: The clauses provided by the European Commission to ensure that data transfers outside the European Economic Area comply with European data protection law, found at [https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc\_en](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en).  
-18. “**Sub-Processor**”: A third party engaged by the Processor to assist in fulfilling their obligations under the Agreement, excluding employees or consultants of the Processor.  
-19. “**UK Addendum**”: The addendum issued by the UK Information Commissioner for international data transfers under UK law, available at [https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc\_en](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en).  
+## 1. **DEFINICJE**  
+1. „**California Personal Information**”**:** Dane Osobowe objęte ochroną na mocy California Consumer Privacy Act (CCPA).  
+2. „**CCPA**”: California Civil Code, Sekcje 1798.100 i nast., z uwzględnieniem poprawek wprowadzonych przez California Privacy Rights Act z 2020 r.  
+3. „**Consumer, Business, Sell, Service Provider, Share**”: Terminy mają znaczenie nadane im w CCPA.  
+4. „**Administrator**” (Controller): Każda osoba fizyczna lub prawna, organ publiczny, agencja lub inny podmiot, który określa cele i sposoby Przetwarzania Danych Osobowych.  
+5. „**Data Privacy Framework**”: Obejmuje EU-U.S. Data Privacy Framework, Swiss-U.S. Data Privacy Framework i UK Extension do EU-U.S. Data Privacy Framework, zarządzane przez Departament Handlu USA. Te ramy mogą podlegać aktualizacjom lub zastąpieniu.  
+6. „**Zasady Data Privacy Framework**” (Data Privacy Framework Principles): Zasady podstawowe i uzupełniające określone w Data Privacy Framework, wraz z późniejszymi zmianami lub zastąpieniem.  
+7. „**Przepisy o Ochronie Danych**” (Data Protection Laws): Wszystkie obowiązujące globalnie przepisy dotyczące ochrony danych i prywatności, mające zastosowanie do stron uczestniczących w Przetwarzaniu Danych Osobowych zgodnie z Umową, w tym między innymi Europejskie Przepisy o Ochronie Danych, CCPA, inne federalne i stanowe przepisy o ochronie prywatności w USA oraz przepisy krajów takich jak Australia, Singapur czy Japonia. Przepisy te mogą być zmieniane lub zastępowane.  
+8. „**Podmiot Danych**” (Data Subject): Osoba fizyczna, której Dane Osobowe dotyczą.  
+9. „**Europa**” (Europe): Obejmuje Unię Europejską, Europejski Obszar Gospodarczy oraz ich państwa członkowskie, Szwajcarię i Zjednoczone Królestwo.  
+10. „**Europejskie Dane**” (European Data): Dane Osobowe chronione na mocy Europejskich Przepisów o Ochronie Danych.  
+11. „**Europejskie Przepisy o Ochronie Danych**” (European Data Protection Laws): Obejmuje Rozporządzenie Ogólne o Ochronie Danych (RODO/GDPR), Dyrektywę 2002/58/WE (Dyrektywa e-Privacy) i krajowe akty wdrażające te przepisy, takie jak UK GDPR czy szwajcarska Federalna Ustawa o Ochronie Danych.  
+12. „**Instrukcje**” (Instructions): Udokumentowane wytyczne wydawane przez Administratora Podmiotowi Przetwarzającemu, określające działania dotyczące Danych Osobowych, takie jak przetwarzanie, przechowywanie, usuwanie czy inne formy operowania nimi.  
+13. „**Dane Osobowe**” (Personal Data): Wszelkie informacje odnoszące się do zidentyfikowanej lub możliwej do zidentyfikowania osoby fizycznej, chronione zgodnie z właściwymi Przepisami o Ochronie Danych.  
+14. „**Naruszenie Danych Osobowych**” (Personal Data Breach): Wszelkie naruszenia bezpieczeństwa prowadzące do przypadkowego lub niezgodnego z prawem zniszczenia, utraty, zmiany lub nieuprawnionego ujawnienia Danych Osobowych. Nie obejmuje nieudanych prób niepowodujących naruszenia bezpieczeństwa Danych Osobowych, np. nieudanych prób logowania czy ataków sieciowych na zapory ogniowe.  
+15. „**Przetwarzanie**” (Processing): Jakiekolwiek operacje lub zestaw operacji wykonywanych na Danych Osobowych, m.in. gromadzenie, przechowywanie, odzyskiwanie, modyfikowanie, ujawnianie oraz niszczenie. Terminy pokrewne to „Przetwarzać”, „Przetwarza”, „Przetworzone”.  
+16. „**Podmiot Przetwarzający**” (Processor): Osoba fizyczna lub prawna, organ publiczny, agencja albo inny podmiot, który Przetwarza Dane Osobowe w imieniu Administratora.  
+17. „**Standardowe Klauzule Umowne**” (Standard Contractual Clauses): Klauzule udostępnione przez Komisję Europejską zapewniające zgodność transferów danych poza Europejski Obszar Gospodarczy z europejskimi przepisami o ochronie danych. Dostępne pod adresem [https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en).  
+18. „**Podprocesor**” (Sub-Processor): Strona trzecia zaangażowana przez Podmiot Przetwarzający do pomocy w wypełnianiu jego obowiązków w ramach Umowy, z wyłączeniem pracowników lub konsultantów Podmiotu Przetwarzającego.  
+19. „**UK Addendum**”: Aneks wydany przez brytyjskiego Komisarza ds. Informacji w zakresie międzynarodowych transferów danych na gruncie prawa Wielkiej Brytanii, dostępny pod adresem [https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en](https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en).
 
-## 2. **CONTROLLER RESPONSIBILITIES**  
-   1. **Compliance with Laws:** The Client is responsible for ensuring compliance with all applicable Data Protection Laws in relation to its Processing of Personal Data and adherence to the Instructions it provides to CTT. Specifically, the Client will:  
-* Ensure the accuracy, quality, and legality of the Personal Data.  
-* Meet all transparency and lawfulness requirements for collecting and using Personal Data, including securing necessary consents and authorizations.  
-* Confirm its rights to transfer or provide access to Personal Data to CTT for Processing as per the Agreement and this DPA.  
-* Ensure all Instructions related to the Processing of Personal Data are lawful and compliant with Data Protection Laws.  
-* Adhere to all applicable laws governing the content created, sent, or managed through the Services. The Client will notify CTT promptly if it is unable to meet these compliance obligations.  
-  2. **Controller Instructions:** This DPA and the use of the Services under the Agreement constitute the complete set of Instructions from the Client to CTT regarding the Processing of Personal Data. The Client may issue additional Instructions consistent with the terms of the Agreement and the lawful use of the Services during their term.  
-  3. **Security Responsibilities:** The Client must independently verify whether the data security measures in place for the Services meet the requirements of applicable Data Protection Laws. This responsibility includes ensuring the security of Personal Data during its transmission to and from the Services and implementing necessary precautions such as data backups and encryption.  
+## 2. **OBOWIĄZKI ADMINISTRATORA**  
+1. **Zgodność z Prawem:** Klient jest odpowiedzialny za zapewnienie zgodności z wszystkimi właściwymi Przepisami o Ochronie Danych w zakresie Przetwarzania Danych Osobowych oraz za zgodność z Instrukcjami przekazywanymi CTT. W szczególności Klient:  
+   * Zapewnia poprawność, jakość i zgodność z prawem przetwarzanych Danych Osobowych.  
+   * Spełnia wymogi dotyczące transparentności oraz legalności gromadzenia i wykorzystywania Danych Osobowych, w tym uzyskiwania niezbędnych zgód i upoważnień.  
+   * Potwierdza prawo do przekazania lub udostępnienia Danych Osobowych CTT w celu Przetwarzania zgodnie z Umową i niniejszym DPA.  
+   * Zapewnia, że wszystkie Instrukcje dotyczące Przetwarzania Danych Osobowych są zgodne z prawem i przestrzegają Przepisów o Ochronie Danych.  
+   * Przestrzega wszystkich właściwych przepisów regulujących treści tworzone, wysyłane lub zarządzane w ramach Usług. Klient niezwłocznie powiadomi CTT, jeśli nie będzie w stanie spełnić tych wymagań.  
+2. **Instrukcje Administratora:** Niniejszy DPA oraz korzystanie z Usług na podstawie Umowy stanowią pełen zakres Instrukcji Klienta dla CTT w odniesieniu do Przetwarzania Danych Osobowych. Klient może wydawać dodatkowe Instrukcje zgodne z warunkami Umowy i legalnym korzystaniem z Usług w okresie ich obowiązywania.  
+3. **Obowiązki w Zakresie Bezpieczeństwa:** Klient musi samodzielnie zweryfikować, czy środki bezpieczeństwa zastosowane w Usługach spełniają wymogi właściwych Przepisów o Ochronie Danych. Odpowiada m.in. za bezpieczeństwo Danych Osobowych podczas ich transmisji do Usług i z Usług, a także za wdrożenie środków takich jak tworzenie kopii zapasowych i szyfrowanie.
 
-## 3. **PROCESSOR OBLIGATIONS**  
-   1. **Compliance with Instructions:** CTT will Process Personal Data solely for the purposes set forth in this DPA or as explicitly agreed upon through lawful Instructions, except as required by applicable law. CTT is not responsible for adhering to any Data Protection Laws specifically applicable to the Client’s industry that do not generally apply to CTT.  
-   2. **Conflict of Laws:** Should legal requirements prevent CTT from complying with the Instructions, CTT will:  
-* Promptly inform the Client about the legal requirement, to the extent permitted by law.  
-* Cease all Processing activities, except for storing and securing the Personal Data, until the Client provides new lawful Instructions that CTT can comply with. During this period, CTT will not be liable for any service disruptions caused by adherence to legal requirements.  
-  3. **Security Measures:** CTT commits to implementing and maintaining robust technical and organizational measures to safeguard Personal Data against breaches, detailed in Annex 2 of this DPA. CTT may update these Security Measures, provided such updates do not degrade the level of protection.  
-  4. **Confidentiality:** CTT ensures that all personnel authorized to process Personal Data are bound by appropriate confidentiality obligations, whether contractual or statutory.  
-  5. **Personal Data Breaches:** Should a Personal Data Breach occur, CTT will notify the Client without undue delay and provide all necessary details promptly. CTT will assist the Client in notifying affected Data Subjects and relevant authorities if required by Data Protection Laws.  
-  6. **Deletion or Return of Personal Data:** Upon termination or expiry of the Services, CTT will either delete or return all Personal Data processed under this DPA, unless legal obligations necessitate retaining the Personal Data. Any retained Personal Data will be securely isolated and protected from further processing until deletion is possible, following CTT’s established deletion practices.  
+## 3. **OBOWIĄZKI PODMIOTU PRZETWARZAJĄCEGO**  
+1. **Zgodność z Instrukcjami:** CTT będzie Przetwarzać Dane Osobowe wyłącznie w celach określonych w niniejszym DPA lub na podstawie wyraźnych, zgodnych z prawem Instrukcji, z wyjątkiem sytuacji wymaganych przez obowiązujące prawo. CTT nie ponosi odpowiedzialności za przestrzeganie jakichkolwiek przepisów o ochronie danych specyficznych dla branży Klienta, które nie mają zastosowania do CTT w ogólności.  
+2. **Sprzeczność z Prawem:** Jeżeli wymogi prawne uniemożliwią CTT przestrzeganie Instrukcji, CTT:  
+   * Niezwłocznie poinformuje Klienta o tym wymogu, o ile jest to dozwolone przez prawo.  
+   * Zaprzestanie wszelkich czynności Przetwarzania poza przechowywaniem i zabezpieczeniem Danych Osobowych do czasu, aż Klient przekaże nowe, legalne Instrukcje, z którymi CTT będzie mógł się zgodzić. W tym okresie CTT nie ponosi odpowiedzialności za przerwy w świadczeniu usług wynikające ze stosowania się do wymogów prawnych.  
+3. **Środki Bezpieczeństwa:** CTT zobowiązuje się do wdrożenia i utrzymywania solidnych środków technicznych i organizacyjnych w celu ochrony Danych Osobowych przed naruszeniami, zgodnie z opisem w Załączniku 2 do niniejszego DPA. CTT może aktualizować te środki, pod warunkiem że nie obniży to poziomu ochrony.  
+4. **Poufność:** CTT zapewnia, że wszelkie osoby upoważnione do Przetwarzania Danych Osobowych są objęte odpowiednim zobowiązaniem do zachowania poufności, wynikającym z przepisów prawa lub umów.  
+5. **Naruszenia Danych Osobowych:** W przypadku wystąpienia Naruszenia Danych Osobowych, CTT niezwłocznie poinformuje o tym Klienta i przekaże wszelkie niezbędne informacje bez zbędnej zwłoki. CTT będzie wspierać Klienta w powiadamianiu osób, których dane dotyczą, oraz odpowiednich organów, o ile jest to wymagane przez Przepisy o Ochronie Danych.  
+6. **Usunięcie lub Zwrot Danych Osobowych:** Po wygaśnięciu lub rozwiązaniu Umowy, CTT usunie lub zwróci wszystkie Dane Osobowe przetwarzane zgodnie z niniejszym DPA, chyba że przepisy prawa nakazują dalsze przechowywanie tych Danych Osobowych. Wszelkie zachowane Dane Osobowe będą przechowywane w sposób bezpieczny i odizolowany od dalszego Przetwarzania, aż do momentu, kiedy ich usunięcie będzie możliwe, zgodnie z procedurami usuwania danych obowiązującymi w CTT.
 
-## 4. **DATA SUBJECT REQUESTS**  
-   1. **Handling Requests Through the Services:** The Services equip the Client with functionalities to retrieve, correct, delete, or restrict Personal Data, facilitating compliance with Data Protection Laws and Data Subject Requests.  
-   2. **Additional Assistance:** If the Client cannot fully address a Data Subject Request using the provided Service tools, CTT will offer reasonable assistance upon receiving a written request from the Client. This includes helping respond to Data Subject Requests or queries from data protection authorities concerning the Processing of Personal Data under the Agreement. The Client will cover any commercially reasonable costs incurred by CTT for providing this assistance.  
-   3. **Direct Requests to CTT:** In cases where Data Subjects approach CTT directly regarding their Personal Data under the Agreement, CTT will promptly direct these requests to the Client. CTT will inform the Client about the request and advise the Data Subject to contact the Client directly. The Client holds sole responsibility for substantively responding to such requests or communications related to Personal Data.  
+## 4. **ŻĄDANIA PODMIOTÓW DANYCH**  
+1. **Obsługa Żądań poprzez Usługi:** Usługi udostępniają Klientowi funkcjonalności do wyszukiwania, korygowania, usuwania lub ograniczania Danych Osobowych, co umożliwia spełnienie wymogów wynikających z Przepisów o Ochronie Danych i wniosków od Podmiotów Danych.  
+2. **Dodatkowe Wsparcie:** Jeżeli Klient nie może w pełni zrealizować żądania Podmiotu Danych korzystając z dostępnych funkcjonalności Usług, CTT zapewni uzasadnioną pomoc po otrzymaniu pisemnego wniosku od Klienta. Obejmuje to pomoc w odpowiedzi na żądania Podmiotu Danych lub zapytania od organów ochrony danych w sprawie Przetwarzania Danych Osobowych w ramach Umowy. Klient pokryje wszelkie uzasadnione koszty poniesione przez CTT w związku z udzieleniem takiej pomocy.  
+3. **Bezpośrednie Żądania kierowane do CTT:** W przypadkach, gdy Podmioty Danych zwrócą się bezpośrednio do CTT w sprawie Danych Osobowych przetwarzanych na podstawie Umowy, CTT niezwłocznie skieruje je do Klienta. CTT poinformuje o żądaniu Klienta i zasugeruje Podmiotowi Danych, aby skontaktował się bezpośrednio z Klientem. Klient jest wyłącznie odpowiedzialny za merytoryczne udzielenie odpowiedzi na takie żądania lub zapytania dotyczące Danych Osobowych.
 
-## 5. **USE OF SUB-PROCESSORS**  
-   1. **Engagement of Sub-Processors:** CTT may engage Sub-Processors to assist in providing various aspects of the Services, including hosting and infrastructure, product features and integrations, and customer support. CTT will inform the Client about the default Sub-Processors and those that require Client’s opt-in to engage.  
-   2. **Notification of Changes:** CTT maintains a current list of Sub-Processors in Annex 3 of this DPA. The Client may subscribe to email notifications for updates on Sub-Processors changes by filling out a form available at [https://agentdoodle.com](https://agentdoodle.com). CTT commits to notifying the Client at least 30 days in advance before adding or replacing any Sub-Processors.  
-   3. **Client’s Right to Object:** The Client has the right to object to the use of new Sub-Processors on reasonable grounds related to data protection within 30 days of such notification. If the Client raises concerns, CTT will engage in discussions to seek a resolution. If no resolution is achievable, CTT may either not engage the proposed Sub-Processor or allow the Client to suspend or terminate the relevant Services per the termination provisions of the Agreement, without any liability for the cessation but subject to any fees incurred before the suspension or termination.  
-   4. **Sub-Processor Compliance:** CTT will impose data protection terms on all Sub-Processors that ensure at least the same level of data protection as set forth in this DPA, appropriate to the nature of the services they provide. CTT remains liable for the compliance of each Sub-Processor with the obligations of this DPA and for any breaches caused by the Sub-Processors.  
+## 5. **KORZYSTANIE Z PODPROCESORÓW**  
+1. **Angażowanie Podprocesorów:** CTT może angażować Podprocesorów do pomocy w świadczeniu różnych aspektów Usług, w tym hostingu i infrastruktury, funkcjonalności produktowych i integracji, a także wsparcia klienta. CTT poinformuje Klienta o domyślnych Podprocesorach oraz o tych, których zaangażowanie wymaga akceptacji Klienta.  
+2. **Powiadamianie o Zmianach:** CTT prowadzi bieżącą listę Podprocesorów w Załączniku 3 do niniejszego DPA. Klient może zapisać się na powiadomienia e-mail o zmianach w zakresie Podprocesorów, wypełniając formularz dostępny na stronie [https://agentdoodle.com](https://agentdoodle.com). CTT zobowiązuje się do poinformowania Klienta co najmniej 30 dni przed dodaniem lub zastąpieniem jakiegokolwiek Podprocesora.  
+3. **Prawo Klienta do Sprzeciwu:** Klient ma prawo wyrazić sprzeciw wobec korzystania z nowego Podprocesora, jeżeli ma ku temu uzasadnione podstawy związane z ochroną danych. Sprzeciw należy zgłosić w ciągu 30 dni od powiadomienia. W razie zgłoszenia zastrzeżeń CTT podejmie próby znalezienia porozumienia. Jeśli nie będzie to możliwe, CTT może nie angażować proponowanego Podprocesora lub pozwolić Klientowi na zawieszenie albo rozwiązanie Usług zgodnie z zapisami dotyczącymi rozwiązania Umowy, bez ponoszenia odpowiedzialności za zakończenie świadczenia usług, ale przy uwzględnieniu opłat naliczonych przed zawieszeniem czy rozwiązaniem.  
+4. **Zgodność Podprocesorów:** CTT nałoży na każdego Podprocesora warunki dotyczące ochrony danych, zapewniające co najmniej taki sam poziom ochrony, jaki przewidziano w niniejszym DPA, adekwatne do charakteru świadczonych przez nich usług. CTT pozostaje odpowiedzialne za przestrzeganie przez każdego Podprocesora warunków niniejszego DPA, a także za wszelkie naruszenia spowodowane przez Podprocesorów.
 
-## 6. **DATA TRANSFERS**  
-   1. **Scope of Data Transfers:** The Client acknowledges that CTT, along with its Sub-Processors, may need to access and Process Personal Data on a global scale to deliver the Services effectively. This includes the transfer of Personal Data to and processing in the United States and other countries where CTT or its Sub-Processors operate.  
-   2. **Compliance with Data Protection Laws:** Both CTT and the Client will ensure that any transfer of Personal Data outside its country of origin adheres to the applicable requirements of Data Protection Laws. This commitment includes implementing adequate safeguards and ensuring all transfers are legally compliant, whether the data is moving to or from the European Union, the United States, or other international jurisdictions.  
-   3. **Legal Mechanisms for Data Transfer:** To facilitate these transfers while complying with Data Protection Laws, CTT will employ various legal mechanisms. These may include but are not limited to the use of Standard Contractual Clauses, adherence to the EU-U.S. Privacy Shield Framework, or ensuring that Sub-Processors in third countries meet equivalent data protection standards.  
-   4. **Notification of Transfers:** CTT will provide the Client with notice of any new countries to which Personal Data may be transferred, as part of its regular updates on data handling practices. This ensures transparency and allows the Client to assess the adequacy of the protection measures in place.  
+## 6. **TRANSFER DANYCH**  
+1. **Zakres Transferu Danych:** Klient przyjmuje do wiadomości, że CTT oraz jego Podprocesorzy mogą potrzebować dostępu i Przetwarzania Danych Osobowych na skalę globalną w celu świadczenia Usług. Obejmuje to transfer Danych Osobowych oraz ich Przetwarzanie w Stanach Zjednoczonych i innych krajach, w których CTT lub jego Podprocesorzy prowadzą działalność.  
+2. **Zgodność z Przepisami o Ochronie Danych:** Zarówno CTT, jak i Klient zapewnią, że wszelkie transfery Danych Osobowych poza kraj ich pochodzenia odbywają się zgodnie z wymogami właściwych Przepisów o Ochronie Danych. W szczególności wdrożą odpowiednie zabezpieczenia i dopilnują, aby transfery były zgodne z prawem — niezależnie od tego, czy dotyczą transferu danych z i do Unii Europejskiej, Stanów Zjednoczonych czy innych jurysdykcji międzynarodowych.  
+3. **Mechanizmy Prawne Transferu Danych:** W celu zapewnienia zgodności z Przepisami o Ochronie Danych przy tych transferach CTT wykorzysta różne mechanizmy prawne, m.in. Standardowe Klauzule Umowne, przestrzeganie EU-U.S. Privacy Shield (gdy dotyczy) lub potwierdzając, że Podprocesorzy w państwach trzecich spełniają równoważne standardy ochrony danych.  
+4. **Powiadamianie o Transferach:** CTT poinformuje Klienta o nowych krajach, do których Dane Osobowe mogą być przekazywane, w ramach regularnych aktualizacji dotyczących praktyk w zakresie przetwarzania danych. Zapewni to przejrzystość i umożliwi Klientowi ocenę adekwatności stosowanych środków ochrony.
 
-## 7. **DEMONSTRATION OF COMPLIANCE**  
-   1. **Transparency and Information Sharing:** CTT commits to maintaining transparency and will provide the Client with all necessary information to demonstrate compliance with this DPA. CTT will participate in and contribute to audits and inspections conducted by the Client or its designated auditor to assess compliance with this DPA, as required by applicable law.  
-   2. **Audit Rights:** The Client has the right to conduct audits to ensure CTT's compliance with this DPA. These audit rights will be exercised by instructing CTT to adhere to the audit procedures outlined in this section. CTT acknowledges that the Services are hosted by Sub-Processors who maintain independently validated security programs, including SOC 2 and ISO 27001 certifications. CTT’s systems are also regularly audited and tested by independent third-party firms.  
-   3. **Access to Audit Reports:** Upon request, CTT will provide the Client with access to relevant audit reports on a confidential basis. These reports help the Client verify CTT’s compliance with this DPA.  
-   4. **Responding to Compliance Inquiries:** At the Client’s written request, CTT will provide written responses to all reasonable requests for information necessary to confirm CTT’s compliance with this DPA. This right may be exercised no more than once per calendar year unless the Client has reasonable grounds to suspect non-compliance with this DPA.  
+## 7. **DOWODZENIE ZGODNOŚCI**  
+1. **Przejrzystość i Udostępnianie Informacji:** CTT zobowiązuje się do zachowania przejrzystości i będzie dostarczać Klientowi wszelkich informacji niezbędnych do wykazania zgodności z niniejszym DPA. CTT weźmie udział w audytach i inspekcjach przeprowadzanych przez Klienta lub wyznaczonego przez niego audytora w zakresie niezbędnym do potwierdzenia zgodności z niniejszym DPA, zgodnie z wymogami obowiązującego prawa.  
+2. **Prawo do Audytu:** Klient ma prawo przeprowadzić audyt w celu weryfikacji, czy CTT przestrzega niniejszego DPA. Prawo to jest realizowane poprzez Instrukcje skierowane do CTT, by przestrzegał procedur audytu opisanych w tej sekcji. CTT przyjmuje do wiadomości, że Usługi są hostowane przez Podprocesorów posiadających niezależne certyfikaty bezpieczeństwa, takie jak SOC 2 czy ISO 27001. Systemy CTT również podlegają regularnym audytom i testom przeprowadzanym przez niezależne podmioty.  
+3. **Dostęp do Raportów z Audytu:** Na wniosek Klienta CTT udostępni mu istotne raporty z audytów na zasadzie poufności, umożliwiając Klientowi weryfikację zgodności CTT z niniejszym DPA.  
+4. **Odpowiedzi na Zapytania w Zakresie Zgodności:** Na pisemny wniosek Klienta CTT udzieli pisemnych odpowiedzi na wszelkie uzasadnione zapytania dotyczące zapewnienia zgodności z niniejszym DPA. Z tego prawa można korzystać nie częściej niż raz w roku kalendarzowym, chyba że Klient posiada uzasadnione podstawy, aby podejrzewać naruszenie niniejszego DPA.
 
-## 8. **ADDITIONAL PROVISIONS FOR EUROPEAN DATA**  
-   1. **Scope:** This section exclusively addresses the handling and transfer of European Data, defined as data protected under European Data Protection Laws.  
-   2. **Roles and Responsibilities:** In processing European Data, the Client acts as the “Controller”, and CTT functions as the “Processor”, each adhering to their respective obligations under European Data Protection Laws.  
-   3. **Compliance with Instructions:** Should CTT determine that an Instruction may conflict with European Data Protection Laws, CTT will promptly notify the Client, and both parties will work to resolve the issue.  
-   4. **Data Protection Impact Assessments:** CTT will support the Client in conducting data protection impact assessments and consultations with supervisory authorities, particularly when CTT possesses essential information not readily available to the Client.  
-   5. **Legal Mechanisms for Data Transfers:**  
-* **General:** CTT will only transfer European Data to countries or entities that provide adequate data protection, as recognized by European Data Protection Laws. This includes using established frameworks and legal mechanisms such as the Data Privacy Framework, Binding Corporate Rules, or the Standard Contractual Clauses.  
-* **Specific Mechanisms:**  
-  * **Data Privacy Framework:** CTT and its Sub-Processors in the United States will receive European Data in compliance with the Data Privacy Framework, ensuring protection levels equivalent to European standards. CTT will notify the Client if compliance with this framework becomes untenable.  
-  * **Standard Contractual Clauses:** If required by European Data Protection Laws, CTT will utilize Standard Contractual Clauses. These clauses provide detailed roles and responsibilities:  
-    * For GDPR-related transfers, the Client is the data exporter, and CTT or its Sub-Processors are the data importers. The relevant clauses from the EU’s decisions will be applied according to the role of the Client (Controller or Processor).  
-    * Adjustments specific to UK GDPR and Swiss DPA will apply as necessary, ensuring compliance with local regulations by integrating the UK Addendum and modifying references to align with Swiss law.  
-    * The Client agrees that CTT fulfills its obligations under Section 9 of the Standard Contractual Clauses through its adherence to the Sub-Processor provisions in this DPA. Despite potential restrictions on sharing Sub-Processor agreements, CTT will make reasonable efforts to disclose these agreements to the Client, providing all accessible information confidentially. The Client may also exercise its audit rights as defined in Clause 8.9 of the Standard Contractual Clauses by following the audit procedures specified in the “Demonstration of Compliance” section of this DPA, ensuring robust oversight of CTT’s data protection practices.  
-  6. **Alternative Transfer Mechanisms:**  
-* **Adoption of New Mechanisms:** If CTT is required to adopt an alternative transfer mechanism for European Data, this mechanism will automatically replace the existing arrangements to ensure compliance with European Data Protection Laws. This adjustment will only be made to the extent that the new mechanism complies with these laws.  
-* **Client’s Cooperation:** The Client agrees to perform any necessary actions and execute any documents that are reasonably necessary to legally implement these alternative transfer mechanisms effectively.  
+## 8. **DODATKOWE POSTANOWIENIA DOTYCZĄCE DANYCH EUROPEJSKICH**  
+1. **Zakres Zastosowania:** Niniejsza sekcja odnosi się wyłącznie do przetwarzania i transferu Europejskich Danych, tj. danych chronionych przez Europejskie Przepisy o Ochronie Danych.  
+2. **Role i Odpowiedzialności:** W zakresie przetwarzania Europejskich Danych Klient występuje jako „Administrator”, a CTT jako „Podmiot Przetwarzający”. Każda ze stron przestrzega swoich obowiązków wynikających z Europejskich Przepisów o Ochronie Danych.  
+3. **Zgodność z Instrukcjami:** Jeżeli CTT uzna, że jakaś Instrukcja może być niezgodna z Europejskimi Przepisami o Ochronie Danych, niezwłocznie powiadomi o tym Klienta, a obie strony podejmą działania w celu znalezienia rozwiązania.  
+4. **Ocena Skutków dla Ochrony Danych:** CTT będzie wspierać Klienta w przeprowadzaniu oceny skutków dla ochrony danych oraz konsultacjach z organami nadzorczymi, zwłaszcza w przypadkach, gdy CTT posiada kluczowe informacje niedostępne dla Klienta.  
+5. **Mechanizmy Prawne Transferu Danych:**  
+   * **Informacje Ogólne:** CTT będzie transferować Europejskie Dane wyłącznie do krajów lub podmiotów zapewniających odpowiedni poziom ochrony, uznany przez Europejskie Przepisy o Ochronie Danych, wykorzystując m.in. Data Privacy Framework, Związane Reguły Korporacyjne czy Standardowe Klauzule Umowne.  
+   * **Konkretnie:**  
+     * **Data Privacy Framework:** CTT i Podprocesorzy mający siedzibę w Stanach Zjednoczonych otrzymają Europejskie Dane zgodnie z ramami Data Privacy Framework, zapewniającymi poziom ochrony równoważny standardom europejskim. CTT powiadomi Klienta, jeśli zgodność z tymi ramami stanie się niemożliwa.  
+     * **Standardowe Klauzule Umowne:** Jeżeli wymagają tego Europejskie Przepisy o Ochronie Danych, CTT wykorzysta Standardowe Klauzule Umowne. Obejmują one szczegółowe zapisy dotyczące ról i obowiązków:  
+       * Dla transferów objętych RODO Klient jest eksporterem danych, a CTT lub jego Podprocesorzy — importerami danych. Zastosowanie mają odpowiednie klauzule wydane przez UE w zależności od roli Klienta (Administrator lub Podmiot Przetwarzający).  
+       * Ewentualne dostosowania wymagane przez prawo Wielkiej Brytanii (UK GDPR) i Szwajcarii będą wdrażane zgodnie z wymogami lokalnymi, łącznie z włączeniem UK Addendum i zmianami w odniesieniu do prawa szwajcarskiego.  
+       * Klient przyjmuje do wiadomości, że CTT wypełnia obowiązki z Sekcji 9 Standardowych Klauzul Umownych, stosując zasady dotyczące Podprocesorów opisane w niniejszym DPA. Mimo ewentualnych ograniczeń w ujawnianiu umów z Podprocesorami, CTT podejmie rozsądne starania, by udostępnić je Klientowi w sposób poufny, w zakresie dostępnych informacji. Klient może także zrealizować prawo do audytu określone w Klauzuli 8.9 Standardowych Klauzul Umownych, kierując się procedurami opisanymi w sekcji „Dowodzenie Zgodności” niniejszego DPA.  
+   6. **Alternatywne Mechanizmy Transferu:**  
+   * **Wdrażanie Nowych Mechanizmów:** Jeżeli CTT będzie zobowiązane do zastosowania innego mechanizmu transferu Europejskich Danych, zastąpi on dotychczasowe rozwiązania, aby zapewnić zgodność z Europejskimi Przepisami o Ochronie Danych. Taka zmiana będzie wprowadzana wyłącznie w zakresie, w jakim nowy mechanizm jest zgodny z tymi przepisami.  
+   * **Współpraca Klienta:** Klient zobowiązuje się podjąć wszelkie niezbędne działania i podpisać wszelkie dokumenty wymagane do legalnego wdrożenia tych alternatywnych mechanizmów transferu.
 
-## 9. **ADDITIONAL PROVISIONS FOR CALIFORNIA PERSONAL INFORMATION**  
-   1. **Scope:** This section solely addresses the processing of California Personal Information, subject to the CCPA.  
-   2. **Roles of the Parties:** Under the CCPA, the Client acts as the “Business” and CTT functions as the “Service Provider.” Each party will perform its responsibilities strictly in accordance with their roles defined by the CCPA.  
-   3. **Responsibilities of the Service Provider:** CTT, as the Service Provider, will:  
-* Process California Personal Information solely to perform the Services outlined in the Agreement or as permitted by the CCPA.  
-* Not sell or share California Personal Information.  
-* Refrain from processing California Personal Information outside the direct business relationship between the parties unless required by law.  
-* Ensure that California Personal Information is not unlawfully combined with data from external sources, except as necessary for fulfilling its role under the Agreement.  
-  4. **Compliance Commitment:** CTT commits to:  
-* Fulfilling its responsibilities as a Service Provider under the CCPA.  
-* Maintaining the privacy protection level required by the CCPA for California Personal Information.  
-* Notifying the Client promptly if it can no longer meet these CCPA obligations.  
-  5. **CCPA Audits:** The Client reserves the right to audit CTT’s use of California Personal Information to ensure compliance with the CCPA. This includes taking appropriate actions, as agreed upon in the Agreement, to address and rectify any unauthorized use of California Personal Information.  
-  6. **Declaration of Non-Sale:** The parties acknowledge and agree that the sharing of California Personal Information under the Agreement does not constitute a sale and no monetary or other valuable consideration is exchanged for such information. CTT's handling of California Personal Information will adhere strictly to the service provision requirements of the CCPA without any further commercial exploitation.  
+## 9. **DODATKOWE POSTANOWIENIA DOTYCZĄCE CALIFORNIA PERSONAL INFORMATION**  
+1. **Zakres Zastosowania:** Niniejsza sekcja dotyczy wyłącznie przetwarzania California Personal Information, w rozumieniu CCPA.  
+2. **Role Stron:** Na gruncie CCPA Klient pełni funkcję „Business”, a CTT występuje jako „Service Provider”. Każda ze stron wypełnia swoje obowiązki zgodnie z przypisanymi im rolami w CCPA.  
+3. **Obowiązki Service Provider:** CTT, działając jako Service Provider, zobowiązuje się do:  
+   * Przetwarzania California Personal Information wyłącznie w celu świadczenia Usług określonych w Umowie lub w inny sposób dozwolony przez CCPA.  
+   * Nienabywania ani nierozpowszechniania California Personal Information na zasadach „sprzedaży” (sell) czy „udostępniania” (share) zgodnie z CCPA.  
+   * Nieprzetwarzania California Personal Information poza bezpośrednimi relacjami biznesowymi między stronami, chyba że wymagają tego obowiązujące przepisy.  
+   * Niewiązania California Personal Information z danymi z zewnętrznych źródeł w sposób niezgodny z wyłącznym celem realizacji Usług wynikających z Umowy.  
+4. **Zobowiązania w Zakresie Zgodności:** CTT zobowiązuje się do:  
+   * Wypełniania obowiązków Service Providera zgodnie z CCPA.  
+   * Utrzymania poziomu ochrony prywatności wymaganego przez CCPA w odniesieniu do California Personal Information.  
+   * Niezwłocznego powiadomienia Klienta, jeśli nie będzie w stanie wypełnić obowiązków określonych w CCPA.  
+5. **Audyt zgodnie z CCPA:** Klient zachowuje prawo do przeprowadzenia audytu sposobu wykorzystywania California Personal Information przez CTT w celu zapewnienia zgodności z CCPA. Może także podjąć odpowiednie działania, zgodnie z Umową, w celu usunięcia nieuprawnionego wykorzystania California Personal Information.  
+6. **Deklaracja Braku Sprzedaży:** Strony potwierdzają, że udostępnianie California Personal Information na mocy Umowy nie stanowi sprzedaży i nie wiąże się z przekazaniem jakiejkolwiek korzyści finansowej czy innej wartości handlowej w zamian za takie dane. Postępowanie CTT z California Personal Information będzie ściśle zgodne z wymogami świadczenia Usług w ramach CCPA, bez jej dodatkowego komercyjnego wykorzystywania.
 
-## 10. **GENERAL PROVISIONS**  
-   1. **Amendments:** CTT may update and make changes to this DPA as necessary, without affecting the commitments under the “Compliance with Instructions” or “Security” sections of this DPA, to ensure ongoing compliance with evolving legal requirements.  
-   2. **Severability:** Should any provision of this DPA be found invalid or unenforceable, such determination will not affect the validity and enforceability of the remaining provisions, ensuring the continued effectiveness of this DPA.  
-   3. **Limitation of Liability:** The liabilities of each party, related to or arising from this DPA, including under the Standard Contractual Clauses when applicable, are subject to the limitations and exclusions specified in the “Limitation of Liability and Disclaimer of Warranties” section of the main Agreement. References to a party’s liability in that section include the aggregate liability under this DPA.  
-   4. **Governing Law:** This DPA is governed by and construed in line with the laws specified in the “Governing Law and Jurisdiction” section of the main Agreement, except as explicitly altered by applicable Data Protection Laws.
+## 10. **POSTANOWIENIA OGÓLNE**  
+1. **Zmiany:** CTT może aktualizować i wprowadzać zmiany do niniejszego DPA w niezbędnym zakresie, nie wpływając na zobowiązania określone w sekcjach „Zgodność z Instrukcjami” czy „Bezpieczeństwo” niniejszego DPA, aby zapewnić stałą zgodność z ewoluującymi wymogami prawnymi.  
+2. **Rozdzielność Postanowień:** Jeśli jakiekolwiek postanowienie niniejszego DPA zostanie uznane za nieważne lub niewykonalne, nie wpływa to na ważność i wykonalność pozostałych postanowień, które pozostają w mocy.  
+3. **Ograniczenie Odpowiedzialności:** Odpowiedzialność każdej ze stron, wynikająca z niniejszego DPA lub odnosząca się do niego (w tym w ramach Standardowych Klauzul Umownych, o ile mają zastosowanie), podlega ograniczeniom i wyłączeniom określonym w sekcji „Ograniczenie Odpowiedzialności i Wyłączenie Gwarancji” głównej Umowy. Odniesienia do odpowiedzialności stron w tej sekcji obejmują łącznie odpowiedzialność wynikającą z niniejszego DPA.  
+4. **Prawo Właściwe:** Niniejszy DPA podlega przepisom prawa wskazanym w sekcji „Prawo Właściwe i Właściwość Sądu” głównej Umowy, z zastrzeżeniem odmiennych wymogów zawartych w obowiązujących Przepisach o Ochronie Danych.
 
-# **ANNEX 1: DETAILS OF PROCESSING**
+---
 
-## 1. **List of Parties**  
-* **Data Exporter (Client):**  
-  * Name: As defined in (the context of) the Agreement.  
-  * Address: Specified in (the context of) the Agreement.  
-  * Contact Details: Specified in (the context of) the Agreement.  
-  * Activities: Processing Personal Data in accordance with the use of the Services under the Agreement.  
-  * Role: Controller.  
-* **Data Importer (CTT):**  
-  * Name: As defined in the Agreement.  
-  * Address: Specified in the Agreement.  
-  * Contact Details: Specified in the Agreement.  
-  * Activities: Processing Personal Data to provide Services as specified in the Agreement.  
-  * Role: Processor.  
+# **ZAŁĄCZNIK 1: SZCZEGÓŁY PRZETWARZANIA**
 
-## 2. **Description of Transfer**  
-* **Categories of Data Subjects:** This includes the End Users—namely, pre-approved individuals or closed groups designated to access and interact with the Platform and Services.  
-* **Categories of Personal Data:** This includes, but is not limited to, identification details (e.g., names, usernames), contact information (e.g., email addresses, phone numbers), demographic data, and user-generated content provided for accessing and utilizing the Services.  
-* **Sensitive Data:** The processing or transfer of sensitive personal data (e.g., data related to health, racial or ethnic origin, political opinions, religious beliefs, or biometric data) is strongly discouraged.   
-* **Frequency of Transfer:** Continuous, as needed for the provision of the Services.  
-* **Nature of the Processing:** Personal Data will be stored, maintained, and processed to support the Services provided to the Client, including disclosures as necessary under the Agreement, or as required by law.  
-* **Purpose of Transfer and Further Processing:** To facilitate the provision of the Services as described in the Agreement and pursuant to the Client’s Instructions.  
-* **Retention Period:** Personal Data will be processed for the duration of the Agreement unless otherwise specified.
+## 1. **Lista Stron**  
+* **Eksporter Danych (Klient):**  
+  * Nazwa: Zdefiniowana w (kontekście) Umowy.  
+  * Adres: Wskazany w (kontekście) Umowy.  
+  * Dane Kontaktowe: Wskazane w (kontekście) Umowy.  
+  * Zakres Działalności: Przetwarzanie Danych Osobowych w zgodzie z wykorzystaniem Usług w ramach Umowy.  
+  * Rola: Administrator.  
+* **Importer Danych (CTT):**  
+  * Nazwa: Jak zdefiniowano w Umowie.  
+  * Adres: Wskazany w Umowie.  
+  * Dane Kontaktowe: Wskazane w Umowie.  
+  * Zakres Działalności: Przetwarzanie Danych Osobowych w celu świadczenia Usług określonych w Umowie.  
+  * Rola: Podmiot Przetwarzający.  
 
-# **ANNEX 2: SECURITY MEASURES**
+## 2. **Opis Transferu**  
+* **Kategorie Podmiotów Danych:** Obejmują Użytkowników Końcowych — tj. uprzednio zatwierdzone osoby lub zamknięte grupy wyznaczone do uzyskiwania dostępu i interakcji z Platformą i Usługami.  
+* **Kategorie Danych Osobowych:** Obejmują, między innymi, dane identyfikacyjne (np. imię i nazwisko, nazwa użytkownika), dane kontaktowe (np. adresy e-mail, numery telefonów), dane demograficzne oraz treści tworzone przez użytkowników, wprowadzane w celu dostępu i korzystania z Usług.  
+* **Dane Wrażliwe:** Przetwarzanie lub transfer danych wrażliwych (np. danych dotyczących zdrowia, rasy czy pochodzenia etnicznego, poglądów politycznych, przekonań religijnych lub danych biometrycznych) jest stanowczo odradzane.  
+* **Częstotliwość Transferu:** Ciągła, zgodnie z potrzebami świadczenia Usług.  
+* **Charakter Przetwarzania:** Dane Osobowe będą przechowywane, utrzymywane i przetwarzane w celu zapewnienia wsparcia dla Usług świadczonych Klientowi, w tym ujawniania w niezbędnym zakresie zgodnie z Umową lub wymogami prawa.  
+* **Cel Transferu i Dalszego Przetwarzania:** Umożliwienie świadczenia Usług, zgodnie z Umową oraz Instrukcjami Klienta.  
+* **Okres Przechowywania:** Dane Osobowe będą przetwarzane przez okres obowiązywania Umowy, o ile nie określono inaczej.
 
-## 1. **Access Control:**  
-* **Preventing Unauthorized Access:**  
-  * **Outsourced Processing:** CTT uses outsourced cloud infrastructure providers, maintaining strict contractual relationships to ensure data protection in line with this DPA.  
-  * **Physical and Environmental Security:** Multi-tenant, outsourced infrastructure is used to host CTT’s product infrastructure, with stringent physical and environmental security controls.  
-  * **Authentication and Authorization:** CTT enforces a uniform password policy and controls access through user interface authentication and application programming interfaces (APIs). Access to customer data is restricted to authorized personnel only, based on roles and permissions.  
-* **Preventing Unauthorized Use:**  
-  * **Access Controls and Intrusion Detection:** CTT employs industry-standard access controls and intrusion detection mechanisms to safeguard against unauthorized access to network and product infrastructure. This includes Virtual Private Cloud (VPC) setups, security group assignments.  
-  * **Code Analysis and Penetration Testing:** Regular static code analysis and annual penetration testing are conducted to identify and mitigate potential security vulnerabilities.  
+---
 
-## 2. **Transmission Control:**  
-* **Data In-transit:** All data transmitted to and from CTT’s systems is encrypted using HTTPS/TLS protocols to ensure secure data transmission.  
-* **Data At-rest:** Key Data stored on CTT’s servers is encrypted in regards to Personal Information  at rest, adhering to industry-standard practices for data security.  
+# **ZAŁĄCZNIK 2: ŚRODKI BEZPIECZEŃSTWA**
 
-## 3. **Input Control:**  
-* **Logging and Monitoring:** CTT’s infrastructure logs extensive information about system behavior, traffic, and authentication requests. These logs are monitored to detect and respond to potential security incidents.  
-* **Incident Response and Management:** CTT maintains a comprehensive incident response plan that includes steps for handling security breaches, minimizing damage, and notifying customers in compliance with this DPA.  
+## 1. **Kontrola Dostępu:**  
+* **Zapobieganie Nieautoryzowanemu Dostępowi:**  
+  * **Przetwarzanie Zewnętrzne:** CTT korzysta z zewnętrznych dostawców infrastruktury chmurowej, utrzymując ścisłe zobowiązania umowne, by zapewnić ochronę danych w zgodzie z niniejszym DPA.  
+  * **Bezpieczeństwo Fizyczne i Środowiskowe:** Infrastruktura produktowa CTT jest hostowana w środowisku wielodostępnym (multi-tenant), z zapewnionymi surowymi kontrolami bezpieczeństwa fizycznego i środowiskowego.  
+  * **Uwierzytelnianie i Autoryzacja:** CTT stosuje spójną politykę haseł, a dostęp za pośrednictwem interfejsu użytkownika i API jest nadawany wyłącznie upoważnionemu personelowi zgodnie z przypisanymi rolami i uprawnieniami.  
+* **Zapobieganie Nieuprawnionemu Użyciu:**  
+  * **Kontrola Dostępu i Wykrywanie Włamań:** CTT stosuje standardowe w branży mechanizmy kontroli dostępu i wykrywania włamań w celu ochrony przed nieupoważnionym dostępem do sieci i infrastruktury produktowej, w tym konfiguracje Virtual Private Cloud (VPC) i grup bezpieczeństwa.  
+  * **Analiza Kodu i Testy Penetracyjne:** Regularnie przeprowadzane są analizy kodu statycznego oraz coroczne testy penetracyjne w celu identyfikacji i wyeliminowania ewentualnych luk w zabezpieczeniach.  
 
-## 4. **Availability Control:**  
-* **Infrastructure Reliability:** CTT’s infrastructure providers ensure at least 98% uptime and maintain redundancy to support power, network, and HVAC services.  
-* **Data Redundancy and Backup:** Customer data is backed up and replicated across multiple data centers to ensure data availability and integrity. CTT’s disaster recovery plans are regularly tested to ensure they are effective in restoring services and data after operational disruptions.  
+## 2. **Kontrola Transmisji:**  
+* **Dane w Tranzycie:** Wszystkie dane przesyłane do i z systemów CTT są szyfrowane za pomocą protokołów HTTPS/TLS, co zapewnia bezpieczeństwo transmisji.  
+* **Dane w Spoczynku:** Kluczowe dane przechowywane na serwerach CTT są szyfrowane w stanie spoczynku w odniesieniu do Danych Osobowych, zgodnie z uznanymi w branży standardami bezpieczeństwa.  
 
-## 5. **Disaster Recovery and Data Integrity:**  
-* **Disaster Recovery Plans:** Regular testing of disaster recovery procedures to ensure prompt restoration of services with minimal data loss.  
-* **Data Integrity Measures:** Continuous integrity checks and balances are performed to ensure the accuracy and reliability of the data processed.
+## 3. **Kontrola Wprowadzania Danych:**  
+* **Rejestrowanie i Monitorowanie:** Infrastruktura CTT rejestruje obszerne informacje o zachowaniu systemów, ruchu sieciowym i żądaniach uwierzytelniania. Dane te są monitorowane w celu wykrywania i reagowania na potencjalne incydenty bezpieczeństwa.  
+* **Zarządzanie i Reakcja na Incydenty:** CTT posiada kompleksowy plan reakcji na incydenty, obejmujący kroki w razie naruszeń bezpieczeństwa, minimalizowanie szkód i informowanie klientów zgodnie z postanowieniami niniejszego DPA.  
 
-# **ANNEX 3: SUB-PROCESSORS**
+## 4. **Kontrola Dostępności:**  
+* **Niezawodność Infrastruktury:** Dostawcy infrastruktury CTT gwarantują przynajmniej 98% dostępności i utrzymują nadmiarowość (redundancję) zapewniającą zasilanie, sieć i klimatyzację.  
+* **Redundancja i Kopie Zapasowe Danych:** Dane klientów są replikowane w wielu centrach danych, aby zapewnić dostępność i integralność danych. Plany awaryjne CTT są regularnie testowane w celu potwierdzenia skuteczności przy przywracaniu usług i danych po zakłóceniach operacyjnych.  
 
- 1. **Overview:** CTT engages various Sub-Processors to assist in delivering the Services. This annex provides a transparent listing of these Sub-Processors, detailing their roles and the purposes for which they are engaged. The use of Sub-Processors is in strict accordance with the terms outlined in this DPA, ensuring adherence to applicable data protection standards.  
- 2. **List of Sub-Processors:**  
-    1. **Cloud Infrastructure Providers:**  
-       * **Purpose:** To host and manage the infrastructure on which CTT’s services operate, ensuring high availability and security of the processing environment.  
-       * **Provider:** Hetzner Online GmbH (Industriestr. 25, 91710 Gunzenhausen, Germany, email: [info@hetzner.com](mailto:info@hetzner.com)).  
-       * **Location:** EU/EEA.  
-    2. **Payment Processors:**  
-       * **Purpose:** To handle financial transactions related to the Services, ensuring secure and efficient processing of payments.  
-       * **Provider**: Stripe Technology Europe, Limited (an Irish limited company; Registered number: 0599050; Registered office: 25/28 North Wall Quay, Dublin 1, D01H104).  
-       * **Location:** EU/EEA.  
-    3. **OpenAI Services:**  
-       * **Purpose:** To enable AI-driven capabilities such as language processing, text generation, or content analysis, leveraging OpenAI’s technology to enhance user experience and service functionality.  
-       * **Provider**: (a) For residents in the European Economic Area (EEA) or Switzerland: OpenAI Ireland Limited, with its registered office at 1st Floor, The Liffey Trust Centre, 117-126 Sheriff Street Upper, Dublin 1, D01 YC43, Ireland. (b) For residents in the UK: OpenAI OpCo, LLC, with its registered  office at 1960 Bryant Street, San Francisco, California 94110, United States. OpenAI is self-certified under the EU-U.S. Data Privacy Framework, the UK Extension to the EU-U.S. Data Privacy Framework, and the Swiss-U.S. Data Privacy Framework, ensuring compliance with applicable cross-border data protection requirements.  
-       * **Location:** EU/EEA, United States.  
-3. **Updating the Sub-Processor List:** The list of Sub-Processors may be updated periodically to reflect changes in the services CTT provides or in response to operational needs. CTT commits to updating this Annex and notifying the Client of any new Sub-Processors or changes to existing Sub-Processors as required by this DPA. Clients can subscribe to receive updates via a link provided on the CTT Sub-Processors Page at [https://agentdoodle.com](https://agentdoodle.com).  
-4. **Objections and Removal of Sub-Processors:** Clients have the right to object to the use of new Sub-Processors by providing written notice to CTT within thirty (30) days of such notification. CTT will consider such objections in good faith and will either resolve the objection or provide the Client with the option to terminate the affected Services in accordance with the termination provisions of the Agreement.
+## 5. **Odzyskiwanie Poawaryjne i Integralność Danych:**  
+* **Plany Odzyskiwania Poawaryjnego:** Regularne testy procedur odzyskiwania poawaryjnego w celu zapewnienia szybkiego przywrócenia usług z minimalną utratą danych.  
+* **Środki Zapewniające Integralność Danych:** Prowadzone są ciągłe kontrole i weryfikacje poprawności danych, aby utrzymać ich wiarygodność i dokładność.
 
+---
+
+# **ZAŁĄCZNIK 3: PODPROCESORZY** 
+
+1. **Przegląd:** CTT angażuje różnych Podprocesorów do pomocy w świadczeniu Usług. Niniejszy załącznik zawiera przejrzystą listę tych Podprocesorów, określając ich role oraz cele, w jakich zostali zaangażowani. Korzystanie z Podprocesorów jest zgodne z postanowieniami niniejszego DPA, zapewniając przestrzeganie stosownych standardów ochrony danych.  
+2. **Lista Podprocesorów:**  
+   1. **Dostawcy Infrastruktury Chmurowej:**  
+      * **Cel:** Hosting i zarządzanie infrastrukturą, na której działają usługi CTT, z zapewnieniem wysokiej dostępności i bezpieczeństwa środowiska przetwarzania.  
+      * **Dostawca:** Hetzner Online GmbH (Industriestr. 25, 91710 Gunzenhausen, Niemcy, e-mail: [info@hetzner.com](mailto:info@hetzner.com)).  
+      * **Lokalizacja:** UE/EOG.  
+   2. **Procesory Płatności:**  
+      * **Cel:** Obsługa transakcji finansowych w ramach Usług, zapewniająca bezpieczne i wydajne przetwarzanie płatności.  
+      * **Dostawca:** Stripe Technology Europe, Limited (irlandzka spółka z o.o.; numer rejestracyjny: 0599050; siedziba: 25/28 North Wall Quay, Dublin 1, D01H104).  
+      * **Lokalizacja:** UE/EOG.  
+   3. **Usługi OpenAI:**  
+      * **Cel:** Udostępnienie funkcjonalności opartych na AI, takich jak przetwarzanie języka, generowanie tekstu czy analiza treści, wykorzystując technologię OpenAI w celu wzbogacenia doświadczeń użytkownika i funkcjonalności usług.  
+      * **Dostawca:**  
+        (a) Dla rezydentów Europejskiego Obszaru Gospodarczego (EOG) lub Szwajcarii: OpenAI Ireland Limited, z siedzibą pod adresem 1st Floor, The Liffey Trust Centre, 117-126 Sheriff Street Upper, Dublin 1, D01 YC43, Irlandia.  
+        (b) Dla rezydentów w Wielkiej Brytanii: OpenAI OpCo, LLC, z siedzibą pod adresem 1960 Bryant Street, San Francisco, California 94110, USA.  
+        
+        OpenAI posiada samocertyfikację w ramach EU-U.S. Data Privacy Framework, UK Extension to the EU-U.S. Data Privacy Framework oraz Swiss-U.S. Data Privacy Framework, zapewniając zgodność z wymogami w zakresie międzynarodowej ochrony danych.  
+      * **Lokalizacja:** UE/EOG, Stany Zjednoczone.  
+3. **Aktualizowanie Listy Podprocesorów:** Lista Podprocesorów może być okresowo aktualizowana w celu odzwierciedlenia zmian w Usługach świadczonych przez CTT lub w odpowiedzi na wymagania operacyjne. CTT zobowiązuje się do aktualizacji niniejszego Załącznika i powiadomienia Klienta o wszelkich nowych Podprocesorach lub zmianach dotyczących obecnych Podprocesorów, zgodnie z niniejszym DPA. Klienci mogą zapisać się, aby otrzymywać powiadomienia o aktualizacjach za pośrednictwem linku udostępnionego na stronie Podprocesorów CTT pod adresem [https://agentdoodle.com](https://agentdoodle.com).  
+4. **Sprzeciw i Usuwanie Podprocesorów:** Klienci mają prawo wyrazić sprzeciw wobec korzystania z nowych Podprocesorów, przesyłając pisemne powiadomienie do CTT w terminie trzydziestu (30) dni od otrzymania takiego zawiadomienia. CTT rozpatrzy ten sprzeciw w dobrej wierze. W przypadku braku rozwiązania wątpliwości CTT może zrezygnować z angażowania proponowanego Podprocesora lub umożliwić Klientowi rozwiązanie odpowiednich Usług zgodnie z postanowieniami Umowy dotyczącymi jej rozwiązania.
