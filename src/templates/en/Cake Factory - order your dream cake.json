@@ -3,8 +3,8 @@
     "displayName": "Cake Factory - order your dream cake",
     "options": {
         "welcomeMessage": "If you dream of an exceptional and delicious cake, this is the right place. Every detail, taste, and texture is carefully thought out to meet your expectations!",
-        "termsAndConditions": "**Online Store Terms and Conditions – Cake Configuration**\n\n**1. General Provisions**\n1.1. The online store allows the configuration and purchase of personalized cakes.\n1.2. The owner of the store is \\[Company Name], located at \\[Address], VAT \\[Number].\n1.3. By placing an order, the customer accepts these terms and conditions.\n\n**2. Orders**\n2.1. The customer can configure the cake by choosing the size, flavor, decorations, and extras.\n2.2. The order is confirmed after payment is made.\n2.3. The order processing time is from 24 to 72 hours.\n2.4. The store reserves the right to refuse to fulfill the order in case of lack of available ingredients or non-compliance with the terms and conditions.\n\n**3. Payments and Delivery**\n3.1. Available payment methods: bank transfer, credit card, BLIK.\n3.2. Delivery is carried out within \\[Operating Area] by a courier company or personal pickup.\n3.3. The delivery cost depends on the customer's location.\n\n**4. Complaints and Returns**\n4.1. Due to the personalized nature of the cakes, returns are not possible.\n4.2. Complaints regarding damages or order discrepancies should be reported within 24 hours of receipt by contacting \\[Email/Contact].\n4.3. The store will consider the complaint within 7 business days.\n\n**5. Final Provisions**\n5.1. The store reserves the right to change the terms and conditions.\n5.2. In matters not regulated by the terms and conditions, the provisions of Polish law apply.\n5.3. Contact: \\[Email Address], \\[Phone Number].",
-        "mustConfirmTerms": true,
+        "termsAndConditions": "",
+        "mustConfirmTerms": false,
         "resultEmail": "",
         "collectUserEmail": false,
         "collectUserName": false

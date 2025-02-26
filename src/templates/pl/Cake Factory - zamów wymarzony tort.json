@@ -3,8 +3,8 @@
     "displayName": "Cake Factory - zamów wymarzony tort",
     "options": {
         "welcomeMessage": "Jeśli marzysz o wyjątkowym i pysznym torcie, to jest właściwe miejsce. Każdy detal, smak i konsystencja są starannie przemyślane, aby spełnić Twoje oczekiwania!",
-        "termsAndConditions": "**Regulamin Sklepu Internetowego – Konfiguracja Tortu**\n\n**1. Postanowienia ogólne**\n1.1. Sklep internetowy umożliwia konfigurację i zakup spersonalizowanych tortów.\n1.2. Właścicielem sklepu jest \\[Nazwa firmy], z siedzibą w \\[Adres], NIP \\[Numer].\n1.3. Złożenie zamówienia oznacza akceptację niniejszego regulaminu.\n\n**2. Zamówienia**\n2.1. Klient może skonfigurować tort, wybierając rozmiar, smak, dekoracje i dodatki.\n2.2. Zamówienie zostaje potwierdzone po dokonaniu płatności.\n2.3. Czas realizacji zamówienia wynosi od 24 do 72 godzin.\n2.4. Sklep zastrzega sobie prawo do odmowy realizacji zamówienia w przypadku braku dostępnych składników lub niezgodności z regulaminem.\n\n**3. Płatności i dostawa**\n3.1. Dostępne formy płatności: przelew bankowy, karta kredytowa, BLIK.\n3.2. Dostawa realizowana jest w obrębie \\[Obszar działania] przez firmę kurierską lub odbiór osobisty.\n3.3. Koszt dostawy zależy od lokalizacji klienta.\n\n**4. Reklamacje i zwroty**\n4.1. Z uwagi na spersonalizowany charakter tortów zwroty nie są możliwe.\n4.2. Reklamacje dotyczące uszkodzeń lub niezgodności zamówienia należy zgłaszać w ciągu 24 godzin od otrzymania, kontaktując się z \\[Email/Kontakt].\n4.3. Sklep rozpatrzy reklamację w ciągu 7 dni roboczych.\n\n**5. Postanowienia końcowe**\n5.1. Sklep zastrzega sobie prawo do zmiany regulaminu.\n5.2. W sprawach nieuregulowanych regulaminem zastosowanie mają przepisy prawa polskiego.\n5.3. Kontakt: \\[Adres e-mail], \\[Numer telefonu].",
-        "mustConfirmTerms": true,
+        "termsAndConditions": "",
+        "mustConfirmTerms": false,
         "resultEmail": "",
         "collectUserEmail": false,
         "collectUserName": false

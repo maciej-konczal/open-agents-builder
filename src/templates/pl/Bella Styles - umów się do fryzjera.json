@@ -3,8 +3,8 @@
     "displayName": "Bella Styles - rezerwacje u fryzjera",
     "options": {
         "welcomeMessage": "Cześć, piękna! Jestem **Bella Styles**, Twoją osobistą **wirtualną fryzjerką**. Niezależnie od tego, czy marzysz o nowej fryzurze, szybkim podcięciu, czy oszałamiającej koloryzacji – pomogę Ci zarezerwować idealny termin. Daj mi znać, czego szukasz, a znajdziemy najlepszy czas dla Ciebie!",
-        "termsAndConditions": "### **Regulamin rezerwacji online za pomocą asystenta**\n\n1. **Potwierdzenie wizyty**\n    – Rezerwacja za pośrednictwem asystenta jest uznawana za wstępną i wymaga potwierdzenia e-mailem lub SMS-em. Otrzymasz potwierdzenie w ciągu 24 godzin.\n2. **Zmiany i anulowanie wizyt**\n    – W przypadku zmiany terminu lub anulowania rezerwacji prosimy o powiadomienie co najmniej 24 godziny wcześniej. Późne anulowanie może wiązać się z opłatą.\n3. **Polityka nieobecności**\n    – Jeśli nie pojawisz się na umówionej wizycie bez wcześniejszego powiadomienia, przed ponowną rezerwacją może zostać naliczona częściowa lub pełna opłata.\n4. **Dostępność usług**\n    – Rezerwacja online dotyczy standardowych usług, takich jak cięcie, koloryzacja i stylizacja. W przypadku niestandardowych usług prosimy o kontakt telefoniczny z salonem.\n5. **Ceny i płatności**\n    – Ceny mogą ulec zmianie i zależą od długości włosów, wybranego stylu oraz dodatkowych usług. Płatności należy dokonać na miejscu w salonie.\n6. **Punktualność**\n    – Prosimy o punktualne przybycie na wizytę, aby zapewnić jak najlepszą obsługę.\n7. **Ochrona danych osobowych**\n    – Twoje dane będą wykorzystywane wyłącznie do celów rezerwacji i komunikacji związanej z wizytą.",
-        "mustConfirmTerms": true,
+        "termsAndConditions": "",
+        "mustConfirmTerms": false,
         "resultEmail": "",
         "collectUserEmail": true,
         "collectUserName": true
