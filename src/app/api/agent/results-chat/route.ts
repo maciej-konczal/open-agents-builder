@@ -10,6 +10,9 @@ import { validateTokenQuotas } from '@/lib/quotas';
 import { getErrorMessage } from '@/lib/utils';
 import { createCalendarListTool } from '@/tools/calendarListTool';
 import { createCalendarScheduleTool } from '@/tools/calendarScheduleTool';
+import { createCreateOrderTool } from '@/tools/createOrderTool';
+import { createListProductsTool } from '@/tools/listProductsTool';
+import { createOrderListTool } from '@/tools/ordersListTool';
 import { createUpdateResultTool } from '@/tools/updateResultTool';
 import { CoreMessage, streamText } from 'ai';
 import { NextRequest } from 'next/server';
@@ -85,7 +88,10 @@ export async function POST(req: NextRequest) {
       messages,
       tools: {
         calendarSchedule: createCalendarScheduleTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey).tool,
-        calendarListEvents: createCalendarListTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey).tool,
+        calendarListEvents: createCalendarListTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey, true).tool,
+        ordersList: createOrderListTool(agentId, sessionId, databaseIdHash, saasContext.saasContex?.storageKey).tool,
+        listProducts: createListProductsTool(databaseIdHash).tool,
+        createOrderTool: createCreateOrderTool(databaseIdHash, agentId, sessionId, saasContext.saasContex?.storageKey).tool,
         updateResults: createUpdateResultTool(databaseIdHash, saasContext.saasContex?.storageKey).tool
       },
       async onFinish({ response, usage }) {
