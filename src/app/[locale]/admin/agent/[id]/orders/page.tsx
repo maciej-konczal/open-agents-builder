@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { FolderOpenIcon, Loader2 } from "lucide-react";
+import { FolderOpenIcon, Loader2, MessageCircleIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "use-debounce";
 import { getErrorMessage } from "@/lib/utils";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 // Kontekst zamówień
@@ -26,14 +26,22 @@ import { PaginatedQuery, PaginatedResult } from "@/data/dto";
 import { BoxIcon, ListOrderedIcon } from "lucide-react";
 import { useAgentContext } from "@/contexts/agent-context";
 import moment from "moment";
+import { DatabaseContext } from "@/contexts/db-context";
+import { SaaSContext } from "@/contexts/saas-context";
+import { nanoid } from "nanoid";
+import { Credenza, CredenzaContent, CredenzaTrigger } from "@/components/credenza";
+import { Chat } from "@/components/chat";
+import { useChat } from "ai/react";
 
 /**
  * Strona z listą zamówień, analogiczna do "ProductsPage"
  */
 export default function OrdersPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const agentContext = useAgentContext();
   const router = useRouter();
+  const dbContext = useContext(DatabaseContext);
+  const saasContext = useContext(SaaSContext);
 
   // Kontekst do obsługi zamówień
   const orderContext = useOrderContext();
@@ -132,6 +140,39 @@ export default function OrdersPage() {
     setOrdersLoading(false);
   };
 
+
+  const { messages, handleInputChange, isLoading, append, handleSubmit, input} = useChat({
+    api: "/api/agent/results-chat",
+  });
+  const [isResultsChatOpen, setResultsChatOpen] = useState(false);
+  
+  const getSessionHeaders = () => {
+    return {
+      'Database-Id-Hash': dbContext?.databaseIdHash ?? '',
+      'Agent-Id': agentContext.current?.id ?? '',
+      'Agent-Locale': i18n.language,
+      'Current-Datetime-Iso': new Date().toISOString(),
+      'Current-Datetime': new Date().toLocaleString(),
+      'Current-Timezone': Intl.DateTimeFormat().resolvedOptions().timeZone
+    }
+  }
+  useEffect(() => {
+    if (agentContext.current && isResultsChatOpen){
+      append({
+        id: nanoid(),
+        role: "user",
+        content: t("Lets chat")
+      }, {
+        headers: getSessionHeaders()
+      }).catch((e) => {
+        console.error(e);
+        toast.error(t(getErrorMessage(e)))
+      })
+    }
+  }, [agentContext.current, isResultsChatOpen]);
+
+
+
   // Render
   return (
     <div className="space-y-6">
@@ -143,6 +184,25 @@ export default function OrdersPage() {
             {t("Add new order...")}
           </Button>
         </Link>
+        <Credenza open={isResultsChatOpen} onOpenChange={setResultsChatOpen}>
+          <CredenzaTrigger asChild>
+            <Button size="sm" variant="outline" onClick={() => setResultsChatOpen(true)}><MessageCircleIcon /> {t('Chat with orders ...')}</Button>
+          </CredenzaTrigger>
+          <CredenzaContent className="max-w-3xl">
+            {saasContext.saasToken && (saasContext.checkQuotas()).status === 200 ? ( 
+              <Chat
+                headers={getSessionHeaders()}
+                welcomeMessage={t("By using this chat you may **ask** some cool questions or **modify** the orders:\n\n- **List last 10 orders**?\n\n- **Change order status to Closed**\n\n- **What is the total order value from Today**?")}
+                messages={messages}
+                handleInputChange={handleInputChange}
+                isLoading={isLoading}
+                handleSubmit={handleSubmit}
+                input={input}
+                displayName={t('Chat with orders')}
+              />
+            ): <div className='text-sm text-center text-red-500 p-4'>{t('Please verify your E-mail address and AI budget to use all features of Agent Doodle')}</div>}
+          </CredenzaContent>
+        </Credenza>           
       </div>
 
       {/* Search input */}

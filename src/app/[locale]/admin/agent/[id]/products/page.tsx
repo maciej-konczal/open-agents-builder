@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import InfiniteScroll from "@/components/infinite-scroll";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { BoxIcon, FolderOpenIcon, ImportIcon, Loader2, OptionIcon, ShareIcon, TagIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
+import { BoxIcon, CopyIcon, FolderOpenIcon, ImportIcon, Loader2, OptionIcon, ShareIcon, TagIcon, TextCursorInputIcon, TextIcon } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,11 +25,14 @@ import { ProductDeleteDialog } from "@/components/product-delete-dialog";
 import Image from "next/image";
 import { Price } from "@/components/price";
 import { useFilePicker } from "use-file-picker";
+import { useCopyToClipboard } from "react-use";
 
 export default function ProductsPage() {
   const router = useRouter();
   const productContext = useProductContext();
   const agentContext = useAgentContext();   
+  const [, copy] = useCopyToClipboard();
+
 
   const { t } = useTranslation();
   
@@ -200,6 +203,16 @@ export default function ProductsPage() {
                     <Price currency={product.priceInclTax?.currency || ''} price={product.priceInclTax?.value} />
                 </div>
             </div>
+            <div className="flex items-center text-sm space-x-2 mt-4">
+                <div className="flex space-x-2"><BoxIcon className="w-4 h-4 mr-2" /> {t('SKU: ')} </div>
+                <div>
+                    {product.sku} <Button variant="ghost" size="icon" onClick={() => {
+                        copy(product.sku || '');
+                        toast(t('SKU copied to clipboard'));
+                    }}><CopyIcon className="w-4 h-4" /></Button>
+                </div>
+            </div>
+
             {product.variants && product.variants.length > 0 ? (
                 <div className="flex items-center text-sm space-x-2 mt-4">
                     <div className="flex space-x-2"><OptionIcon className="w-4 h-4 mr-2" /> {t('Variants: ')} </div>
