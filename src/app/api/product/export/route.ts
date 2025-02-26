@@ -1,4 +1,4 @@
-import { authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
+import { auditLog, authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
 import { NextRequest, NextResponse } from "next/server";
 import JSZip from 'jszip'
 import showdown from "showdown";
@@ -69,6 +69,11 @@ export async function GET(request: NextRequest, response: NextResponse) {
     headers.set("Content-Type", "application/zip");
     const zipFileContent = await zip.generateAsync({type:"blob"});
     headers.set("Content-Length", zipFileContent.size.toString());
+
+    auditLog({
+        eventName: 'exportProducts',
+        recordLocator: JSON.stringify({ id: allResults.map(r => r.id) })
+    }, request, requestContext, saasContext);
 
     // or just use new Response ❗️
     return new NextResponse(zipFileContent, { status: 200, statusText: "OK", headers });

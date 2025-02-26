@@ -1,6 +1,6 @@
 import { databaseAuthorizeRequestSchema, defaultKeyACL, KeyDTO } from "@/data/dto";
 import { authorizeKey } from "@/data/server/server-key-helpers";
-import { authorizeSaasContext } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import {SignJWT, jwtVerify, type JWTPayload} from 'jose'
 import { NextRequest } from "next/server";
@@ -48,6 +48,13 @@ export async function POST(request: NextRequest) {
                 .setExpirationTime('8h')
                 .sign(new TextEncoder().encode(process.env.NEXT_PUBLIC_REFRESH_TOKEN_SECRET || 'Am2haivu9teiseejai5Ao6engae8hiuw'))
 
+
+                auditLog({
+                    eventName: 'userAuthorized',
+                    recordLocator: JSON.stringify({})
+                }, request, { databaseIdHash: authRequest.databaseIdHash, keyLocatorHash: authRequest.keyLocatorHash }, saasContext);
+                
+                
                 const keyACL = (keyDetails as KeyDTO).acl ?? null;
                 return Response.json({
                     message: 'Succesfully Authorized!',

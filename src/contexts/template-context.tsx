@@ -77,7 +77,6 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
                 templates.map(pr => pr.id === agent.id ?  agent : pr)
             )
             setLastTemplateAdded(updatedAgent);
-            auditContext?.record({ eventName: newRecord ? 'addTemplate' : 'updateTemplate', recordLocator: JSON.stringify({ id: agent.id }), encryptedDiff: JSON.stringify(changes) })
             return updatedAgent;
         }
 
@@ -90,8 +89,6 @@ export const TemplateProvider = ({ children }: { children: ReactNode }) => {
             console.error('Error deleting agent:', response.message);
             toast.error(t('Error deleting agent'));
         } else {
-            auditContext?.record({ eventName: 'deleteAgent', recordLocator: agent.id  })
-
             setTemplates(templates.filter(pr => pr.id !== agent.id));
             toast.success(t('Template deleted'));
         }

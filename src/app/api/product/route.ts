@@ -1,9 +1,10 @@
 import { ProductDTO, productDTOSchema, PaginatedResult } from "@/data/dto";
 import ServerProductRepository from "@/data/server/server-product-repository";
 import { NextRequest, NextResponse } from "next/server";
-import { genericGET, genericPUT } from "@/lib/generic-api";
+import { auditLog, genericGET, genericPUT } from "@/lib/generic-api";
 import { authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
 import { getCurrentTS, getErrorMessage } from "@/lib/utils";
+import { detailedDiff } from "deep-object-diff";
 
 export async function GET(request: NextRequest, response: NextResponse) {
   try {
@@ -32,12 +33,32 @@ export async function GET(request: NextRequest, response: NextResponse) {
 }
 
 export async function PUT(request: NextRequest, response: NextResponse) {
-  const requestContext = await authorizeRequestContext(request, response);
-  const saasContext = await authorizeSaasContext(request);
+  try {
+    const requestContext = await authorizeRequestContext(request, response);
+    const saasContext = await authorizeSaasContext(request);
 
-  const body = await request.json();
-  const productRepo = new ServerProductRepository(requestContext.databaseIdHash, 'commerce');
-  const result = await genericPUT<ProductDTO>(body, productDTOSchema, productRepo, "id");
+    const body = await request.json();
+    const productRepo = new ServerProductRepository(requestContext.databaseIdHash, 'commerce');
+    const existingProduct = await productRepo.findOne({ id: body.id });
+    const result = await genericPUT<ProductDTO>(body, productDTOSchema, productRepo, "id");
 
-  return Response.json(result, { status: result.status });
+    if (!existingProduct) {
+        auditLog({
+            eventName: 'createProduct',
+            diff: JSON.stringify(result),
+            recordLocator: JSON.stringify({ id: result.data.id })
+        }, request, requestContext, saasContext);
+    } else {
+        const changes = existingProduct ?  detailedDiff(existingProduct, result.data as ProductDTO) : {};
+        auditLog({
+            eventName: 'updateProduct',
+            diff: JSON.stringify(changes),
+            recordLocator: JSON.stringify({ id: result.data.id })
+        }, request, requestContext, saasContext);
+    }
+
+    return Response.json(result, { status: result.status });
+  } catch (err) {
+    return Response.json({ message: getErrorMessage(err), status: 499 }, { status: 499 });
+  }
 }

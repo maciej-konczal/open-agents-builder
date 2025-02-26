@@ -1,6 +1,6 @@
 import { ResultDTO } from "@/data/dto";
 import ServerResultRepository from "@/data/server/server-result-repository";
-import { authorizeRequestContext, authorizeSaasContext, genericGET } from "@/lib/generic-api";
+import { auditLog, authorizeRequestContext, authorizeSaasContext, genericGET } from "@/lib/generic-api";
 import { NextRequest, NextResponse } from "next/server";
 import JSZip, { file } from 'jszip'
 import showdown from "showdown";
@@ -50,6 +50,11 @@ export async function GET(request: NextRequest, response: NextResponse) {
     headers.set("Content-Type", "application/zip");
     const zipFileContent = await zip.generateAsync({type:"blob"});
     headers.set("Content-Length", zipFileContent.size.toString());
+
+    auditLog({
+        eventName: 'exportResults',
+        recordLocator: JSON.stringify({ sessionId: allResults.map(r => r.sessionId) })
+    }, request, requestContext, saasContext);
 
     // or just use new Response ❗️
     return new NextResponse(zipFileContent, { status: 200, statusText: "OK", headers });

@@ -1,6 +1,6 @@
 import { AgentDTO, agentDTOSchema } from "@/data/dto";
 import ServerAgentRepository from "@/data/server/server-agent-repository";
-import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { auditLog, authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { detailedDiff } from "deep-object-diff";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -27,30 +27,19 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 
     const apiResult = await genericPUT<AgentDTO>(inputObj, agentDTOSchema, new ServerAgentRepository(requestContext.databaseIdHash), 'id');
 
-    if (saasContext.apiClient) {
-        if (!existingAgent) {
-            saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
-                eventName: 'createAgent',
-                databaseIdHash: requestContext.databaseIdHash,
-                params: {
-                        recordLocator: { id: apiResult.data.id }, 
-                        displayName: inputObj.displayName,
-                        prompt: inputObj.prompt,
-                        tools: inputObj.tools,
-                        events: inputObj.events
-                    }
-                });
-        } else {
-            const changes = existingAgent ?  detailedDiff(existingAgent, apiResult.data as AgentDTO) : {};
-            saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
-                eventName: 'updateAgent',
-                databaseIdHash: requestContext.databaseIdHash,
-                params: {
-                        recordLocator: { id: apiResult.data.id }, 
-                        diff: changes
-                    }
-                });        
-        }
+    if (!existingAgent) {
+        auditLog({
+            eventName: 'createAgent',
+            diff: JSON.stringify(inputObj),
+            recordLocator: JSON.stringify({ id: apiResult.data.id })
+        }, request, requestContext, saasContext);
+    } else {
+        const changes = existingAgent ?  detailedDiff(existingAgent, apiResult.data as AgentDTO) : {};
+        auditLog({
+            eventName: 'updateAgent',
+            diff: JSON.stringify(changes),
+            recordLocator: JSON.stringify({ id: apiResult.data.id })
+        }, request, requestContext, saasContext);
     }
     return Response.json(apiResult, { status: apiResult.status });
 

@@ -1,6 +1,6 @@
 import { CalendarEventDTO, calendarEventDTOSchema } from "@/data/dto";
 import ServerCalendarRepository from "@/data/server/server-calendar-repository";
-import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { auditLog, authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { detailedDiff } from "deep-object-diff";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -28,24 +28,18 @@ export async function PUT(request: NextRequest, response: NextResponse) {
     const apiResult = await genericPUT<CalendarEventDTO>(inputObj, calendarEventDTOSchema, eventsRepo, 'id');
     if (saasContext.apiClient && apiResult.status === 200) {
         if (!existingEvent) {
-            saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
-                eventName: 'createEvent',
-                databaseIdHash: requestContext.databaseIdHash,
-                params: {
-                        recordLocator: { id: apiResult.data.id }, 
-                        ...inputObj
-                    }
-                });
+            auditLog({
+                eventName: 'createCalendarEvent',
+                diff: JSON.stringify(inputObj),
+                recordLocator: JSON.stringify({ id: apiResult.data.id })
+            }, request, requestContext, saasContext);
         } else {
             const changes = existingEvent ?  detailedDiff(existingEvent, apiResult.data as CalendarEventDTO) : {};
-            saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
-                eventName: 'updateEvent',
-                databaseIdHash: requestContext.databaseIdHash,
-                params: {
-                        recordLocator: { id: apiResult.data.id }, 
-                        diff: changes
-                    }
-                });        
+            auditLog({
+                eventName: 'updateCalendarEvent',
+                diff: JSON.stringify(changes),
+                recordLocator: JSON.stringify({ id: apiResult.data.id })
+            }, request, requestContext, saasContext);
         }
     }
     return Response.json(apiResult, { status: apiResult.status });

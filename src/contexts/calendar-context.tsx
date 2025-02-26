@@ -99,14 +99,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
         const existingEvent = events.find((event) => event.id === updatedEvent.id);
 
-        if (response.status === 200) {
-          if (existingEvent) {
-            const changes = existingEvent ?  detailedDiff(existingEvent, updatedEvent) : {};
-            auditContext?.record({ eventName: 'updateCalendarEvent', recordLocator: JSON.stringify({ id: existingEvent.id }), encryptedDiff: JSON.stringify(changes) })
-          } else {
-            auditContext?.record({ eventName: 'createCalendarEvent', recordLocator: JSON.stringify({ id: updatedEvent.id })  })
-          }
-  
+        if (response.status === 200) { 
           setEvents((prev) => prev.map((event) => (event.id === updatedEvent.id ? updatedEvent : event)))
         } 
 
@@ -127,8 +120,6 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const response = client.delete(event.toDTO());
 
       if ((await response).status === 200) {
-        auditContext?.record({ eventName: 'deleteCalendarEvent', recordLocator: JSON.stringify({ id: event.id })  })
-
         setEvents((prev) => prev.filter((evt) => evt.id !== event.id))
       }
 

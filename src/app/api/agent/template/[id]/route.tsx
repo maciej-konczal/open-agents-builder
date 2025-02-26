@@ -1,6 +1,6 @@
 import { AgentStatus } from "@/data/client/models";
 import ServerAgentRepository from "@/data/server/server-agent-repository";
-import {  authorizeRequestContext, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
+import {  auditLog, authorizeRequestContext, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest } from "next/server";
 
@@ -13,16 +13,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
         } else { 
 
-            const saasContext = await authorizeSaasContext(request); // authorize SaaS context
-            if (saasContext.apiClient) {
-                saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
-                   eventName: 'deleteTemplate',
-                   databaseIdHash: requestContext.databaseIdHash,
-                   params: {
-                        id: recordLocator
-                   }
-               });
-            }            
+            const saasContext = await authorizeSaasContext(request); // authorize SaaS context      
+   
             const templatesRepo =  new ServerAgentRepository(requestContext.databaseIdHash, 'templates');
             const templateToDelete = await templatesRepo.findOne({ id: recordLocator });
             if(!templateToDelete){
@@ -31,6 +23,11 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
             templateToDelete.status = AgentStatus.Deleted
             templatesRepo.upsert({ id: recordLocator }, templateToDelete);
+
+            auditLog({
+                eventName: 'deleteTemplate',
+                recordLocator: JSON.stringify({ id: recordLocator })
+            }, request, requestContext, saasContext);
 
 
             return Response.json({ message: 'Template deleted', status: 200 }, {status: 200});

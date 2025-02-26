@@ -40,10 +40,10 @@ export default function AuditLogItem({ audit, selected, onClick }: { audit: Audi
             <JsonViewEditor style={currentTheme === 'dark' ? githubDarkTheme : githubLightTheme } className="w-full" value={JSON.parse(audit.recordLocator ?? '{}')} />
           </div>
 
-          {audit.encryptedDiff ? (
+          {audit.diff ? (
             <div className="w-full block max-h-[100px] overflow-y-scroll">
               <div>{t('Scope')}:</div>
-              <JsonViewEditor style={currentTheme === 'dark' ? githubDarkTheme : githubLightTheme } className="w-full" value={JSON.parse(audit.encryptedDiff ?? '{}')} />
+              <JsonViewEditor style={currentTheme === 'dark' ? githubDarkTheme : githubLightTheme } className="w-full" value={JSON.parse(audit.diff ?? '{}')} />
             </div>
           ) : null}
           <div className="w-full block p-2">

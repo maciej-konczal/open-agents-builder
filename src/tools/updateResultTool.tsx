@@ -13,7 +13,8 @@ import CreatePLResultTemplate from '@/email-templates/pl/result-email-template';
 import CreatePLResultTemplatePlain from '@/email-templates/pl/result-email-template-plain';
 import CreateENResultTemplate from '@/email-templates/en/result-email-template';
 import CreateENResultTemplatePlain from '@/email-templates/en/result-email-template-plain';
-import { authorizeSaasContext, authorizeSaasToken } from '@/lib/generic-api';
+import { auditLog, authorizeSaasContext, authorizeSaasToken } from '@/lib/generic-api';
+import { detailedDiff } from 'deep-object-diff';
 
 const emailTemplatesLocalized: Record<string, any> = {
   pl: {
@@ -31,7 +32,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export function createUpdateResultTool(databaseIdHash: string, storageKey: string | undefined | null): ToolDescriptor
 {
   return {
-  displayName: 'Sage result',
+  displayName: 'Save result',
   tool:tool({
           description: 'Save results',
           parameters: z.object({
@@ -101,22 +102,27 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
               await sessionsRepo.upsert({ id: sessionId }, { ...existingSessionDTO, finalizedAt: new Date().toISOString() });
               await resultRepo.upsert({ sessionId }, storedResult);
 
-              if (!existingResult) { // this is a new result not an update
-                const saasContext = await authorizeSaasToken(databaseIdHash); // authorize SaaS context
-                if (saasContext.apiClient) {
-                    saasContext.apiClient.saveEvent(databaseIdHash, {
+              const saasContext = await authorizeSaasToken(databaseIdHash); // authorize SaaS context
+
+              if (!existingResult) {
+                  auditLog({
                       eventName: 'createResult',
-                      databaseIdHash: databaseIdHash,
-                      params: {
-                        sessionId,
-                        format,
-                        language
-                      }
-                  });
-                }
+                      diff: JSON.stringify(storedResult),
+                      recordLocator: JSON.stringify({ sessionId: existingSessionDTO.id })
+                  }, null, {
+                    databaseIdHash
+                  }, saasContext);
+              } else {
+                  const changes = existingResult ?  detailedDiff(existingResult, storedResult as ResultDTO) : {};
+                  auditLog({
+                    eventName: 'updateResult',
+                    diff: JSON.stringify(changes),
+                    recordLocator: JSON.stringify({ sessionId: existingSessionDTO.id })
+                }, null, {
+                  databaseIdHash
+                }, saasContext);
               }
-
-
+            
               return 'Results saved!';
             } catch (e) {
               console.error(e);

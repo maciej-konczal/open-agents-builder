@@ -1,15 +1,16 @@
 import { BaseRepository } from "@/data/server/base-repository";
 import { getErrorMessage, getZedErrorMessage } from "./utils";
 import { ZodError, ZodObject } from "zod";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, userAgent } from "next/server";
 import { authorizeKey } from "@/data/server/server-key-helpers";
 import { jwtVerify } from "jose";
-import { defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO, StorageSchemas } from "@/data/dto";
+import { AuditDTO, auditDTOSchema, defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO, StorageSchemas } from "@/data/dto";
 import { Key } from "react";
 import { PlatformApiClient } from "@/data/server/platform-api-client";
 import NodeCache from "node-cache";
 import { ApiError } from "@/data/client/base-api-client";
 import { EncryptionUtils } from "./crypto";
+import ServerAuditRepository from "@/data/server/server-audit-repository";
 
 const saasCtxCache = new NodeCache({ stdTTL: 60 * 60 * 10 /* 10 min cache */});
 
@@ -238,4 +239,32 @@ export async function genericDELETE<T extends { [key:string]: any }>(request: Re
             status: 500
         }
     }
+}
+
+
+
+export async function auditLog(logObj: AuditDTO, request: NextRequest | null, requestContext: { databaseIdHash: string, keyLocatorHash?: string } , saasContext: AuthorizedSaaSContext) {
+    if (request) logObj.ip = request.headers.get('x-real-ip') || request.headers.get('x-forwarded-for') || request.ip;
+    if (request) {
+        const { device, ua } = userAgent(request);
+        logObj.ua = ua;
+    }
+        
+    logObj.databaseIdHash = requestContext.databaseIdHash;
+    logObj.keyLocatorHash = requestContext.keyLocatorHash;
+    logObj.createdAt = new Date().toISOString();
+
+    // TODO: Add audit rotation
+    const now = new Date();
+    const dbPartition = `${now.getFullYear()}-${now.getMonth()}`; // partition daily
+    const apiResult = await genericPUT<AuditDTO>(logObj, auditDTOSchema, new ServerAuditRepository(requestContext.databaseIdHash, 'audit', dbPartition), 'id');
+
+    if (saasContext.apiClient) {
+        saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
+            eventName: logObj.eventName as string,
+            databaseIdHash: requestContext.databaseIdHash,
+            params: { recordLocator: JSON.parse(logObj.recordLocator as string), diff: JSON.parse(logObj.diff ?? '{}') }
+        });
+    }
+    return apiResult;
 }

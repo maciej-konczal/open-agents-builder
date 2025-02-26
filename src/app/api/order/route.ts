@@ -1,10 +1,11 @@
 // /app/api/order/route.ts
 
-import { orderDTOSchema } from "@/data/dto"; 
+import { OrderDTO, orderDTOSchema } from "@/data/dto"; 
 import ServerOrderRepository from "@/data/server/server-order-repository";
 import { NextRequest, NextResponse } from "next/server";
-import { authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
+import { auditLog, authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
+import { detailedDiff } from "deep-object-diff";
 
 export async function GET(request: NextRequest, response: NextResponse) {
   try {
@@ -46,7 +47,22 @@ export async function PUT(request: NextRequest) {
   }
   const repo = new ServerOrderRepository(requestContext.databaseIdHash, "commerce", saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
 
+  const existingOrder = await repo.findOne({ id: body.id });
   // upsert => by id
   const result = await repo.upsert({ id: body.id }, parseResult.data);
+  if (!existingOrder) {
+    auditLog({
+        eventName: 'createOrder',
+        diff: JSON.stringify(parseResult.data),
+        recordLocator: JSON.stringify({ id: result.id })
+    }, request, requestContext, saasContext);
+  } else {
+    const changes = existingOrder ?  detailedDiff(existingOrder, result as OrderDTO) : {};
+    auditLog({
+        eventName: 'updateOrder',
+        diff: JSON.stringify(changes),
+        recordLocator: JSON.stringify({ id: result.id })
+    }, request, requestContext, saasContext);
+  }
   return Response.json({ status: 200, data: result }, { status: 200 });
 }

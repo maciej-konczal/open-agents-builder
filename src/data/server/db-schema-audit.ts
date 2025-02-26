@@ -8,7 +8,7 @@ export const audit = sqliteTable('audit', {
     keyLocatorHash: text('keyLocatorHash'),
     databaseIdHash: text('databaseIdHash'),
     recordLocator: text('recordLocator'),
-    encryptedDiff: text('diff'),
+    diff: text('diff'),
     eventName: text('eventName'),
     createdAt: text('createdAt').notNull().default(sql`CURRENT_TIMESTAMP`)
 });

@@ -1,10 +1,11 @@
 import { AgentDTO, agentDTOSchema } from "@/data/dto";
 import ServerAgentRepository from "@/data/server/server-agent-repository";
-import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { auditLog, authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from 'fs/promises';
 import { createCache } from 'simple-in-memory-cache';
+import { detailedDiff } from "deep-object-diff";
 const { set, get } = createCache({ expiration: { minutes: 15 } });
 
 
@@ -14,19 +15,24 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 
     const repo = new ServerAgentRepository(requestContext.databaseIdHash, 'templates')
     const apiResult = await genericPUT<AgentDTO>(inputObj, agentDTOSchema, repo, 'id');
-    const existingTemplate = repo.findOne({
+    const existingTemplate = await repo.findOne({
         id: inputObj.id
     });
-
+    
     const saasContext = await authorizeSaasContext(request); // authorize SaaS context
-    if (saasContext.apiClient && !existingTemplate) {
-        saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
-           eventName: 'createTemplate',
-           databaseIdHash: requestContext.databaseIdHash,
-           params: {
-                inputObj
-           }
-       });
+    if (!existingTemplate) {
+        auditLog({
+            eventName: 'createTemplate',
+            diff: JSON.stringify(inputObj),
+            recordLocator: JSON.stringify({ id: apiResult.data.id })
+        }, request, requestContext, saasContext);
+    } else {
+        const changes = existingTemplate ?  detailedDiff(existingTemplate, apiResult.data as AgentDTO) : {};
+        auditLog({
+            eventName: 'updateTemplate',
+            diff: JSON.stringify(changes),
+            recordLocator: JSON.stringify({ id: apiResult.data.id })
+        }, request, requestContext, saasContext);
     }
     return Response.json(apiResult, { status: apiResult.status });
 

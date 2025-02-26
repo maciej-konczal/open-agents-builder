@@ -177,7 +177,7 @@ export const auditDTOSchema = z.object({
   keyLocatorHash: z.string().optional(),
   databaseIdHash: z.string().optional(),
   recordLocator: z.string().optional(),
-  encryptedDiff: z.string().optional(),
+  diff: z.string().optional(),
   eventName: z.string().optional(),
   createdAt: z.string().default(() => getCurrentTS()).optional(),
 });

@@ -4,9 +4,11 @@ import ServerCalendarRepository from '@/data/server/server-calendar-repository';
 import { ToolDescriptor } from './registry';
 import { v4 as uuidv4 } from "uuid"
 import moment from 'moment';
+import { auditLog, authorizeSaasToken } from '@/lib/generic-api';
+import { detailedDiff } from 'deep-object-diff';
+import { CalendarEventDTO } from '@/data/dto';
 
-export function createCalendarScheduleTool(agentId: string, staticSessionId: string, databaseIdHash: string, storageKey: string | undefined | null): ToolDescriptor
-{
+export function createCalendarScheduleTool(agentId: string, staticSessionId: string, databaseIdHash: string, storageKey: string | undefined | null): ToolDescriptor {
   return {
     displayName: 'Schedule event in the calendar',
     tool: tool({
@@ -23,12 +25,31 @@ export function createCalendarScheduleTool(agentId: string, staticSessionId: str
         participants: z.string().describe('The participants of the event. Should be JSON array of { name, email} object passed as string'),
       }),
       execute: async ({ id, title, description, exclusive, start,
-         location, end, participants, sessionId }: { id: string, title: string, description: string, exclusive: string, start: string, location: string, end: string, participants, sessionId: string
-      }) => {
+        location, end, participants, sessionId }: {
+          id: string, title: string, description: string, exclusive: string, start: string, location: string, end: string, participants, sessionId: string
+        }) => {
         try {
           const eventsRepo = new ServerCalendarRepository(databaseIdHash, storageKey);
           if (!id) id = uuidv4();
+          const saasContext = await authorizeSaasToken(databaseIdHash);
+          const existingEvent = id ? await eventsRepo.findOne({ id }) : null;
           const response = await eventsRepo.upsert({ id }, { id, agentId, sessionId: staticSessionId ? staticSessionId : sessionId, title, description, exclusive, start: moment(start).toISOString(true), location, end: moment(end).toISOString(true), participants, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+
+          if (!existingEvent) {
+            auditLog({
+              eventName: 'createCalendarEvent',
+              diff: JSON.stringify(response),
+              recordLocator: JSON.stringify({ id: response.id })
+            }, null, { databaseIdHash }, saasContext);
+          } else {
+            const changes = existingEvent ? detailedDiff(existingEvent, response as CalendarEventDTO) : {};
+            auditLog({
+              eventName: 'updateCalendarEvent',
+              diff: JSON.stringify(changes),
+              recordLocator: JSON.stringify({ id: response.id })
+            }, null, { databaseIdHash }, saasContext);
+          }
+
 
           if (response) {
             return response;

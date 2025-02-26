@@ -1,5 +1,5 @@
 import ServerCalendarRepository from "@/data/server/server-calendar-repository";
-import {  authorizeRequestContext, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
+import {  auditLog, authorizeRequestContext, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
 import { NextRequest } from "next/server";
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: number }} ) {
@@ -10,6 +10,12 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: n
     if(!recordLocator){
         return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
     } else { 
+
+        auditLog({
+            eventName: 'deleteCalendarEvent',
+            recordLocator: JSON.stringify({ id: recordLocator})
+        }, null, requestContext, saasContext);
+
         return Response.json(await genericDELETE(request, new ServerCalendarRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null), { id: recordLocator}));
     }
 }

@@ -40,18 +40,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             updatedAt: new Date().toISOString()
         } as SessionDTO);
 
-
-        if (!existingSession && saasContex.apiClient) {
-            saasContex.apiClient.saveEvent(databaseIdHash, {
-                eventName: 'createSession',
-                databaseIdHash: databaseIdHash,
-                params: {
-                sessionId: id,
-                }
-            });
-        }
-
-
         return Response.json({ message: "Session created", data: { id: savedSession.id }, status: 200 }); // do not return the session data as it contains personal information so getting the session id user would be able to retrieve it's personal data
 
 
