@@ -200,7 +200,7 @@ export function CreateDatabaseForm({
             })}             
              />
           <Label htmlFor="acceptTerms">
-            {t('I hereby accept Agent Doodle ')}<Link target="_blank" className="underline hover:text-blue-500" href={termsUrl}>{t('Terms of Service')}</Link>{t(' and ')}<Link target="_blank"  className="underline hover:text-blue-500" href={privacyUrl}>{t('Privacy Policy')}</Link>.
+            {t('I hereby accept Agent Doodle ')}<Link target="_blank" className="underline hover:text-blue-500" href={termsUrl + (i18n.language === 'pl' ? '-pl' : '') }>{t('Terms of Service')}</Link>{t(' and ')}<Link target="_blank"  className="underline hover:text-blue-500" href={privacyUrl + (i18n.language === 'pl' ? '-pl' : '')}>{t('Privacy Policy')}</Link>.
           </Label>
           {errors.acceptTerms && <p className="text-red-500 text-sm">{t('Please read and accept terms of service and privacy policy.')}</p>}
         </div>

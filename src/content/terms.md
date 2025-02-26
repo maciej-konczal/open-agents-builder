@@ -1,14 +1,14 @@
-# 1. TERMS OF SERVICE
+# Otwórz ten dokument w 🇵🇱 [języku Polskim](/content/terms-pl)
 
-Last updated: 26.02.2025
+# 1. TERMS OF SERVICE
 
 ## 1.1. AGREEMENT TO THESE TERMS
 
 These terms form a legally binding agreement between you and **CT Tornado spółka z o.o.**, a company duly incorporated and existing under the laws of the Republic of Poland, with its principal place of business in Wroclaw (address: ul. Wyspa Słodowa 7, 50-266 Wroclaw, Poland; registration: District Court for Wroclaw-Fabryczna in Wroclaw, KRS/company no.: 873910; EU VAT no.: PL8982262377; share capital: PLN 5,000.00; email address: info@catchthetornado.com; “we”).
 
-By creating an Account (as defined in Section 1(a)(ii) of these terms), using the Services (as defined in Section 1(a)(iii) of these terms), or clicking to accept these terms, you confirm that you have read, understood, and agreed to be bound by these terms, our Privacy Policy <https://agentdoodle.com/content/privacy>, and our Data Processing Addendum <https://agentdoodle.com/content/data-processing>.
+By creating an Account (as defined in Section 3.2 of these terms), using the Services (as defined in Section 2.1 of these terms), or clicking to accept these terms, you confirm that you have read, understood, and agreed to be bound by these terms, our [Privacy Policy](https://agentdoodle.com/content/privacy), and our [Data Processing Addendum](https://agentdoodle.com/content/data-processing).
 
-Please read them carefully before creating an Account or using the Services. You can access and download a copy of these terms at <https://agentdoodle.com/content/terms>.
+Please read them carefully before creating an Account or using the Services. You can access and download a copy of these terms at [https://agentdoodle.com/content/terms](https://agentdoodle.com/content/terms).
 
 If you do not agree to any part of these terms or the referenced policies and arrangements, you must stop using the Services immediately.
 
@@ -20,24 +20,24 @@ If you do not agree to any part of these terms or the referenced policies and ar
 
 Our proprietary platform (the “Platform”) enables users (such as yourself) to create, distribute, and manage AI-powered surveys, interactive chats, and multifunctional AI agents. Access to and engagement with the Platform is limited to designated, closed groups, and pre-approved individuals (the “End Users”), such as internal organizational users, rather than the general public.
 
-The Platform is accessible through the AgentDoodle.com domain name, including its subdomains (collectively, the “Site”), and is operated by us. If you have any questions about the Site, Services—including Accounts (meaning, a personalized user profile created by you on the Platform, secured by unique login credentials, which enables you to access and manage the Services; each, an “Account”)—or these terms, you can contact us at such addresses and phone numbers as indicated in the introductory section of, or otherwise in, these terms.
+The Platform is accessible through the [AgentDoodle.com](https://agentdoodle.com) domain name, including its subdomains (collectively, the “Site”), and is operated by us. If you have any questions about the Site, Services—including Accounts (meaning, a personalized user profile created by you on the Platform, secured by unique login credentials, which enables you to access and manage the Services; each, an “Account”)—or these terms, you can contact us at such addresses and phone numbers as indicated in the introductory section of, or otherwise in, these terms.
 
 These terms govern the use of our services (the “Services”), which include:
 
-- **AI-powered solutions**: Deploying AI-powered surveys, interactive chats, and multifunctional AI agents designed to engage with End Users. These agents can, for example, collect data, schedule appointments, and perform other user-directed actions.
-- **Dynamic content creation**: Leveraging ChatGPT to generate, arrange, and optimize content based on your instructions via a chat-based interface.
-- **Secure data management**: Collecting, storing, and managing responses and interaction data from End Users accessing the Services via a unique link.
-- **Related services**: Provision of any additional or complementary services that enhance or support the functionalities described above.
+- **AI-powered solutions:** Deploying AI-powered surveys, interactive chats, and multifunctional AI agents designed to engage with End Users. These agents can, for example, collect data, schedule appointments, and perform other user-directed actions.
+- **Dynamic content creation:** Leveraging ChatGPT to generate, arrange, and optimize content based on your instructions via a chat-based interface.
+- **Secure data management:** Collecting, storing, and managing responses and interaction data from End Users accessing the Services via a unique link.
+- **Related services:** Provision of any additional or complementary services that enhance or support the functionalities described above.
 
 We and our third-party licensors retain all intellectual property rights in and to the Platform, Site, Services, and all related documentation, including any modifications or derivative works. You hereby grant us a worldwide, perpetual, irrevocable, royalty-free license to use, modify, and incorporate any feedback you provide (including requests, suggestions, or ideas) into the Platform, Site, Services, and related documentation in any manner we deem appropriate.
 
 ## 2.2. ACCESS, DISTRIBUTION, AND USER RESPONSIBILITIES
 
-1. **Distribution Control**: You are solely responsible for distributing survey links and deploying AI agents through your own controlled channels. The Platform is provided solely as a tool and does not manage or control the public dissemination of any content or data processed via the Services.
+1. **Distribution Control:** You are solely responsible for distributing survey links and deploying AI agents through your own controlled channels. The Platform is provided solely as a tool and does not manage or control the public dissemination of any content or data processed via the Services.
 
-2. **Interactive Features**: Interactive chats are offered as a feature; however, direct engagement is limited to the End Users and is not provided as a public-facing service.
+2. **Interactive Features:** Interactive chats are offered as a feature; however, direct engagement is limited to the End Users and is not provided as a public-facing service.
 
-3. **User Responsibility**: You must ensure that all distribution, deployment, and access to the Services is confined to the End Users. The Platform disclaims any responsibility for content or data that is publicly disseminated.
+3. **User Responsibility:** You must ensure that all distribution, deployment, and access to the Services is confined to the End Users. The Platform disclaims any responsibility for content or data that is publicly disseminated.
 
 ## 2.3. ACCOUNT REQUIREMENTS
 
@@ -78,7 +78,7 @@ If you are acting on behalf of an Entity, you:
 - Must create a business Account, allowing access under the Entity’s name.
 - Are responsible for managing Authorized Users and ensuring compliance with these terms.
 
-By creating an Account and using the Services, you acknowledge that we will process your personal data in accordance with our Privacy Policy, which details how we collect, use, and protect your data. This includes processing data:
+By creating an Account and using the Services, you acknowledge that we will process your personal data in accordance with our [Privacy Policy](https://agentdoodle.com/content/privacy), which details how we collect, use, and protect your data. This includes processing data:
 
 - Provided during Account registration and management, including user credentials and contact details.
 - Generated through your use of the Services, such as login activity and interactions with the Platform.
@@ -164,11 +164,11 @@ Your access to the Services is subject to usage limits based on your subscriptio
 1. **AI-Generated Content, Autonomous AI Agents, and Limitations**  
    Our Services include the creation and operation of AI-powered surveys, interactive chats, and multifunctional AI agents that engage with End Users autonomously. These components may generate content automatically using ChatGPT and related large language models, provided by OpenAI and subject to its applicable terms, policies, and usage guidelines. You acknowledge and accept that:
 
-   - **Autonomous Generation**: AI-generated content and interactions—including those produced by AI Agents—are generated autonomously by machine learning models and may be similar to or identical to content provided to other users. Such content is delivered subject to the terms and restrictions set forth by OpenAI and must be used in accordance with those guidelines.
-   - **Lack of Human Oversight**: AI-generated content is produced without human review and may contain errors, misleading information, or biases inherited from its training data. The autonomous nature of these systems means they might misinterpret context, lack emotional nuance, or fail to account for cultural sensitivities, potentially resulting in inaccuracies or unintended outputs.
-   - **User Responsibility**: You are solely responsible for reviewing, modifying, and ensuring the accuracy, legality, and suitability of any AI-generated content or autonomous interactions before using them. You are further expected to comply with OpenAI’s licensing terms and usage policies, ensuring that your use of the Services does not facilitate or promote any prohibited activities.
-   - **No Warranties**: We do not guarantee the accuracy, originality, or compliance of AI-generated content or AI agent actions with any legal, regulatory, or ethical standards. All such content and interactions are provided “as is” without any warranties of any kind.
-   - **Compliance with OpenAI Policies**: In addition to the terms outlined herein, your use of AI-generated content is governed by and must comply with all relevant OpenAI policies, including restrictions on prohibited content and misuse. Failure to adhere to these policies may result in suspension or termination of access to our Services.
+   - **Autonomous Generation:** AI-generated content and interactions—including those produced by AI Agents—are generated autonomously by machine learning models and may be similar to or identical to content provided to other users. Such content is delivered subject to the terms and restrictions set forth by OpenAI and must be used in accordance with those guidelines.
+   - **Lack of Human Oversight:** AI-generated content is produced without human review and may contain errors, misleading information, or biases inherited from its training data. The autonomous nature of these systems means they might misinterpret context, lack emotional nuance, or fail to account for cultural sensitivities, potentially resulting in inaccuracies or unintended outputs.
+   - **User Responsibility:** You are solely responsible for reviewing, modifying, and ensuring the accuracy, legality, and suitability of any AI-generated content or autonomous interactions before using them. You are further expected to comply with OpenAI’s licensing terms and usage policies, ensuring that your use of the Services does not facilitate or promote any prohibited activities.
+   - **No Warranties:** We do not guarantee the accuracy, originality, or compliance of AI-generated content or AI agent actions with any legal, regulatory, or ethical standards. All such content and interactions are provided “as is” without any warranties of any kind.
+   - **Compliance with OpenAI Policies:** In addition to the terms outlined herein, your use of AI-generated content is governed by and must comply with all relevant OpenAI policies, including restrictions on prohibited content and misuse. Failure to adhere to these policies may result in suspension or termination of access to our Services.
 
 2. **User-Generated Content and Submissions**  
    You may upload, post, or share user submissions (e.g., text, images, data; “User Submissions”) through the Services. While we do not claim ownership of your content, by submitting it you:
@@ -187,20 +187,20 @@ Your access to the Services is subject to usage limits based on your subscriptio
 
 ## 4.5. THIRD-PARTY MATERIALS, AI AUTONOMY, AND END USER RESPONSIBILITIES
 
-1. **Third-Party Content and Services**  
+1. **Third-Party Content and Services:**  
    The Services may include content from third parties and rely on external providers (e.g., APIs, webhooks). We do not guarantee their accuracy, legality, or suitability.  
    You are responsible for ensuring you have the necessary rights to use any third-party content or services. We are not liable for any damages arising from third-party actions, integrations, or external data transfers.  
    We recommend reviewing and complying with the terms of any third-party service before integrating it with our Services.
 
-2. **AI Autonomy and High-Risk Use Restrictions**  
+2. **AI Autonomy and High-Risk Use Restrictions:**  
    AI agents operate autonomously and may interact with third-party applications beyond direct user control. You acknowledge that AI-generated outputs may be unpredictable, lack loyalty to specific instructions, and integrate with external systems in unintended ways.  
    The Services are not designed for high-risk environments (e.g., emergency services, life-support systems) or for processing sensitive personal data unless explicitly agreed to in writing. Any unauthorized use in such contexts is at your own risk.
 
-3. **End User Responsibilities and Data Handling**  
-   - **Disclosure**: You must inform End Users that surveys, chats, or AI agent interactions may be AI-generated before they engage.
-   - **Legal Compliance**: You are responsible for ensuring lawful collection and use of End User data, including obtaining necessary consents under applicable laws.
-   - **Data Security**: You must implement appropriate measures to protect collected End User data. We do not claim ownership of End User data but have a license to use it for providing and improving the Services.
-   - **Privacy Notices**: You are responsible for informing End Users of our Privacy Policy where applicable.
+3. **End User Responsibilities and Data Handling:**  
+   - **Disclosure:** You must inform End Users that surveys, chats, or AI agent interactions may be AI-generated before they engage.
+   - **Legal Compliance:** You are responsible for ensuring lawful collection and use of End User data, including obtaining necessary consents under applicable laws.
+   - **Data Security:** You must implement appropriate measures to protect collected End User data. We do not claim ownership of End User data but have a license to use it for providing and improving the Services.
+   - **Privacy Notices:** You are responsible for informing End Users of our Privacy Policy where applicable.
 
 ## 4.6. COMPLIANCE AND COOPERATION
 
@@ -372,9 +372,9 @@ If the Services ever fail to conform to these terms, you may request restoration
 
 ## 8.3. CONSUMER-SPECIFIC PROVISIONS
 
-1. **Pre-Contractual Information**: Before you enter into an agreement with us under these terms, we will provide clear details on Service delivery, maintenance routines, and our complaint-handling process.  
-2. **Complaint Handling**: You may submit a formal complaint if the Services do not perform as described or if updates are not provided as promised. We will acknowledge and respond to your complaint within fourteen (14) days of receipt, on paper or another durable medium, as required by law.  
-3. **Non-Limitation of Statutory Rights**: Nothing in these terms limits any mandatory consumer protections or remedies granted to you by applicable law.
+1. **Pre-Contractual Information:** Before you enter into an agreement with us under these terms, we will provide clear details on Service delivery, maintenance routines, and our complaint-handling process.  
+2. **Complaint Handling:** You may submit a formal complaint if the Services do not perform as described or if updates are not provided as promised. We will acknowledge and respond to your complaint within fourteen (14) days of receipt, on paper or another durable medium, as required by law.  
+3. **Non-Limitation of Statutory Rights:** Nothing in these terms limits any mandatory consumer protections or remedies granted to you by applicable law.
 
 ## 8.4. MODIFICATIONS BEYOND CONFORMITY
 
@@ -473,9 +473,9 @@ Where permitted by applicable law, the right of withdrawal (and any other Consum
 
 ## 12.3. RIGHTS, OBLIGATIONS, AND GOVERNING LAW
 
-- **Assignment**: You may not assign your rights or obligations under these terms without our prior written consent. We may assign our rights and obligations to any third party without restriction.
-- **Marketing Use**: If you are an Entity, you grant us a non-exclusive, non-sublicensable, royalty-free, worldwide license to use your logos, trade name, and trademarks for promotional purposes, in accordance with industry standards.
-- **Force Majeure**: Neither party will be liable for delays or failures in performance due to causes beyond reasonable control, such as natural disasters, governmental actions, labor strikes, or internet disruptions. However, this does not relieve you of payment obligations under these terms.
-- **Governing Law and Jurisdiction**:
-  - **Business users**: These terms are governed by Polish law, and disputes will be subject to the exclusive jurisdiction of the courts in Wroclaw, Poland.
-  - **Consumers**: Polish law governs these terms, but this does not limit your mandatory rights under applicable local law. The courts in Wroclaw, Poland, will have non-exclusive jurisdiction over disputes brought by Consumers. You also have the option to utilize alternative dispute resolution (ADR) methods for handling complaints and claims. ADR procedures are typically voluntary and conducted by independent entities, such as mediators, arbitrators, or consumer ombudsmen. Please note that participation in such procedures may require the consent of both parties involved in the dispute. We encourage you to review the applicable terms and conditions in your country before initiating any ADR process.
+- **Assignment:** You may not assign your rights or obligations under these terms without our prior written consent. We may assign our rights and obligations to any third party without restriction.
+- **Marketing Use:** If you are an Entity, you grant us a non-exclusive, non-sublicensable, royalty-free, worldwide license to use your logos, trade name, and trademarks for promotional purposes, in accordance with industry standards.
+- **Force Majeure:** Neither party will be liable for delays or failures in performance due to causes beyond reasonable control, such as natural disasters, governmental actions, labor strikes, or internet disruptions. However, this does not relieve you of payment obligations under these terms.
+- **Governing Law and Jurisdiction:**
+  - **Business users:** These terms are governed by Polish law, and disputes will be subject to the exclusive jurisdiction of the courts in Wroclaw, Poland.
+  - **Consumers:** Polish law governs these terms, but this does not limit your mandatory rights under applicable local law. The courts in Wroclaw, Poland, will have non-exclusive jurisdiction over disputes brought by Consumers. You also have the option to utilize alternative dispute resolution (ADR) methods for handling complaints and claims. ADR procedures are typically voluntary and conducted by independent entities, such as mediators, arbitrators, or consumer ombudsmen. Please note that participation in such procedures may require the consent of both parties involved in the dispute. We encourage you to review the applicable terms and conditions in your country before initiating any ADR process.
