@@ -84,7 +84,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
 //        .setExpirationTime('15m') // offline token - no expiration date
         .sign(new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'))
 
-        return 'ad_key_' + accessToken + '_' + keyNumber; // we are not saving this key in the database
+        return 'ad_key_' + accessToken; // we are not saving this key in the database
 
     }
 

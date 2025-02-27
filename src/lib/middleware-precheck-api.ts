@@ -6,8 +6,8 @@ export async function precheckAPIRequest(request:NextRequest): Promise<{ apiRequ
     const isThisAPIRequest = jwtToken?.startsWith('ad_key_') ?? false;
 
     if (isThisAPIRequest) {
-        const lio = jwtToken?.lastIndexOf('_');
-        jwtToken = jwtToken?.replace('ad_key_', '').slice(0, lio) ?? undefined;
+        jwtToken = jwtToken?.replace('ad_key_', '')
+        console.log('!', jwtToken, '!');
         if (!authorizationHeader) {
             throw new Error('Unauthorized. Invalid API Key');
         }

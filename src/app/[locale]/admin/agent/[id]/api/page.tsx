@@ -28,6 +28,15 @@ export default function APIPage() {
   const [, copy] = useCopyToClipboard();
   const [addKeyDialogOpen, setAddKeyDialogOpen] = React.useState(false);
 
+  const snippet0 = apiKey ? `export AGENT_DOODLE_API_KEY=${apiKey}` : `export AGENT_DOODLE_API_KEY=ad_key_****`;
+  const snippet1 = `curl -X GET -H "Authorization: Bearer ${apiKey ? apiKey : '${AGENT_DOODLE_API_KEY}'}" \\
+  -H "database-id-hash: ${dbContext?.databaseIdHash ?? ''}" \\
+  ${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent`;
+
+  const snippet2 = `curl -X GET -H "Authorization: Bearer ${apiKey ? apiKey : '${AGENT_DOODLE_API_KEY}'}" \\
+  -H "database-id-hash: ${dbContext?.databaseIdHash ?? ''}" \\
+  ${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent/\${AGENTID}/result`;
+
   useEffect(() => { 
     keysContext.loadKeys();
   }, []);
@@ -98,13 +107,37 @@ export default function APIPage() {
             <p>{t("That's great now you have API access to Agent Doodle! Let's go start building!")}</p>
 
             <h4 className="mb-4 mt-4 font-bold">{t('Authorization and listing the agents ')}</h4>
-            <p className="mb-4">{t('To get the list of your Agents using the API you can execute the following request:')}</p>
+            <p className="mb-4">{t('Save your API key for further usage. Note: this API Key is not saved by us. It is secret. After you reload this page it will disappear for good.')}</p>
 
 <SyntaxHighlighter language="bash" wrapLines={true}>
-  {`curl -X GET -H "Authorization: Bearer ad_key_****" \
-            -H "database-id-hash: ${dbContext?.databaseIdHash ?? ''}" \
-            ${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent`}
+  {snippet0}
 </SyntaxHighlighter>
+<Button size={"sm"} className="mt-4" variant={"outline"} onClick={() => {
+  copy(snippet0)
+}}><CopyIcon className="w-4 h-4 mr-2" />{t('Copy snippet')}</Button>
+
+            <p className="mb-4 mt-4">{t('To get the list of your Agents using the API you can execute the following request:')}</p>
+
+<SyntaxHighlighter language="bash" wrapLines={true}>
+  {snippet1}
+</SyntaxHighlighter>
+<Button size={"sm"} className="mt-4" variant={"outline"} onClick={() => {
+  copy(snippet1)
+}}><CopyIcon className="w-4 h-4 mr-2" />{t('Copy snippet')}</Button>
+  
+
+
+<h4 className="mb-4 mt-4 font-bold">{t('Listing agent results')}</h4>
+            <p className="mb-4 mt-4">{t('To get the results of your agent execute the following request:')}</p>
+
+<SyntaxHighlighter language="bash" wrapLines={true}>
+  {snippet2}
+</SyntaxHighlighter>
+<p>{t('Where in the AGENTID is unique Agent ID taken from the agents list')}</p>
+
+<Button size={"sm"} className="mt-4" variant={"outline"} onClick={() => {
+  copy(snippet2)
+}}><CopyIcon className="w-4 h-4 mr-2" />{t('Copy snippet')}</Button>
 
             <p className="mt-4">
               <strong>{t('Note: ')}</strong>{t('Please make sure you replaced the "ad_key_****" with your copied API key.')}
