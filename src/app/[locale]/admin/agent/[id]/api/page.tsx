@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { DatabaseContext } from '@/contexts/db-context';
 
 import SyntaxHighlighter from 'react-syntax-highlighter';
+import DataLoader from '@/components/data-loader';
 
 export default function APIPage() {
 
