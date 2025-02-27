@@ -1,18 +1,13 @@
 import { BaseRepository } from "@/data/server/base-repository";
 import { getErrorMessage, getZedErrorMessage } from "./utils";
-import { ZodError, ZodObject } from "zod";
+import { ZodError } from "zod";
 import { NextRequest, NextResponse, userAgent } from "next/server";
-import { authorizeKey } from "@/data/server/server-key-helpers";
-import { jwtVerify } from "jose";
-import { AuditDTO, auditDTOSchema, defaultKeyACL, KeyACLDTO, KeyDTO, SaaSDTO, StorageSchemas } from "@/data/dto";
-import { Key } from "react";
+import { AuditDTO, auditDTOSchema, KeyACLDTO, SaaSDTO, StorageSchemas } from "@/data/dto";
 import { PlatformApiClient } from "@/data/server/platform-api-client";
 import NodeCache from "node-cache";
 import { ApiError } from "@/data/client/base-api-client";
 import { EncryptionUtils } from "./crypto";
 import ServerAuditRepository from "@/data/server/server-audit-repository";
-import { KeyType } from "@/data/client/models";
-import { precheckAPIRequest } from "./authorization-api";
 
 const saasCtxCache = new NodeCache({ stdTTL: 60 * 60 * 10 /* 10 min cache */});
 
@@ -215,6 +210,8 @@ export async function genericDELETE<T extends { [key:string]: any }>(request: Re
 
 
 export async function auditLog(logObj: AuditDTO, request: NextRequest | null, requestContext: { databaseIdHash: string, keyLocatorHash?: string } , saasContext: AuthorizedSaaSContext) {
+
+    const encUtils = new EncryptionUtils((saasContext.saasContex?.storageKey + (process.env.SAAS_ENCRYPTION_KEY ?? '')) || '');
     if (request) logObj.ip = request.headers.get('x-real-ip') || request.headers.get('x-forwarded-for') || request.ip;
     if (request) {
         const { device, ua } = userAgent(request);
@@ -234,7 +231,7 @@ export async function auditLog(logObj: AuditDTO, request: NextRequest | null, re
         saasContext.apiClient.saveEvent(requestContext.databaseIdHash, {
             eventName: logObj.eventName as string,
             databaseIdHash: requestContext.databaseIdHash,
-            params: { recordLocator: JSON.parse(logObj.recordLocator as string), diff: JSON.parse(logObj.diff ?? '{}') }
+            params: await encUtils.encrypt(JSON.stringify({ recordLocator: JSON.parse(logObj.recordLocator as string), diff: JSON.parse(logObj.diff ?? '{}') }))
         });
     }
     return apiResult;
