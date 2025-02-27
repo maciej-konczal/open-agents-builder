@@ -226,12 +226,27 @@ Automatically answer all the users questions + use the event based actions to re
 
 ## Getting started
 
-Agent Doodle has literally no external dependencies. If you like to run it locally or **contribute** please just execute the following commands:
+Agent Doodle has literally no external dependencies. If you like to run it locally or **contribute** please just execute the following commands.
 
 ```bash
 git clone https://github.com/CatchTheTornado/agent-doodle
-export OPENAI_API_KEY=sk-proj-.... # your API key from https://openai.com
 cd agent-doodle
+```
+
+Now, edit the `ENV` variables:
+
+```bash
+cp .env.defaults .env.local
+```
+
+Edit the `.env.local` file:
+
+```
+```
+
+Run the app!
+
+```bash
 yarn
 yarn dev
 ```
