@@ -81,6 +81,13 @@ const sidebarItems = [
     pattern: '/admin/agent/[id]/calendar',
     activeOnlyOnSavedAgent: true
   },
+  { 
+    icon: CogIcon, 
+    label: 'API', 
+    href: '/admin/agent/[id]/api',
+    pattern: '/admin/agent/[id]/api',
+    activeOnlyOnSavedAgent: false
+  },  
 ];
 
 export function AgentSidebar() {

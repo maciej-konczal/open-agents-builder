@@ -1,6 +1,7 @@
 import { ResultDTO } from "@/data/dto";
 import ServerResultRepository from "@/data/server/server-result-repository";
-import { authorizeRequestContext, authorizeSaasContext, genericGET } from "@/lib/generic-api";
+import { authorizeSaasContext, genericGET } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 

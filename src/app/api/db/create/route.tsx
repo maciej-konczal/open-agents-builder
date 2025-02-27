@@ -1,4 +1,5 @@
-import { KeyDTO, DatabaseCreateRequestDTO, databaseCreateRequestSchema, SaaSUserDTO } from "@/data/dto";
+import { KeyType } from "@/data/client/models";
+import { KeyDTO, databaseCreateRequestSchema, SaaSUserDTO } from "@/data/dto";
 import { maintenance } from "@/data/server/db-provider";
 import { PlatformApiClient } from "@/data/server/platform-api-client";
 import ServerKeyRepository from "@/data/server/server-key-repository";
@@ -102,7 +103,9 @@ export async function POST(request: NextRequest) {
                             role: 'owner',
                             features: ['*']
                         }),
-                        extra: null,
+                        extra: JSON.stringify({
+                            type: KeyType.User
+                        }),
                         expiryDate: null,
                         updatedAt: getCurrentTS(),
                     })

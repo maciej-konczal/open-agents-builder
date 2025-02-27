@@ -1,7 +1,7 @@
-import ServerConfigRepository from "@/data/server/server-config-repository";
 import ServerKeyRepository from "@/data/server/server-key-repository";
-import { authorizeRequestContext, genericDELETE } from "@/lib/generic-api";
+import { genericDELETE } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 
 export async function DELETE(request: Request, { params }: { params: { key: string }} ) {
     try {

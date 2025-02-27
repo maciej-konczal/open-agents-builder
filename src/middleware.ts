@@ -3,10 +3,10 @@ import {SignJWT, jwtVerify, type JWTPayload} from 'jose'
 import { i18nRouter } from 'next-i18n-router';
 import i18nConfig from '@/app/i18nConfig';
 
+
 export async function middleware(request: NextRequest) {
     if (request.url.indexOf('/api/') > 0) {
-        const authorizationHeader = request.headers.get('Authorization');
-        const jwtToken = authorizationHeader?.replace('Bearer ', '');
+        const { jwtToken, apiRequest } = await precheckAPIRequest(request as NextRequest);
 
         if (!jwtToken) {
             return NextResponse.json({ message: 'Unauthorized', status: 401 }, { status: 401 });
@@ -20,7 +20,7 @@ export async function middleware(request: NextRequest) {
                 }
 
             } catch (error) {
-                console.log(error);
+                console.error(error);
                 return NextResponse.json({ message: 'Unauthorized', status: 401 }, { status: 401 });
             }
 

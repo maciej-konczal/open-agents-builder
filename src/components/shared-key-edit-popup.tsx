@@ -15,6 +15,7 @@ import { CopyIcon } from "lucide-react";
 import assert from "assert";
 import { useTranslation } from "react-i18next";
 import { EncryptionUtils } from "@/lib/crypto";
+import { KeyType } from "@/data/client/models";
 
 function getRandomSixDigit() {
   return Math.floor(Math.random() * (999999 - 100000 + 1)) + 100000;
@@ -66,7 +67,9 @@ export function SharedKeyEditPopup() {
 
     const expDate = (parseInt(validFor) === 0) ? null : new Date(Date.now() + parseInt(validFor) * 3600 * 1000);
     assert(dbContext?.email, t("Database Id / E-mail is required"));
-    setApiResult(await keysContext.addKey(dbContext?.email, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }));
+    setApiResult(await keysContext.addKey(dbContext?.email, data.displayName, data.sharedKey.toString(), expDate, { role: 'guest', features: ['*'] }, {
+      type: KeyType.User
+    }));
     keysContext.loadKeys();
 
     setUniqueLink(process.env.NEXT_PUBLIC_APP_URL + '/' + i18n.language + '/admin/sharing/' + dbContext.databaseIdHash + '/' + (await encryptionUtils.encrypt(dbContext.email)) )

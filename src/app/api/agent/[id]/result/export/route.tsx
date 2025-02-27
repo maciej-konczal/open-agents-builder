@@ -1,6 +1,7 @@
 import { ResultDTO } from "@/data/dto";
 import ServerResultRepository from "@/data/server/server-result-repository";
-import { auditLog, authorizeRequestContext, authorizeSaasContext, genericGET } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext, genericGET } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { NextRequest, NextResponse } from "next/server";
 import JSZip, { file } from 'jszip'
 import showdown from "showdown";

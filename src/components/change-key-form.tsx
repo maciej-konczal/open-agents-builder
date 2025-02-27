@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form";
-import { passwordValidator } from "@/data/client/models";
+import { KeyType, passwordValidator } from "@/data/client/models";
 import { PasswordInput } from "./ui/password-input";
 import { ReactElement, useContext, useEffect, useState } from "react"
 import { Checkbox } from "./ui/checkbox";
@@ -53,6 +53,8 @@ export function ChangeKeyForm({
       const newKeyResult = await keyContext.addKey(dbContext?.email, t('Owner Key'), data.key, null, {
         role: 'owner',
         features: ['*']
+      }, {
+        type: KeyType.User
       });
       if (newKeyResult.status === 200) {
         dbContext?.setPassword(data.key);

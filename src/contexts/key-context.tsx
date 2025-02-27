@@ -1,4 +1,4 @@
-import { DataLoadingStatus, Key } from '@/data/client/models';
+import { DataLoadingStatus, Key, KeyExtra, KeyType } from '@/data/client/models';
 import { EncryptionUtils, generatePassword, sha256 } from '@/lib/crypto';
 import React, { createContext, PropsWithChildren, useContext, useState } from 'react';
 import { DatabaseContext, defaultDatabaseIdHashSalt, defaultKeyLocatorHashSalt } from './db-context';
@@ -10,6 +10,7 @@ import { getCurrentTS } from '@/lib/utils';
 import assert from 'assert';
 import { SaaSContext, SaaSContextType } from './saas-context';
 import { useTranslation } from 'react-i18next';
+import { SignJWT } from 'jose';
 const argon2 = require("argon2-browser");
 
 interface KeyContextProps {
@@ -20,7 +21,8 @@ interface KeyContextProps {
     currentKey: Key | null;
 
     loadKeys: () => void;
-    addKey: (email: string, displayName: string, sharedKey: string, expDate: Date | null, acl: KeyACLDTO) => Promise<PutKeyResponse>;
+    addKey: (email: string, displayName: string, sharedKey: string, expDate: Date | null, acl: KeyACLDTO, extra: KeyExtra) => Promise<PutKeyResponse>;
+    addApiKey: () => Promise<string>;
     removeKey: (keyLocatorHash: string) => Promise<PutKeyResponse>;
 
     setCurrentKey: (key: Key | null) => void;
@@ -37,11 +39,13 @@ export const KeyContext = createContext<KeyContextProps>({
     
     loadKeys: () => {},
     addKey: (email: string, displayName: string, sharedKey: string, expDate: Date | null, acl: KeyACLDTO) => Promise.resolve({} as PutKeyResponse),
+    addApiKey: () => Promise.resolve(''),
     removeKey: (keyLocatorHash: string) => Promise.resolve({} as PutKeyResponse),
 
     setCurrentKey: (key: Key | null)  => {},
     setSharedKeysDialogOpen: () => {},
     setChangePasswordDialogOpen: () => {},
+    
 });
 
 export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) => {
@@ -59,9 +63,36 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
         return client;
     }
 
+    const addApiKey = async (): Promise<string> => {
+        const keyNumber = keys.filter(k => k.extra?.type === KeyType.API).length + 1;
+        const response = await addKey(dbContext?.email || '', 'ad_key_*******_' + keyNumber , generatePassword(), null, { role: 'guest', features: ['*'] }, { type: KeyType.API });
+
+        let newKey;
+        if (response.status === 200) {
+            newKey = response.data
+        } else {
+            throw new Error(response.message);
+        }
+
+        const alg = 'HS256'
+        const tokenPayload = { databaseIdHash: newKey.databaseIdHash, keyHash: newKey.keyHash, keyLocatorHash: newKey.keyLocatorHash }
+        const accessToken = await new SignJWT(tokenPayload)
+        .setProtectedHeader({ alg })
+        .setIssuedAt()
+        .setIssuer('urn:ctt:agent-doodle')
+        .setAudience('urn:ctt:agent-doodle')
+//        .setExpirationTime('15m') // offline token - no expiration date
+        .sign(new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'))
+
+        return 'ad_key_' + accessToken + '_' + keyNumber; // we are not saving this key in the database
+
+    }
+
     const addKey = async (email: string, displayName: string, sharedKey: string, expDate: Date | null, acl: KeyACLDTO = {
         role: 'guest',
         features: ['*']
+    }, extra = {
+        type: KeyType.User
     } ): Promise<PutKeyResponse> => {
         // setKeys((prevKeys) => [...prevKeys, newKey]);
         const keyHashParams = {
@@ -102,6 +133,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
             keyHashParams: JSON.stringify(keyHashParams),
             keyLocatorHash,
             displayName,
+            extra: JSON.stringify(extra),
             acl: JSON.stringify(acl),
             expiryDate: expDate !== null ? expDate.toISOString() : '',
             updatedAt: getCurrentTS()
@@ -132,7 +164,7 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
     }
 
     return (
-        <KeyContext.Provider value={{ keys, loaderStatus, currentKey, changePasswordDialogOpen, sharedKeysDialogOpen, addKey, removeKey, loadKeys, setSharedKeysDialogOpen, setChangePasswordDialogOpen, setCurrentKey }}>
+        <KeyContext.Provider value={{ keys, loaderStatus, currentKey, changePasswordDialogOpen, sharedKeysDialogOpen, addKey, removeKey, loadKeys, setSharedKeysDialogOpen, setChangePasswordDialogOpen, setCurrentKey, addApiKey }}>
             {children}
         </KeyContext.Provider>
     );

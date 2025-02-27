@@ -1,9 +1,10 @@
-import { ProductDTO, productDTOSchema, PaginatedResult } from "@/data/dto";
+import { ProductDTO, productDTOSchema } from "@/data/dto";
 import ServerProductRepository from "@/data/server/server-product-repository";
 import { NextRequest, NextResponse } from "next/server";
-import { auditLog, genericGET, genericPUT } from "@/lib/generic-api";
-import { authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
-import { getCurrentTS, getErrorMessage } from "@/lib/utils";
+import { auditLog, genericPUT } from "@/lib/generic-api";
+import { authorizeSaasContext } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
+import { getErrorMessage } from "@/lib/utils";
 import { detailedDiff } from "deep-object-diff";
 
 export async function GET(request: NextRequest, response: NextResponse) {

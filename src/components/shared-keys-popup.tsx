@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { DatabaseAuthStatus, DataLoadingStatus } from "@/data/client/models";
+import { DatabaseAuthStatus, DataLoadingStatus, KeyType } from "@/data/client/models";
 import DataLoader from "./data-loader";
 import { ConfigContext } from "@/contexts/config-context";
 import { Credenza, CredenzaContent, CredenzaDescription, CredenzaHeader, CredenzaTitle } from "./credenza";
@@ -43,8 +43,8 @@ export default function SharedKeysPopup() {
                     <DataLoader />
                   </div>
                 ) : (
-                  (keysContext?.keys.length > 0) ?
-                    keysContext?.keys.map((key, index) => (
+                  (keysContext?.keys.filter(k=>(k.extra === null || k.extra.type === KeyType.User)).length > 0) ?
+                    keysContext?.keys.filter(k=>(k.extra === null || k.extra.type === KeyType.User)).map((key, index) => (
                       <SharedKeyItem onClick={(e) => {}} key={index} sharedKey={key} selected={keysContext?.currentKey?.keyLocatorHash === key.keyLocatorHash} />
                     ))
                     : (

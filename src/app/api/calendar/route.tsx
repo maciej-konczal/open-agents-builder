@@ -1,6 +1,7 @@
 import { CalendarEventDTO, calendarEventDTOSchema } from "@/data/dto";
 import ServerCalendarRepository from "@/data/server/server-calendar-repository";
-import { auditLog, authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 import { detailedDiff } from "deep-object-diff";
 import { NextRequest, NextResponse } from "next/server";

@@ -1,6 +1,7 @@
 import { AgentDTO, agentDTOSchema } from "@/data/dto";
 import ServerAgentRepository from "@/data/server/server-agent-repository";
-import { auditLog, authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from 'fs/promises';

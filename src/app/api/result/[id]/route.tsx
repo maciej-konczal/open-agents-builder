@@ -1,5 +1,6 @@
 import ServerResultRepository from "@/data/server/server-result-repository";
-import {  auditLog, authorizeRequestContext, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
+import {  auditLog, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest } from "next/server";
 

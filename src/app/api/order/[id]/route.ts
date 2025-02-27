@@ -2,7 +2,8 @@
 
 import ServerOrderRepository from "@/data/server/server-order-repository";
 import { NextRequest } from "next/server";
-import { auditLog, authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {

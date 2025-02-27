@@ -1,4 +1,5 @@
-import { auditLog, authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { NextRequest, NextResponse } from "next/server";
 import JSZip from 'jszip'
 import showdown from "showdown";

@@ -1,8 +1,9 @@
-import { AuditDTO, auditDTOSchema, KeyDTO, keyDTOSchema } from "@/data/dto";
+import { AuditDTO, auditDTOSchema } from "@/data/dto";
 import ServerAuditRepository from "@/data/server/server-audit-repository";
-import { auditLog, AuthorizedRequestContext, AuthorizedSaaSContext, authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext, genericGET } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
-import { NextRequest, NextResponse, userAgent } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(request: NextRequest, response: NextResponse) {
     try {

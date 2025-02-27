@@ -1,7 +1,8 @@
 import { TermDTO, termsDTOSchema } from "@/data/dto";
 import ServerTermRepository from "@/data/server/server-term-repository";
 import { EncryptionUtils } from "@/lib/crypto";
-import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse, userAgent } from "next/server";
 

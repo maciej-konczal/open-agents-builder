@@ -108,6 +108,15 @@ export class KeyACL {
 
 }
 
+export enum KeyType {
+    User = 'user',
+    API = 'api'
+}
+
+export type KeyExtra = {
+    type: KeyType;
+}
+
 export class Key {
     displayName: string;
     keyLocatorHash: string;
@@ -116,7 +125,7 @@ export class Key {
     databaseIdHash: string;
     encryptedMasterKey: string;
     acl: KeyACL | null;
-    extra: string | null;
+    extra: KeyExtra | null;
     expiryDate: string | null;
     updatedAt: string;
 
@@ -128,7 +137,7 @@ export class Key {
         this.databaseIdHash = keyDTO.databaseIdHash;
         this.encryptedMasterKey = keyDTO.encryptedMasterKey;
         this.acl = keyDTO instanceof Key ? keyDTO.acl : (keyDTO.acl ? JSON.parse(keyDTO.acl) : null);
-        this.extra = keyDTO.extra ?? null;
+        this.extra = keyDTO instanceof Key ? keyDTO.extra : (keyDTO.extra ? JSON.parse(keyDTO.extra) : null);
         this.expiryDate = keyDTO.expiryDate ?? null;
         this.updatedAt = keyDTO.updatedAt ?? getCurrentTS();
     }
@@ -146,7 +155,7 @@ export class Key {
             databaseIdHash: this.databaseIdHash,
             encryptedMasterKey: this.encryptedMasterKey,
             acl: JSON.stringify(this.acl),
-            extra: this.extra,
+            extra: JSON.stringify(this.extra),
             expiryDate: this.expiryDate,
             updatedAt: this.updatedAt,
         };

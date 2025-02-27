@@ -238,7 +238,7 @@ function replaceVariables(
  *    - parses for-blocks
  *    - replaces variables
  */
-function renderTemplate(
+export function renderTemplate(
   template: string,
   context: any,
   customFilters: Record<string, (arg: any) => string> = {}

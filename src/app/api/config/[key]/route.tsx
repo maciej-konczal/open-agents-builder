@@ -1,5 +1,6 @@
 import ServerConfigRepository from "@/data/server/server-config-repository";
-import { genericDELETE, authorizeRequestContext } from "@/lib/generic-api";
+import { genericDELETE } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 

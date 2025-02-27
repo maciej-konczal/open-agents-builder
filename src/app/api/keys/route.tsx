@@ -1,7 +1,8 @@
 import { KeyDTO, keyDTOSchema } from "@/data/dto";
 import ServerConfigRepository from "@/data/server/server-config-repository";
 import ServerKeyRepository from "@/data/server/server-key-repository";
-import { authorizeRequestContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 

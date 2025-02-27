@@ -4,7 +4,7 @@ import ServerAgentRepository from '@/data/server/server-agent-repository';
 import ServerSessionRepository from '@/data/server/server-session-repository';
 import ServerStatRepository from '@/data/server/server-stat-repository';
 import { authorizeSaasContext } from '@/lib/generic-api';
-import { renderPrompt } from '@/lib/prompt-template';
+import { renderPrompt } from '@/lib/templates';
 import { CoreMessage, Tool, streamText, tool } from 'ai';
 import { nanoid } from 'nanoid';
 import { NextRequest } from 'next/server';

@@ -11,6 +11,8 @@ import NodeCache from "node-cache";
 import { ApiError } from "@/data/client/base-api-client";
 import { EncryptionUtils } from "./crypto";
 import ServerAuditRepository from "@/data/server/server-audit-repository";
+import { KeyType } from "@/data/client/models";
+import { precheckAPIRequest } from "./authorization-api";
 
 const saasCtxCache = new NodeCache({ stdTTL: 60 * 60 * 10 /* 10 min cache */});
 
@@ -139,37 +141,6 @@ export async function authorizeStorageSchema(request: Request, response?: NextRe
         return storageSchema;
     } else {
         throw new Error('Unauthorized. Wrong Storage Partition');
-    }
-}
-
-export async function authorizeRequestContext(request: Request, response?: NextResponse): Promise<AuthorizedRequestContext> {
-    const authorizationHeader = request.headers.get('Authorization');
-    const jwtToken = authorizationHeader?.replace('Bearer ', '');
-
-    if (jwtToken) {
-        const decoded = await jwtVerify(jwtToken as string, new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'));
-
-        const authResult = await authorizeKey({
-            databaseIdHash: decoded.payload.databaseIdHash as string,
-            keyHash: decoded.payload.keyHash as string,
-            keyLocatorHash: decoded.payload.keyLocatorHash as string
-        });
-        if(!authResult) {
-            NextResponse.json({ message: 'Unauthorized', status: 401 });
-            throw new Error('Unauthorized. Wrong Key.');
-        } else {
-            const keyACL = (authResult as KeyDTO).acl ?? null;
-            const aclDTO = keyACL ? JSON.parse(keyACL) : defaultKeyACL
-            return {
-                databaseIdHash: decoded.payload.databaseIdHash as string,
-                keyHash: decoded.payload.keyHash as string,
-                keyLocatorHash: decoded.payload.keyLocatorHash as string,
-                acl: aclDTO as KeyACLDTO,
-                extra: (authResult as KeyDTO).extra
-            }
-        }
-    } else {
-        throw new Error('Unauthorized. No Token');
     }
 }
 

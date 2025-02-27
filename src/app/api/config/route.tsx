@@ -1,6 +1,7 @@
 import { ConfigDTO, configDTOSchema } from "@/data/dto";
 import ServerConfigRepository from "@/data/server/server-config-repository";
-import { authorizeRequestContext, genericDELETE, genericGET, genericPUT } from "@/lib/generic-api";
+import { genericDELETE, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 

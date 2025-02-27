@@ -1,7 +1,6 @@
-import { Session } from "@/data/client/models";
 import { SessionDTO } from "@/data/dto";
 import ServerSessionRepository from "@/data/server/server-session-repository";
-import { authorizeSaasContext, authorizeSaasToken } from "@/lib/generic-api";
+import { authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest } from "next/server";
 

@@ -1,6 +1,7 @@
 import { AttachmentDTO, attachmentDTOSchema, StorageSchemas } from "@/data/dto";
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
-import { authorizeRequestContext, authorizeStorageSchema, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeStorageSchema, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";

@@ -1,5 +1,6 @@
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
-import { authorizeRequestContext, authorizeStorageSchema, genericDELETE } from "@/lib/generic-api";
+import { authorizeStorageSchema, genericDELETE } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
 export const dynamic = 'force-dynamic' // defaults to auto

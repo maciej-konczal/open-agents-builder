@@ -1,6 +1,7 @@
 import { statsSchema } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
-import { authorizeRequestContext, authorizeSaasContext, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeSaasContext } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage, getZedErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 

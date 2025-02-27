@@ -1,6 +1,7 @@
 import ServerProductRepository from "@/data/server/server-product-repository";
 import { NextRequest } from "next/server";
-import { auditLog, authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 import { genericDELETE } from "@/lib/generic-api";
 

@@ -1,6 +1,7 @@
 import { AgentStatus } from "@/data/client/models";
 import ServerAgentRepository from "@/data/server/server-agent-repository";
-import {  auditLog, authorizeRequestContext, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
+import {  auditLog, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest } from "next/server";
 

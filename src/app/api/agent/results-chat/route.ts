@@ -5,7 +5,7 @@ import ServerResultRepository from '@/data/server/server-result-repository';
 import ServerStatRepository from '@/data/server/server-stat-repository';
 import { authorizeSaasContext } from '@/lib/generic-api';
 import { llmProviderSetup } from '@/lib/llm-provider';
-import { renderPrompt } from '@/lib/prompt-template';
+import { renderPrompt } from '@/lib/templates';
 import { validateTokenQuotas } from '@/lib/quotas';
 import { getErrorMessage } from '@/lib/utils';
 import { createCalendarListTool } from '@/tools/calendarListTool';
