@@ -3,9 +3,10 @@
 import { OrderDTO, orderDTOSchema } from "@/data/dto"; 
 import ServerOrderRepository from "@/data/server/server-order-repository";
 import { NextRequest, NextResponse } from "next/server";
-import { auditLog, authorizeRequestContext, authorizeSaasContext } from "@/lib/generic-api";
+import { auditLog, authorizeSaasContext } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { detailedDiff } from "deep-object-diff";
+import { authorizeRequestContext } from "@/lib/authorization-api";
 
 export async function GET(request: NextRequest, response: NextResponse) {
   try {
