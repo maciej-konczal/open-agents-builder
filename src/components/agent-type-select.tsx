@@ -40,20 +40,26 @@ export function AgentTypeSelect() {
 
   return (
     <div>
-      <Select value={value} onValueChange={(onChange)} onBlur={onBlur} ref={ref}>
-        <SelectTrigger
-          id="locale"
-          className="mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        >
-          <SelectValue placeholder={t("Select agent type")} />
-        </SelectTrigger>
-
-        <SelectContent>
-          {agentTypesRegistry.filter(at => at.locale === i18n.language).map((at) => (
-            <SelectItem key={at.template} value={at.template}>{at.displayName}</SelectItem>
-          ))}          
-        </SelectContent>
-      </Select>
+      <select
+        value={value}
+        onChange={(e) => {
+          onChange(e);
+          setAgentDescription(agentDescriptions[e.target.value]);
+        }}
+        onBlur={onBlur}
+        ref={ref}
+        id="locale"
+        className="border border-input mt-1 block w-full rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+      >
+        <option value="" disabled>
+          {t("Select agent type")}
+        </option>
+        {agentTypesRegistry.filter(at => at.locale === i18n.language).map((at) => (
+          <option key={at.template} value={at.template}>
+        {at.displayName}
+          </option>
+        ))}
+      </select>
       <div className="text-xs p-2 flex">
         <div><InfoIcon className="w-4 h-4 mr-2" /></div>
         <Markdown>{agentDescriptions[value]}</Markdown>

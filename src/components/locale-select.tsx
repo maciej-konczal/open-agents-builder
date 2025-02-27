@@ -29,47 +29,45 @@ export function LocaleSelect() {
 
   return (
     <div>
-      <Select value={value} onValueChange={onChange} onBlur={onBlur} ref={ref}>
-        <SelectTrigger
-          id="locale"
-          className="mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-        >
-          <SelectValue placeholder={t("Select a language")} />
-        </SelectTrigger>
-
-        <SelectContent>
-          <SelectItem value="auto">{t("Not-set")}</SelectItem>
-          <SelectItem value="en">{t("English")}</SelectItem>
-          <SelectItem value="es">{t("Spanish")}</SelectItem>
-          <SelectItem value="fr">{t("French")}</SelectItem>
-          <SelectItem value="de">{t("German")}</SelectItem>
-          <SelectItem value="it">{t("Italian")}</SelectItem>
-          <SelectItem value="pt">{t("Portuguese")}</SelectItem>
-          <SelectItem value="zh">{t("Chinese")}</SelectItem>
-          <SelectItem value="ja">{t("Japanese")}</SelectItem>
-          <SelectItem value="ko">{t("Korean")}</SelectItem>
-          <SelectItem value="ru">{t("Russian")}</SelectItem>
-          <SelectItem value="ar">{t("Arabic")}</SelectItem>
-          <SelectItem value="hi">{t("Hindi")}</SelectItem>
-          <SelectItem value="tr">{t("Turkish")}</SelectItem>
-          <SelectItem value="id">{t("Indonesian")}</SelectItem>
-          <SelectItem value="nl">{t("Dutch")}</SelectItem>
-          <SelectItem value="sv">{t("Swedish")}</SelectItem>
-          <SelectItem value="no">{t("Norwegian")}</SelectItem>
-          <SelectItem value="da">{t("Danish")}</SelectItem>
-          <SelectItem value="fi">{t("Finnish")}</SelectItem>
-          <SelectItem value="pl">{t("Polish")}</SelectItem>
-          <SelectItem value="uk">{t("Ukrainian")}</SelectItem>
-          <SelectItem value="ro">{t("Romanian")}</SelectItem>
-          <SelectItem value="bg">{t("Bulgarian")}</SelectItem>
-          <SelectItem value="cs">{t("Czech")}</SelectItem>
-          <SelectItem value="el">{t("Greek")}</SelectItem>
-          <SelectItem value="hu">{t("Hungarian")}</SelectItem>
-          <SelectItem value="vi">{t("Vietnamese")}</SelectItem>
-          <SelectItem value="th">{t("Thai")}</SelectItem>
-          <SelectItem value="he">{t("Hebrew")}</SelectItem>
-        </SelectContent>
-      </Select>
+      <select
+        id="locale"
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        ref={ref}
+        className="border border-1 border-input transition-colors mt-1 block w-full rounded-md border-secondary shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2"
+      >
+        <option value="auto">{t("Not-set")}</option>
+        <option value="en">{t("English")}</option>
+        <option value="es">{t("Spanish")}</option>
+        <option value="fr">{t("French")}</option>
+        <option value="de">{t("German")}</option>
+        <option value="it">{t("Italian")}</option>
+        <option value="pt">{t("Portuguese")}</option>
+        <option value="zh">{t("Chinese")}</option>
+        <option value="ja">{t("Japanese")}</option>
+        <option value="ko">{t("Korean")}</option>
+        <option value="ru">{t("Russian")}</option>
+        <option value="ar">{t("Arabic")}</option>
+        <option value="hi">{t("Hindi")}</option>
+        <option value="tr">{t("Turkish")}</option>
+        <option value="id">{t("Indonesian")}</option>
+        <option value="nl">{t("Dutch")}</option>
+        <option value="sv">{t("Swedish")}</option>
+        <option value="no">{t("Norwegian")}</option>
+        <option value="da">{t("Danish")}</option>
+        <option value="fi">{t("Finnish")}</option>
+        <option value="pl">{t("Polish")}</option>
+        <option value="uk">{t("Ukrainian")}</option>
+        <option value="ro">{t("Romanian")}</option>
+        <option value="bg">{t("Bulgarian")}</option>
+        <option value="cs">{t("Czech")}</option>
+        <option value="el">{t("Greek")}</option>
+        <option value="hu">{t("Hungarian")}</option>
+        <option value="vi">{t("Vietnamese")}</option>
+        <option value="th">{t("Thai")}</option>
+        <option value="he">{t("Hebrew")}</option>
+      </select>
 
       {error && (
         <p className="text-red-500 text-sm mt-1">{error.message}</p>
