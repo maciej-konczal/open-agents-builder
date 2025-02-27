@@ -39,7 +39,7 @@ export default function APIPage() {
 
   useEffect(() => { 
     keysContext.loadKeys();
-  }, []);
+  }, [apiKey]);
    
   return (
     <div className="space-y-6">
@@ -106,6 +106,11 @@ export default function APIPage() {
 
             <p>{t("That's great now you have API access to Agent Doodle! Let's go start building!")}</p>
 
+          <h4 className="mb-4 mt-4 font-bold text-sm ">{t('Read API docs and check the examples')}</h4>
+          <p className="mb-4">{t('Full API Docs and some app examples are avaialable on our Github page: ')}
+            <a className="text-blue-400 underline" href="https://github.com/CatchTheTornado/agent-doodle/tree/main/docs/api">{t('Go to the docs!')}</a>
+          </p>
+
             <h4 className="mb-4 mt-4 font-bold">{t('Authorization and listing the agents ')}</h4>
             <p className="mb-4">{t('Save your API key for further usage. Note: this API Key is not saved by us. It is secret. After you reload this page it will disappear for good.')}</p>
 
@@ -124,7 +129,7 @@ export default function APIPage() {
 <Button size={"sm"} className="mt-4" variant={"outline"} onClick={() => {
   copy(snippet1)
 }}><CopyIcon className="w-4 h-4 mr-2" />{t('Copy snippet')}</Button>
-  
+
 
 
 <h4 className="mb-4 mt-4 font-bold">{t('Listing agent results')}</h4>
