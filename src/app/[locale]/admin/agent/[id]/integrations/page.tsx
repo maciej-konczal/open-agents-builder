@@ -1,21 +1,11 @@
 'use client'
-import { Button } from '@/components/ui/button';
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { KeyContext } from '@/contexts/key-context';
-import { NoRecordsAlert } from '@/components/shared/no-records-alert';
-import { DataLoadingStatus, KeyType } from '@/data/client/models';
-import { CopyIcon, PlusIcon } from 'lucide-react';
-import { Dialog, DialogContent, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { useCopyToClipboard } from 'react-use';
-import { toast } from 'sonner';
 import { DatabaseContext } from '@/contexts/db-context';
 
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import DataLoader from '@/components/data-loader';
 
 export default function IntegrationsPage() {
 
