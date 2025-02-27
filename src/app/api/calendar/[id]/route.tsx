@@ -22,6 +22,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: n
             return Response.json(await genericDELETE(request, new ServerCalendarRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null), { id: recordLocator}));
         }
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    }     
+}     
 }

@@ -17,6 +17,8 @@ export async function DELETE(request: Request, { params }: { params: { key: stri
             return Response.json(await genericDELETE(request, new ServerKeyRepository(requestContext.databaseIdHash), { keyLocatorHash: recordLocator}));
         }
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

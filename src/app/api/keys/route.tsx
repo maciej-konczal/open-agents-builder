@@ -16,8 +16,10 @@ export async function PUT(request: NextRequest, response: NextResponse) {
         const apiResult = await genericPUT<KeyDTO>(await request.json(), keyDTOSchema, new ServerKeyRepository(requestContext.databaseIdHash), 'keyLocatorHash');
         return Response.json(apiResult, { status: apiResult.status });
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }
 
 export async function GET(request: NextRequest, response: NextResponse) {
@@ -25,6 +27,8 @@ export async function GET(request: NextRequest, response: NextResponse) {
         const requestContext = await authorizeRequestContext(request, response);
         return Response.json(await genericGET<KeyDTO>(request, new ServerKeyRepository(requestContext.databaseIdHash)));
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

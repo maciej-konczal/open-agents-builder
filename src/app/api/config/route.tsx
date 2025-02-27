@@ -14,8 +14,10 @@ export async function PUT(request: NextRequest, response: NextResponse) {
         const apiResult = await genericPUT<ConfigDTO>(await request.json(), configDTOSchema, new ServerConfigRepository(requestContext.databaseIdHash), 'key');
         return Response.json(apiResult, { status: apiResult.status });
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }
 
 export async function GET(request: NextRequest, response: NextResponse) {
@@ -23,8 +25,10 @@ export async function GET(request: NextRequest, response: NextResponse) {
         const requestContext = await authorizeRequestContext(request, response);
         return Response.json(await genericGET<ConfigDTO>(request, new ServerConfigRepository(requestContext.databaseIdHash)));
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }
 
 // clear all configuration - it's not used anywhere in the app so commented out for now

@@ -20,8 +20,10 @@ export async function PUT(request: NextRequest, response: NextResponse) {
             return await handlePUTRequest(JSON.parse(formData.get("attachmentDTO") as string), request, response, formData.get("file") as File);
         }
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }
 
 async function handlePUTRequest(inputJson: any, request: NextRequest, response: NextResponse, file?: File) {

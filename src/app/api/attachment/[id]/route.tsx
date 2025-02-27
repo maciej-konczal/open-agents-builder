@@ -28,8 +28,10 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
             return Response.json(apiResponse);       
         }
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }
 
 export async function GET(request: Request, { params }: { params: { id: string }}) {
@@ -43,6 +45,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
         const fileContent = await storageService.readAttachment(params.id) // TODO: add streaming
         return new Response(fileContent, { headers });
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

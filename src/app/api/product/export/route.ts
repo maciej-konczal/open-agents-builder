@@ -81,7 +81,9 @@ export async function GET(request: NextRequest, response: NextResponse) {
         // or just use new Response ❗️
         return new NextResponse(zipFileContent, { status: 200, statusText: "OK", headers });
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    }         
+}         
 }
 

@@ -32,6 +32,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
 
         return Response.json({ data: agent, message: 'All set!', status: 200 }, { status: 200 });
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

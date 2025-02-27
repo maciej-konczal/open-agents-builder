@@ -20,6 +20,8 @@ export async function GET(request: Request, { params }: { params: { id: string, 
             return new Response('Product image not found', { status: 404 });
         }
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

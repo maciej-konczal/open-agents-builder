@@ -49,8 +49,10 @@ export async function PUT(request: NextRequest, response: NextResponse) {
         const apiResult = await genericPUT<TermDTO>(termObj, termsDTOSchema, new ServerTermRepository(requestContext.databaseIdHash), 'key');
         return Response.json(apiResult, { status: apiResult.status });
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }
 
 export async function GET(request: NextRequest, response: NextResponse) {
@@ -65,6 +67,8 @@ export async function GET(request: NextRequest, response: NextResponse) {
         };
         return Response.json(apiResult);
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

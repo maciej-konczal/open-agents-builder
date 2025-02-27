@@ -18,6 +18,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { key: 
             return Response.json(await genericDELETE(request, new ServerConfigRepository(requestContext.databaseIdHash), { key: recordLocator}));
         }
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    }     
+}     
 }

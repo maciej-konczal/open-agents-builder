@@ -14,6 +14,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
         
         return Response.json(await genericGET<CalendarEventDTO>(request, new ServerCalendarRepository(requestContext.databaseIdHash, saasContex.isSaasMode ? saasContex.saasContex?.storageKey : null)));
     } catch (error) {
+        console.error(error);
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
     } 
 }
@@ -51,6 +52,8 @@ export async function PUT(request: NextRequest, response: NextResponse) {
         }
         return Response.json(apiResult, { status: apiResult.status });
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

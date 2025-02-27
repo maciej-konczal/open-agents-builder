@@ -4,25 +4,7 @@ import { authorizeKey } from "@/data/server/server-key-helpers";
 import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
 import { AuthorizedRequestContext } from "./generic-api";
-
-export async function precheckAPIRequest(request:NextRequest): Promise<{ apiRequest: boolean, jwtToken: string }> {
-    const authorizationHeader = request.headers.get('Authorization');
-    let jwtToken = authorizationHeader?.replace('Bearer ', '');
-    const isThisAPIRequest = jwtToken?.startsWith('ad_key_') ?? false;
-
-    if (isThisAPIRequest) {
-        const lio = jwtToken?.lastIndexOf('_');
-        jwtToken = jwtToken?.replace('ad_key_', '').slice(0, lio) ?? undefined;
-        if (!authorizationHeader) {
-            throw new Error('Unauthorized. Invalid API Key');
-        }
-    }
-
-    return {
-        apiRequest: isThisAPIRequest,
-        jwtToken: jwtToken as string
-    }
-}
+import { precheckAPIRequest } from "./middleware-precheck-api";
 
 export async function authorizeRequestContext(request: Request, response?: NextResponse): Promise<AuthorizedRequestContext> {
     const { jwtToken, apiRequest } = await precheckAPIRequest(request as NextRequest);

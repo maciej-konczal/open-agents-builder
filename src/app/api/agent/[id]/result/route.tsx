@@ -23,6 +23,8 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         });
         return Response.json(results);
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

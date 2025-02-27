@@ -13,6 +13,8 @@ export async function GET(request: NextRequest, response: NextResponse) {
         
         return Response.json(await genericGET<ResultDTO>(request, new ServerResultRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null)));
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }

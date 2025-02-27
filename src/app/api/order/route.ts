@@ -67,6 +67,8 @@ export async function PUT(request: NextRequest) {
         }
         return Response.json({ status: 200, data: result }, { status: 200 });
     } catch (error) {
+        console.error(error);
+
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
-    } 
+} 
 }
