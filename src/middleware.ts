@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import {SignJWT, jwtVerify, type JWTPayload} from 'jose'
 import { i18nRouter } from 'next-i18n-router';
 import i18nConfig from '@/app/i18nConfig';
+import { precheckAPIRequest } from './lib/authorization-api';
 
 
 export async function middleware(request: NextRequest) {
