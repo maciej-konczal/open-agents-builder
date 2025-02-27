@@ -23,7 +23,7 @@ export default function SharedKeysPopup() {
 
   return (
     <Credenza open={keysContext.sharedKeysDialogOpen} onOpenChange={keysContext.setSharedKeysDialogOpen}>
-      <CredenzaContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950" side="top">
+      <CredenzaContent className="sm:max-w-[500px]" side="top">
         <CredenzaHeader>
           <CredenzaTitle>{t('Shared keys')}
             {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
@@ -34,7 +34,7 @@ export default function SharedKeysPopup() {
             {t('Shared Keys let other users access your database.')} <br />{t('You can revoke access at any time.')}
           </CredenzaDescription>
         </CredenzaHeader>
-        <div className="bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800">
+        <div className="border-r">
           <div className="h-auto overflow-auto">
             {(dbContext?.authStatus == DatabaseAuthStatus.Authorized) ? (
               <div className="p-4 space-y-4">

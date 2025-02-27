@@ -82,11 +82,11 @@ export function SharedKeyEditPopup() {
   return (
     <Credenza open={open} onOpenChange={setOpen}>
       <CredenzaTrigger asChild>
-        <Button variant="outline" className="absolute right-10" size="icon">
-          <PlusIcon className="w-6 h-6" />
+        <Button variant="outline" className="ml-4" size="sm">
+          <PlusIcon className="w-6 h-6" /> {t('Add Shared Key')}
         </Button>
       </CredenzaTrigger>
-      <CredenzaContent className="sm:max-w-[500px] bg-white dark:bg-zinc-950" side="top">
+      <CredenzaContent className="sm:max-w-[500px]" side="top">
           <CredenzaHeader>
             <CredenzaTitle>{t('Add Shared Key')}</CredenzaTitle>
             <CredenzaDescription>

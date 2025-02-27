@@ -108,7 +108,7 @@ export default function APIPage() {
 
           <h4 className="mb-4 mt-4 font-bold text-sm ">{t('Read API docs and check the examples')}</h4>
           <p className="mb-4">{t('Full API Docs and some app examples are avaialable on our Github page: ')}
-            <a className="text-blue-400 underline" href="https://github.com/CatchTheTornado/agent-doodle/tree/main/docs/api">{t('Go to the docs!')}</a>
+            <a className="text-blue-600 underline" href="https://github.com/CatchTheTornado/agent-doodle/tree/main/docs/api">{t('Go to the docs!')}</a>
           </p>
 
             <h4 className="mb-4 mt-4 font-bold">{t('Authorization and listing the agents ')}</h4>
@@ -147,6 +147,8 @@ export default function APIPage() {
             <p className="mt-4">
               <strong>{t('Note: ')}</strong>{t('Please make sure you replaced the "ad_key_****" with your copied API key.')}
             </p>
+
+<p className="mt-4">{t('For more API endpoints including: Calendar, Orders, Products, Sessions, AI Chat.')} <a className="text-blue-600 underline" href="">{t('Check our docs')}</a></p>
 
           </CardContent>      
         </Card>
