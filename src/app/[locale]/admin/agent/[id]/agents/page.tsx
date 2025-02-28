@@ -20,9 +20,14 @@ export default function AgentsPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
-  const { current: agent, status, updateAgent } = useAgentContext();
+  const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
 
-  const [agents, setAgents] = useState<AgentDefinition[]>([])
+  const [agents, setAgents] = useState<AgentDefinition[]>(dirtyAgent?.agents ?? agent?.agents ?? [])
+  
+    const onAgentsChanged = (value: AgentDefinition[]) => {
+      setValue('agents', value);
+      setAgents(value);
+    }
   
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
@@ -42,11 +47,9 @@ export default function AgentsPage() {
       <AgentStatus status={status} />
       ) }
 
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
-            <FlowAgentsEditor agents={agents} onChange={setAgents} />
+            <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
         </div>
-      </form>
     </div>
   );
 }
