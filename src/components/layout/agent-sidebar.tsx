@@ -22,14 +22,14 @@ const availableItems = [
     label: 'Prompt', 
     href: '/admin/agent/[id]/prompt',
     pattern: '/admin/agent/[id]/prompt',
-    agentTypes: ['smart-assistant', 'survey-agent']
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
   },
   {
     icon: FunctionSquareIcon,
     label: 'Events',
     href: '/admin/agent/[id]/events',
     pattern: '/admin/agent/[id]/events',
-    agentTypes: ['smart-assistant', 'survey-agent']
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
   },  
   { 
     icon: WorkflowIcon,
@@ -55,7 +55,7 @@ const availableItems = [
     label: 'Safety Rules', 
     href: '/admin/agent/[id]/safety',
     pattern: '/admin/agent/[id]/safety',
-    agentTypes: ['smart-assistant', 'survey-agent']
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
   },
   { 
     icon: MessageCircleMore, 

@@ -56,7 +56,7 @@ export function AgentTypeSelect() {
           {t("Select agent type")}
         </option>
         {agentTypesRegistry.filter(at => at.locale === i18n.language).map((at) => (
-          <option key={at.template} value={at.template}>
+          <option key={at.type} value={at.type}>
         {at.displayName}
           </option>
         ))}
