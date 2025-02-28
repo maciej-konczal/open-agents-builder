@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon, NetworkIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -33,6 +33,13 @@ const availableItems = [
   },  
   { 
     icon: WorkflowIcon,
+    label: 'Sub-agents',
+    href: '/admin/agent/[id]/agents',
+    pattern: '/admin/agent/[id]/agents',
+    agentTypes: ['flow']
+  },  
+  { 
+    icon: NetworkIcon,
     label: 'Flows',
     href: '/admin/agent/[id]/flows',
     pattern: '/admin/agent/[id]/flows',
@@ -48,7 +55,8 @@ const availableItems = [
     icon: CogIcon,
     label: 'Tools',
     href: '/admin/agent/[id]/tools',
-    pattern: '/admin/agent/[id]/tools'
+    pattern: '/admin/agent/[id]/tools',
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
   },
   { 
     icon: Shield, 

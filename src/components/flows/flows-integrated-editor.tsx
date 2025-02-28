@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { AgentDefinition, FlowStep } from '@/flows/models'
-import { AgentsEditor } from './flows-agent-editor'
+import { FlowAgentsEditor } from './flows-agent-editor'
 import FlowBuilder from './flows-builder'
 
 export default function FlowsIntegratedEditor() {
@@ -23,7 +23,7 @@ export default function FlowsIntegratedEditor() {
   return (
     <div className="flex gap-4">
       <div>
-        <AgentsEditor agents={agents} onChange={setAgents} />
+        <FlowAgentsEditor agents={agents} onChange={setAgents} />
       </div>
       <div>
         <FlowBuilder

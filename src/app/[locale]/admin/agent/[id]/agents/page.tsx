@@ -9,17 +9,21 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import { MarkdownEditor } from '@/components/markdown-editor';
-import React from 'react';
+import React, { useState } from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 import FlowsBuilder from '@/components/flows/flows-integrated-editor';
+import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
+import { AgentDefinition } from '@/flows/models';
 
-export default function FlowsPage() {
+export default function AgentsPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
   const { current: agent, status, updateAgent } = useAgentContext();
 
+  const [agents, setAgents] = useState<AgentDefinition[]>([])
+  
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
@@ -40,7 +44,7 @@ export default function FlowsPage() {
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
-
+            <FlowAgentsEditor agents={agents} onChange={setAgents} />
         </div>
       </form>
     </div>

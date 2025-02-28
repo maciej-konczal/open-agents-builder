@@ -10,6 +10,9 @@ import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 
 // Import listy dostępnych narzędzi i ich konfiguratorów:
 import { toolConfigurators } from '@/tools/configurators'
+import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
+import { WorkflowIcon } from 'lucide-react'
 
 // Możemy zdefiniować listę modeli:
 const availableOpenAIModels = [
@@ -20,13 +23,13 @@ const availableOpenAIModels = [
 ]
 
 // Komponent do edycji pojedynczego agenta:
-interface AgentEditorProps {
+interface FlowAgentEditorProps {
   agent: AgentDefinition
   onChange: (updated: AgentDefinition) => void
   onDelete: () => void
 }
 
-export function AgentEditor({ agent, onChange, onDelete }: AgentEditorProps) {
+export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorProps) {
   // Edycja nazwy
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ ...agent, name: e.target.value })
@@ -217,12 +220,14 @@ function ToolConfiguratorWrapper({
 }
 
 // Komponent lista agentów:
-interface AgentsEditorProps {
+interface FlowAgentsEditorProps {
   agents: AgentDefinition[]
   onChange: (updated: AgentDefinition[]) => void
 }
 
-export function AgentsEditor({ agents, onChange }: AgentsEditorProps) {
+export function FlowAgentsEditor({ agents, onChange }: FlowAgentsEditorProps) {
+  const { t } = useTranslation()
+
   // Dodanie nowego agenta
   const addAgent = () => {
     onChange([
@@ -248,19 +253,20 @@ export function AgentsEditor({ agents, onChange }: AgentsEditorProps) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2">Edytor agentów</h2>
       <div className="space-y-4">
+      <div className="">
+        <Button variant={"outline"} onClick={addAgent}>
+            <WorkflowIcon className="w-4 h-4" /> {t('Add agent...')}
+        </Button>
+      </div>        
         {agents.map((agent, index) => (
-          <AgentEditor
+          <FlowAgentEditor
             key={index}
             agent={agent}
             onChange={(updated) => updateAgent(index, updated)}
             onDelete={() => deleteAgent(index)}
           />
         ))}
-      </div>
-      <div className="mt-4">
-        <Button onClick={addAgent}>Dodaj agent</Button>
       </div>
     </div>
   )
