@@ -296,86 +296,156 @@ export function FlowStepEditor({
       )
     }
 
-    // ----------------------------------
-    // ONE-OF
-    // ----------------------------------
-    case 'oneOf': {
-      const { branches } = step
+// ----------------------------------
+// ONE-OF
+// ----------------------------------
+case 'oneOf': {
+  const { branches } = step
 
-      const addBranch = () => {
-        onChange({
-          ...step,
+  // Dodajemy branch, wybierając typ sub-flow z dropdownu
+  const addBranch = (flowType: EditorStep['type']) => {
+    // W zależności od flowType tworzymy obiekt sub-flow
+    let newFlow: EditorStep
+    switch (flowType) {
+      case 'step':
+        newFlow = { type: 'step', agent: '', input: '' }
+        break
+      case 'sequence':
+        newFlow = { type: 'sequence', steps: [] }
+        break
+      case 'parallel':
+        newFlow = { type: 'parallel', steps: [] }
+        break
+      case 'oneOf':
+        newFlow = {
+          type: 'oneOf',
           branches: [
-            ...branches,
             {
-              when: 'next condition',
+              when: 'condition',
               flow: { type: 'step', agent: '', input: '' },
             },
           ],
-        })
-      }
-
-      const handleChangeBranchCondition = (index: number, newCondition: string) => {
-        const newArr = [...branches]
-        newArr[index] = { ...newArr[index], when: newCondition }
-        onChange({ ...step, branches: newArr })
-      }
-
-      const handleChangeBranchFlow = (index: number, newFlow: EditorStep) => {
-        const newArr = [...branches]
-        newArr[index] = { ...newArr[index], flow: newFlow }
-        onChange({ ...step, branches: newArr })
-      }
-
-      const handleDeleteBranch = (index: number) => {
-        onChange({
-          ...step,
-          branches: branches.filter((_, i) => i !== index),
-        })
-      }
-
-      return (
-        <Card className="p-4 my-2 border space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg">OneOf</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
-            </Button>
-          </div>
-
-          <div className="ml-4 space-y-4">
-            {branches.map((br, idx) => (
-              <Card key={idx} className="p-2 border space-y-2">
-                <div className="flex justify-between">
-                  <Label className="text-sm">When:</Label>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => handleDeleteBranch(idx)}
-                  >
-                    Usuń branch
-                  </Button>
-                </div>
-                <Input
-                  value={br.when}
-                  onChange={(e) => handleChangeBranchCondition(idx, e.target.value)}
-                />
-                <FlowStepEditor
-                  step={br.flow}
-                  onChange={(nf) => handleChangeBranchFlow(idx, nf)}
-                  onDelete={() =>
-                    handleChangeBranchFlow(idx, { type: 'step', agent: '', input: '' })
-                  }
-                  availableAgentNames={availableAgentNames}
-                />
-              </Card>
-            ))}
-          </div>
-
-          <Button onClick={addBranch}>Dodaj branch</Button>
-        </Card>
-      )
+        }
+        break
+      case 'forEach':
+        newFlow = {
+          type: 'forEach',
+          item: 'SomeZodSchemaOrString',
+          inputFlow: { type: 'step', agent: '', input: '' },
+        }
+        break
+      case 'evaluator':
+        newFlow = {
+          type: 'evaluator',
+          criteria: '',
+          subFlow: { type: 'step', agent: '', input: '' },
+        }
+        break
+      case 'bestOfAll':
+        newFlow = {
+          type: 'bestOfAll',
+          criteria: '',
+          steps: [
+            { type: 'step', agent: '', input: '' },
+            { type: 'step', agent: '', input: '' },
+          ],
+        }
+        break
+      default:
+        // na wszelki wypadek
+        newFlow = { type: 'step', agent: '', input: '' }
+        break
     }
+
+    const newBranch = {
+      when: 'next condition',
+      flow: newFlow,
+    }
+    onChange({
+      ...step,
+      branches: [...branches, newBranch],
+    })
+  }
+
+  const handleChangeBranchCondition = (index: number, newCondition: string) => {
+    const newArr = [...branches]
+    newArr[index] = { ...newArr[index], when: newCondition }
+    onChange({ ...step, branches: newArr })
+  }
+
+  const handleChangeBranchFlow = (index: number, newFlow: EditorStep) => {
+    const newArr = [...branches]
+    newArr[index] = { ...newArr[index], flow: newFlow }
+    onChange({ ...step, branches: newArr })
+  }
+
+  const handleDeleteBranch = (index: number) => {
+    onChange({
+      ...step,
+      branches: branches.filter((_, i) => i !== index),
+    })
+  }
+
+  return (
+    <Card className="p-4 my-2 border space-y-4">
+      <div className="flex justify-between items-center">
+        <div className="font-semibold text-lg">OneOf</div>
+        <Button variant="destructive" onClick={onDelete}>
+          Usuń
+        </Button>
+      </div>
+
+      <div className="ml-4 space-y-4">
+        {branches.map((br, idx) => (
+          <Card key={idx} className="p-2 border space-y-2">
+            <div className="flex justify-between">
+              <Label className="text-sm">When:</Label>
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={() => handleDeleteBranch(idx)}
+              >
+                Usuń branch
+              </Button>
+            </div>
+            <Input
+              value={br.when}
+              onChange={(e) => handleChangeBranchCondition(idx, e.target.value)}
+            />
+
+            <FlowStepEditor
+              step={br.flow}
+              onChange={(nf) => handleChangeBranchFlow(idx, nf)}
+              onDelete={() =>
+                handleChangeBranchFlow(idx, { type: 'step', agent: '', input: '' })
+              }
+              availableAgentNames={availableAgentNames}
+            />
+          </Card>
+        ))}
+      </div>
+
+      {/* Zamiast zwykłego buttona "Dodaj branch" -> dropdown z typami */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="secondary" size="sm">
+            Dodaj branch
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onSelect={() => addBranch('step')}>+ step</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('sequence')}>+ sequence</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('parallel')}>+ parallel</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('oneOf')}>+ oneOf</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('forEach')}>+ forEach</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('evaluator')}>+ evaluator</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('bestOfAll')}>+ bestOfAll</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </Card>
+  )
+}
+
 
     // ----------------------------------
     // FOR-EACH
