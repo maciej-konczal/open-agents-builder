@@ -10,7 +10,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
         const recordLocator = params.id;
         const requestContext = await authorizeRequestContext(request);
 
-        if(!recordLocator){
+    if(!recordLocator){
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
         } else { 
 

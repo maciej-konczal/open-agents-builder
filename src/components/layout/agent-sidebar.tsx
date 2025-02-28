@@ -3,12 +3,21 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon, NetworkIcon, VariableIcon, LucideProps } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { useAgentContext } from '@/contexts/agent-context';
+import React, { ForwardRefExoticComponent, useEffect } from 'react';
 
-const sidebarItems = [
+const availableItems : {
+  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+  label: string;
+  href: string;
+  pattern: string;
+  agentTypes?: string[];
+  activeOnlyOnSavedAgent?: boolean;
+}[] = [
   { 
     icon: Settings2, 
     label: 'General', 
@@ -19,7 +28,36 @@ const sidebarItems = [
     icon: FileText, 
     label: 'Prompt', 
     href: '/admin/agent/[id]/prompt',
-    pattern: '/admin/agent/[id]/prompt'
+    pattern: '/admin/agent/[id]/prompt',
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
+  },
+  {
+    icon: FunctionSquareIcon,
+    label: 'Events',
+    href: '/admin/agent/[id]/events',
+    pattern: '/admin/agent/[id]/events',
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
+  },  
+  { 
+    icon: VariableIcon,
+    label: 'Inputs',
+    href: '/admin/agent/[id]/inputs',
+    pattern: '/admin/agent/[id]/inputs',
+    agentTypes: ['flow']
+  },  
+  { 
+    icon: WorkflowIcon,
+    label: 'Sub-agents',
+    href: '/admin/agent/[id]/agents',
+    pattern: '/admin/agent/[id]/agents',
+    agentTypes: ['flow']
+  },  
+  { 
+    icon: NetworkIcon,
+    label: 'Flows',
+    href: '/admin/agent/[id]/flows',
+    pattern: '/admin/agent/[id]/flows',
+    agentTypes: ['flow']
   },
   { 
     icon: BookTemplateIcon, 
@@ -31,20 +69,15 @@ const sidebarItems = [
     icon: CogIcon,
     label: 'Tools',
     href: '/admin/agent/[id]/tools',
-    pattern: '/admin/agent/[id]/tools'
+    pattern: '/admin/agent/[id]/tools',
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
   },
-  {
-    icon: FunctionSquareIcon,
-    label: 'Events',
-    href: '/admin/agent/[id]/events',
-    pattern: '/admin/agent/[id]/events'
-  },
-
   { 
     icon: Shield, 
     label: 'Safety Rules', 
     href: '/admin/agent/[id]/safety',
-    pattern: '/admin/agent/[id]/safety'
+    pattern: '/admin/agent/[id]/safety',
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
   },
   { 
     icon: MessageCircleMore, 
@@ -102,6 +135,13 @@ export function AgentSidebar() {
   const pathname = usePathname();
   const params = useParams();
   const agentId = params?.id as string;
+  const agentContext = useAgentContext();
+
+  const [sidebarItems, setSidebarItems] = React.useState(availableItems);
+
+  useEffect(() => {  
+    setSidebarItems(availableItems.filter(item => !item.agentTypes || item.agentTypes?.includes(agentContext.dirtyAgent?.agentType || '')));
+  }, [agentContext.dirtyAgent?.agentType, agentContext.current?.agentType]);
 
   return (
     <div className="flex w-64 flex-col border-r bg-card">
@@ -112,7 +152,7 @@ export function AgentSidebar() {
             const isActive = pathname.endsWith(href) || pathname.match(item.pattern)
             
             
-            if (item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) {
+            if ((item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) && (!item.agentTypes || (item.agentTypes as Array<string>).includes(agentContext.dirtyAgent?.agentType || ''))) {
               return (
                 <Button
                 key={item.href}

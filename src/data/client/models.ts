@@ -4,6 +4,7 @@ import PasswordValidator from 'password-validator';
 import { createPrice, getCurrentTS } from "@/lib/utils";
 import { Message } from "ai";
 import moment from "moment";
+import { AgentDefinition, FlowInputVariable, EditorStep } from "@/flows/models";
 
 
 export enum DataLoadingStatus {
@@ -222,6 +223,13 @@ export enum AgentStatus {
     Deleted = 'deleted',
 }
 
+export type AgentFlow = {
+    name: string;
+    description: string;
+    code: string;
+    flow: EditorStep;
+}
+
 export class Agent {
     id?: string;
     displayName: string;
@@ -238,6 +246,10 @@ export class Agent {
     updatedAt: string;
     icon?: string | null;
     extra?: any | null;
+    flows?: AgentFlow[] | null;
+    inputs?: FlowInputVariable[] | null;
+    agents?: AgentDefinition[] | null;
+
 
     constructor(agentDTO: AgentDTO | Agent) {
         this.id = agentDTO.id;
@@ -260,6 +272,10 @@ export class Agent {
 
         this.icon = agentDTO.icon;
         this.extra = typeof agentDTO.extra === 'string' ? JSON.parse(agentDTO.extra as string) : agentDTO.extra;
+
+        this.agents = typeof agentDTO.agents === 'string' ? JSON.parse(agentDTO.agents as string) : agentDTO.agents;
+        this.flows = typeof agentDTO.flows === 'string' ? JSON.parse(agentDTO.flows as string) : agentDTO.flows;
+        this.inputs = typeof agentDTO.inputs === 'string' ? JSON.parse(agentDTO.inputs as string) : agentDTO.inputs;
     }
 
     static fromDTO(agentDTO: AgentDTO): Agent {
@@ -282,7 +298,10 @@ export class Agent {
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
             icon: this.icon,
-            extra: JSON.stringify(this.extra)
+            extra: JSON.stringify(this.extra),
+            inputs: JSON.stringify(this.inputs),
+            flows: JSON.stringify(this.flows),
+            agents: JSON.stringify(this.agents)
         };
     }
 
@@ -304,6 +323,9 @@ export class Agent {
             locale: this?.locale || 'en',
             events: this?.events || {},
             tools: this?.tools || {},
+            agents: this?.agents || [],
+            flows: this?.flows || [],
+            inputs: this?.inputs || []
         };
         if (setValue !== null) {
             Object.keys(map).forEach((key) => {
@@ -328,6 +350,9 @@ export class Agent {
             agentType: data.agentType ?? agent?.agentType,
             status: data.status ?? agent?.status,
             events: data.events ?? agent?.events,
+            agents: data.agents ?? agent?.agents,
+            flows: data.flows ?? agent?.flows,
+            inputs: data.inputs ?? agent?.inputs,
             tools: data.tools ?? agent?.tools,
             options: {
                 ...agent?.options,
@@ -1057,6 +1082,7 @@ export type UploadedFile = {
     index: number;
     dto: AttachmentDTO | null;
 }
+
 
 export enum FileUploadStatus {
   QUEUED = 'queued',

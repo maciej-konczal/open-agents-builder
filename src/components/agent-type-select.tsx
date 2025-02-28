@@ -1,14 +1,7 @@
 import * as React from "react";
 import { useFormContext, useController } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { agentTypesRegistry } from "@/prompts/agent-types-registry";
+import { agentTypesRegistry } from "@/agent-types/registry";
 import Markdown from "react-markdown";
 import { InfoIcon } from "lucide-react";
 
@@ -19,12 +12,6 @@ export function AgentTypeSelect() {
   const { control } = useFormContext();
   const [agentDescription, setAgentDescription] = React.useState("");
 
-  const agentDescriptions: Record<string, string> = {
-    "survey-agent": t("Survey agents are used to collect the information or opionions from the users. Based on the previous answers they can **dynamically adjust** next questions. These agents save the answers for further processing in the desire format. Can replace tools like **Forms, Polls, Intake forms** etc."),
-    "smart-assistant": t("Smart assistants are **general purpose agents**. They can use tools for example checking Your calendar or booking new events. They can also be used for surveys (mixed with some other tasks) but needs to be finetuned for doing so on the prompt level."),
-    "commerce-agent": t("Commerce agents are used to **sell products or services**. They can be used in **e-commerce**, **service booking**, **b2b/cpq** scenarios. They operate on the **product catalog** and can be used to **upsell** or **cross-sell** products."),
-
-  }
 
   // Tie the `Select` to the "locale" field using React Hook Form's useController
   const {
@@ -44,7 +31,8 @@ export function AgentTypeSelect() {
         value={value}
         onChange={(e) => {
           onChange(e);
-          setAgentDescription(agentDescriptions[e.target.value]);
+          const agentDescriptor = agentTypesRegistry.find(a=>a.type === e.target.value);
+          setAgentDescription(agentDescriptor ?(agentDescriptor.description[i18n.language] ?? '') : '');
         }}
         onBlur={onBlur}
         ref={ref}
@@ -54,15 +42,15 @@ export function AgentTypeSelect() {
         <option value="" disabled>
           {t("Select agent type")}
         </option>
-        {agentTypesRegistry.filter(at => at.locale === i18n.language).map((at) => (
-          <option key={at.template} value={at.template}>
-        {at.displayName}
+        {agentTypesRegistry.map((at) => (
+          <option key={at.type} value={at.type}>
+        {at.displayName[i18n.language] ?? at.type}
           </option>
         ))}
       </select>
       <div className="text-xs p-2 flex">
         <div><InfoIcon className="w-4 h-4 mr-2" /></div>
-        <Markdown>{agentDescriptions[value]}</Markdown>
+        <Markdown>{agentTypesRegistry.find(at => at.type == value)?.description[i18n.language]}</Markdown>
       </div>
 
       {error && (

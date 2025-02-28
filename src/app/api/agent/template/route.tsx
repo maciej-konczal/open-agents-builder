@@ -52,7 +52,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
       const templatesPath = path.join(
         process.cwd(), // or your app root logic
         'src',
-        'templates'
+        'agent-templates'
       );
 
     const locales = await fs.readdir(templatesPath);
