@@ -27,8 +27,8 @@ export default function FlowsIntegratedEditor() {
       </div>
       <div>
         <FlowBuilder
-          value={rootFlow}
-          onChange={setRootFlow}
+          flow={rootFlow}
+          onFlowChange={setRootFlow}
           agentNames={agentNames}
         />
       </div>

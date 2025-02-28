@@ -28,6 +28,11 @@ export function FlowStepEditor({
   onDelete,
   availableAgentNames,
 }: FlowStepEditorProps) {
+  if (!step) {
+    // Opcjonalnie: zwróć komunikat lub null
+        return <div>Brak kroku do wyświetlenia</div>
+  }
+        
   switch (step.type) {
     // ================ STEP ================
     case 'step': {
