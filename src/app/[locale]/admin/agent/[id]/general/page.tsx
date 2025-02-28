@@ -20,6 +20,7 @@ import { AgentTypeSelect } from '@/components/agent-type-select';
 import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 import DataLoader from '@/components/data-loader';
 import { InfoIcon } from 'lucide-react';
+import { agentTypesRegistry } from '@/agent-types/registry';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
@@ -70,8 +71,10 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
       })
 
       const subscribeChanges = (originalRecord: Record<string, any>) => {
+        agentContext.setDirtyAgent(Agent.fromForm(getValues(), agentContext.current))
         dirtyCheck(originalRecord, getValues());
           return watch((value) => {
+            agentContext.setDirtyAgent(Agent.fromForm(getValues(), agentContext.current))
             dirtyCheck(originalRecord, value);
           });
       };
@@ -102,25 +105,23 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
 
     const newAgent = agent?.id === 'new';
     const updatedAgent = Agent.fromForm(data, agent);
-    if (!updatedAgent.prompt) {
-      router.push(`/admin/agent/${updatedAgent.id}/prompt`);
-      toast.error(t('Prompt is required'));
-      agentContext.setStatus({
-        id: 'prompt-required',
-        message: t('Prompt is required'),
-        type: 'error'
-      });
-      return;
-    }
-    if (!updatedAgent.expectedResult) {
-      router.push(`/admin/agent/${updatedAgent.id}/expected-result`);
-      toast.error(t('Expected result is required'));
-      agentContext.setStatus({
-        id: 'expected-result-required',
-        message: t('Expected result is required'),
-        type: 'error'
-      });      
-      return;
+
+    const agentTypeDescriptor = agentTypesRegistry.find(at => at.type === updatedAgent.agentType);
+    if (agentTypeDescriptor) {
+      for (const requiredField of agentTypeDescriptor.requiredTabs){
+        const valToCheck = updatedAgent.toForm()[requiredField];
+        if(!valToCheck || (Array.isArray(valToCheck) && valToCheck.length === 0)) {
+          router.push(`/admin/agent/${updatedAgent.id}/${requiredField}`);
+          toast.error(t('Field ') + t(requiredField) + t(' is required'));
+          agentContext.setStatus({
+            id: requiredField + '-required',
+            message: t('Field ') + t(requiredField) + t(' is required'),
+            type: 'error'
+          });
+          return;
+    
+        }
+      }
     }
 
     try {

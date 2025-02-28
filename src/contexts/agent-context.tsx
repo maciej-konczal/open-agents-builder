@@ -21,6 +21,8 @@ export type AgentStatusType = {
 
 interface AgentContextType {
     current: Agent | null;
+    dirtyAgent?: Agent | null;
+    setDirtyAgent: (agent: Agent | null) => void;
     agents: Agent[];
     results: PaginatedResult<Result[]>;
     agentResults: (agentId: string, { limit, offset, orderBy,  query} :  PaginatedQuery) => Promise<PaginatedResult<Result[]>>;
@@ -54,6 +56,7 @@ const AgentContext = createContext<AgentContextType | undefined>(undefined);
 
 export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [current, setCurrent] = useState<Agent | null>(null);
+    const [dirtyAgent, setDirtyAgent] = useState<Agent | null>(null)
     const [agents, setAgents] = useState<Agent[]>([]);
     const [results, setResults] = useState<PaginatedResult<Result[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [sessions, setSessions] = useState<PaginatedResult<Session[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
@@ -333,7 +336,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 
     return (
         <AgentContext.Provider value={{ 
-                current, 
+                current,
+                dirtyAgent,
+                setDirtyAgent, 
                 agents, 
                 setCurrent, 
                 setAgents,

@@ -1,50 +1,55 @@
-export const agentTypesRegistry = [
+export const agentTypesRegistry : {
+    type: string;
+    description: Record<string, string>;
+    requiredTabs: string[];
+    displayName: Record<string, string>;
+}[] = [
     {
         type: 'survey-agent',
-        locale: 'pl',
-        description: 'Ten agent przeprowadza ankiety, zbiera dane od użytkowników i zapisuje je w bazie danych. Unika odpowiedzi na pytania nie związane z ankietą.',
-        displayName: 'Agent przeprowadzający ankiety [Chat]'
-    },
-    {
-        type: 'survey-agent',
-        locale: 'en',
-        description: 'This agent conducts surveys, collects data from users, and saves it in the database. It avoids answering questions unrelated to the survey.',
-        displayName: 'Survey agent [Chat]'
+        description: {
+            pl: "Agenci ankietowi służą do zbierania informacji lub opinii od użytkowników. Na podstawie poprzednich odpowiedzi mogą **dynamicznie dostosowywać** kolejne pytania. Ci agenci zapisują odpowiedzi do dalszego przetwarzania w pożądanym formacie. Mogą zastąpić narzędzia takie jak **Formularze, Ankiety, Formularze zgłoszeniowe** itp.",
+            en: "Survey agents are used to collect information or opinions from users. Based on previous answers, they can **dynamically adjust** the next questions. These agents save the answers for further processing in the desired format. They can replace tools like **Forms, Polls, Intake forms** etc."    
+        },
+        requiredTabs: ['prompt', 'expectedResult'],
+        displayName: {
+            'pl': 'Agent przeprowadzający ankiety [Chat]',
+            'en': 'Survey agent [Chat]'
+        }
     },
     {
         type: 'smart-assistant',
-        locale: 'pl',
-        description: 'Ten agent jest inteligentnym asystentem, który pomaga użytkownikom w codziennych zadaniach, odpowiada na pytania i dostarcza informacje.',
-        displayName: 'Inteligentny asystent [Chat]'
-    },
-    {
-        type: 'smart-assistant',
-        locale: 'en',
-        description: 'This agent is a smart assistant that helps users with daily tasks, answers questions, and provides information.',
-        displayName: 'Smart assistant [Chat]'
+        description: {
+            pl: "Inteligentni asystenci to **agenci ogólnego przeznaczenia**. Mogą korzystać z narzędzi, na przykład sprawdzając Twój kalendarz lub rezerwując nowe wydarzenia. Mogą być również używane do ankiet (mieszane z innymi zadaniami), ale muszą być dostosowane do tego na poziomie promptu.",
+            en: "Smart assistants are **general-purpose agents**. They can use tools, for example, checking your calendar or booking new events. They can also be used for surveys (mixed with other tasks) but need to be fine-tuned for doing so at the prompt level."    
+        },
+        requiredTabs: ['prompt', 'expectedResult'],
+        displayName: {
+            'pl': 'Inteligentny asystent [Chat]',
+            'en': 'Smart assistant [Chat]'
+        }
     },
     {
         type: 'commerce-agent',
-        locale: 'pl',
-        description: 'Ten agent jest inteligentnym asystentem, który pomaga w zakupach, pozwala tworzyć zamówienia i przeglądać produkty',
-        displayName: 'Asystent sprzedaży [Chat]'
-    },
-    {
-        type: 'smart-assistant',
-        locale: 'en',
-        description: 'This agent is a smart assistant that helps with shopping, allows you to create orders, and browse products',
-        displayName: 'Sales assistant [Chat]'
-    },
-    {
-        type: 'flow',
-        locale: 'en',
-        description: 'This agent is a flow-based agent that allows you to create complex scenarios, automate processes, and develop apps that are called by API or other agents, using natural language. They can be used to create decision trees or integrations.',
-        displayName: 'App / Workflow [API]'
+        description: {
+            pl: "Agenci handlowi służą do **sprzedaży produktów lub usług**. Mogą być używane w **e-commerce**, **rezerwacji usług**, **b2b/cpq**. Operują na **katalogu produktów** i mogą być używane do **sprzedaży dodatkowej** lub **sprzedaży krzyżowej** produktów.",
+            en: "Commerce agents are used to **sell products or services**. They can be used in **e-commerce**, **service booking**, **b2b/cpq** scenarios. They operate on the **product catalog** and can be used to **upsell** or **cross-sell** products."            
+        },
+        requiredTabs: ['prompt', 'expectedResult'],
+        displayName: {
+            'pl': 'Asystent sprzedaży [Chat]',
+            'en': 'Sales assistant [Chat]'
+        }
     },
     {
         type: 'flow',
-        locale: 'pl',
-        description: 'Ten agent jest agentem opartym na przepływach, który pozwala na tworzenie złożonych scenariuszy, automatyzację procesów i rozwijanie aplikacji, które są wywoływane przez API lub inne agenty, za pomocą języka naturalnego. Mogą być używane do tworzenia drzew decyzyjnych lub integracji.',
-        displayName: 'Aplikacja / Workflow [API]'
+        description: {
+            pl: "Agenci oparte na przepływach pozwalają na tworzenie **złożonych scenariuszy**. Mogą być używane do **automatyzacji procesów** i rozwijania aplikacji, które są wywoływane przez API lub inne agenty, za pomocą **języka naturalnego**. Mogą być używane do **tworzenia drzew decyzyjnych** lub **integracji**.",
+            en: "Flow-based agents let you create **complex scenarios**. They can be used to **automate processes** and develop apps that are called by API or other agents, using **natural language**. They can be used to **create decision trees** or **integrations**."    
+        },
+        requiredTabs: ['inputs', 'flows', 'agents'],
+        displayName: {
+            'pl': 'Aplikacja / Workflow [API]',
+            'en': 'App / Workflow [API]'
+        }
     }
-]
+];

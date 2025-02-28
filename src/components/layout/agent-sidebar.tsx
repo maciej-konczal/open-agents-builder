@@ -3,14 +3,21 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon, NetworkIcon, VariableIcon } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon, NetworkIcon, VariableIcon, LucideProps } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
 import { useAgentContext } from '@/contexts/agent-context';
-import React, { useEffect } from 'react';
+import React, { ForwardRefExoticComponent, useEffect } from 'react';
 
-const availableItems = [
+const availableItems : {
+  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>>;
+  label: string;
+  href: string;
+  pattern: string;
+  agentTypes?: string[];
+  activeOnlyOnSavedAgent?: boolean;
+}[] = [
   { 
     icon: Settings2, 
     label: 'General', 
@@ -133,8 +140,8 @@ export function AgentSidebar() {
   const [sidebarItems, setSidebarItems] = React.useState(availableItems);
 
   useEffect(() => {  
-    setSidebarItems(availableItems.filter(item => !item.agentTypes || item.agentTypes?.includes(agentContext.current?.agentType || '')));
-  }, [agentContext.current?.agentType]);
+    setSidebarItems(availableItems.filter(item => !item.agentTypes || item.agentTypes?.includes(agentContext.dirtyAgent?.agentType || '')));
+  }, [agentContext.dirtyAgent?.agentType, agentContext.current?.agentType]);
 
   return (
     <div className="flex w-64 flex-col border-r bg-card">
@@ -145,7 +152,7 @@ export function AgentSidebar() {
             const isActive = pathname.endsWith(href) || pathname.match(item.pattern)
             
             
-            if ((item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) && (!item.agentTypes || (item.agentTypes as Array<string>).includes(agentContext.current?.agentType || ''))) {
+            if ((item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) && (!item.agentTypes || (item.agentTypes as Array<string>).includes(agentContext.dirtyAgent?.agentType || ''))) {
               return (
                 <Button
                 key={item.href}
