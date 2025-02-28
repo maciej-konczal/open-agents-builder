@@ -46,3 +46,19 @@ export type FlowStep =
       trueFlow: FlowStep[]
       falseFlow: FlowStep[]
     }
+
+
+export type FlowInputType =
+| 'shortText'
+| 'url'
+| 'longText'
+| 'number'
+| 'json'
+| 'fileBase64'
+
+export interface FlowInputVariable {
+  name: string
+  description?: string
+  required: boolean
+  type: FlowInputType
+}

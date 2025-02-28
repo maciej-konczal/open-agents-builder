@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon, NetworkIcon } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon, NetworkIcon, VariableIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +30,13 @@ const availableItems = [
     href: '/admin/agent/[id]/events',
     pattern: '/admin/agent/[id]/events',
     agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
+  },  
+  { 
+    icon: VariableIcon,
+    label: 'Inputs',
+    href: '/admin/agent/[id]/inputs',
+    pattern: '/admin/agent/[id]/inputs',
+    agentTypes: ['flow']
   },  
   { 
     icon: WorkflowIcon,
