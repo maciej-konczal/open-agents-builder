@@ -10,6 +10,14 @@
     "@ai-sdk/provider" "0.0.12"
     "@ai-sdk/provider-utils" "1.0.2"
 
+"@ai-sdk/openai@^1.0.19":
+  version "1.1.15"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/openai/-/openai-1.1.15.tgz#6c87eba3794e1bb5c84207ee5358eaf7dd7b5a2c"
+  integrity sha512-irGQx5lMrYI9gub7Sy2ZHu49D3Icf7OtfOu3X8fVKMONOyi54RTKRNjVZTewkfRNE44psTbZDO8j8qmPirOTNQ==
+  dependencies:
+    "@ai-sdk/provider" "1.0.9"
+    "@ai-sdk/provider-utils" "2.1.10"
+
 "@ai-sdk/provider-utils@1.0.16":
   version "1.0.16"
   resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-1.0.16.tgz#b866161032d5b47fc73ebc2dd5426990b3aaada2"
@@ -29,6 +37,16 @@
     eventsource-parser "1.1.2"
     nanoid "3.3.6"
     secure-json-parse "2.7.0"
+
+"@ai-sdk/provider-utils@2.1.10":
+  version "2.1.10"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider-utils/-/provider-utils-2.1.10.tgz#dfd671ccda12e321b58f347b6cbbdd982d139359"
+  integrity sha512-4GZ8GHjOFxePFzkl3q42AU0DQOtTQ5w09vmaWUf/pKFXJPizlnzKSUkF0f+VkapIUfDugyMqPMT1ge8XQzVI7Q==
+  dependencies:
+    "@ai-sdk/provider" "1.0.9"
+    eventsource-parser "^3.0.0"
+    nanoid "^3.3.8"
+    secure-json-parse "^2.7.0"
 
 "@ai-sdk/provider-utils@2.1.6":
   version "2.1.6"
@@ -61,6 +79,23 @@
   dependencies:
     json-schema "^0.4.0"
 
+"@ai-sdk/provider@1.0.9":
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/provider/-/provider-1.0.9.tgz#01c2e69df8258aed5b1fe08fba380133a645800f"
+  integrity sha512-jie6ZJT2ZR0uVOVCDc9R2xCX5I/Dum/wEK28lx21PJx6ZnFAN9EzD2WsPhcDWfCgGx3OAZZ0GyM3CEobXpa9LA==
+  dependencies:
+    json-schema "^0.4.0"
+
+"@ai-sdk/react@1.1.18":
+  version "1.1.18"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/react/-/react-1.1.18.tgz#a7bc11d666cb35640f329bf87481c386664e2075"
+  integrity sha512-2wlWug6NVAc8zh3pgqtvwPkSNTdA6Q4x9CmrNXCeHcXfJkJ+MuHFQz/I7Wb7mLRajf0DAxsFLIhHyBCEuTkDNw==
+  dependencies:
+    "@ai-sdk/provider-utils" "2.1.10"
+    "@ai-sdk/ui-utils" "1.1.16"
+    swr "^2.2.5"
+    throttleit "2.1.0"
+
 "@ai-sdk/react@1.1.8":
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/@ai-sdk/react/-/react-1.1.8.tgz#3cf160e6932d81b5eb3f777b95ddcc56affaf59c"
@@ -70,6 +105,15 @@
     "@ai-sdk/ui-utils" "1.1.8"
     swr "^2.2.5"
     throttleit "2.1.0"
+
+"@ai-sdk/ui-utils@1.1.16":
+  version "1.1.16"
+  resolved "https://registry.yarnpkg.com/@ai-sdk/ui-utils/-/ui-utils-1.1.16.tgz#0159425d41b7737f406103174e20c0843f140d2f"
+  integrity sha512-jfblR2yZVISmNK2zyNzJZFtkgX57WDAUQXcmn3XUBJyo8LFsADu+/vYMn5AOyBi9qJT0RBk11PEtIxIqvByw3Q==
+  dependencies:
+    "@ai-sdk/provider" "1.0.9"
+    "@ai-sdk/provider-utils" "2.1.10"
+    zod-to-json-schema "^3.24.1"
 
 "@ai-sdk/ui-utils@1.1.8":
   version "1.1.8"
@@ -4391,6 +4435,18 @@ agentkeepalive@^4.2.1:
   dependencies:
     humanize-ms "^1.2.1"
 
+ai@^4.0.36:
+  version "4.1.46"
+  resolved "https://registry.yarnpkg.com/ai/-/ai-4.1.46.tgz#a3e00bddba571f9445ff4371c5d97201e17cb5ec"
+  integrity sha512-VTvAktT69IN1qcNAv7OlcOuR0q4HqUlhkVacrWmMlEoprYykF9EL5RY8IECD5d036Wqg0walwbSKZlA2noHm1A==
+  dependencies:
+    "@ai-sdk/provider" "1.0.9"
+    "@ai-sdk/provider-utils" "2.1.10"
+    "@ai-sdk/react" "1.1.18"
+    "@ai-sdk/ui-utils" "1.1.16"
+    "@opentelemetry/api" "1.9.0"
+    jsondiffpatch "0.6.0"
+
 ai@^4.1.17:
   version "4.1.17"
   resolved "https://registry.yarnpkg.com/ai/-/ai-4.1.17.tgz#1c5eb74e4af2bd637b2720d183f733514ad13799"
@@ -6329,6 +6385,16 @@ flatted@^3.2.9:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/flatted/-/flatted-3.3.2.tgz#adba1448a9841bec72b42c532ea23dbbedef1a27"
   integrity sha512-AiwGJM8YcNOaobumgtng+6NHuOqC3A7MixFeDafM3X9cIUM+xUXoS5Vfgf+OihAYe20fxqNM9yPBXJzRtZ/4eA==
+
+flows-ai@^0.4.0:
+  version "0.4.0"
+  resolved "https://registry.yarnpkg.com/flows-ai/-/flows-ai-0.4.0.tgz#9b60f624362d0368e2522d8d1ca2d21ed32d9791"
+  integrity sha512-oSYYcuFp/6YxLiELGRTufzFKmAaVlWCfk9Z4nW7c58yDqtPogAXDPOAPieck/czLme+ciHHSUntMN79STGZ7fA==
+  dependencies:
+    "@ai-sdk/openai" "^1.0.19"
+    ai "^4.0.36"
+    dedent "^1.5.3"
+    zod "^3.24.1"
 
 follow-redirects@^1.15.6:
   version "1.15.9"
@@ -11019,6 +11085,11 @@ zod@^3.23.8:
   version "3.23.8"
   resolved "https://registry.yarnpkg.com/zod/-/zod-3.23.8.tgz#e37b957b5d52079769fb8097099b592f0ef4067d"
   integrity sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==
+
+zod@^3.24.1:
+  version "3.24.2"
+  resolved "https://registry.yarnpkg.com/zod/-/zod-3.24.2.tgz#8efa74126287c675e92f46871cfc8d15c34372b3"
+  integrity sha512-lY7CDW43ECgW9u1TcT3IoXHflywfVqDYze4waEz812jR/bZ8FHDsl7pFQoSZTz5N+2NqRXs8GBwnAwo3ZNxqhQ==
 
 zwitch@^2.0.0:
   version "2.0.4"
