@@ -1,26 +1,37 @@
 'use client'
-import React, { useState } from 'react'
+import React from 'react'
+import { FlowStep } from '@/flows/models'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 
-import { FlowStep } from '@/data/client/models'
-
-/**
- * Komponent rekurencyjny do edycji pojedynczego FlowStep.
- */
 interface FlowStepEditorProps {
   step: FlowStep
   onChange: (newStep: FlowStep) => void
   onDelete: () => void
+
+  /**
+   * Lista nazw agentów, które możemy wybrać w kroku typu 'step'.
+   * Gdy step.type === 'step', zamiast zwykłego <Input> do 'agent'
+   * robimy <select> z dostępnymi nazwami agentów.
+   */
+  availableAgentNames: string[]
 }
 
-function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
+/**
+ * Komponent rekurencyjny do edycji FlowStep (step / sequence / parallel / race / condition / branch).
+ */
+export function FlowStepEditor({
+  step,
+  onChange,
+  onDelete,
+  availableAgentNames,
+}: FlowStepEditorProps) {
   switch (step.type) {
-    // --- Krok z agentem i inputem ---
+    // ================ STEP ================
     case 'step': {
-      const handleAgentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleAgentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         onChange({ ...step, agent: e.target.value })
       }
       const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,15 +41,22 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
       return (
         <Card className="p-4 my-2 border space-y-2">
           <div className="flex items-center gap-2">
-            <label className="w-24">Agent:</label>
-            <Input
+            <label className="w-20">Agent:</label>
+            <select
+              className="border p-1 rounded"
               value={step.agent}
               onChange={handleAgentChange}
-              placeholder="Nazwa agenta, np. translationAgent"
-            />
+            >
+              <option value="">(Wybierz agenta)</option>
+              {availableAgentNames.map((agentName) => (
+                <option key={agentName} value={agentName}>
+                  {agentName}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex items-center gap-2">
-            <label className="w-24">Input:</label>
+            <label className="w-20">Input:</label>
             <Input
               value={step.input}
               onChange={handleInputChange}
@@ -54,7 +72,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
       )
     }
 
-    // --- Sekwencja kroków ---
+    // ================ SEQUENCE ================
     case 'sequence': {
       const handleAddStep = () => {
         const newSteps = [
@@ -136,6 +154,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
                 step={childStep}
                 onChange={(newStep) => handleStepChange(index, newStep)}
                 onDelete={() => handleDeleteStep(index)}
+                availableAgentNames={availableAgentNames}
               />
             ))}
           </div>
@@ -152,17 +171,12 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
       )
     }
 
-    // --- Parallel ---
+    // ================ PARALLEL ================
     case 'parallel': {
-      // Każda "gałąź" (branch) w parallel to tablica FlowStep[]
       const { branches } = step
 
       const handleAddBranch = () => {
-        // Dodajemy nową pustą tablicę kroków
-        onChange({
-          ...step,
-          branches: [...branches, []],
-        })
+        onChange({ ...step, branches: [...branches, []] })
       }
 
       const handleBranchStepChange = (
@@ -226,6 +240,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
                       handleBranchStepChange(bIdx, sIdx, newStep)
                     }
                     onDelete={() => handleDeleteBranchStep(bIdx, sIdx)}
+                    availableAgentNames={availableAgentNames}
                   />
                 ))}
 
@@ -241,16 +256,12 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
       )
     }
 
-    // --- Race ---
+    // ================ RACE ================
     case 'race': {
-      // Bardzo podobne do parallel, ale semantyka inna (kończy się, gdy pierwsza gałąź skończy)
       const { branches } = step
 
       const handleAddBranch = () => {
-        onChange({
-          ...step,
-          branches: [...branches, []],
-        })
+        onChange({ ...step, branches: [...branches, []] })
       }
 
       const handleBranchStepChange = (
@@ -314,6 +325,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
                       handleBranchStepChange(bIdx, sIdx, newStep)
                     }
                     onDelete={() => handleDeleteBranchStep(bIdx, sIdx)}
+                    availableAgentNames={availableAgentNames}
                   />
                 ))}
 
@@ -329,7 +341,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
       )
     }
 
-    // --- Condition ---
+    // ================ CONDITION ================
     case 'condition': {
       const { condition, steps } = step
 
@@ -337,7 +349,6 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
         onChange({ ...step, condition: e.target.value })
       }
 
-      // Edycja wewnętrznej sekwencji steps
       const handleStepChange = (index: number, newStep: FlowStep) => {
         const newSteps = [...steps]
         newSteps[index] = newStep
@@ -352,38 +363,35 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
       const handleAddStep = () => {
         onChange({
           ...step,
-          steps: [...steps, { type: 'step', agent: '', input: '' } as FlowStep],
+          steps: [...steps, { type: 'step', agent: '', input: '' }],
         })
       }
 
       const handleAddSequence = () => {
         onChange({
           ...step,
-          steps: [...steps, { type: 'sequence', steps: [] } as FlowStep],
+          steps: [...steps, { type: 'sequence', steps: [] }],
         })
       }
 
       const handleAddParallel = () => {
         onChange({
           ...step,
-          steps: [...steps, { type: 'parallel', branches: [] } as FlowStep],
+          steps: [...steps, { type: 'parallel', branches: [] }],
         })
       }
 
       const handleAddRace = () => {
         onChange({
           ...step,
-          steps: [...steps, { type: 'race', branches: [] } as FlowStep],
+          steps: [...steps, { type: 'race', branches: [] }],
         })
       }
 
       const handleAddCondition = () => {
         onChange({
           ...step,
-          steps: [
-            ...steps,
-            { type: 'condition', condition: '', steps: [] } as FlowStep,
-          ],
+          steps: [...steps, { type: 'condition', condition: '', steps: [] }],
         })
       }
 
@@ -411,7 +419,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
             <Input
               value={condition}
               onChange={handleConditionChange}
-              placeholder="np. userInput == 'xyz'"
+              placeholder="np. userInput === 'ok'"
             />
           </div>
 
@@ -422,6 +430,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
                 step={childStep}
                 onChange={(newStep) => handleStepChange(index, newStep)}
                 onDelete={() => handleDeleteStep(index)}
+                availableAgentNames={availableAgentNames}
               />
             ))}
           </div>
@@ -438,7 +447,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
       )
     }
 
-    // --- Branch (if/else) ---
+    // ================ BRANCH ================
     case 'branch': {
       const { condition, trueFlow, falseFlow } = step
 
@@ -506,6 +515,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
                   step={childStep}
                   onChange={(newStep) => handleTrueFlowChange(index, newStep)}
                   onDelete={() => handleDeleteTrueFlowStep(index)}
+                  availableAgentNames={availableAgentNames}
                 />
               ))}
 
@@ -573,6 +583,7 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
                   step={childStep}
                   onChange={(newStep) => handleFalseFlowChange(index, newStep)}
                   onDelete={() => handleDeleteFalseFlowStep(index)}
+                  availableAgentNames={availableAgentNames}
                 />
               ))}
 
@@ -638,53 +649,4 @@ function FlowStepEditor({ step, onChange, onDelete }: FlowStepEditorProps) {
     default:
       return null
   }
-}
-
-/**
- * Główny komponent, przechowujący w stanie korzeń flow (sequence) i renderujący edytor.
- */
-export default function FlowBuilder() {
-  // Domyślnie zaczynamy od pustej sekwencji na górnym poziomie
-  const [rootFlow, setRootFlow] = useState<FlowStep>({
-    type: 'sequence',
-    steps: [],
-  })
-
-  const handleRootChange = (newFlow: FlowStep) => {
-    setRootFlow(newFlow)
-  }
-
-  const exportFlow = () => {
-    console.log(JSON.stringify(rootFlow, null, 2))
-  }
-
-  return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Flow Builder</h1>
-
-      <FlowStepEditor
-        step={rootFlow}
-        onChange={handleRootChange}
-        onDelete={() => {
-          // Usunięcie głównej sekwencji = reset
-          setRootFlow({ type: 'sequence', steps: [] })
-        }}
-      />
-
-      <div className="mt-6 flex gap-2">
-        <Button onClick={exportFlow}>Export Flow (console)</Button>
-
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">Podgląd JSON</Button>
-          </DialogTrigger>
-          <DialogContent className="p-4">
-            <pre className="whitespace-pre-wrap text-sm">
-              {JSON.stringify(rootFlow, null, 2)}
-            </pre>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-  )
 }

@@ -12,7 +12,7 @@ import { MarkdownEditor } from '@/components/markdown-editor';
 import React from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
-import FlowsBuilder from '@/components/flows-builder';
+import FlowsBuilder from '@/components/flows/flows-integrated-editor';
 
 export default function FlowsPage() {
 
