@@ -12,6 +12,7 @@ import { MarkdownEditor } from '@/components/markdown-editor';
 import React from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
+import FlowsBuilder from '@/components/flows-builder';
 
 export default function FlowsPage() {
 
@@ -39,6 +40,7 @@ export default function FlowsPage() {
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
+            <FlowsBuilder />
 
         </div>
       </form>
