@@ -1,13 +1,6 @@
 import * as React from "react";
 import { useFormContext, useController } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { agentTypesRegistry } from "@/agent-types/registry";
 import Markdown from "react-markdown";
 import { InfoIcon } from "lucide-react";

@@ -16,17 +16,18 @@ export default function InputsPage() {
   const router = useRouter();
   const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
 
-  const params = useParams();
-  const [variables, setVariables] = useState<FlowInputVariable[]>(dirtyAgent?.inputs ?? agent?.inputs ?? [])
-
-  const onVariablesChanged = (value: FlowInputVariable[]) => {
-    setValue('inputs', value);
-    setVariables(value);
-  }
-  
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
+
+  const params = useParams();
+  const variables = watch('inputs') ?? [];
+  register('inputs')
+  const onVariablesChanged = (value: FlowInputVariable[]) => {
+    setValue('inputs', value);
+  }
+  
+
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, {});
 

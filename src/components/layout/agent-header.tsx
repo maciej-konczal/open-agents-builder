@@ -13,7 +13,7 @@ import { useAgentContext } from '@/contexts/agent-context';
 import { DatabaseContext } from "@/contexts/db-context";
 import { Play, Trash2Icon, LayoutTemplateIcon, ImportIcon, ShareIcon, Share2Icon, FilePlusIcon } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
-import { useContext, useEffect, useState } from 'react';
+import { use, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import TemplateListPopup from '../template-list-popup';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu';
@@ -23,6 +23,7 @@ import { AgentDeleteDialog } from '../agent-delete-dialog';
 import { useFilePicker } from 'use-file-picker';
 import { getErrorMessage } from '@/lib/utils';
 import { useCopyToClipboard } from 'react-use';
+import { Agent } from '@/data/client/models';
 
 export function AgentHeader() {
   const router = useRouter();
@@ -36,6 +37,8 @@ export function AgentHeader() {
 
   const [templatesDropdownOpen, setTemplatesDropdownOpen] = useState(false);
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
+
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
 
   const { openFilePicker, filesContent, loading } = useFilePicker({
@@ -61,6 +64,21 @@ export function AgentHeader() {
       toast.error(t(getErrorMessage(e)))
     });
   }, [currentId]);
+
+
+  useEffect(() => {
+    if (agentContext.current?.id !== 'new') {
+      const agent = agentContext.dirtyAgent ?? agentContext.current ?? null;
+
+      if (agent) {
+        if (agent.agentType === 'flow') { // TODO: add support for other interface types here
+          setPreviewUrl(`${process.env.NEXT_PUBLIC_APP_URL}/exec/${dbContext?.databaseIdHash}/${agentContext.current?.id}`);
+        } else { 
+          setPreviewUrl(`${process.env.NEXT_PUBLIC_APP_URL}/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`);
+        }
+      }
+    }
+  }, [agentContext.current, agentContext.dirtyAgent]);
 
   const handleAgentChange = (newId: string) => {
 
@@ -153,8 +171,8 @@ export function AgentHeader() {
       </div>
 
       <div>
-        {(agentContext.current?.id !== 'new') ? (
-          <Button variant="secondary" className="mr-2" size="sm" onClick={() => window.open(`/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`)}>
+        {(agentContext.current?.id !== 'new' && previewUrl) ? (
+          <Button variant="secondary" className="mr-2" size="sm" onClick={() => window.open(previewUrl)}>
               <Play className="mr-2 h-4 w-4" />
             {t('Preview')}
           </Button>

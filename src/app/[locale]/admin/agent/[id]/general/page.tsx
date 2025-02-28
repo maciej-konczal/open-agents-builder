@@ -20,7 +20,7 @@ import { AgentTypeSelect } from '@/components/agent-type-select';
 import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
 import DataLoader from '@/components/data-loader';
 import { InfoIcon } from 'lucide-react';
-import { agentTypesRegistry } from '@/agent-types/registry';
+import { AgentTypeDescriptor, agentTypesRegistry } from '@/agent-types/registry';
 
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
@@ -153,6 +153,7 @@ export default function GeneralPage() {
   const { t } = useTranslation();
   const router = useRouter();
   const { setStatus, status, removeStatus, current: agent, updateAgent, loaderStatus } = useAgentContext();
+  const [agentDescriptor, setAgentDescriptor] = useState<AgentTypeDescriptor>({});
 
   const methods = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
@@ -171,6 +172,15 @@ export default function GeneralPage() {
   });
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, editors);
+
+  const agentTypeValue = watch('agentType');
+  useEffect(() => {
+    if(agentTypeValue){
+        const agentTypeDescriptor = agentTypesRegistry.find(at => at.type === agentTypeValue);
+        if (agentDescriptor) setAgentDescriptor(agentTypeDescriptor as AgentTypeDescriptor);
+    }
+  }, [agentTypeValue]);
+
 
   useEffect(() => {
     if (isDirty) {
@@ -218,23 +228,28 @@ export default function GeneralPage() {
       </div>
       <div>
         <label htmlFor="welcomeInfo" className="block text-sm font-medium">
-        {t('Welcome Message')}
+        {t(agentDescriptor?.supportsUserFacingUI ? 'Welcome Message' : 'Description')}
         </label>
         <MarkdownEditor markdown={getValues('welcomeInfo') ?? agent?.options?.welcomeMessage ?? ''} ref={editors.welcomeInfo} onChange={(e) => setValue('welcomeInfo', e)} diffMarkdown={agent?.options?.welcomeMessage ?? ''} />
         {errors.welcomeInfo && <p className="mt-2 text-sm text-red-600">{errors.welcomeInfo.message}</p>}
       </div>
-      <div>
-        <label htmlFor="termsConditions" className="block text-sm font-medium">
-        {t('Terms and Conditions')}
-        </label>
-        <MarkdownEditor markdown={getValues('termsConditions') ?? agent?.options?.termsAndConditions} ref={editors.termsConditions ?? ''} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
-        {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{t('If you require terms to be accepted by the user, you should provide them.')}</p>}
-      </div>
+      { agentDescriptor?.supportsUserFacingUI && (
+        <div>
+          <label htmlFor="termsConditions" className="block text-sm font-medium">
+          {t('Terms and Conditions')}
+          </label>
+          <MarkdownEditor markdown={getValues('termsConditions') ?? agent?.options?.termsAndConditions} ref={editors.termsConditions ?? ''} onChange={(e) => setValue('termsConditions', e)} diffMarkdown={agent?.options?.termsAndConditions ?? ''} />
+          {errors.termsConditions && <p className="mt-2 text-sm text-red-600">{t('If you require terms to be accepted by the user, you should provide them.')}</p>}
+        </div>
+      )}
+    { agentDescriptor?.supportsUserFacingUI && (
       <div className="text-xs p-2 flex">
         <div><InfoIcon className="w-4 h-4 mr-2" /></div>
         <div><strong>{t('Important note on GDPR and Terms: ')}</strong> {t('if your agent is about to process the personal data of the users, you SHOULD provide the terms and conditions and ask for the user consent. If you offer a commerce service you SHOULD also apply the Consumer Laws and provide the user with the right to return the product.')}
         </div>
       </div>
+      )}
+      { agentDescriptor?.supportsUserFacingUI && (
       <div>
         <label htmlFor="confirmTerms" className="flex items-center text-sm font-medium">
         <Input
@@ -247,6 +262,8 @@ export default function GeneralPage() {
         </label>
         {errors.confirmTerms && <p className="mt-2 text-sm text-red-600">{errors.confirmTerms.message}</p>}
       </div>
+      )}
+     { agentDescriptor?.supportsUserFacingUI && (
       <div>
         <label htmlFor="resultEmail" className="block text-sm font-medium">
         {t('Result Email')}
@@ -259,6 +276,8 @@ export default function GeneralPage() {
         />
         {errors.resultEmail && <p className="mt-2 text-sm text-red-600">{errors.resultEmail.message}</p>}
       </div>
+     )}
+     { agentDescriptor?.supportsUserFacingUI && (
       <div>
         <label htmlFor="collectUserInfo" className="flex items-center text-sm font-medium">
         <Input
@@ -271,12 +290,15 @@ export default function GeneralPage() {
         </label>
         {errors.collectUserInfo && <p className="mt-2 text-sm text-red-600">{errors.collectUserInfo.message}</p>}
       </div>
+      )}
+      { agentDescriptor?.supportsUserFacingUI && (
       <div>
         <label htmlFor="locale" className="block text-sm font-medium">
           {t('Default language')}
         </label>
         <LocaleSelect fieldName='locale' register={register} />
       </div>
+      )}
       <div className="flex justify-between">
         <Button
         type="submit"
