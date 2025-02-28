@@ -51,8 +51,8 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
               return acc;
             }, {});
 
-            const editableEntriesString = Object.entries(sortedEditableState).map(([key, value]) => `${key}:${value}`).join(',');
-            const savedEntriesString = Object.entries(sortedSavedState).map(([key, value]) => `${key}:${value}`).join(',');
+            const editableEntriesString = Object.entries(sortedEditableState).map(([key, value]) => `${key}:${JSON.stringify(value)}`).join(',');
+            const savedEntriesString = Object.entries(sortedSavedState).map(([key, value]) => `${key}:${JSON.stringify(value)}`).join(',');
             const [editableEntriesHash, savedEntriesHash] = await Promise.all([
               sha256(editableEntriesString, ''),
               sha256(savedEntriesString, '')

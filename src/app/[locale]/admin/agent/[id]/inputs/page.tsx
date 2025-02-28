@@ -2,10 +2,10 @@
 import { useTranslation } from 'react-i18next';
 import { useAgentContext } from '@/contexts/agent-context';
 import { useForm } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { FlowInputVariable } from '@/flows/models';
 import { FlowInputVariablesEditor } from '@/components/flows/flows-input-variables-editor';
@@ -14,12 +14,13 @@ export default function InputsPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
-  const { current: agent, status, updateAgent } = useAgentContext();
+  const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
 
-  const [variables, setVariables] = useState<FlowInputVariable[]>([])
+  const params = useParams();
+  const [variables, setVariables] = useState<FlowInputVariable[]>(dirtyAgent?.inputs ?? agent?.inputs ?? [])
 
   const onVariablesChanged = (value: FlowInputVariable[]) => {
-    setValue('inputs', variables);
+    setValue('inputs', value);
     setVariables(value);
   }
   
@@ -27,11 +28,7 @@ export default function InputsPage() {
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
-    const editors = {
-      expectedResult: React.useRef<MDXEditorMethods>(null)
-    }
-
-  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, editors);
+  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, {});
 
   return (
     <div className="space-y-6">
@@ -41,11 +38,9 @@ export default function InputsPage() {
       <AgentStatus status={status} />
       ) }
 
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
             <FlowInputVariablesEditor variables={variables} onChange={onVariablesChanged} />
         </div>
-      </form>
     </div>
   );
 }
