@@ -36,9 +36,7 @@ export default function FlowBuilder({
   }
 
   return (
-    <div className="p-4 space-y-4">
-      <h1 className="text-2xl font-bold">Flow Builder</h1>
-
+    <div className="p-2">
       <FlowStepEditor
         step={flow}
         onChange={onFlowChange}
@@ -57,7 +55,7 @@ export default function FlowBuilder({
           <DialogTrigger asChild>
             <Button variant="outline">Podgląd JSON</Button>
           </DialogTrigger>
-          <DialogContent className="p-4">
+          <DialogContent className="p-2">
             <pre className="whitespace-pre-wrap text-sm">
               {JSON.stringify(convertToFlowDefinition(flow), null, 2)}
             </pre>

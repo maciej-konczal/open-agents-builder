@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { useTranslation } from 'react-i18next'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
 
 interface FlowStepEditorProps {
   step: EditorStep
@@ -20,6 +22,9 @@ export function FlowStepEditor({
   onDelete,
   availableAgentNames,
 }: FlowStepEditorProps) {
+
+  const { t } = useTranslation();
+
   if (!step) {
     return <div className="text-sm text-red-500">Brak kroku do wyświetlenia</div>
   }
@@ -37,9 +42,9 @@ export function FlowStepEditor({
       }
 
       return (
-        <Card className="p-4 my-2 border space-y-4">
+        <Card className="p-2 my-2 border space-y-2">
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg">Step</div>
+            <div className="font-semibold text-sm">{t('Step')}</div>
             <Button variant="destructive" onClick={onDelete}>
               Usuń
             </Button>
@@ -114,63 +119,70 @@ export function FlowStepEditor({
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => addStep({ type: 'step', agent: '', input: '' })}>
-              + step
-            </Button>
-            <Button onClick={() => addStep({ type: 'sequence', steps: [] })}>
-              + sequence
-            </Button>
-            <Button onClick={() => addStep({ type: 'parallel', steps: [] })}>
-              + parallel
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'oneOf',
-                  branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
-                })
-              }
-            >
-              + oneOf
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'forEach',
-                  item: 'SomeZodSchemaOrString',
-                  inputFlow: { type: 'step', agent: '', input: '' },
-                })
-              }
-            >
-              + forEach
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'evaluator',
-                  criteria: '',
-                  subFlow: { type: 'step', agent: '', input: '' },
-                })
-              }
-            >
-              + evaluator
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'bestOfAll',
-                  criteria: '',
-                  steps: [
-                    { type: 'step', agent: '', input: '' },
-                    { type: 'step', agent: '', input: '' },
-                  ],
-                })
-              }
-            >
-              + bestOfAll
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm">
+                Dodaj krok
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
+                + step
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
+                + sequence
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'parallel', steps: [] })}>
+                + parallel
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'oneOf',
+                    branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
+                  })
+                }
+              >
+                + oneOf
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'forEach',
+                    item: 'SomeZodSchemaOrString',
+                    inputFlow: { type: 'step', agent: '', input: '' },
+                  })
+                }
+              >
+                + forEach
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'evaluator',
+                    criteria: '',
+                    subFlow: { type: 'step', agent: '', input: '' },
+                  })
+                }
+              >
+                + evaluator
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'bestOfAll',
+                    criteria: '',
+                    steps: [
+                      { type: 'step', agent: '', input: '' },
+                      { type: 'step', agent: '', input: '' },
+                    ],
+                  })
+                }
+              >
+                + bestOfAll
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </Card>
       )
     }
@@ -216,63 +228,70 @@ export function FlowStepEditor({
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => addStep({ type: 'step', agent: '', input: '' })}>
-              + step
-            </Button>
-            <Button onClick={() => addStep({ type: 'sequence', steps: [] })}>
-              + sequence
-            </Button>
-            <Button onClick={() => addStep({ type: 'parallel', steps: [] })}>
-              + parallel
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'oneOf',
-                  branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
-                })
-              }
-            >
-              + oneOf
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'forEach',
-                  item: 'SomeZodSchemaOrString',
-                  inputFlow: { type: 'step', agent: '', input: '' },
-                })
-              }
-            >
-              + forEach
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'evaluator',
-                  criteria: '',
-                  subFlow: { type: 'step', agent: '', input: '' },
-                })
-              }
-            >
-              + evaluator
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'bestOfAll',
-                  criteria: '',
-                  steps: [
-                    { type: 'step', agent: '', input: '' },
-                    { type: 'step', agent: '', input: '' },
-                  ],
-                })
-              }
-            >
-              + bestOfAll
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm">
+                Dodaj krok
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
+                + step
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
+                + sequence
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'parallel', steps: [] })}>
+                + parallel
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'oneOf',
+                    branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
+                  })
+                }
+              >
+                + oneOf
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'forEach',
+                    item: 'SomeZodSchemaOrString',
+                    inputFlow: { type: 'step', agent: '', input: '' },
+                  })
+                }
+              >
+                + forEach
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'evaluator',
+                    criteria: '',
+                    subFlow: { type: 'step', agent: '', input: '' },
+                  })
+                }
+              >
+                + evaluator
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'bestOfAll',
+                    criteria: '',
+                    steps: [
+                      { type: 'step', agent: '', input: '' },
+                      { type: 'step', agent: '', input: '' },
+                    ],
+                  })
+                }
+              >
+                + bestOfAll
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </Card>
       )
     }
@@ -504,64 +523,70 @@ export function FlowStepEditor({
             ))}
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={() => addStep({ type: 'step', agent: '', input: '' })}>
-              + step
-            </Button>
-            <Button onClick={() => addStep({ type: 'sequence', steps: [] })}>
-              + sequence
-            </Button>
-            <Button onClick={() => addStep({ type: 'parallel', steps: [] })}>
-              + parallel
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'oneOf',
-                  branches: [{ when: 'cond', flow: { type: 'step', agent: '', input: '' } }],
-                })
-              }
-            >
-              + oneOf
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'forEach',
-                  item: 'SomeZodSchemaOrString',
-                  inputFlow: { type: 'step', agent: '', input: '' },
-                })
-              }
-            >
-              + forEach
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'evaluator',
-                  criteria: '',
-                  subFlow: { type: 'step', agent: '', input: '' },
-                })
-              }
-            >
-              + evaluator
-            </Button>
-            <Button
-              onClick={() =>
-                addStep({
-                  type: 'bestOfAll',
-                  criteria: '',
-                  steps: [
-                    { type: 'step', agent: '', input: '' },
-                    { type: 'step', agent: '', input: '' },
-                  ],
-                })
-              }
-            >
-              + bestOfAll
-            </Button>
-          </div>
-        </Card>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" size="sm">
+                Dodaj krok
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
+                + step
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
+                + sequence
+              </DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'parallel', steps: [] })}>
+                + parallel
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'oneOf',
+                    branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
+                  })
+                }
+              >
+                + oneOf
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'forEach',
+                    item: 'SomeZodSchemaOrString',
+                    inputFlow: { type: 'step', agent: '', input: '' },
+                  })
+                }
+              >
+                + forEach
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'evaluator',
+                    criteria: '',
+                    subFlow: { type: 'step', agent: '', input: '' },
+                  })
+                }
+              >
+                + evaluator
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onSelect={() =>
+                  addStep({
+                    type: 'bestOfAll',
+                    criteria: '',
+                    steps: [
+                      { type: 'step', agent: '', input: '' },
+                      { type: 'step', agent: '', input: '' },
+                    ],
+                  })
+                }
+              >
+                + bestOfAll
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>        </Card>
       )
     }
 

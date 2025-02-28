@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button';
 import {  DialogContent, DialogTrigger, Dialog, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { NetworkIcon } from 'lucide-react';
 import { safeJsonParse } from '@/lib/utils';
+import { set } from 'date-fns';
 
 export default function FlowsPage() {
 
@@ -27,6 +28,7 @@ export default function FlowsPage() {
   register('flows')
 
   const [newFlowName, setNewFlowName] = useState<string>('');
+  const [addFlowError, setAddFlowError] = useState<string>('');
   const [newFlowCode, setNewFlowCode] = useState<string>('');
 
   const agents = watch('agents') ?? [];
@@ -72,31 +74,51 @@ export default function FlowsPage() {
   }, [currentFlow]);
   
 
+  useEffect(() => {
+    setAddFlowError('');
+    if (newFlowCode){ 
+      if (flows && flows.find(f => f.code === newFlowCode)) {
+        setAddFlowError(t('Flow with this code already exists'));
+      } 
+    } else {
+      setAddFlowError(t('Flow code is required'));
+    }
+
+    if (!newFlowName) {
+      setAddFlowError(t('Flow name is required'));
+    }
+  }, [newFlowCode, newFlowName]);
+
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, {});
 
   return (
     <div className="space-y-6">
       <div>
-        <select className="form-select w-full" value={currentFlow?.code} onChange={(e) => {
-          const flow = flows.find(f => f.code === e.target.value);
-          if (flow) {
-            setRootFlow(flow.flow);
-            setCurrentFlow(flow);
-          }
-        }}>
-          {flows.map((flow, index) => (
-            <option key={index} value={flow.code}>{flow.name}</option>
-          ))}
-        </select>
+        {flows?.length > 0 && (
+          <select className="form-select w-full" value={currentFlow?.code} onChange={(e) => {
+            const flow = flows.find(f => f.code === e.target.value);
+            if (flow) {
+              setRootFlow(flow.flow);
+              setCurrentFlow(flow);
+            }
+          }}>
+            {flows.map((flow, index) => (
+              <option key={index} value={flow.code}>{flow.name}</option>
+            ))}
+          </select>
+        )}
         <Dialog>
-          <DialogHeader>{t('Add flow')}</DialogHeader>
           <DialogTrigger asChild>
             <Button variant="secondary" size="sm"><NetworkIcon className="w-4 h-4 mr-2" />{t('Add flow')}</Button>
           </DialogTrigger>
           <DialogContent>
-            <div className="space-y-4">
-              <h3>{t('Add new flow')}</h3>
+            <div className="space-y-4 p-4">
+              <h3 className="font-bold text-sm">{t('Add new flow')}</h3>
               <p>{t('Add a new flow to the agent')}</p>
+
+              {addFlowError && (
+                <div className="text-red-500">{addFlowError}</div>
+              )}
 
               <label>{t('Flow name')}</label>           
               <input type="text" placeholder={t('Flow name')} className="form-input w-full" value={newFlowName} onChange={(e) => setNewFlowName(e.target.value)} />
