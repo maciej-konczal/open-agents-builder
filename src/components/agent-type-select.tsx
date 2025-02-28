@@ -8,7 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { agentTypesRegistry } from "@/prompts/agent-types-registry";
+import { agentTypesRegistry } from "@/agent-types/registry";
 import Markdown from "react-markdown";
 import { InfoIcon } from "lucide-react";
 
@@ -23,6 +23,7 @@ export function AgentTypeSelect() {
     "survey-agent": t("Survey agents are used to collect the information or opionions from the users. Based on the previous answers they can **dynamically adjust** next questions. These agents save the answers for further processing in the desire format. Can replace tools like **Forms, Polls, Intake forms** etc."),
     "smart-assistant": t("Smart assistants are **general purpose agents**. They can use tools for example checking Your calendar or booking new events. They can also be used for surveys (mixed with some other tasks) but needs to be finetuned for doing so on the prompt level."),
     "commerce-agent": t("Commerce agents are used to **sell products or services**. They can be used in **e-commerce**, **service booking**, **b2b/cpq** scenarios. They operate on the **product catalog** and can be used to **upsell** or **cross-sell** products."),
+    "flows": t("Flow based agents let you to create **complex scenarios**. They can be used to **automate processes** and develop apps that are called by API or other agents, using **natural language*. They can be used to **create decision trees** or **integrations**."),
 
   }
 

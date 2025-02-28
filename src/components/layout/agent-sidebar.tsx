@@ -3,12 +3,14 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
+import { useAgentContext } from '@/contexts/agent-context';
+import React, { useEffect } from 'react';
 
-const sidebarItems = [
+const availableItems = [
   { 
     icon: Settings2, 
     label: 'General', 
@@ -19,7 +21,22 @@ const sidebarItems = [
     icon: FileText, 
     label: 'Prompt', 
     href: '/admin/agent/[id]/prompt',
-    pattern: '/admin/agent/[id]/prompt'
+    pattern: '/admin/agent/[id]/prompt',
+    agentTypes: ['smart-assistant', 'survey-agent']
+  },
+  {
+    icon: FunctionSquareIcon,
+    label: 'Events',
+    href: '/admin/agent/[id]/events',
+    pattern: '/admin/agent/[id]/events',
+    agentTypes: ['smart-assistant', 'survey-agent']
+  },  
+  { 
+    icon: WorkflowIcon,
+    label: 'Flows',
+    href: '/admin/agent/[id]/flows',
+    pattern: '/admin/agent/[id]/flows',
+    agentTypes: ['flow']
   },
   { 
     icon: BookTemplateIcon, 
@@ -33,18 +50,12 @@ const sidebarItems = [
     href: '/admin/agent/[id]/tools',
     pattern: '/admin/agent/[id]/tools'
   },
-  {
-    icon: FunctionSquareIcon,
-    label: 'Events',
-    href: '/admin/agent/[id]/events',
-    pattern: '/admin/agent/[id]/events'
-  },
-
   { 
     icon: Shield, 
     label: 'Safety Rules', 
     href: '/admin/agent/[id]/safety',
-    pattern: '/admin/agent/[id]/safety'
+    pattern: '/admin/agent/[id]/safety',
+    agentTypes: ['smart-assistant', 'survey-agent']
   },
   { 
     icon: MessageCircleMore, 
@@ -102,6 +113,13 @@ export function AgentSidebar() {
   const pathname = usePathname();
   const params = useParams();
   const agentId = params?.id as string;
+  const agentContext = useAgentContext();
+
+  const [sidebarItems, setSidebarItems] = React.useState(availableItems);
+
+  useEffect(() => {  
+    setSidebarItems(availableItems.filter(item => !item.agentTypes || item.agentTypes?.includes(agentContext.current?.agentType || '')));
+  }, [agentContext.current?.agentType]);
 
   return (
     <div className="flex w-64 flex-col border-r bg-card">
@@ -112,7 +130,7 @@ export function AgentSidebar() {
             const isActive = pathname.endsWith(href) || pathname.match(item.pattern)
             
             
-            if (item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) {
+            if ((item.activeOnlyOnSavedAgent && (!agentId || agentId === 'new')) && (!item.agentTypes || (item.agentTypes as Array<string>).includes(agentContext.current?.agentType || ''))) {
               return (
                 <Button
                 key={item.href}
