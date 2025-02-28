@@ -9,26 +9,39 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import { MarkdownEditor } from '@/components/markdown-editor';
-import React from 'react';
+import React, { useState } from 'react';
 import { MDXEditorMethods } from '@mdxeditor/editor';
 import { SaveAgentAsTemplateButton } from '@/components/save-agent-as-template-button';
-import FlowsBuilder from '@/components/flows/flows-integrated-editor';
+import { AgentDefinition, EditorStep } from '@/flows/models';
+import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
+import FlowBuilder from '@/components/flows/flows-builder';
+import { AgentFlow } from '@/data/client/models';
 
 export default function FlowsPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
-  const { current: agent, status, updateAgent } = useAgentContext();
+  const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
+
+  const [rootFlow, setRootFlow] = useState<EditorStep>(dirtyAgent?.flows?.[0]?.flow  ?? agent?.flows?.[0]?.flow ?? { type: 'sequence', steps: [] })
+  const [agents, setAgents] = useState<AgentDefinition[]>(dirtyAgent?.agents ?? agent?.agents ?? [])
+
+
+    const onFlowChanged = (value: EditorStep) => {
+      setValue('flows',[{
+        name: 'Default flow',
+        code: 'default',
+        flow: value        
+      } as AgentFlow]);
+      setRootFlow(value);
+    }
 
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
-    const editors = {
-      expectedResult: React.useRef<MDXEditorMethods>(null)
-    }
 
-  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, editors);
+  const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, {});
 
   return (
     <div className="space-y-6">
@@ -38,11 +51,15 @@ export default function FlowsPage() {
       <AgentStatus status={status} />
       ) }
 
-      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         <div>
+          <FlowBuilder
+            flow={rootFlow}
+            onFlowChange={onFlowChanged}
+            agentNames={agents.map(a => a.name)}
+          />
 
         </div>
-      </form>
+
     </div>
   );
 }

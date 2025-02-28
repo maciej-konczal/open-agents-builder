@@ -4,7 +4,7 @@ import PasswordValidator from 'password-validator';
 import { createPrice, getCurrentTS } from "@/lib/utils";
 import { Message } from "ai";
 import moment from "moment";
-import { AgentDefinition, FlowInputVariable, FlowStep } from "@/flows/models";
+import { AgentDefinition, FlowInputVariable, EditorStep } from "@/flows/models";
 
 
 export enum DataLoadingStatus {
@@ -227,7 +227,7 @@ export type AgentFlow = {
     name: string;
     description: string;
     code: string;
-    flow: FlowStep;
+    flow: EditorStep;
 }
 
 export class Agent {

@@ -1,27 +1,19 @@
+// FlowStepEditor.tsx
 'use client'
 import React from 'react'
-import { FlowStep } from '@/flows/models'
+import { EditorStep } from '@/flows/models'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
+import { Label } from '@/components/ui/label'
 
 interface FlowStepEditorProps {
-  step: FlowStep
-  onChange: (newStep: FlowStep) => void
+  step: EditorStep
+  onChange: (newStep: EditorStep) => void
   onDelete: () => void
-
-  /**
-   * Lista nazw agentów, które możemy wybrać w kroku typu 'step'.
-   * Gdy step.type === 'step', zamiast zwykłego <Input> do 'agent'
-   * robimy <select> z dostępnymi nazwami agentów.
-   */
   availableAgentNames: string[]
 }
 
-/**
- * Komponent rekurencyjny do edycji FlowStep (step / sequence / parallel / race / condition / branch).
- */
 export function FlowStepEditor({
   step,
   onChange,
@@ -29,12 +21,13 @@ export function FlowStepEditor({
   availableAgentNames,
 }: FlowStepEditorProps) {
   if (!step) {
-    // Opcjonalnie: zwróć komunikat lub null
-        return <div>Brak kroku do wyświetlenia</div>
+    return <div className="text-sm text-red-500">Brak kroku do wyświetlenia</div>
   }
-        
+
   switch (step.type) {
-    // ================ STEP ================
+    // ----------------------------------
+    // STEP
+    // ----------------------------------
     case 'step': {
       const handleAgentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         onChange({ ...step, agent: e.target.value })
@@ -44,9 +37,16 @@ export function FlowStepEditor({
       }
 
       return (
-        <Card className="p-4 my-2 border space-y-2">
+        <Card className="p-4 my-2 border space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="font-semibold text-lg">Step</div>
+            <Button variant="destructive" onClick={onDelete}>
+              Usuń
+            </Button>
+          </div>
+
           <div className="flex items-center gap-2">
-            <label className="w-20">Agent:</label>
+            <Label className="w-20">Agent:</Label>
             <select
               className="border p-1 rounded"
               value={step.agent}
@@ -60,598 +60,512 @@ export function FlowStepEditor({
               ))}
             </select>
           </div>
+
           <div className="flex items-center gap-2">
-            <label className="w-20">Input:</label>
+            <Label className="w-20">Input:</Label>
             <Input
               value={step.input}
               onChange={handleInputChange}
               placeholder="Treść inputu..."
             />
           </div>
-          <div className="flex justify-end">
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń krok
-            </Button>
-          </div>
         </Card>
       )
     }
 
-    // ================ SEQUENCE ================
+    // ----------------------------------
+    // SEQUENCE
+    // ----------------------------------
     case 'sequence': {
-      const handleAddStep = () => {
-        const newSteps = [
-          ...step.steps,
-          { type: 'step', agent: '', input: '' } as FlowStep,
-        ]
-        onChange({ ...step, steps: newSteps })
+      const { steps } = step
+
+      const addStep = (newSub: EditorStep) => {
+        onChange({ ...step, steps: [...steps, newSub] })
       }
 
-      const handleAddSequence = () => {
-        const newSteps = [
-          ...step.steps,
-          { type: 'sequence', steps: [] } as FlowStep,
-        ]
-        onChange({ ...step, steps: newSteps })
+      const handleChangeAt = (index: number, newS: EditorStep) => {
+        const newArr = [...steps]
+        newArr[index] = newS
+        onChange({ ...step, steps: newArr })
       }
 
-      const handleAddParallel = () => {
-        const newSteps = [
-          ...step.steps,
-          { type: 'parallel', branches: [] } as FlowStep,
-        ]
-        onChange({ ...step, steps: newSteps })
-      }
-
-      const handleAddRace = () => {
-        const newSteps = [
-          ...step.steps,
-          { type: 'race', branches: [] } as FlowStep,
-        ]
-        onChange({ ...step, steps: newSteps })
-      }
-
-      const handleAddCondition = () => {
-        const newSteps = [
-          ...step.steps,
-          { type: 'condition', condition: '', steps: [] } as FlowStep,
-        ]
-        onChange({ ...step, steps: newSteps })
-      }
-
-      const handleAddBranch = () => {
-        const newSteps = [
-          ...step.steps,
-          {
-            type: 'branch',
-            condition: '',
-            trueFlow: [],
-            falseFlow: [],
-          } as FlowStep,
-        ]
-        onChange({ ...step, steps: newSteps })
-      }
-
-      const handleStepChange = (index: number, newStep: FlowStep) => {
-        const newSteps = [...step.steps]
-        newSteps[index] = newStep
-        onChange({ ...step, steps: newSteps })
-      }
-
-      const handleDeleteStep = (index: number) => {
-        const newSteps = step.steps.filter((_, i) => i !== index)
-        onChange({ ...step, steps: newSteps })
+      const handleDeleteAt = (index: number) => {
+        onChange({ ...step, steps: steps.filter((_, i) => i !== index) })
       }
 
       return (
         <Card className="p-4 my-2 border space-y-4">
           <div className="flex justify-between items-center">
-            <div className="text-lg font-semibold">Sequence</div>
+            <div className="font-semibold text-lg">Sequence</div>
             <Button variant="destructive" onClick={onDelete}>
               Usuń
             </Button>
           </div>
 
           <div className="ml-4">
-            {step.steps.map((childStep, index) => (
+            {steps.map((child, idx) => (
               <FlowStepEditor
-                key={index}
-                step={childStep}
-                onChange={(newStep) => handleStepChange(index, newStep)}
-                onDelete={() => handleDeleteStep(index)}
+                key={idx}
+                step={child}
+                onChange={(ns) => handleChangeAt(idx, ns)}
+                onDelete={() => handleDeleteAt(idx)}
                 availableAgentNames={availableAgentNames}
               />
             ))}
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button onClick={handleAddStep}>+ step</Button>
-            <Button onClick={handleAddSequence}>+ sequence</Button>
-            <Button onClick={handleAddParallel}>+ parallel</Button>
-            <Button onClick={handleAddRace}>+ race</Button>
-            <Button onClick={handleAddCondition}>+ condition</Button>
-            <Button onClick={handleAddBranch}>+ branch</Button>
+            <Button onClick={() => addStep({ type: 'step', agent: '', input: '' })}>
+              + step
+            </Button>
+            <Button onClick={() => addStep({ type: 'sequence', steps: [] })}>
+              + sequence
+            </Button>
+            <Button onClick={() => addStep({ type: 'parallel', steps: [] })}>
+              + parallel
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'oneOf',
+                  branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
+                })
+              }
+            >
+              + oneOf
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'forEach',
+                  item: 'SomeZodSchemaOrString',
+                  inputFlow: { type: 'step', agent: '', input: '' },
+                })
+              }
+            >
+              + forEach
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'evaluator',
+                  criteria: '',
+                  subFlow: { type: 'step', agent: '', input: '' },
+                })
+              }
+            >
+              + evaluator
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'bestOfAll',
+                  criteria: '',
+                  steps: [
+                    { type: 'step', agent: '', input: '' },
+                    { type: 'step', agent: '', input: '' },
+                  ],
+                })
+              }
+            >
+              + bestOfAll
+            </Button>
           </div>
         </Card>
       )
     }
 
-    // ================ PARALLEL ================
+    // ----------------------------------
+    // PARALLEL
+    // ----------------------------------
     case 'parallel': {
-      const { branches } = step
+      const { steps } = step
 
-      const handleAddBranch = () => {
-        onChange({ ...step, branches: [...branches, []] })
+      const addStep = (newSub: EditorStep) => {
+        onChange({ ...step, steps: [...steps, newSub] })
       }
 
-      const handleBranchStepChange = (
-        branchIndex: number,
-        stepIndex: number,
-        newStep: FlowStep
-      ) => {
-        const newBranches = [...branches]
-        newBranches[branchIndex] = [...newBranches[branchIndex]]
-        newBranches[branchIndex][stepIndex] = newStep
-        onChange({ ...step, branches: newBranches })
+      const handleChangeAt = (index: number, newS: EditorStep) => {
+        const newArr = [...steps]
+        newArr[index] = newS
+        onChange({ ...step, steps: newArr })
       }
 
-      const handleAddStepToBranch = (branchIndex: number) => {
-        const newBranches = [...branches]
-        const newFlow = [
-          ...newBranches[branchIndex],
-          { type: 'step', agent: '', input: '' } as FlowStep,
-        ]
-        newBranches[branchIndex] = newFlow
-        onChange({ ...step, branches: newBranches })
-      }
-
-      const handleDeleteBranchStep = (branchIndex: number, stepIndex: number) => {
-        const newBranches = [...branches]
-        newBranches[branchIndex] = newBranches[branchIndex].filter(
-          (_, i) => i !== stepIndex
-        )
-        onChange({ ...step, branches: newBranches })
-      }
-
-      const handleDeleteBranch = (branchIndex: number) => {
-        const newBranches = branches.filter((_, i) => i !== branchIndex)
-        onChange({ ...step, branches: newBranches })
+      const handleDeleteAt = (index: number) => {
+        onChange({ ...step, steps: steps.filter((_, i) => i !== index) })
       }
 
       return (
         <Card className="p-4 my-2 border space-y-4">
           <div className="flex justify-between items-center">
-            <div className="text-lg font-semibold">Parallel</div>
+            <div className="font-semibold text-lg">Parallel</div>
             <Button variant="destructive" onClick={onDelete}>
               Usuń
             </Button>
           </div>
 
-          <div className="space-y-4">
-            {branches.map((branchFlow, bIdx) => (
-              <Card key={bIdx} className="p-4 border">
-                <div className="flex justify-between items-center mb-2">
-                  <div>Gałąź {bIdx + 1}</div>
-                  <Button variant="destructive" onClick={() => handleDeleteBranch(bIdx)}>
-                    Usuń gałąź
-                  </Button>
-                </div>
-
-                {branchFlow.map((childStep, sIdx) => (
-                  <FlowStepEditor
-                    key={sIdx}
-                    step={childStep}
-                    onChange={(newStep) =>
-                      handleBranchStepChange(bIdx, sIdx, newStep)
-                    }
-                    onDelete={() => handleDeleteBranchStep(bIdx, sIdx)}
-                    availableAgentNames={availableAgentNames}
-                  />
-                ))}
-
-                <Button onClick={() => handleAddStepToBranch(bIdx)}>
-                  Dodaj krok w tej gałęzi
-                </Button>
-              </Card>
+          <div className="ml-4">
+            {steps.map((child, idx) => (
+              <FlowStepEditor
+                key={idx}
+                step={child}
+                onChange={(ns) => handleChangeAt(idx, ns)}
+                onDelete={() => handleDeleteAt(idx)}
+                availableAgentNames={availableAgentNames}
+              />
             ))}
           </div>
 
-          <Button onClick={handleAddBranch}>Dodaj gałąź równoległą</Button>
+          <div className="flex flex-wrap gap-2">
+            <Button onClick={() => addStep({ type: 'step', agent: '', input: '' })}>
+              + step
+            </Button>
+            <Button onClick={() => addStep({ type: 'sequence', steps: [] })}>
+              + sequence
+            </Button>
+            <Button onClick={() => addStep({ type: 'parallel', steps: [] })}>
+              + parallel
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'oneOf',
+                  branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
+                })
+              }
+            >
+              + oneOf
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'forEach',
+                  item: 'SomeZodSchemaOrString',
+                  inputFlow: { type: 'step', agent: '', input: '' },
+                })
+              }
+            >
+              + forEach
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'evaluator',
+                  criteria: '',
+                  subFlow: { type: 'step', agent: '', input: '' },
+                })
+              }
+            >
+              + evaluator
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'bestOfAll',
+                  criteria: '',
+                  steps: [
+                    { type: 'step', agent: '', input: '' },
+                    { type: 'step', agent: '', input: '' },
+                  ],
+                })
+              }
+            >
+              + bestOfAll
+            </Button>
+          </div>
         </Card>
       )
     }
 
-    // ================ RACE ================
-    case 'race': {
+    // ----------------------------------
+    // ONE-OF
+    // ----------------------------------
+    case 'oneOf': {
       const { branches } = step
 
-      const handleAddBranch = () => {
-        onChange({ ...step, branches: [...branches, []] })
-      }
-
-      const handleBranchStepChange = (
-        branchIndex: number,
-        stepIndex: number,
-        newStep: FlowStep
-      ) => {
-        const newBranches = [...branches]
-        newBranches[branchIndex] = [...newBranches[branchIndex]]
-        newBranches[branchIndex][stepIndex] = newStep
-        onChange({ ...step, branches: newBranches })
-      }
-
-      const handleAddStepToBranch = (branchIndex: number) => {
-        const newBranches = [...branches]
-        const newFlow = [
-          ...newBranches[branchIndex],
-          { type: 'step', agent: '', input: '' } as FlowStep,
-        ]
-        newBranches[branchIndex] = newFlow
-        onChange({ ...step, branches: newBranches })
-      }
-
-      const handleDeleteBranchStep = (branchIndex: number, stepIndex: number) => {
-        const newBranches = [...branches]
-        newBranches[branchIndex] = newBranches[branchIndex].filter(
-          (_, i) => i !== stepIndex
-        )
-        onChange({ ...step, branches: newBranches })
-      }
-
-      const handleDeleteBranch = (branchIndex: number) => {
-        const newBranches = branches.filter((_, i) => i !== branchIndex)
-        onChange({ ...step, branches: newBranches })
-      }
-
-      return (
-        <Card className="p-4 my-2 border space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="text-lg font-semibold">Race</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
-            </Button>
-          </div>
-
-          <div className="space-y-4">
-            {branches.map((branchFlow, bIdx) => (
-              <Card key={bIdx} className="p-4 border">
-                <div className="flex justify-between items-center mb-2">
-                  <div>Gałąź {bIdx + 1}</div>
-                  <Button variant="destructive" onClick={() => handleDeleteBranch(bIdx)}>
-                    Usuń gałąź
-                  </Button>
-                </div>
-
-                {branchFlow.map((childStep, sIdx) => (
-                  <FlowStepEditor
-                    key={sIdx}
-                    step={childStep}
-                    onChange={(newStep) =>
-                      handleBranchStepChange(bIdx, sIdx, newStep)
-                    }
-                    onDelete={() => handleDeleteBranchStep(bIdx, sIdx)}
-                    availableAgentNames={availableAgentNames}
-                  />
-                ))}
-
-                <Button onClick={() => handleAddStepToBranch(bIdx)}>
-                  Dodaj krok w tej gałęzi
-                </Button>
-              </Card>
-            ))}
-          </div>
-
-          <Button onClick={handleAddBranch}>Dodaj gałąź wyścigu</Button>
-        </Card>
-      )
-    }
-
-    // ================ CONDITION ================
-    case 'condition': {
-      const { condition, steps } = step
-
-      const handleConditionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange({ ...step, condition: e.target.value })
-      }
-
-      const handleStepChange = (index: number, newStep: FlowStep) => {
-        const newSteps = [...steps]
-        newSteps[index] = newStep
-        onChange({ ...step, steps: newSteps })
-      }
-
-      const handleDeleteStep = (index: number) => {
-        const newSteps = steps.filter((_, i) => i !== index)
-        onChange({ ...step, steps: newSteps })
-      }
-
-      const handleAddStep = () => {
+      const addBranch = () => {
         onChange({
           ...step,
-          steps: [...steps, { type: 'step', agent: '', input: '' }],
-        })
-      }
-
-      const handleAddSequence = () => {
-        onChange({
-          ...step,
-          steps: [...steps, { type: 'sequence', steps: [] }],
-        })
-      }
-
-      const handleAddParallel = () => {
-        onChange({
-          ...step,
-          steps: [...steps, { type: 'parallel', branches: [] }],
-        })
-      }
-
-      const handleAddRace = () => {
-        onChange({
-          ...step,
-          steps: [...steps, { type: 'race', branches: [] }],
-        })
-      }
-
-      const handleAddCondition = () => {
-        onChange({
-          ...step,
-          steps: [...steps, { type: 'condition', condition: '', steps: [] }],
-        })
-      }
-
-      const handleAddBranch = () => {
-        onChange({
-          ...step,
-          steps: [
-            ...steps,
-            { type: 'branch', condition: '', trueFlow: [], falseFlow: [] },
+          branches: [
+            ...branches,
+            {
+              when: 'next condition',
+              flow: { type: 'step', agent: '', input: '' },
+            },
           ],
         })
       }
 
+      const handleChangeBranchCondition = (index: number, newCondition: string) => {
+        const newArr = [...branches]
+        newArr[index] = { ...newArr[index], when: newCondition }
+        onChange({ ...step, branches: newArr })
+      }
+
+      const handleChangeBranchFlow = (index: number, newFlow: EditorStep) => {
+        const newArr = [...branches]
+        newArr[index] = { ...newArr[index], flow: newFlow }
+        onChange({ ...step, branches: newArr })
+      }
+
+      const handleDeleteBranch = (index: number) => {
+        onChange({
+          ...step,
+          branches: branches.filter((_, i) => i !== index),
+        })
+      }
+
       return (
         <Card className="p-4 my-2 border space-y-4">
           <div className="flex justify-between items-center">
-            <div className="text-lg font-semibold">Condition</div>
+            <div className="font-semibold text-lg">OneOf</div>
+            <Button variant="destructive" onClick={onDelete}>
+              Usuń
+            </Button>
+          </div>
+
+          <div className="ml-4 space-y-4">
+            {branches.map((br, idx) => (
+              <Card key={idx} className="p-2 border space-y-2">
+                <div className="flex justify-between">
+                  <Label className="text-sm">When:</Label>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => handleDeleteBranch(idx)}
+                  >
+                    Usuń branch
+                  </Button>
+                </div>
+                <Input
+                  value={br.when}
+                  onChange={(e) => handleChangeBranchCondition(idx, e.target.value)}
+                />
+                <FlowStepEditor
+                  step={br.flow}
+                  onChange={(nf) => handleChangeBranchFlow(idx, nf)}
+                  onDelete={() =>
+                    handleChangeBranchFlow(idx, { type: 'step', agent: '', input: '' })
+                  }
+                  availableAgentNames={availableAgentNames}
+                />
+              </Card>
+            ))}
+          </div>
+
+          <Button onClick={addBranch}>Dodaj branch</Button>
+        </Card>
+      )
+    }
+
+    // ----------------------------------
+    // FOR-EACH
+    // ----------------------------------
+    case 'forEach': {
+      const { item, inputFlow } = step
+
+      const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange({ ...step, item: e.target.value })
+      }
+
+      const handleFlowChange = (newFlow: EditorStep) => {
+        onChange({ ...step, inputFlow: newFlow })
+      }
+
+      return (
+        <Card className="p-4 my-2 border space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="font-semibold text-lg">ForEach</div>
             <Button variant="destructive" onClick={onDelete}>
               Usuń
             </Button>
           </div>
 
           <div className="flex items-center gap-2">
-            <label className="w-24">Condition:</label>
+            <Label className="w-20">item (schema?):</Label>
+            <Input value={item} onChange={handleItemChange} />
+          </div>
+
+          <div className="ml-4">
+            <FlowStepEditor
+              step={inputFlow}
+              onChange={handleFlowChange}
+              onDelete={() =>
+                onChange({ ...step, inputFlow: { type: 'step', agent: '', input: '' } })
+              }
+              availableAgentNames={availableAgentNames}
+            />
+          </div>
+        </Card>
+      )
+    }
+
+    // ----------------------------------
+    // EVALUATOR
+    // ----------------------------------
+    case 'evaluator': {
+      const { criteria, max_iterations, subFlow } = step
+
+      const handleCriteriaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange({ ...step, criteria: e.target.value })
+      }
+      const handleMaxIterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = parseInt(e.target.value, 10)
+        onChange({ ...step, max_iterations: isNaN(val) ? undefined : val })
+      }
+      const handleSubFlowChange = (ns: EditorStep) => {
+        onChange({ ...step, subFlow: ns })
+      }
+
+      return (
+        <Card className="p-4 my-2 border space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="font-semibold text-lg">Evaluator</div>
+            <Button variant="destructive" onClick={onDelete}>
+              Usuń
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="w-32">Criteria:</Label>
+            <Input value={criteria} onChange={handleCriteriaChange} />
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="w-32">Max iterations:</Label>
             <Input
-              value={condition}
-              onChange={handleConditionChange}
-              placeholder="np. userInput === 'ok'"
+              type="number"
+              value={max_iterations ?? ''}
+              onChange={handleMaxIterChange}
             />
           </div>
 
           <div className="ml-4">
-            {steps.map((childStep, index) => (
+            <FlowStepEditor
+              step={subFlow}
+              onChange={handleSubFlowChange}
+              onDelete={() =>
+                onChange({
+                  ...step,
+                  subFlow: { type: 'step', agent: '', input: '' },
+                })
+              }
+              availableAgentNames={availableAgentNames}
+            />
+          </div>
+        </Card>
+      )
+    }
+
+    // ----------------------------------
+    // BEST OF ALL
+    // ----------------------------------
+    case 'bestOfAll': {
+      const { criteria, steps } = step
+
+      const handleCriteriaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange({ ...step, criteria: e.target.value })
+      }
+      const handleChangeAt = (idx: number, newSub: EditorStep) => {
+        const newArr = [...steps]
+        newArr[idx] = newSub
+        onChange({ ...step, steps: newArr })
+      }
+      const handleDeleteAt = (idx: number) => {
+        onChange({ ...step, steps: steps.filter((_, i) => i !== idx) })
+      }
+      const addStep = (newSub: EditorStep) => {
+        onChange({ ...step, steps: [...steps, newSub] })
+      }
+
+      return (
+        <Card className="p-4 my-2 border space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="font-semibold text-lg">BestOfAll</div>
+            <Button variant="destructive" onClick={onDelete}>
+              Usuń
+            </Button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Label className="w-32">Criteria:</Label>
+            <Input value={criteria} onChange={handleCriteriaChange} />
+          </div>
+
+          <div className="ml-4">
+            {steps.map((child, idx) => (
               <FlowStepEditor
-                key={index}
-                step={childStep}
-                onChange={(newStep) => handleStepChange(index, newStep)}
-                onDelete={() => handleDeleteStep(index)}
+                key={idx}
+                step={child}
+                onChange={(ns) => handleChangeAt(idx, ns)}
+                onDelete={() => handleDeleteAt(idx)}
                 availableAgentNames={availableAgentNames}
               />
             ))}
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Button onClick={handleAddStep}>+ step</Button>
-            <Button onClick={handleAddSequence}>+ sequence</Button>
-            <Button onClick={handleAddParallel}>+ parallel</Button>
-            <Button onClick={handleAddRace}>+ race</Button>
-            <Button onClick={handleAddCondition}>+ condition</Button>
-            <Button onClick={handleAddBranch}>+ branch</Button>
-          </div>
-        </Card>
-      )
-    }
-
-    // ================ BRANCH ================
-    case 'branch': {
-      const { condition, trueFlow, falseFlow } = step
-
-      const handleConditionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        onChange({ ...step, condition: e.target.value })
-      }
-
-      // TRUE flow
-      const handleTrueFlowChange = (index: number, newStep: FlowStep) => {
-        const newTrueFlow = [...trueFlow]
-        newTrueFlow[index] = newStep
-        onChange({ ...step, trueFlow: newTrueFlow })
-      }
-      const handleDeleteTrueFlowStep = (index: number) => {
-        const newTrueFlow = trueFlow.filter((_, i) => i !== index)
-        onChange({ ...step, trueFlow: newTrueFlow })
-      }
-
-      // FALSE flow
-      const handleFalseFlowChange = (index: number, newStep: FlowStep) => {
-        const newFalseFlow = [...falseFlow]
-        newFalseFlow[index] = newStep
-        onChange({ ...step, falseFlow: newFalseFlow })
-      }
-      const handleDeleteFalseFlowStep = (index: number) => {
-        const newFalseFlow = falseFlow.filter((_, i) => i !== index)
-        onChange({ ...step, falseFlow: newFalseFlow })
-      }
-
-      // Dodawanie kroków do trueFlow
-      const addStepToTrueFlow = (newSubStep: FlowStep) => {
-        onChange({ ...step, trueFlow: [...trueFlow, newSubStep] })
-      }
-
-      // Dodawanie kroków do falseFlow
-      const addStepToFalseFlow = (newSubStep: FlowStep) => {
-        onChange({ ...step, falseFlow: [...falseFlow, newSubStep] })
-      }
-
-      return (
-        <Card className="p-4 my-2 border space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="text-lg font-semibold">Branch (if / else)</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
+            <Button onClick={() => addStep({ type: 'step', agent: '', input: '' })}>
+              + step
             </Button>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <label className="w-24">Condition:</label>
-            <Input
-              value={condition}
-              onChange={handleConditionChange}
-              placeholder="np. userRole === 'admin'"
-            />
-          </div>
-
-          <div className="flex gap-4">
-            {/* TRUE FLOW */}
-            <Card className="p-4 border flex-1 space-y-4">
-              <div className="font-semibold mb-2">True Flow</div>
-              {trueFlow.map((childStep, index) => (
-                <FlowStepEditor
-                  key={index}
-                  step={childStep}
-                  onChange={(newStep) => handleTrueFlowChange(index, newStep)}
-                  onDelete={() => handleDeleteTrueFlowStep(index)}
-                  availableAgentNames={availableAgentNames}
-                />
-              ))}
-
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  onClick={() =>
-                    addStepToTrueFlow({ type: 'step', agent: '', input: '' })
-                  }
-                >
-                  + step
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToTrueFlow({ type: 'sequence', steps: [] })
-                  }
-                >
-                  + sequence
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToTrueFlow({ type: 'parallel', branches: [] })
-                  }
-                >
-                  + parallel
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToTrueFlow({ type: 'race', branches: [] })
-                  }
-                >
-                  + race
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToTrueFlow({
-                      type: 'condition',
-                      condition: '',
-                      steps: [],
-                    })
-                  }
-                >
-                  + condition
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToTrueFlow({
-                      type: 'branch',
-                      condition: '',
-                      trueFlow: [],
-                      falseFlow: [],
-                    })
-                  }
-                >
-                  + branch
-                </Button>
-              </div>
-            </Card>
-
-            {/* FALSE FLOW */}
-            <Card className="p-4 border flex-1 space-y-4">
-              <div className="font-semibold mb-2">False Flow</div>
-              {falseFlow.map((childStep, index) => (
-                <FlowStepEditor
-                  key={index}
-                  step={childStep}
-                  onChange={(newStep) => handleFalseFlowChange(index, newStep)}
-                  onDelete={() => handleDeleteFalseFlowStep(index)}
-                  availableAgentNames={availableAgentNames}
-                />
-              ))}
-
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  onClick={() =>
-                    addStepToFalseFlow({ type: 'step', agent: '', input: '' })
-                  }
-                >
-                  + step
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToFalseFlow({ type: 'sequence', steps: [] })
-                  }
-                >
-                  + sequence
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToFalseFlow({ type: 'parallel', branches: [] })
-                  }
-                >
-                  + parallel
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToFalseFlow({ type: 'race', branches: [] })
-                  }
-                >
-                  + race
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToFalseFlow({
-                      type: 'condition',
-                      condition: '',
-                      steps: [],
-                    })
-                  }
-                >
-                  + condition
-                </Button>
-                <Button
-                  onClick={() =>
-                    addStepToFalseFlow({
-                      type: 'branch',
-                      condition: '',
-                      trueFlow: [],
-                      falseFlow: [],
-                    })
-                  }
-                >
-                  + branch
-                </Button>
-              </div>
-            </Card>
+            <Button onClick={() => addStep({ type: 'sequence', steps: [] })}>
+              + sequence
+            </Button>
+            <Button onClick={() => addStep({ type: 'parallel', steps: [] })}>
+              + parallel
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'oneOf',
+                  branches: [{ when: 'cond', flow: { type: 'step', agent: '', input: '' } }],
+                })
+              }
+            >
+              + oneOf
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'forEach',
+                  item: 'SomeZodSchemaOrString',
+                  inputFlow: { type: 'step', agent: '', input: '' },
+                })
+              }
+            >
+              + forEach
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'evaluator',
+                  criteria: '',
+                  subFlow: { type: 'step', agent: '', input: '' },
+                })
+              }
+            >
+              + evaluator
+            </Button>
+            <Button
+              onClick={() =>
+                addStep({
+                  type: 'bestOfAll',
+                  criteria: '',
+                  steps: [
+                    { type: 'step', agent: '', input: '' },
+                    { type: 'step', agent: '', input: '' },
+                  ],
+                })
+              }
+            >
+              + bestOfAll
+            </Button>
           </div>
         </Card>
       )
     }
 
     default:
-      return null
+      return <div className="text-red-500">Nieznany typ kroku</div>
   }
 }

@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { FlowStep } from '@/flows/models'
+import { convertToFlowDefinition, FlowStep } from '@/flows/models'
 import { FlowStepEditor } from './flows-step-editor'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
@@ -59,7 +59,7 @@ export default function FlowBuilder({
           </DialogTrigger>
           <DialogContent className="p-4">
             <pre className="whitespace-pre-wrap text-sm">
-              {JSON.stringify(flow, null, 2)}
+              {JSON.stringify(convertToFlowDefinition(flow), null, 2)}
             </pre>
             <Button className="mt-2" onClick={exportFlow}>
               Log to console
