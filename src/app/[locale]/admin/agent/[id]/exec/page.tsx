@@ -102,7 +102,7 @@ export default function ExecPage() {
 
         <div>
           {rootFlow && currentFlow && agent && (
-            <FlowsExecForm agentFlow={currentFlow} agent={agent} agents={agents ?? []} inputs={inputs ?? []} rootFlow={rootFlow}  />
+            <FlowsExecForm agentFlow={currentFlow} agent={agent} agents={agents ?? []} flows={flows ?? []} inputs={inputs ?? []} rootFlow={rootFlow}  />
           )}
 
         </div>

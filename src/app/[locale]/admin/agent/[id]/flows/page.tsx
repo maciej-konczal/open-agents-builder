@@ -28,6 +28,7 @@ export default function FlowsPage() {
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
+  register('defaultFlow')
   register('flows')
 
   const [newFlowName, setNewFlowName] = useState<string>('');
@@ -35,6 +36,7 @@ export default function FlowsPage() {
   const [newFlowCode, setNewFlowCode] = useState<string>('');
 
   const agents = watch('agents') ?? [];
+  const defaultFlow = watch('defaultFlow') ?? '';
   const flows = watch('flows') ?? [] as AgentFlow[];
   const [rootFlow, setRootFlow] = useState<EditorStep | undefined>(undefined);
   const [currentFlow, setCurrentFlow] = useState<AgentFlow | undefined>(undefined);
@@ -53,11 +55,11 @@ export default function FlowsPage() {
   }, [rootFlow, currentFlow]);
 
   useEffect(() => {
-    const savedFlow = safeJsonParse(sessionStorage.getItem('currentFlow') ?? '', {});
+    const savedFlow = safeJsonParse(sessionStorage.getItem('currentFlow') ?? '', null);
     
     if (flows && flows.length > 0 && !rootFlow && !currentFlow) {
-      if (savedFlow) {
-        const flow = flows.find(f => f.code === savedFlow.code);
+      if (savedFlow || defaultFlow) {
+        const flow = savedFlow ? flows.find(f => f.code === savedFlow.code) : flows.find(f => f.code === defaultFlow);
         if (flow) {
           setRootFlow(flow.flow);
           setCurrentFlow(flow);
@@ -73,7 +75,9 @@ export default function FlowsPage() {
   }, [flows, rootFlow, currentFlow]);
 
   useEffect(() => {
-    sessionStorage.setItem('currentFlow', JSON.stringify(currentFlow));
+    if (currentFlow) {
+      sessionStorage.setItem('currentFlow', JSON.stringify(currentFlow));
+    }
   }, [currentFlow]);
   
 
@@ -98,7 +102,7 @@ export default function FlowsPage() {
     <div className="space-y-6">
       <div>
         {flows?.length > 0 && (
-          <select className="form-select w-full" value={currentFlow?.code} onChange={(e) => {
+          <select className="form-select w-full" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
             const flow = flows.find(f => f.code === e.target.value);
             if (flow) {
               setRootFlow(flow.flow);
@@ -128,9 +132,13 @@ export default function FlowsPage() {
             </div>
             <Button onClick={() => {
               if (!addFlowError) {
-                setValue('flows', [...flows, { name: newFlowName, code: newFlowCode, flow: { type: 'sequence', steps: [] } }])
+                setValue('flows', [...flows, { name: newFlowName, code: newFlowCode, flow: { type: 'sequence', steps: [] } }]);
+                if (flows.length === 1) {
+                  setValue('defaultFlow', flows[0].code);
+                  setRootFlow(flows[0].flow);
+                  setCurrentFlow(flows[0]);                  
+                }
                 setNewFlowDialogOpen(false);
-
               }
             }
             }>Add</Button>                 
@@ -138,7 +146,12 @@ export default function FlowsPage() {
         </Dialog>
 
         <Button variant="outline" size="sm" onClick={() => setNewFlowDialogOpen(true)} className="ml-2"><NetworkIcon className="w-4 h-4" />{t('Add flow')}</Button>
-        <Button variant="outline" size="sm" onClick={() => setExecuteFlowDialogOpen(true)} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
+        {currentFlow && (
+          <Button variant="outline" size="sm" onClick={() => setValue('defaultFlow', currentFlow?.code)} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Set as default flow')}</Button>
+        )}
+        {currentFlow && (
+          <Button variant="outline" size="sm" onClick={() => setExecuteFlowDialogOpen(true)} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
+        )}
 
       </div>
 
