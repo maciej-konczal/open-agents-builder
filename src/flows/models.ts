@@ -110,6 +110,7 @@ export function convertToFlowDefinition(step: EditorStep): any {
       // }
       const flows = step.branches.map((b) => convertToFlowDefinition(b.flow))
       const conds = step.branches.map((b) => b.when)
+      console.log('FFF', flows, conds)
       return {
         agent: 'oneOfAgent',
         input: flows,

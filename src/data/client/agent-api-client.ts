@@ -56,4 +56,9 @@ export class AgentApiClient extends AdminApiClient {
     async delete(record: AgentDTO): Promise<DeleteAgentResponse> {
       return this.request<DeleteAgentResponse>('/api/agent/' + record.id, 'DELETE', { ecnryptedFields: [] }) as Promise<DeleteAgentResponse>;
     }    
+
+
+    async exec(agentId:string, flowId: string, input: any): Promise<any> {
+      return this.request<any>('/api/agent/' + agentId + '/exec/', 'POST', AgentDTOEncSettings, input) as Promise<any>;
+    }
 }
