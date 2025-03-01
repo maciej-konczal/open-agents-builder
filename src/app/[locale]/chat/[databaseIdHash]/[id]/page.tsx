@@ -6,7 +6,7 @@ import { ChatInitForm } from "@/components/chat-init-form";
 import { CookieConsentBannerComponent } from "@/components/cookie-consent-banner";
 import DataLoader from "@/components/data-loader";
 import FeedbackWidget from "@/components/feedback-widget";
-import { useChatContext } from "@/contexts/chat-context";
+import { useExecContext } from "@/contexts/chat-context";
 import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
 import moment from "moment";
@@ -23,7 +23,7 @@ export default function ChatPage({children,
   }) {
     const [isInitializing, setIsInitializing] = useState(true);
     const [generalError, setGeneralError] = useState<string | null>(null);
-    const chatContext = useChatContext();
+    const chatContext = useExecContext();
     const { t } = useTranslation();
     const { messages, append, input, handleInputChange, handleSubmit, isLoading } = useChat({
         api: "/api/chat",

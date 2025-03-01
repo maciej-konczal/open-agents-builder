@@ -1,17 +1,17 @@
 import { Agent } from '@/data/client/models';
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChatApiClient } from '@/data/client/chat-api-client';
+import { ExecApiClient } from '@/data/client/exec-api-client';
 import { error } from 'console';
 
-export type ChatInitFormType = {
+export type ExecInitFormType = {
     userName: string;
     userEmail: string;
     acceptTerms: boolean;
     agentId?: string;
 }
 
-export interface ChatContextType {
+export interface ExecContextType {
     initFormRequired: boolean;
     initFormDone: boolean;
     setInitFormDone: (done: boolean) => void;
@@ -22,12 +22,12 @@ export interface ChatContextType {
     setSessionId: (sessionId: string) => void;
     agent: Agent | null;
     init: (id: string, databaseIdHash: string, locale: string, sessionId: string) => Promise<Agent>;
-    saveInitForm: (formData: ChatInitFormType) => void;
+    saveInitForm: (formData: ExecInitFormType) => void;
 }
 
-const ChatContext = createContext<ChatContextType | undefined>(undefined);
+const ChatContext = createContext<ExecContextType | undefined>(undefined);
 
-export const ChatProvider = ({ children }: { children: ReactNode }) => {
+export const ExecProvider = ({ children }: { children: ReactNode }) => {
     const [agent, setAgent] = useState<Agent | null>(null);
     const [databaseIdHash, setDatabaseIdHash] = useState<string>('');
     const [sessionId, setSessionId] = useState<string>('');
@@ -37,7 +37,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     const { t } = useTranslation();
 
     const init = async (id: string, databaseIdHash: string, locale: string, sessionId: string): Promise<Agent> => {
-        const client = new ChatApiClient(databaseIdHash);
+        const client = new ExecApiClient(databaseIdHash);
         setDatabaseIdHash(databaseIdHash);
         setSessionId(sessionId);
         setLocale(locale);
@@ -60,8 +60,8 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
         }
     }
 
-    const saveInitForm = (formData: ChatInitFormType) => {
-        const client = new ChatApiClient(databaseIdHash);
+    const saveInitForm = (formData: ExecInitFormType) => {
+        const client = new ExecApiClient(databaseIdHash);
         return client.saveInitForm(sessionId, { ...formData, agentId: agent?.id ?? '' });
         // save the form data
     }
@@ -84,7 +84,7 @@ export const ChatProvider = ({ children }: { children: ReactNode }) => {
     );
 };
 
-export const useChatContext = (): ChatContextType => {
+export const useExecContext = (): ExecContextType => {
     const context = useContext(ChatContext);
     if (context === undefined) {
         throw new Error('useChatContext must be used within an ChatProivder');

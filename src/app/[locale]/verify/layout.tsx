@@ -2,7 +2,7 @@
 
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
-import { ChatProvider } from '@/contexts/chat-context';
+import { ExecProvider } from '@/contexts/chat-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
 
 const i18nNamespaces = ['translation'];
