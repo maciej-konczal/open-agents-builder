@@ -661,6 +661,6 @@ case 'oneOf': {
     }
 
     default:
-      return <div className="text-red-500">Nieznany typ kroku</div>
+      return <div className="text-red-500">{t('Unknown step')}</div>
   }
 }

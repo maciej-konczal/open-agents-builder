@@ -18,7 +18,7 @@ import { validateTokenQuotas } from '@/lib/quotas';
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined, databaseIdHash: string, storageKey: string | undefined | null, agentId: string, sessionId: string): Record<string, Tool> {
+export function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined, databaseIdHash: string, storageKey: string | undefined | null, agentId: string, sessionId: string): Record<string, Tool> {
   if (!tools) return {}
   const mappedTools: Record<string, Tool> = {};
   for(const toolKey in tools) {

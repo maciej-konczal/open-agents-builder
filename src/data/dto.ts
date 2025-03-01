@@ -225,6 +225,7 @@ export const agentDTOSchema = z.object({
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),
   inputs: z.string().optional().nullable(),
+  defaultFlow: z.string().optional().nullable(),
   flows: z.string().optional().nullable(),
   agents: z.string().optional().nullable(),
   icon: z.string().optional().nullable(),

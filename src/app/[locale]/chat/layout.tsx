@@ -2,7 +2,7 @@
 
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
-import { ChatProvider } from '@/contexts/chat-context';
+import { ExecProvider } from '@/contexts/chat-context';
 
 const i18nNamespaces = ['translation'];
 
@@ -18,9 +18,9 @@ export default async function GeneraChatlLayout({
 
   return (
     <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
-      <ChatProvider>
+      <ExecProvider>
         {children}
-      </ChatProvider>
+      </ExecProvider>
     </TranslationProvider>
   );
 }

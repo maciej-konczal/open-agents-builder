@@ -247,6 +247,7 @@ export class Agent {
     icon?: string | null;
     extra?: any | null;
     flows?: AgentFlow[] | null;
+    defaultFlow?: string | null;
     inputs?: FlowInputVariable[] | null;
     agents?: AgentDefinition[] | null;
 
@@ -276,6 +277,7 @@ export class Agent {
         this.agents = typeof agentDTO.agents === 'string' ? JSON.parse(agentDTO.agents as string) : agentDTO.agents;
         this.flows = typeof agentDTO.flows === 'string' ? JSON.parse(agentDTO.flows as string) : agentDTO.flows;
         this.inputs = typeof agentDTO.inputs === 'string' ? JSON.parse(agentDTO.inputs as string) : agentDTO.inputs;
+        this.defaultFlow = agentDTO.defaultFlow;
     }
 
     static fromDTO(agentDTO: AgentDTO): Agent {
@@ -325,7 +327,8 @@ export class Agent {
             tools: this?.tools || {},
             agents: this?.agents || [],
             flows: this?.flows || [],
-            inputs: this?.inputs || []
+            inputs: this?.inputs || [],
+            defaultFlow: this?.defaultFlow || ''
         };
         if (setValue !== null) {
             Object.keys(map).forEach((key) => {
@@ -353,6 +356,7 @@ export class Agent {
             agents: data.agents ?? agent?.agents,
             flows: data.flows ?? agent?.flows,
             inputs: data.inputs ?? agent?.inputs,
+            defaultFlow: data.defaultFlow ?? agent?.defaultFlow,
             tools: data.tools ?? agent?.tools,
             options: {
                 ...agent?.options,
