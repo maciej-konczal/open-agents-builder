@@ -178,7 +178,7 @@ export function AgentHeader() {
           </Button>
         ) : null}
         {(agentContext.current?.id !== 'new') ? (
-          <Button title={t('Share link to agent with users')} variant="secondary" size="sm" onClick={() => { copy(process.env.NEXT_PUBLIC_APP_URL + `/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`); toast.info(t('Link has been copied to clipboard. Now you can share it with the users')) }}>
+          <Button title={t('Share link to agent with users')} variant="secondary" size="sm" onClick={() => { copy(previewUrl); toast.info(t('Link has been copied to clipboard. Now you can share it with the users')) }}>
               <Share2Icon className="mr-2 h-4 w-4" />
           </Button>
         ) : null}     
