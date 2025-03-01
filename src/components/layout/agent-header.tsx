@@ -71,10 +71,11 @@ export function AgentHeader() {
       const agent = agentContext.dirtyAgent ?? agentContext.current ?? null;
 
       if (agent) {
-        if (agent.agentType === 'flow') { // TODO: add support for other interface types here
-          setPreviewUrl(`${process.env.NEXT_PUBLIC_APP_URL}/exec/${dbContext?.databaseIdHash}/${agentContext.current?.id}`);
+        if (agent.agentType === 'flow') { // TODO: add support for other interface types here; as for now this is admin only view for exec of flows showing some details about the API etc
+          // setPreviewUrl(`${process.env.NEXT_PUBLIC_APP_URL}/exec/${dbContext?.databaseIdHash}/${agentContext.current?.id}`); -- this is public URL -- todo check if agent is public or not
+          setPreviewUrl(`${process.env.NEXT_PUBLIC_APP_URL}/admin/agent/${agentContext.current?.id}/exec`);
         } else { 
-          setPreviewUrl(`${process.env.NEXT_PUBLIC_APP_URL}/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`);
+          setPreviewUrl(`${process.env.NEXT_PUBLIC_APP_URL}/chat/${dbContext?.databaseIdHash}/${agentContext.current?.id}`); // todo check if agent is public or not and if not then run the internal chat page
         }
       }
     }

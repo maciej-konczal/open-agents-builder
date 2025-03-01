@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon, NetworkIcon, VariableIcon, LucideProps } from 'lucide-react';
+import { Settings2, FileText, Shield, BarChart, BookTemplateIcon, BookIcon, CogIcon, FunctionSquareIcon, MessageCircleMore, CalendarIcon, BoxesIcon, ListOrderedIcon, WebhookIcon, WorkflowIcon, NetworkIcon, VariableIcon, LucideProps, ZapIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useTranslation } from 'react-i18next';
@@ -120,7 +120,14 @@ const availableItems : {
     href: '/admin/agent/[id]/integrations',
     pattern: '/admin/agent/[id]/integrations',
     activeOnlyOnSavedAgent: false
-  },   
+  },
+  { 
+    icon: ZapIcon,
+    label: 'Run & Share',
+    href: '/admin/agent/[id]/exec',
+    pattern: '/admin/agent/[id]/exec',
+    agentTypes: ['flow']
+  },
   { 
     icon: CogIcon, 
     label: 'API', 

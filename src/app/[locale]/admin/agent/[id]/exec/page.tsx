@@ -5,24 +5,17 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
-import React, { use, useEffect, useState } from 'react';
-import { AgentDefinition, EditorStep } from '@/flows/models';
-import FlowBuilder from '@/components/flows/flows-builder';
+import React, { useEffect, useState } from 'react';
+import { EditorStep } from '@/flows/models';
 import { AgentFlow } from '@/data/client/models';
-import { Button } from '@/components/ui/button';
-import {  DialogContent, DialogTrigger, Dialog, DialogFooter, DialogHeader } from '@/components/ui/dialog';
-import { NetworkIcon, ZapIcon } from 'lucide-react';
 import { safeJsonParse } from '@/lib/utils';
-import { set } from 'date-fns';
+import { FlowsExecForm } from '@/components/flows/flows-exec-form';
 
-export default function FlowsPage() {
+export default function ExecPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
   const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
-
-  const [newFlowDialogOpen, setNewFlowDialogOpen] = useState<boolean>(false);
-  const [executeFlowDialogOpen, setExecuteFlowDialogOpen] = useState<boolean>(false);
 
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
@@ -34,6 +27,7 @@ export default function FlowsPage() {
   const [addFlowError, setAddFlowError] = useState<string>('');
   const [newFlowCode, setNewFlowCode] = useState<string>('');
 
+  const inputs = watch('inputs') ?? [];
   const agents = watch('agents') ?? [];
   const flows = watch('flows') ?? [] as AgentFlow[];
   const [rootFlow, setRootFlow] = useState<EditorStep | undefined>(undefined);
@@ -97,48 +91,6 @@ export default function FlowsPage() {
   return (
     <div className="space-y-6">
       <div>
-        {flows?.length > 0 && (
-          <select className="form-select w-full" value={currentFlow?.code} onChange={(e) => {
-            const flow = flows.find(f => f.code === e.target.value);
-            if (flow) {
-              setRootFlow(flow.flow);
-              setCurrentFlow(flow);
-            }
-          }}>
-            {flows.map((flow, index) => (
-              <option key={index} value={flow.code}>{flow.name}</option>
-            ))}
-          </select>
-        )}
-        <Dialog open={newFlowDialogOpen}  onOpenChange={setNewFlowDialogOpen}>
-          <DialogContent>
-            <div className="space-y-4 p-4">
-              <h3 className="font-bold text-sm">{t('Add new flow')}</h3>
-              <p>{t('Add a new flow to the agent')}</p>
-
-              {addFlowError && (
-                <div className="text-red-500">{addFlowError}</div>
-              )}
-
-              <label>{t('Flow name')}</label>           
-              <input type="text" placeholder={t('Flow name')} className="form-input w-full" value={newFlowName} onChange={(e) => setNewFlowName(e.target.value)} />
-              
-              <label>{t('Flow code')}</label>
-              <input type="text" placeholder={t('Flow code')} className="form-input w-full" value={newFlowCode} onChange={(e) => setNewFlowCode(e.target.value)} />
-            </div>
-            <Button onClick={() => {
-              if (!addFlowError) {
-                setValue('flows', [...flows, { name: newFlowName, code: newFlowCode, flow: { type: 'sequence', steps: [] } }])
-                setNewFlowDialogOpen(false);
-
-              }
-            }
-            }>Add</Button>                 
-          </DialogContent>
-        </Dialog>
-
-        <Button variant="outline" size="sm" onClick={() => setNewFlowDialogOpen(true)} className="ml-2"><NetworkIcon className="w-4 h-4" />{t('Add flow')}</Button>
-        <Button variant="outline" size="sm" onClick={() => setExecuteFlowDialogOpen(true)} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
 
       </div>
 
@@ -149,12 +101,8 @@ export default function FlowsPage() {
       ) }
 
         <div>
-          {rootFlow && (
-            <FlowBuilder
-              flow={rootFlow}
-              onFlowChange={onFlowChanged}
-              agentNames={agents.map(a => a.name)}
-            />
+          {rootFlow && currentFlow && agent && (
+            <FlowsExecForm agentFlow={currentFlow} agent={agent} agents={agents ?? []} inputs={inputs ?? []} rootFlow={rootFlow}  />
           )}
 
         </div>
