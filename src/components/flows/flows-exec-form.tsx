@@ -4,13 +4,16 @@ import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { AgentApiClient } from "@/data/client/agent-api-client";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from '@/contexts/saas-context';
+import JsonView from "@uiw/react-json-view";
+import { ChatMessageMarkdown } from "../chat-message-markdown";
 
 export function FlowsExecForm({ agent, agentFlow, rootFlow, agents, inputs, flows } :
     { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
 
+    const [flowResult, setFlowResult] = useState<any | null>(null);
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
     const { t } = useTranslation();
@@ -28,6 +31,7 @@ export function FlowsExecForm({ agent, agentFlow, rootFlow, agents, inputs, flow
                 const apiClient = new AgentApiClient('', dbContext, saasContext);
                 const response = await apiClient.exec(agent?.id, flow.code, null);
 
+                setFlowResult(response);
                 console.log(response);
             }
 
@@ -39,6 +43,13 @@ export function FlowsExecForm({ agent, agentFlow, rootFlow, agents, inputs, flow
         }
 
       }}>Execute</Button>
+
+      {flowResult ? (
+        (typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
+               <JsonView value={flowResult} />
+      ) : null}
+
+
     </div>
   );
 }

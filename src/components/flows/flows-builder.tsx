@@ -47,24 +47,6 @@ export default function FlowBuilder({
         }}
         availableAgentNames={agentNames}
       />
-
-      <div className="flex gap-2">
-        <Button onClick={exportFlow}>Export Flow (console.log)</Button>
-
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline">Podgląd JSON</Button>
-          </DialogTrigger>
-          <DialogContent className="p-2">
-            <pre className="whitespace-pre-wrap text-sm">
-              {JSON.stringify(convertToFlowDefinition(flow), null, 2)}
-            </pre>
-            <Button className="mt-2" onClick={exportFlow}>
-              Log to console
-            </Button>
-          </DialogContent>
-        </Dialog>
-      </div>
     </div>
   )
 }

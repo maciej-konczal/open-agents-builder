@@ -47,20 +47,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                         
                         for (const ts of a.tools) {
-                            const tr = await toolRegistry.init({ databaseIdHash: requestContext.databaseIdHash, storageKey: saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, agentId: '', sessionId: 'session-id' });
-
                             toolReg['tool-' + (new Date().getTime())] = {
-                                description: tr[ts.name].displayName,
-                                tool: tr[ts.name].tool,
+                                description: '',
+                                tool: ts.name,
                                 options: ts.options
                             }
                         }
 
                         console.log('!!!', agents);
-                        console.log(toolReg);
+                        console.log('TERG', toolReg);
 
                         const tools = await prepareAgentTools(toolReg, '', '', recordLocator, '') as ToolSet;
-                        console.log(tools);
+                        console.log('TTT', tools);
 
                         compiledAgents[a.name] = agent({ // add stats support here
 
@@ -82,7 +80,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     return response;
                 };
 
-                Response.json(execFLow(flows?.find(f => f.code === 'pizdiec2') as AgentFlow));
+                return Response.json(await execFLow(flows?.find(f => f.code === 'pizdiec2') as AgentFlow));
             }
 
 

@@ -8,6 +8,7 @@ import { AgentStatus } from '@/components/layout/agent-status';
 import React from 'react';
 import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
 import { AgentDefinition } from '@/flows/models';
+import { Button } from '@/components/ui/button';
 
 export default function AgentsPage() {
 
@@ -38,6 +39,11 @@ export default function AgentsPage() {
         <div>
             <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
         </div>
+        <Button onClick={handleSubmit(onSubmit)}
+        className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        >
+        {t('Save')}
+        </Button>        
     </div>
   );
 }
