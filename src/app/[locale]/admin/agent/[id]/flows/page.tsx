@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import React, { use, useEffect, useState } from 'react';
-import { AgentDefinition, EditorStep } from '@/flows/models';
+import { AgentDefinition, EditorStep, FlowInputVariable } from '@/flows/models';
 import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,10 @@ import { NetworkIcon, TextIcon, ZapIcon } from 'lucide-react';
 import { safeJsonParse } from '@/lib/utils';
 import { set } from 'date-fns';
 import { FlowsExecForm } from '@/components/flows/flows-exec-form';
+import { Accordion, AccordionContent, AccordionTrigger } from '@/components/ui/accordion';
+import { AccordionItem } from '@radix-ui/react-accordion';
+import { FlowInputVariablesEditor } from '@/components/flows/flows-input-variables-editor';
+import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
 
 export default function FlowsPage() {
 
@@ -23,6 +27,7 @@ export default function FlowsPage() {
   const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
 
   const [newFlowDialogOpen, setNewFlowDialogOpen] = useState<boolean>(false);
+  const [initialLoadDone, setInitialLoadDone] = useState<boolean>(false);
   const [executeFlowDialogOpen, setExecuteFlowDialogOpen] = useState<boolean>(false);
 
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
@@ -51,18 +56,28 @@ export default function FlowsPage() {
       setRootFlow(value);
     }
   }
+  
+  const onAgentsChanged = (value: AgentDefinition[]) => {
+    setValue('agents', value);
+  }
+
+  register('inputs')
+  const onVariablesChanged = (value: FlowInputVariable[]) => {
+    setValue('inputs', value);
+  }
+
 
   useEffect(() => { 
     if (rootFlow && currentFlow) {
+      setInitialLoadDone(true);
       setValue('flows', flows.map(f => f.code === currentFlow.code ? { ...f, flow: rootFlow } : f));
     }
-
   }, [rootFlow, currentFlow]);
 
   useEffect(() => {
     const savedFlow = safeJsonParse(sessionStorage.getItem('currentFlow') ?? '', null);
     
-    if (flows && flows.length > 0 && !rootFlow && !currentFlow) {
+    if (flows && flows.length > 0 && !initialLoadDone) {
       if (savedFlow || defaultFlow) {
         const flow = savedFlow ? flows.find(f => f.code === savedFlow.code) : flows.find(f => f.code === defaultFlow);
         if (flow) {
@@ -77,7 +92,7 @@ export default function FlowsPage() {
         setCurrentFlow(flows[0]);
       }
     }
-  }, [flows, rootFlow, currentFlow]);
+  }, [flows, initialLoadDone]);
 
   useEffect(() => {
     if (currentFlow) {
@@ -155,6 +170,9 @@ export default function FlowsPage() {
           </DialogContent>
         </Dialog>
 
+
+
+
         <Dialog open={executeFlowDialogOpen}  onOpenChange={setExecuteFlowDialogOpen}>
           <DialogContent>
             <div className="space-y-4 p-4">
@@ -164,6 +182,7 @@ export default function FlowsPage() {
               
               
               <Button onClick={() => {
+                
                 setExecuteFlowDialogOpen(false);
               }
             }>{t('Close')}</Button>                 
@@ -202,13 +221,31 @@ export default function FlowsPage() {
       <AgentStatus status={status} />
       ) }
 
-        <div>
           {rootFlow && (
-            <FlowBuilder
-              flow={rootFlow}
-              onFlowChange={onFlowChanged}
-              agentNames={agents.map(a => a.name)}
-            />
+            
+            <div>
+                <Accordion type="multiple"  className="w-full">
+                  <AccordionItem value="item-1">
+                      <AccordionTrigger>{t('Inputs')}</AccordionTrigger>
+                      <AccordionContent>
+                        <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
+                      </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="item-3">
+                      <AccordionTrigger>{t('Available agents')})</AccordionTrigger>
+                      <AccordionContent>
+                        <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
+                      </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+
+                <FlowBuilder
+                flow={rootFlow}
+                onFlowChange={onFlowChanged}
+                agentNames={agents.map(a => a.name)}
+                />                        
+          </div>
+
           )}
 
         <Button onClick={handleSubmit(onSubmit)}
@@ -216,8 +253,6 @@ export default function FlowsPage() {
         >
         {t('Save')}
         </Button>
-        </div>
-
     </div>
   );
 }

@@ -16,10 +16,8 @@ import { WorkflowIcon } from 'lucide-react'
 
 // Możemy zdefiniować listę modeli:
 const availableOpenAIModels = [
-  'gpt-3.5-turbo',
-  'gpt-4',
-  'gpt-4-32k',
   'gpt-4o', // cokolwiek jest w Twoim setupie
+  'gpt-1o'
 ]
 
 // Komponent do edycji pojedynczego agenta:

@@ -13,6 +13,7 @@ import { convertToFlowDefinition } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
 import { ToolSet } from "ai";
+import { createUpdateResultTool } from "@/tools/updateResultTool";
 
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
     try {
@@ -31,10 +32,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             if (dto) {
                 const masterAgent = Agent.fromDTO(dto);
 
-                const { agents, flows, inputs } = masterAgent;
-
-           
-           
+                const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => {
                     const compiledFlow = convertToFlowDefinition(flow?.flow);
 
@@ -53,19 +51,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 options: ts.options
                             }
                         }
-
-                        console.log('!!!', agents);
-                        console.log('TERG', toolReg);
-
-                        const tools = await prepareAgentTools(toolReg, '', '', recordLocator, '') as ToolSet;
-                        console.log('TTT', tools);
-
+                        const customTools = await prepareAgentTools(toolReg, '', '', recordLocator, '') as ToolSet;
                         compiledAgents[a.name] = agent({ // add stats support here
 
                             model: openai(a.model, {}),
                             name: a.name,
                             system: a.system,
-                            tools
+                            tools: { 
+                                ...customTools,
+                                updateResultTool: createUpdateResultTool('', null).tool,
+                            }
                         })
                     };
 
