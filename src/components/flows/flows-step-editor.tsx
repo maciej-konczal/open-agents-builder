@@ -53,8 +53,8 @@ export function FlowStepEditor({
           <div className="flex items-center gap-2">
             <Label className="w-20">Agent:</Label>
             <select
-              className="border p-1 rounded"
-              value={step.agent}
+              className="border p-1 rounded text-sm"
+              value={step.agent ? step.agent : (availableAgentNames.length > 0 ? availableAgentNames[0] : '')}
               onChange={handleAgentChange}
             >
               <option value="">(Wybierz agenta)</option>
@@ -67,7 +67,7 @@ export function FlowStepEditor({
           </div>
 
           <div className="flex items-center gap-2">
-            <Label className="w-20">Input:</Label>
+            <Label className="w-20">{t('Input')}</Label>
             <Input
               value={step.input}
               onChange={handleInputChange}

@@ -54,6 +54,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         const customTools = await prepareAgentTools(toolReg, '', '', recordLocator, '') as ToolSet;
                         compiledAgents[a.name] = agent({ // add stats support here
 
+                            onStepFinish: (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
+                                console.log(result.response.messages)
+                                console.log('step finished', result);
+                            },
                             model: openai(a.model, {}),
                             name: a.name,
                             system: a.system,
