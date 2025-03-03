@@ -1,3 +1,6 @@
+import { CoreMessage } from "ai"
+import { Flow } from "flows-ai"
+
 // Agent structure
 export interface ToolSetting {
     name: string // e.g. "calendarList"
@@ -185,4 +188,13 @@ export interface FlowInputVariable {
   description?: string
   required: boolean
   type: FlowInputType
+}
+
+
+export type FlowStackTraceElement = {
+  flow: Flow,
+  result?: any;
+  messages: CoreMessage[];
+  startedAt: Date;
+  finishedAt?: Date;
 }

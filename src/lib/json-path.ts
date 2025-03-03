@@ -1,10 +1,11 @@
-export function setJsonPaths(obj: any, path: string = '$'): any {
+export function setStackTraceJsonPaths(obj: any, path: string = '$'): any {
     if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
         return obj; // Skip non-object values
     }
 
     // Set the "name" property with the current path
-    obj['name'] = path;
+    if (!obj['_name']) obj['_name'] = path;
+    obj['name'] = (obj['_name'] ?? '') + path;
 
     // Recursively process child objects
     for (const key in obj) {
@@ -16,11 +17,11 @@ export function setJsonPaths(obj: any, path: string = '$'): any {
                     // Handle arrays separately by iterating over elements
                     value.forEach((item, index) => {
                         if (typeof item === 'object' && item !== null) {
-                            setJsonPaths(item, `${path}[${index}]`); // Use bracket notation for arrays
+                            setStackTraceJsonPaths(item, `${path}[${index}]`); // Use bracket notation for arrays
                         }
                     });
                 } else {
-                    setJsonPaths(value, `${path}.${key}`); // Use dot notation for objects
+                    setStackTraceJsonPaths(value, `${path}.${key}`); // Use dot notation for objects
                 }
             }
         }

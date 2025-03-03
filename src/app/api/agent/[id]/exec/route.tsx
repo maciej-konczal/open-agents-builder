@@ -9,7 +9,7 @@ import { NextRequest } from "next/server";
 import { Agent, AgentFlow, Session, ToolConfiguration } from "@/data/client/models";
 import { openai } from "@ai-sdk/openai";
 import { agent, execute } from 'flows-ai'
-import { convertToFlowDefinition } from "@/flows/models";
+import { convertToFlowDefinition, FlowStackTraceElement } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
 import { ToolSet } from "ai";
@@ -19,6 +19,7 @@ import { nanoid } from "nanoid";
 import { validateTokenQuotas } from "@/lib/quotas";
 import { SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
+import { setJsonPaths } from "@/lib/json-path";
 
 
 const execRequestSchema = z.object({
@@ -83,11 +84,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => {
-                    const compiledFlow = convertToFlowDefinition(flow?.flow);
+                    const compiledFlow = setJsonPaths(convertToFlowDefinition(flow?.flow));
 
                     console.log(compiledFlow);
 
                     const compiledAgents:Record<string, any> = {}
+                    const stackTrace:FlowStackTraceElement[] = []
+
                     for(const a of agents || []) {
 
                         const toolReg: Record<string, ToolConfiguration> = {}
@@ -100,11 +103,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 options: ts.options
                             }
                         }
+
+                        let currentTraceElement = { flow: compiledFlow, result: null } as FlowStackTraceElement;
+
                         const customTools = await prepareAgentTools(toolReg, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, recordLocator, sessionId) as ToolSet;
                         compiledAgents[a.name] = agent({ // add stats support here
 
                             onStepFinish: async (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
                                 const { usage, response } = result;
+
+                                console.log('MES', response.messages.map(m => m.content));
+
                                 let session = null
                                 if (existingSession && existingSession.messages) {
                                     session = Session.fromDTO(existingSession);
@@ -153,18 +162,21 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         })
                     };
 
-                    const stackTrace = []
 
                     const response = await execute(
                         compiledFlow, {
                             agents: compiledAgents,
+                        onFlowStart: (flow) => {
+                                stackTrace.push({ flow, result: null, messages: [], startedAt: new Date() });
+                            },
                             onFlowFinish: (flow, result) => {
-                                result.
-                                console.log('Flow finished', flow.agent, flow.name, result);
+                                
+                                //console.log('Flow finished', flow.agent, flow.name, result);
                             },
                         }
                     )
 
+                    console.log(stackTrace);
                     console.log(response);
 
                     return response;
