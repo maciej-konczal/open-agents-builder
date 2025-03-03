@@ -58,7 +58,8 @@ export class AgentApiClient extends AdminApiClient {
     }    
 
 
-    async exec(agentId:string, flowId: string, input: any): Promise<any> {
-      return this.request<any>('/api/agent/' + agentId + '/exec/', 'POST', AgentDTOEncSettings, input) as Promise<any>;
+    async exec(agentId:string, flowId: string, input: any, headers: Record<string, string>): Promise<any> {
+      const requestBody = { flow: flowId, input };
+      return this.request<any>('/api/agent/' + agentId + '/exec/', 'POST', AgentDTOEncSettings, requestBody, undefined, undefined, headers) as Promise<any>;
     }
 }

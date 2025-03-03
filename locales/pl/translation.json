@@ -12,7 +12,7 @@
   "Collect user e-mail addresses and names": "Zbieraj adresy e-mail i nazwiska użytkowników",
   "Preview": "Podgląd",
   "General": "Ogólne",
-  "Prompt": "Instrukcje dla AI",
+  "AI Prompt": "Instrukcje dla AI",
   "Safety Rules": "Zasady bezpieczeństwa",
   "Results": "Wyniki",
   "E-mail": "E-mail",
@@ -525,5 +525,6 @@
   "Name": "Nazwa",
   "+ Add attribute": "+ Dodaj atrybut",
   "List products": "Lista produktów",
-  "Create order": "Utwórz zamówienie"
+  "Create order": "Utwórz zamówienie",
+  "Input": "Prompt:"
 }

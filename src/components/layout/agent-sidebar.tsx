@@ -26,7 +26,7 @@ const availableItems : {
   },
   { 
     icon: FileText, 
-    label: 'Prompt', 
+    label: 'AI Prompt', 
     href: '/admin/agent/[id]/prompt',
     pattern: '/admin/agent/[id]/prompt',
     agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']

@@ -6,7 +6,7 @@ import { ChatInitForm } from "@/components/chat-init-form";
 import { CookieConsentBannerComponent } from "@/components/cookie-consent-banner";
 import DataLoader from "@/components/data-loader";
 import FeedbackWidget from "@/components/feedback-widget";
-import { useExecContext } from "@/contexts/chat-context";
+import { useExecContext } from "@/contexts/exec-context";
 import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
 import moment from "moment";

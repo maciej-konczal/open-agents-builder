@@ -16,10 +16,8 @@ import { WorkflowIcon } from 'lucide-react'
 
 // Możemy zdefiniować listę modeli:
 const availableOpenAIModels = [
-  'gpt-3.5-turbo',
-  'gpt-4',
-  'gpt-4-32k',
   'gpt-4o', // cokolwiek jest w Twoim setupie
+  'gpt-1o'
 ]
 
 // Komponent do edycji pojedynczego agenta:
@@ -211,9 +209,6 @@ function ToolConfiguratorWrapper({
   const ConfiguratorComponent = configuratorDef.configurator
   return (
     <div>
-      <h2 className="font-semibold text-lg mb-2">
-        {configuratorDef.displayName} – konfiguracja
-      </h2>
       <ConfiguratorComponent options={toolOptions} onChange={onChange} />
     </div>
   )
@@ -258,7 +253,8 @@ export function FlowAgentsEditor({ agents, onChange }: FlowAgentsEditorProps) {
         <Button variant={"outline"} onClick={addAgent}>
             <WorkflowIcon className="w-4 h-4" /> {t('Add agent...')}
         </Button>
-      </div>        
+      </div> 
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xxl:grid-cols-6 gap-6">
         {agents.map((agent, index) => (
           <FlowAgentEditor
             key={index}
@@ -267,6 +263,7 @@ export function FlowAgentsEditor({ agents, onChange }: FlowAgentsEditorProps) {
             onDelete={() => deleteAgent(index)}
           />
         ))}
+        </div>
       </div>
     </div>
   )
