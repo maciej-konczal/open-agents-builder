@@ -110,8 +110,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     session = Session.fromDTO(existingSession);
 
                                 }
-                                const chatHistory = session && Array.isArray(session.messages) ? [...session.messages, ...result.response.messages] : [...result.response.messages]
-                                existingSession = await sessionRepo.upsert({
+
+                                existingSession = await sessionRepo.upsert({ // updating session stats
                                     id: sessionId
                                 }, {
                                     id: sessionId,
@@ -119,8 +119,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     completionTokens: existingSession && existingSession.completionTokens ? usage.completionTokens + existingSession.completionTokens : usage.completionTokens,
                                     promptTokens: existingSession && existingSession.promptTokens ? usage.promptTokens + existingSession.promptTokens : usage.promptTokens,
                                     createdAt: existingSession ? existingSession.createdAt : new Date().toISOString(),
-                                    updatedAt: new Date().toISOString(),
-                                    messages: JSON.stringify(chatHistory)
+                                    updatedAt: new Date().toISOString()                                    
                                 } as SessionDTO);
 
                                 const usageData: StatDTO = {
@@ -154,9 +153,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         })
                     };
 
+                    const stackTrace = []
+
                     const response = await execute(
                         compiledFlow, {
-                            agents: compiledAgents
+                            agents: compiledAgents,
+                            onFlowFinish: (flow, result) => {
+                                result.
+                                console.log('Flow finished', flow.agent, flow.name, result);
+                            },
                         }
                     )
 
