@@ -43,6 +43,7 @@ export default function FlowsPage() {
   const [editFlowName, setEditFlowName] = useState<string>('');
   const [addFlowError, setAddFlowError] = useState<string>('');
   const [editFlowCode, setEditFlowCode] = useState<string>('');
+  const [currentTabs, setCurrentTabs] = useState<string[]>([]);
 
   const agents = watch('agents') ?? [];
   const defaultFlow = watch('defaultFlow') ?? '';
@@ -173,24 +174,6 @@ export default function FlowsPage() {
 
 
 
-
-        <Drawer direction="right" open={executeFlowDialogOpen} onOpenChange={setExecuteFlowDialogOpen}>
-          <DrawerContent className="fixed inset-y-0 right-0 max-w-full flex">
-            <div className="w-screen max-w-md">
-              <div className="h-full flex flex-col bg-white shadow-xl overflow-y-scroll">
-          <div className="px-4 py-6 sm:px-6"></div>
-            <h3 className="font-bold text-lg">{t('Execute flow')}</h3>
-          </div>
-          <div className="relative flex-1 px-4 sm:px-6"></div>
-              <Button onClick={() => {
-                
-                setExecuteFlowDialogOpen(false);
-              }
-            }>{t('Close')}</Button>                 
-            </div>
-          </DrawerContent>
-        </Drawer>
-
         <Button variant="outline" size="sm" onClick={() => {
             setEditFlowCode('');
             setEditFlowName('');
@@ -211,7 +194,7 @@ export default function FlowsPage() {
           <Button variant="outline" size="sm" onClick={() => setValue('defaultFlow', currentFlow?.code)} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Set as default flow')}</Button>
         )}
         {currentFlow && (
-          <Button variant="outline" size="sm" onClick={() => setExecuteFlowDialogOpen(true)} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
+          <Button variant="outline" size="sm" onClick={() => setCurrentTabs(['debugger'])} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
         )}
 
       </div>
@@ -225,17 +208,23 @@ export default function FlowsPage() {
           {rootFlow && (
             
             <div>
-                <Accordion type="multiple"  className="w-full">
-                  <AccordionItem value="item-1">
+                <Accordion type="multiple"  className="w-full" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}>
+                  <AccordionItem value="inputs">
                       <AccordionTrigger>{t('Inputs')}</AccordionTrigger>
                       <AccordionContent>
                         <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
                       </AccordionContent>
                   </AccordionItem>
-                  <AccordionItem value="item-3">
-                      <AccordionTrigger>{t('Available agents')})</AccordionTrigger>
+                  <AccordionItem value="agents">
+                      <AccordionTrigger>{t('Available sub-agents')}</AccordionTrigger>
                       <AccordionContent>
                         <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
+                      </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="debugger">
+                      <AccordionTrigger>{t('Debugger')}</AccordionTrigger>
+                      <AccordionContent>
+                        <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />
                       </AccordionContent>
                   </AccordionItem>
                 </Accordion>

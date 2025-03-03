@@ -9,6 +9,12 @@ import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from '@/contexts/saas-context';
 import JsonView from "@uiw/react-json-view";
 import { ChatMessageMarkdown } from "../chat-message-markdown";
+import { PlayIcon } from "lucide-react";
+import { getErrorMessage } from "@/lib/utils";
+import DataLoader from "../data-loader";
+import { Card, CardContent } from "../ui/card";
+import { DataLoaderIcon } from "../data-loader-icon";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
@@ -17,56 +23,67 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
     const { t } = useTranslation();
-
+    
+    const [executionInProgress, setExecutionInProgress] = useState<boolean>(false);
     const [currentFlow, setCurrentFlow] = useState<AgentFlow | undefined>(agentFlow);
 
   return (
-    <div>
-      <h2>{t('Flows Debugger')}</h2>
-      <div>
-      {flows?.length > 0 && (
-          <select className="form-select w-full" value={currentFlow?.code ?? agentFlow?.code ?? agent?.defaultFlow ?? ''} onChange={(e) => {
-            const flow = flows.find(f => f.code === e.target.value);
-            if (flow) {
-              setCurrentFlow(flow);
-            }
-          }}>
-            {flows.map((flow, index) => (
-              <option key={index} value={flow.code}>{flow.name}</option>
-            ))}
-          </select>
-        )}
-      </div>
+    <Card>
+        <CardContent className="p-4">
+            <div className="flex">
+            {executionInProgress ? <DataLoaderIcon /> : null}
+                <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
+
+                const flow = flows.find(f => f.code === agentFlow?.code);
+
+                if (flow) {
+                    const exec = async () => {
+                        setExecutionInProgress(true);
+                        try {
+                            const apiClient = new AgentApiClient('', dbContext, saasContext);
+                            const response = await apiClient.exec(agent?.id, flow.code, null);
+
+                            setFlowResult(response);
+                            console.log(response);
+                        } catch (e) {
+                            toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
+                            console.error(e);
+                        }
+                        setExecutionInProgress(false);
+                    }
+
+                    exec();
 
 
-      <Button onClick={() => {
+                } else {
+                    toast.error(t('Flow is not defined'));
+                }
 
-        const flow = flows.find(f => f.code === agentFlow?.code);
+            }}><PlayIcon className="w-4 h-4"/>{t('Execute')}</Button>
+        </div>
 
-        if (flow) {
-            const exec = async () => {
-                const apiClient = new AgentApiClient('', dbContext, saasContext);
-                const response = await apiClient.exec(agent?.id, flow.code, null);
+        {flowResult ? (
+            <Accordion type="multiple" className="w-full mt-4">
+                <AccordionItem value={"result"}>
+                    <AccordionTrigger>{t('Result')}</AccordionTrigger>
+                    <AccordionContent>
+                        {(typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
+                            <JsonView value={flowResult} />}
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value={"trace"}>
+                    <AccordionTrigger>{t('Trace')}</AccordionTrigger>
+                    <AccordionContent>
+                        <JsonView value={flowResult.trace} />
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
+        ) : null}
 
-                setFlowResult(response);
-                console.log(response);
-            }
+        </CardContent>  
 
-            exec();
+        
 
-
-        } else {
-            toast.error(t('Flow is not defined'));
-        }
-
-      }}>Execute</Button>
-
-      {flowResult ? (
-        (typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
-               <JsonView value={flowResult} />
-      ) : null}
-
-
-    </div>
+    </Card>
   );
 }
