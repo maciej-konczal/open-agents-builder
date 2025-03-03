@@ -57,7 +57,7 @@ export function FlowStepEditor({
               value={step.agent ? step.agent : (availableAgentNames.length > 0 ? availableAgentNames[0] : '')}
               onChange={handleAgentChange}
             >
-              <option value="">(Wybierz agenta)</option>
+              <option value="">{t('Select agent')}</option>
               {availableAgentNames.map((agentName) => (
                 <option key={agentName} value={agentName}>
                   {agentName}

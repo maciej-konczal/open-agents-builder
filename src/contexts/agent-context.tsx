@@ -49,6 +49,8 @@ interface AgentContextType {
     importAgent: (fileContent: string) => Promise<Agent>;
     exportSingleResult: (result: Result) => void;
     exportResults: (agent: Agent) => void;
+    agentSidebarOpen: boolean;
+    setAgentSidebarOpen: (value: boolean) => void;
 
 }
 
@@ -62,6 +64,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
     const [sessions, setSessions] = useState<PaginatedResult<Session[]>>({ rows: [], total: 0, limit: 0, offset: 0, orderBy: '', query: '' });
     const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
     const [agentDeleteDialogOpen, setAgentDeleteDialogOpen] = useState<boolean>(false);
+    const [agentSidebarOpen, setAgentSidebarOpen] = useState<boolean>(true);
+
     const auditContext = useContext(AuditContext);
     const productContext = useProductContext();
 
@@ -364,7 +368,9 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 exportSingleResult,
                 exportResults,
                 deleteResult,
-                deleteSession
+                deleteSession,
+                agentSidebarOpen,
+                setAgentSidebarOpen
             }}>
             {children}
         </AgentContext.Provider>

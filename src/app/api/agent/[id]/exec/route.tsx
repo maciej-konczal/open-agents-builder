@@ -14,6 +14,13 @@ import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
 import { ToolSet } from "ai";
 import { createUpdateResultTool } from "@/tools/updateResultTool";
+import { z } from "zod";
+
+
+const execRequestSchema = z.object({
+    flow: z.string(),
+    input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
+});
 
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
     try {
@@ -21,6 +28,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         const requestContext = await authorizeRequestContext(request);
         const saasContext = await authorizeSaasContext(request);
         const agentsRepo = new ServerAgentRepository(requestContext.databaseIdHash);
+        
+
+        const execRequest = execRequestSchema.parse(request.body);
 
 
         if(!recordLocator){
@@ -79,7 +89,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     return response;
                 };
 
-                return Response.json(await execFLow(flows?.find(f => f.code === 'pizdiec2') as AgentFlow));
+                return Response.json(await execFLow(flows?.find(f => f.code === execRequest.flow) as AgentFlow));
             }
 
 

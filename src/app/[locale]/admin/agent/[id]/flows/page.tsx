@@ -19,6 +19,7 @@ import { Accordion, AccordionContent, AccordionTrigger } from '@/components/ui/a
 import { AccordionItem } from '@radix-ui/react-accordion';
 import { FlowInputVariablesEditor } from '@/components/flows/flows-input-variables-editor';
 import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
 
 export default function FlowsPage() {
 
@@ -173,22 +174,22 @@ export default function FlowsPage() {
 
 
 
-        <Dialog open={executeFlowDialogOpen}  onOpenChange={setExecuteFlowDialogOpen}>
-          <DialogContent>
-            <div className="space-y-4 p-4">
-              <h3 className="font-bold text-sm">{t('Execute flow')}</h3>
-
-              <FlowsExecForm agents={agents} agent={agent} flows={flows} rootFlow={rootFlow} agentFlow={currentFlow} inputs={inputs} />
-              
-              
+        <Drawer direction="right" open={executeFlowDialogOpen} onOpenChange={setExecuteFlowDialogOpen}>
+          <DrawerContent className="fixed inset-y-0 right-0 max-w-full flex">
+            <div className="w-screen max-w-md">
+              <div className="h-full flex flex-col bg-white shadow-xl overflow-y-scroll">
+          <div className="px-4 py-6 sm:px-6"></div>
+            <h3 className="font-bold text-lg">{t('Execute flow')}</h3>
+          </div>
+          <div className="relative flex-1 px-4 sm:px-6"></div>
               <Button onClick={() => {
                 
                 setExecuteFlowDialogOpen(false);
               }
             }>{t('Close')}</Button>                 
             </div>
-          </DialogContent>
-        </Dialog>
+          </DrawerContent>
+        </Drawer>
 
         <Button variant="outline" size="sm" onClick={() => {
             setEditFlowCode('');
