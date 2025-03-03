@@ -20,6 +20,7 @@ import { AccordionItem } from '@radix-ui/react-accordion';
 import { FlowInputVariablesEditor } from '@/components/flows/flows-input-variables-editor';
 import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
+import { ExecProvider } from '@/contexts/exec-context';
 
 export default function FlowsPage() {
 
@@ -224,7 +225,9 @@ export default function FlowsPage() {
                   <AccordionItem value="debugger">
                       <AccordionTrigger>{t('Debugger')}</AccordionTrigger>
                       <AccordionContent>
-                        <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />
+                        <ExecProvider>
+                          <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />
+                        </ExecProvider>
                       </AccordionContent>
                   </AccordionItem>
                 </Accordion>

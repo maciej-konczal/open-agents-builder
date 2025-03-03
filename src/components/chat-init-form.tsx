@@ -8,7 +8,7 @@ import { Input } from "./ui/input";
 import { Checkbox } from "./ui/checkbox";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
-import { ExecInitFormType, useExecContext } from "@/contexts/chat-context";
+import { ExecInitFormType, useExecContext } from "@/contexts/exec-context";
 import { Credenza, CredenzaContent } from "./credenza";
 import { useState } from "react";
 import { ScrollArea } from "./ui/scroll-area";

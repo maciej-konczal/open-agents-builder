@@ -87,7 +87,7 @@ export const ExecProvider = ({ children }: { children: ReactNode }) => {
 export const useExecContext = (): ExecContextType => {
     const context = useContext(ChatContext);
     if (context === undefined) {
-        throw new Error('useChatContext must be used within an ChatProivder');
+        throw new Error('useExecContext must be used within an ExecProvider');
     }
     return context;
 };

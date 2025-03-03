@@ -1,6 +1,6 @@
 import { BaseApiClient } from "./base-api-client";
 import { AgentDTO } from "../dto";
-import { ExecInitFormType } from "@/contexts/chat-context";
+import { ExecInitFormType } from "@/contexts/exec-context";
 
 export type GetAgentsResponse = {
   message: string;

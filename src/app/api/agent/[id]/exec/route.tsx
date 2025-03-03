@@ -6,7 +6,7 @@ import {  auditLog, authorizeSaasContext, genericDELETE } from "@/lib/generic-ap
 import { authorizeRequestContext } from "@/lib/authorization-api"
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest } from "next/server";
-import { Agent, AgentFlow, ToolConfiguration } from "@/data/client/models";
+import { Agent, AgentFlow, Session, ToolConfiguration } from "@/data/client/models";
 import { openai } from "@ai-sdk/openai";
 import { agent, execute } from 'flows-ai'
 import { convertToFlowDefinition } from "@/flows/models";
@@ -17,6 +17,8 @@ import { createUpdateResultTool } from "@/tools/updateResultTool";
 import { z } from "zod";
 import { nanoid } from "nanoid";
 import { validateTokenQuotas } from "@/lib/quotas";
+import { SessionDTO, StatDTO } from "@/data/dto";
+import ServerStatRepository from "@/data/server/server-stat-repository";
 
 
 const execRequestSchema = z.object({
@@ -101,13 +103,50 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         const customTools = await prepareAgentTools(toolReg, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, recordLocator, sessionId) as ToolSet;
                         compiledAgents[a.name] = agent({ // add stats support here
 
-                            onStepFinish: (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
-                                console.log(result.response.messages)
-                                console.log('step finished', result);
+                            onStepFinish: async (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
+                                const { usage, response } = result;
+                                let session = null
+                                if (existingSession && existingSession.messages) {
+                                    session = Session.fromDTO(existingSession);
+
+                                }
+                                const chatHistory = session && Array.isArray(session.messages) ? [...session.messages, ...result.response.messages] : [...result.response.messages]
+                                existingSession = await sessionRepo.upsert({
+                                    id: sessionId
+                                }, {
+                                    id: sessionId,
+                                    agentId,
+                                    completionTokens: existingSession && existingSession.completionTokens ? usage.completionTokens + existingSession.completionTokens : usage.completionTokens,
+                                    promptTokens: existingSession && existingSession.promptTokens ? usage.promptTokens + existingSession.promptTokens : usage.promptTokens,
+                                    createdAt: existingSession ? existingSession.createdAt : new Date().toISOString(),
+                                    updatedAt: new Date().toISOString(),
+                                    messages: JSON.stringify(chatHistory)
+                                } as SessionDTO);
+
+                                const usageData: StatDTO = {
+                                    eventName: 'chat',
+                                    completionTokens: usage.completionTokens,
+                                    promptTokens: usage.promptTokens,
+                                    createdAt: new Date().toISOString()
+                                }
+                                const statsRepo = new ServerStatRepository(databaseIdHash, 'stats');
+                                const statRst = await statsRepo.aggregate(usageData)
+                                if (saasContext.apiClient) {
+                                    try {
+                                        saasContext.apiClient.saveStats(databaseIdHash, {
+                                            ...statRst,
+                                            databaseIdHash: databaseIdHash
+                                        });
+                                    } catch (e) {
+                                        console.error(e);
+                                    }
+                                } 
+                                
                             },
                             model: openai(a.model, {}),
                             name: a.name,
                             system: a.system,
+                                                        
                             tools: { 
                                 ...customTools,
                                 updateResultTool: createUpdateResultTool('', null).tool,
