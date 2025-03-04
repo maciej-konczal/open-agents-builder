@@ -18,7 +18,7 @@ export function FlowsDeleteDialog({ agentFlow, onDeleteFlow }: { agentFlow: Agen
     return (
       <AlertDialog>
         <AlertDialogTrigger>
-          <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
+          <Button className="ml-2 right-20" size={"sm"} variant="secondary" onClick={() => {
           }}>
             <Trash2Icon className="w-4 h-4 mr-2" />{t('Delete flow')}
           </Button>

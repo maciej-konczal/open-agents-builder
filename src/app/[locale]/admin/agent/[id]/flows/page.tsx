@@ -22,6 +22,7 @@ import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { ExecProvider } from '@/contexts/exec-context';
 import { Input } from '@/components/ui/input';
+import { FlowsDeleteDialog } from '@/components/flows/flows-delete-dialog';
 
 export default function FlowsPage() {
 
@@ -210,8 +211,14 @@ export default function FlowsPage() {
         {currentFlow && (
           <Button variant="outline" size="sm" onClick={() => setCurrentTabs(['debugger'])} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
         )}
-          <Button variant="outline" size="sm" onClick={() => {
-          }
+
+        {currentFlow && (
+            <FlowsDeleteDialog agentFlow={currentFlow} onDeleteFlow={(flow) => {
+                setCurrentFlow(undefined);
+                setRootFlow(undefined);
+                sessionStorage.removeItem('currentFlow')
+                setValue('flows', flows.filter(f => f.code !== flow.code));
+        }}/>)}
 
       </div>
 
