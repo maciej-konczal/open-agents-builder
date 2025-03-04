@@ -108,9 +108,16 @@ export default function FlowsPage() {
 
   return (
     <div className="space-y-6">
+
+{ isDirty ? (
+        <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
+      ) : (
+      <AgentStatus status={status} />
+      ) }
+
       <div>
         {flows?.length > 0 && (
-          <select className="form-select w-full m-2 p-2" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
+          <select className="form-select text-sm w-full m-2 p-2 rounded border" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
             const flow = flows.find(f => f.code === e.target.value);
             if (flow) {
               setRootFlow(flow.flow);
@@ -203,14 +210,11 @@ export default function FlowsPage() {
         {currentFlow && (
           <Button variant="outline" size="sm" onClick={() => setCurrentTabs(['debugger'])} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
         )}
+          <Button variant="outline" size="sm" onClick={() => {
+          }
 
       </div>
 
-      { isDirty ? (
-        <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
-      ) : (
-      <AgentStatus status={status} />
-      ) }
 
           {rootFlow && (
             
