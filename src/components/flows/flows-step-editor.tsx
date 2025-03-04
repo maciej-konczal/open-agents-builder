@@ -55,7 +55,7 @@ export function FlowStepEditor({
           </div>
 
           <div className="flex items-center gap-2">
-            <Label className="w-20">Agent:</Label>
+            <Label className="w-20">{t('Agent')}:</Label>
             <select
               className="border p-1 rounded text-sm"
               value={step.agent ? step.agent : (availableAgentNames.length > 0 ? availableAgentNames[0] : '')}
