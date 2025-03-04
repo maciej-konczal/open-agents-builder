@@ -9,7 +9,7 @@ import { NextRequest } from "next/server";
 import { Agent, AgentFlow, Session, ToolConfiguration } from "@/data/client/models";
 import { openai } from "@ai-sdk/openai";
 import { agent, execute } from 'flows-ai'
-import { convertToFlowDefinition } from "@/flows/models";
+import { convertToFlowDefinition, FlowStackTraceElement } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
 import { ToolSet } from "ai";
@@ -19,6 +19,7 @@ import { nanoid } from "nanoid";
 import { validateTokenQuotas } from "@/lib/quotas";
 import { SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
+import { setStackTraceJsonPaths } from "@/lib/json-path";
 
 
 const execRequestSchema = z.object({
@@ -66,8 +67,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
         let existingSession = await sessionRepo.findOne({ id: sessionId });
-
-
         const execRequest = await execRequestSchema.parse(await request.json());
 
         console.log('RQ', execRequest);
@@ -83,11 +82,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => {
-                    const compiledFlow = convertToFlowDefinition(flow?.flow);
+                    const compiledFlow = setStackTraceJsonPaths(convertToFlowDefinition(flow?.flow));
 
                     console.log(compiledFlow);
 
                     const compiledAgents:Record<string, any> = {}
+                    const stackTrace:FlowStackTraceElement[] = []
+
                     for(const a of agents || []) {
 
                         const toolReg: Record<string, ToolConfiguration> = {}
@@ -100,18 +101,24 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 options: ts.options
                             }
                         }
+
+                        let currentTraceElement = { flow: compiledFlow, result: null } as FlowStackTraceElement;
+
                         const customTools = await prepareAgentTools(toolReg, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, recordLocator, sessionId) as ToolSet;
                         compiledAgents[a.name] = agent({ // add stats support here
 
                             onStepFinish: async (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
                                 const { usage, response } = result;
+
+                                console.log('MES', response.messages.map(m => m.content));
+
                                 let session = null
                                 if (existingSession && existingSession.messages) {
                                     session = Session.fromDTO(existingSession);
 
                                 }
-                                const chatHistory = session && Array.isArray(session.messages) ? [...session.messages, ...result.response.messages] : [...result.response.messages]
-                                existingSession = await sessionRepo.upsert({
+
+                                existingSession = await sessionRepo.upsert({ // updating session stats
                                     id: sessionId
                                 }, {
                                     id: sessionId,
@@ -119,8 +126,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     completionTokens: existingSession && existingSession.completionTokens ? usage.completionTokens + existingSession.completionTokens : usage.completionTokens,
                                     promptTokens: existingSession && existingSession.promptTokens ? usage.promptTokens + existingSession.promptTokens : usage.promptTokens,
                                     createdAt: existingSession ? existingSession.createdAt : new Date().toISOString(),
-                                    updatedAt: new Date().toISOString(),
-                                    messages: JSON.stringify(chatHistory)
+                                    updatedAt: new Date().toISOString()                                    
                                 } as SessionDTO);
 
                                 const usageData: StatDTO = {
@@ -154,12 +160,21 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         })
                     };
 
+
                     const response = await execute(
                         compiledFlow, {
-                            agents: compiledAgents
+                            agents: compiledAgents,
+                        onFlowStart: (flow) => {
+                                stackTrace.push({ flow, result: null, messages: [], startedAt: new Date() });
+                            },
+                            onFlowFinish: (flow, result) => {
+                                
+                                //console.log('Flow finished', flow.agent, flow.name, result);
+                            },
                         }
                     )
 
+                    console.log(stackTrace);
                     console.log(response);
 
                     return response;

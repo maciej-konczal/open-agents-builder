@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { TrashIcon } from 'lucide-react'
 
 /** Lista do wyboru w <select> */
 const INPUT_TYPES: FlowInputType[] = [
@@ -28,7 +29,7 @@ export function FlowInputVariablesEditor({
   variables,
   onChange,
 }: FlowInputVariablesEditorProps) {
-  // Funkcja tworząca nową zmienną z wartościami domyślnymi
+// Function to create a new variable with default values
   const createNewVariable = (): FlowInputVariable => ({
     name: '',
     description: '',
@@ -36,18 +37,18 @@ export function FlowInputVariablesEditor({
     type: 'shortText',
   })
 
-  // Dodawanie nowej zmiennej
+// Adding a new variable
   const handleAddVariable = () => {
     onChange([...variables, createNewVariable()])
   }
 
-  // Usuwanie zmiennej
+// Deleting a variable
   const handleDeleteVariable = (index: number) => {
     const updated = variables.filter((_, i) => i !== index)
     onChange(updated)
   }
 
-  // Aktualizowanie pól w istniejącej zmiennej
+// Updating fields in an existing variable
   const updateVariable = (index: number, updatedFields: Partial<FlowInputVariable>) => {
     const newList = [...variables]
     newList[index] = { ...newList[index], ...updatedFields }
@@ -56,19 +57,16 @@ export function FlowInputVariablesEditor({
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-2">Edytor danych wejściowych (zmienne)</h2>
-
       <div className="space-y-4">
         {variables.map((variable, index) => {
-          // Będziemy walidować nazwę zmiennej
+          // We will validate the variable name
           const isNameValid = variable.name === '' || variableNameRegex.test(variable.name)
 
           return (
             <Card key={index} className="p-4 border space-y-3">
               <div className="flex justify-between items-center">
-                <div className="font-semibold">Zmienna #{index + 1}</div>
                 <Button variant="destructive" onClick={() => handleDeleteVariable(index)}>
-                  Usuń
+                  <TrashIcon className="w-4 h-4" />
                 </Button>
               </div>
 
