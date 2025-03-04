@@ -1,32 +1,30 @@
 'use client'
 import React from 'react'
-import { convertToFlowDefinition, FlowStep } from '@/flows/models'
+import { EditorStep } from '@/flows/models'
 import { FlowStepEditor } from './flows-step-editor'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 
 interface FlowBuilderProps {
   /** 
-   * Aktualny stan głównego flow, np. { type: 'sequence', steps: [...] }. 
+   * Current state of the main flow, e.g., { type: 'sequence', steps: [...] }. 
    */
-  flow: FlowStep
+  flow: EditorStep
 
   /**
-   * Funkcja do aktualizacji flow.
+   * Function to update the flow.
    */
-  onFlowChange: (newFlow: FlowStep) => void
+  onFlowChange: (newFlow: EditorStep) => void
 
 
   onNoAgentsError?: () => void
 
   /**
-   * Lista nazw agentów, które można wybrać w krokach typu 'step'.
+   * List of agent names that can be selected in 'step' type steps.
    */
   agentNames: string[]
 }
 
 /**
- * Komponent główny, renderujący edytor flow (FlowStepEditor) i przycisk eksportu JSON.
+ * Main component rendering the flow editor (FlowStepEditor) and a JSON export button.
  */
 export default function FlowBuilder({
   flow,
@@ -34,7 +32,7 @@ export default function FlowBuilder({
   agentNames,
   onNoAgentsError
 }: FlowBuilderProps) {
-  // Funkcja pomocnicza do wyświetlenia flow w konsoli
+  // Helper function to display the flow in the console
   const exportFlow = () => {
     console.log('Flow JSON:', JSON.stringify(flow, null, 2))
   }
@@ -45,8 +43,8 @@ export default function FlowBuilder({
         onNoAgentsError={onNoAgentsError}
         onChange={onFlowChange}
         onDelete={() => {
-          // Jeśli użytkownik kliknie usuń na głównym edytorze,
-          // to możemy np. wyczyścić flow do pustej sekwencji
+            // If the user clicks delete on the main editor,
+            // we can, for example, clear the flow to an empty sequence
           onFlowChange({ type: 'sequence', steps: [] })
         }}
         availableAgentNames={agentNames}
