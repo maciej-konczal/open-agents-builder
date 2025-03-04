@@ -10,9 +10,8 @@ import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 
 // Import listy dostępnych narzędzi i ich konfiguratorów:
 import { toolConfigurators } from '@/tools/configurators'
-import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { TextIcon, TrashIcon, WorkflowIcon } from 'lucide-react'
+import { PlusIcon, TextIcon, TrashIcon, WorkflowIcon } from 'lucide-react'
 
 // Możemy zdefiniować listę modeli:
 const availableOpenAIModels = [
@@ -28,6 +27,9 @@ interface FlowAgentEditorProps {
 }
 
 export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorProps) {
+
+  const { t } = useTranslation();
+
   // Edycja nazwy
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ ...agent, name: e.target.value })
@@ -95,14 +97,14 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
       </div>
 
       <div className="flex items-center gap-2">
-        <Label className="w-20">Name:</Label>
+        <Label className="w-12">{t('Name')}</Label>
         <Input value={agent.name} onChange={handleNameChange} />
       </div>
 
       <div className="flex items-center gap-2">
-        <Label className="w-20">Model:</Label>
+        <Label className="w-12">{t('Model')}</Label>
         <select
-          className="border p-1 rounded"
+          className="border p-2 rounded text-xs"
           value={agent.model}
           onChange={handleModelChange}
         >
@@ -115,9 +117,9 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
       </div>
 
       <div className="flex flex-col gap-1">
-        <Label>System prompt:</Label>
+        <Label>{t('System prompt:')}</Label>
         <textarea
-          className="border p-2 rounded"
+          className="border p-2 rounded text-sm mt-2"
           rows={3}
           value={agent.system}
           onChange={handleSystemChange}
@@ -126,7 +128,6 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
 
       {/* Lista narzędzi */}
       <div className="mt-4">
-        <div className="font-semibold mb-2">Tools</div>
         <div className="flex flex-col gap-2">
           {agent.tools.map((tool, index) => {
             const config = toolConfigurators[tool.name]
@@ -137,7 +138,7 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
               >
                 <div className="flex gap-2 items-center">
                   <select
-                    className="border p-2 rounded text-xs mr-2"
+                    className="border p-2 rounded text-xs mr-1"
                     value={tool.name}
                     onChange={(e) =>
                       handleToolNameChange(index, e.target.value)
@@ -182,7 +183,7 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
         </div>
 
         <div className="mt-2">
-          <Button onClick={addTool}>{t('Add tool')}</Button>
+          <Button variant="secondary" className="text-sm" onClick={addTool}><PlusIcon className="w-4 h-4" />{t('Add tool')}</Button>
         </div>
       </div>
     </Card>
@@ -254,7 +255,7 @@ export function FlowAgentsEditor({ agents, onChange }: FlowAgentsEditorProps) {
             <WorkflowIcon className="w-4 h-4" /> {t('Add agent...')}
         </Button>
       </div> 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xxl:grid-cols-6 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 xxl:grid-cols-4 gap-2">
         {agents.map((agent, index) => (
           <FlowAgentEditor
             key={index}
