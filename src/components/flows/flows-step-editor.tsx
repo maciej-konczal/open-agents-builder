@@ -8,11 +8,14 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useTranslation } from 'react-i18next'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { PlusIcon, TrashIcon } from 'lucide-react'
+import { toast } from 'sonner'
 
 interface FlowStepEditorProps {
   step: EditorStep
   onChange: (newStep: EditorStep) => void
   onDelete: () => void
+  onNoAgentsError?: () => void
   availableAgentNames: string[]
 }
 
@@ -21,12 +24,13 @@ export function FlowStepEditor({
   onChange,
   onDelete,
   availableAgentNames,
+  onNoAgentsError
 }: FlowStepEditorProps) {
 
   const { t } = useTranslation();
 
   if (!step) {
-    return <div className="text-sm text-red-500">Brak kroku do wyświetlenia</div>
+    return <div className="text-sm text-red-500">{t('No steps to display')}</div>
   }
 
   switch (step.type) {
@@ -45,8 +49,8 @@ export function FlowStepEditor({
         <Card className="p-2 my-2 border space-y-2">
           <div className="flex justify-between items-center">
             <div className="font-semibold text-sm">{t('Step')}</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
+            <Button variant="outline" size="sm" onClick={onDelete}>
+              <TrashIcon className="w-4 h-4" />
             </Button>
           </div>
 
@@ -85,6 +89,13 @@ export function FlowStepEditor({
       const { steps } = step
 
       const addStep = (newSub: EditorStep) => {
+        if (availableAgentNames.length === 0) {
+            toast.error(t('Please add at least one sub-agent first'))
+            if (onNoAgentsError) {
+                onNoAgentsError()
+            }
+            return;
+        }
         onChange({ ...step, steps: [...steps, newSub] })
       }
 
@@ -99,15 +110,15 @@ export function FlowStepEditor({
       }
 
       return (
-        <Card className="p-4 my-2 border space-y-4">
+        <Card className="p-2 my-2 border space-y-2">
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg">Sequence</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
+            <div className="font-semibold text-m ml-2">{t('Sequence')}</div>
+            <Button variant="outline" size="sm" onClick={onDelete}>
+              <TrashIcon className="w-4 h-4" />
             </Button>
           </div>
 
-          <div className="ml-4">
+          <div className="ml-2">
             {steps.map((child, idx) => (
               <FlowStepEditor
                 key={idx}
@@ -122,7 +133,7 @@ export function FlowStepEditor({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="sm">
-                Dodaj krok
+                <PlusIcon className="w-4 h-4" />{t('Add step')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -194,6 +205,13 @@ export function FlowStepEditor({
       const { steps } = step
 
       const addStep = (newSub: EditorStep) => {
+        if (availableAgentNames.length === 0) {
+            if (onNoAgentsError) {
+                onNoAgentsError()
+            }            
+            toast.error(t('Please add at least one sub-agent first'))
+            return;
+        }        
         onChange({ ...step, steps: [...steps, newSub] })
       }
 
@@ -208,15 +226,15 @@ export function FlowStepEditor({
       }
 
       return (
-        <Card className="p-4 my-2 border space-y-4">
+        <Card className="my-2 border space-y-2">
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg">Parallel</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
+            <div className="font-semibold text-m ml-2">{t('Parallel')}</div>
+            <Button variant="outline" size="sm" onClick={onDelete}>
+              <TrashIcon className="w-4 h-4" />
             </Button>
           </div>
 
-          <div className="ml-4">
+          <div className="ml-2">
             {steps.map((child, idx) => (
               <FlowStepEditor
                 key={idx}
@@ -390,22 +408,22 @@ case 'oneOf': {
     <Card className="p-4 my-2 border space-y-4">
       <div className="flex justify-between items-center">
         <div className="font-semibold text-lg">OneOf</div>
-        <Button variant="destructive" onClick={onDelete}>
-          Usuń
-        </Button>
+        <Button variant="outline" size="sm" onClick={onDelete}>
+              <TrashIcon className="w-4 h-4" />
+            </Button>
       </div>
 
-      <div className="ml-4 space-y-4">
+      <div className="ml-2 space-y-2">
         {branches.map((br, idx) => (
           <Card key={idx} className="p-2 border space-y-2">
             <div className="flex justify-between">
               <Label className="text-sm">When:</Label>
               <Button
                 size="sm"
-                variant="destructive"
+                variant="outline"
                 onClick={() => handleDeleteBranch(idx)}
               >
-                Usuń branch
+                <TrashIcon />
               </Button>
             </div>
             <Input
@@ -462,20 +480,20 @@ case 'oneOf': {
       }
 
       return (
-        <Card className="p-4 my-2 border space-y-4">
+        <Card className="p-2 my-2 border space-y-2">
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg">ForEach</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
+            <div className="font-semibold text-lg ml-2">{t('ForEach')}</div>
+            <Button variant="outline" size="sm" onClick={onDelete}>
+              <TrashIcon className="w-4 h-4" />
             </Button>
           </div>
 
           <div className="flex items-center gap-2">
-            <Label className="w-20">item (schema?):</Label>
+            <Label className="w-20">{t('schema')}</Label>
             <Input value={item} onChange={handleItemChange} />
           </div>
 
-          <div className="ml-4">
+          <div className="ml-2">
             <FlowStepEditor
               step={inputFlow}
               onChange={handleFlowChange}
@@ -507,11 +525,11 @@ case 'oneOf': {
       }
 
       return (
-        <Card className="p-4 my-2 border space-y-4">
+        <Card className="p-2 my-2 border space-y-2">
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg">Evaluator</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
+            <div className="font-semibold text-lg ml-2">{t('Evaluator')}</div>
+            <Button variant="outline" size="sm" onClick={onDelete}>
+              <TrashIcon className="w-4 h-4" />
             </Button>
           </div>
 
@@ -529,7 +547,7 @@ case 'oneOf': {
             />
           </div>
 
-          <div className="ml-4">
+          <div className="ml-2">
             <FlowStepEditor
               step={subFlow}
               onChange={handleSubFlowChange}
@@ -571,8 +589,8 @@ case 'oneOf': {
         <Card className="p-4 my-2 border space-y-4">
           <div className="flex justify-between items-center">
             <div className="font-semibold text-lg">BestOfAll</div>
-            <Button variant="destructive" onClick={onDelete}>
-              Usuń
+            <Button variant="outline" size="sm" onClick={onDelete}>
+              <TrashIcon className="w-4 h-4" />
             </Button>
           </div>
 
@@ -581,7 +599,7 @@ case 'oneOf': {
             <Input value={criteria} onChange={handleCriteriaChange} />
           </div>
 
-          <div className="ml-4">
+          <div className="ml-2">
             {steps.map((child, idx) => (
               <FlowStepEditor
                 key={idx}

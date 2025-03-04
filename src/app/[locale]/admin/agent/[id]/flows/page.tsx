@@ -21,6 +21,7 @@ import { FlowInputVariablesEditor } from '@/components/flows/flows-input-variabl
 import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { ExecProvider } from '@/contexts/exec-context';
+import { Input } from '@/components/ui/input';
 
 export default function FlowsPage() {
 
@@ -28,7 +29,7 @@ export default function FlowsPage() {
   const router = useRouter();
   const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
 
-  const [newFlowDialogOpen, setNewFlowDialogOpen] = useState<boolean>(false);
+  const [editFlowDialogOpen, setEditFlowDialogOpen] = useState<boolean>(false);
   const [initialLoadDone, setInitialLoadDone] = useState<boolean>(false);
   const [executeFlowDialogOpen, setExecuteFlowDialogOpen] = useState<boolean>(false);
 
@@ -42,7 +43,7 @@ export default function FlowsPage() {
 
   const [editFlowId, setEditFlowId] = useState<number>(-1);
   const [editFlowName, setEditFlowName] = useState<string>('');
-  const [addFlowError, setAddFlowError] = useState<string>('');
+  const [editFlowError, setAddFlowError] = useState<string>('');
   const [editFlowCode, setEditFlowCode] = useState<string>('');
   const [currentTabs, setCurrentTabs] = useState<string[]>([]);
 
@@ -102,22 +103,6 @@ export default function FlowsPage() {
       sessionStorage.setItem('currentFlow', JSON.stringify(currentFlow));
     }
   }, [currentFlow]);
-  
-
-  useEffect(() => {
-    setAddFlowError('');
-    if (editFlowCode){ 
-      if (editFlowId < 0) if (flows && flows.find(f => f.code === editFlowCode)) {
-        setAddFlowError(t('Flow with this code already exists'));
-      } 
-    } else {
-      setAddFlowError(t('Flow code is required'));
-    }
-
-    if (!editFlowName) {
-      setAddFlowError(t('Flow name is required'));
-    }
-  }, [editFlowCode, editFlowName]);
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, {});
 
@@ -125,7 +110,7 @@ export default function FlowsPage() {
     <div className="space-y-6">
       <div>
         {flows?.length > 0 && (
-          <select className="form-select w-full" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
+          <select className="form-select w-full m-2 p-2" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
             const flow = flows.find(f => f.code === e.target.value);
             if (flow) {
               setRootFlow(flow.flow);
@@ -137,39 +122,60 @@ export default function FlowsPage() {
             ))}
           </select>
         )}
-        <Dialog open={newFlowDialogOpen}  onOpenChange={setNewFlowDialogOpen}>
+        <Dialog open={editFlowDialogOpen}  onOpenChange={setEditFlowDialogOpen}>
           <DialogContent>
             <div className="space-y-4 p-4">
-              <h3 className="font-bold text-sm">{t('Add new flow')}</h3>
-              <p>{t('Add a new flow to the agent')}</p>
-
-              {addFlowError && (
-                <div className="text-red-500">{addFlowError}</div>
+              <h3 className="font-bold text-m">{t('Add new flow')}</h3>
+              {editFlowError && (
+                <div className="text-red-500 text-sm p-4 border border-red-500 bg-red-200">{editFlowError}</div>
               )}
 
-              <label>{t('Flow name')}</label>           
-              <input type="text" placeholder={t('Flow name')} className="form-input w-full" value={editFlowName} onChange={(e) => setEditFlowName(e.target.value)} />
+                <div>
+                    <label className="text-sm">{t('Flow name')}</label>           
+                    <Input type="text" placeholder={t('Flow name')} className="form-input w-full text-sm" value={editFlowName} onChange={(e) => setEditFlowName(e.target.value)} />
+                </div>
               
-              <label>{t('Flow code')}</label>
-              <input type="text" placeholder={t('Flow code')} className="form-input w-full" value={editFlowCode} onChange={(e) => setEditFlowCode(e.target.value)} />
+                <div>
+                    <label className="mt-4 text-sm">{t('Flow code')}</label>
+                    <Input type="text" placeholder={t('Flow code')} className="form-input w-full text-sm" value={editFlowCode} onChange={(e) => setEditFlowCode(e.target.value)} />
+                </div>
             </div>
-            <Button onClick={() => {
-              if (!addFlowError) {
-                if (editFlowId >= 0) {
-                  setValue('flows', flows.map((f, index) => index === editFlowId ? { name: editFlowName, code: editFlowCode, flow: f.flow } : f));
-                } else {  
-                  setValue('flows', [...flows, { name: editFlowName, code: editFlowCode, flow: { type: 'sequence', steps: [] } }]);
-                }
+            <div className="flex justify-end p-4">  
+                <Button onClick={() => {
 
-                if (flows.length === 1) {
-                  setValue('defaultFlow', flows[0].code);
-                  setRootFlow(flows[0].flow);
-                  setCurrentFlow(flows[0]);                  
+                    let error = '';
+
+                    if (editFlowCode){ 
+                    if (editFlowId < 0) if (flows && flows.find(f => f.code === editFlowCode)) {
+                        error = t('Flow with this code already exists');
+                    } 
+                    } else {
+                        error = t('Flow code is required');
+                    }
+
+                    if (!editFlowName) {
+                        error = t('Flow name is required');
+                    }
+                    
+                    if (!error) {
+                        if (editFlowId >= 0) {
+                            setValue('flows', flows.map((f, index) => index === editFlowId ? { name: editFlowName, code: editFlowCode, flow: f.flow } : f));
+                        } else {
+                            setValue('flows', [...flows, { name: editFlowName, code: editFlowCode, flow: { type: 'sequence', steps: [] } }]);
+                        }
+
+                        if (flows.length === 1) {
+                            setValue('defaultFlow', flows[0].code);
+                            setRootFlow(flows[0].flow);
+                            setCurrentFlow(flows[0]);
+                        }
+                        setEditFlowDialogOpen(false);
+                    } else {
+                        setAddFlowError(error);                        
+                    }
                 }
-                setNewFlowDialogOpen(false);
-              }
-            }
-            }>{t('Save changes')}</Button>                 
+                }>{t('Save changes')}</Button>
+            </div>     
           </DialogContent>
         </Dialog>
 
@@ -179,7 +185,7 @@ export default function FlowsPage() {
             setEditFlowCode('');
             setEditFlowName('');
             setEditFlowId(-1);
-            setNewFlowDialogOpen(true)
+            setEditFlowDialogOpen(true)
           }
         } className="ml-2"><NetworkIcon className="w-4 h-4" />{t('Add flow')}</Button>
 
@@ -187,7 +193,7 @@ export default function FlowsPage() {
           setEditFlowCode(currentFlow?.code ?? '');
           setEditFlowName(currentFlow?.name ?? '');
           setEditFlowId(flows.findIndex(f => f.code === currentFlow?.code) ?? -1);
-          setNewFlowDialogOpen(true)
+          setEditFlowDialogOpen(true)
         }
       } className="ml-2" title={t('Rename flow...')}><TextIcon className="w-4 h-4" /></Button>
 
@@ -235,6 +241,9 @@ export default function FlowsPage() {
                 <FlowBuilder
                 flow={rootFlow}
                 onFlowChange={onFlowChanged}
+                onNoAgentsError={() => {
+                    setCurrentTabs(['agents']);
+                }}
                 agentNames={agents.map(a => a.name)}
                 />                        
           </div>

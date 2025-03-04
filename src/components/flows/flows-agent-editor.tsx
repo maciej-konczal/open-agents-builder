@@ -12,7 +12,7 @@ import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 import { toolConfigurators } from '@/tools/configurators'
 import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
-import { WorkflowIcon } from 'lucide-react'
+import { TextIcon, TrashIcon, WorkflowIcon } from 'lucide-react'
 
 // Możemy zdefiniować listę modeli:
 const availableOpenAIModels = [
@@ -133,11 +133,11 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
             return (
               <div
                 key={index}
-                className="p-2 border rounded flex items-center justify-between"
+                className="p-1 border rounded flex items-center justify-between"
               >
                 <div className="flex gap-2 items-center">
                   <select
-                    className="border p-1 rounded"
+                    className="border p-2 rounded text-xs mr-2"
                     value={tool.name}
                     onChange={(e) =>
                       handleToolNameChange(index, e.target.value)
@@ -151,12 +151,12 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
                   </select>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-1">
                   {/* Otwieramy popup z konfiguracją */}
                   <Dialog>
                     <DialogTrigger asChild>
                       <Button size="sm" variant="outline">
-                        Edytuj
+                        <TextIcon className="w-4 h-4" />
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="p-4">
@@ -170,10 +170,10 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
 
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="outline"
                     onClick={() => removeTool(index)}
                   >
-                    Usuń
+                    <TrashIcon className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
@@ -182,7 +182,7 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
         </div>
 
         <div className="mt-2">
-          <Button onClick={addTool}>Dodaj narzędzie</Button>
+          <Button onClick={addTool}>{t('Add tool')}</Button>
         </div>
       </div>
     </Card>

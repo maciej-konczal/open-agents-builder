@@ -19,7 +19,7 @@ import { nanoid } from "nanoid";
 import { validateTokenQuotas } from "@/lib/quotas";
 import { SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
-import { setJsonPaths } from "@/lib/json-path";
+import { setStackTraceJsonPaths } from "@/lib/json-path";
 
 
 const execRequestSchema = z.object({
@@ -67,8 +67,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
         let existingSession = await sessionRepo.findOne({ id: sessionId });
-
-
         const execRequest = await execRequestSchema.parse(await request.json());
 
         console.log('RQ', execRequest);
@@ -84,7 +82,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => {
-                    const compiledFlow = setJsonPaths(convertToFlowDefinition(flow?.flow));
+                    const compiledFlow = setStackTraceJsonPaths(convertToFlowDefinition(flow?.flow));
 
                     console.log(compiledFlow);
 

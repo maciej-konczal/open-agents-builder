@@ -16,6 +16,9 @@ interface FlowBuilderProps {
    */
   onFlowChange: (newFlow: FlowStep) => void
 
+
+  onNoAgentsError?: () => void
+
   /**
    * Lista nazw agentów, które można wybrać w krokach typu 'step'.
    */
@@ -29,6 +32,7 @@ export default function FlowBuilder({
   flow,
   onFlowChange,
   agentNames,
+  onNoAgentsError
 }: FlowBuilderProps) {
   // Funkcja pomocnicza do wyświetlenia flow w konsoli
   const exportFlow = () => {
@@ -36,9 +40,9 @@ export default function FlowBuilder({
   }
 
   return (
-    <div className="p-2">
       <FlowStepEditor
         step={flow}
+        onNoAgentsError={onNoAgentsError}
         onChange={onFlowChange}
         onDelete={() => {
           // Jeśli użytkownik kliknie usuń na głównym edytorze,
@@ -47,6 +51,5 @@ export default function FlowBuilder({
         }}
         availableAgentNames={agentNames}
       />
-    </div>
   )
 }
