@@ -21,6 +21,7 @@ import FeedbackWidget from '../feedback-widget';
 import StatsPopup from '../stats-popup';
 import { StatsContext } from '@/contexts/stats-context';
 import SharedKeysPopup from '../shared-keys-popup';
+import { useTheme } from 'next-themes';
 
 export function Header() {
   const { t } = useTranslation();
@@ -29,15 +30,19 @@ export function Header() {
   const statsContext = useContext(StatsContext);
   const router = useRouter();
 
+  const { theme, systemTheme } = useTheme();
+  const currentTheme = (theme === 'system' ? systemTheme : theme)
+
+
   return (
     <header className="flex h-14 items-center gap-4 border-b bg-card px-6">
       <FeedbackWidget />
       <StatsPopup />
       {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<SharedKeysPopup />) : (null)}
       <div className="flex-1">
-        <img src="/img/agent-doodle-logo.svg" alt="Agent Doodle" className="w-10"/>
+        <img src={ currentTheme === 'dark' ? "/img/OAB-Logo-Small-dark.svg" : "/img/OAB-Logo-Small.svg"} alt="Open Agents Builder" className="w-10"/>
       </div>
-      <div className="flex-1"><h1 className="text-lg font-bold text-left">{t('Agent Doodle')}</h1>
+      <div className="flex-1"><h1 className="text-lg font-bold text-left">{t('Open Agents Builder')}</h1>
       </div>
       {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<ChangeKeyPopup />) : (null)}
       <div className="flex items-center gap-4">

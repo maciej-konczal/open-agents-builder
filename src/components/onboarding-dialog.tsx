@@ -39,7 +39,7 @@ export function OnboardingDialog() {
                 <DialogHeader>
                     {templateContext?.onboardingWellcomeHeader ? (
                         <DialogTitle className="text-center items-center justify-center">
-                            <div className="flex justify-center"><img src="/img/agent-doodle-logo.svg" className="w-40 h-40" /></div>
+                            <div className="flex justify-center"><img src={currentTheme === 'dark' ? "/img/OAB-Logo-Small-dark.svg" : "/img/OAB-Logo-Small.svg"} className="w-40 h-40" /></div>
                             <h2 className="text-2xl font-bold">{t('Welcome to Agent Doodle')}</h2>
                             <p className="text-sm pt-3 pb-3">{t('In Agent Doodle, you create an AI Assistant that will chat with your customers, colleagues, or anyone who gets the link. Choose a template to get started creating your first Assistant.')}</p>
                         </DialogTitle>

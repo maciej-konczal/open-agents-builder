@@ -86,10 +86,10 @@ export function FlowInputVariablesEditor({
               </div>
 
               {/* Typ */}
-              <div className="space-y-2">
+              <div className="space-y-2 flex items-center space-x-2">
                 <Label className="block text-sm">{t('Type')}:</Label>
                 <select
-                  className="border p-2 rounded"
+                  className="border p-2 rounded text-sm"
                   value={variable.type}
                   onChange={(e) =>
                     updateVariable(index, { type: e.target.value as FlowInputType })
@@ -101,24 +101,20 @@ export function FlowInputVariablesEditor({
                     </option>
                   ))}
                 </select>
-              </div>
-
-              {/* Required */}
-              <div className="flex items-center gap-2">
                 <input
                   id={`required-checkbox-${index}`}
                   type="checkbox"
                   checked={variable.required}
                   onChange={(e) => updateVariable(index, { required: e.target.checked })}
                 />
-                <Label htmlFor={`required-checkbox-${index}`}>{t('Required')}</Label>
-              </div>
+                <Label htmlFor={`required-checkbox-${index}`}>{t('Required')}</Label>            
 
-              <div className="flex justify-end items-center">
-                <Button  title={t('Remove input')} variant="outline" onClick={() => handleDeleteVariable(index)}>
-                  <TrashIcon className="w-4 h-4" />
-                </Button>
-              </div>              
+                <div className="items-end align-right justify-end items-center">
+                    <Button  title={t('Remove input')} variant="outline" onClick={() => handleDeleteVariable(index)}>
+                    <TrashIcon className="w-4 h-4" />
+                    </Button>
+                </div>  
+              </div>            
             </Card>
           )
         })}

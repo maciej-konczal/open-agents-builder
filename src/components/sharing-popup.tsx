@@ -11,8 +11,8 @@ import { SharingAuthorizeForm } from './sharing-authorize-form';
 
 export function SharingPopup({ autoLoginInProgress, databaseIdHash, eem }: { autoLoginInProgress: boolean, databaseIdHash: string, eem: string }) {
   const [applicationLoaded, setApplicationLoaded] = useState(false);
-  const { theme, systemTheme } = useTheme();
   const { t } = useTranslation();
+  const { theme, systemTheme } = useTheme();
   const currentTheme = (theme === 'system' ? systemTheme : theme)
   const { i18n } = useTranslation();
 
@@ -23,10 +23,10 @@ export function SharingPopup({ autoLoginInProgress, databaseIdHash, eem }: { aut
 
   return (
     <div className="p-4 grid items-center justify-center h-screen">
-     {!applicationLoaded || autoLoginInProgress ? (<div className="w-96 flex items-center justify-center flex-col"><div className="flex-row h-40 w-40"><img src="/img/agent-doodle-logo.svg" /></div><div><DataLoader /></div></div>):(
+     {!applicationLoaded || autoLoginInProgress ? (<div className="w-96 flex items-center justify-center flex-col"><div className="flex-row h-40 w-40"><img src={currentTheme === 'dark' ? "/img/OAB-Logo-Small-dark.svg" : "/img/OAB-Logo-Small.svg"} /></div><div><DataLoader /></div></div>):(
       <div className="max-w-600">
         <div className="flex">
-          <img alt="Application logo" className="w-16 mr-5" src={currentTheme === 'dark' ? `/img/agent-doodle-logo-white.svg` : `/img/agent-doodle-logo.svg`} />
+          <img alt="Application logo" className="w-16 mr-5" src={currentTheme === 'dark' ? `/img/OAB-Logo-Small-dark.svg` : `/img/OAB-Logo-Small-dark.svg`} />
           <h1 className="text-5xl text-center p-8 pl-0">{t('Agent Doodle')}</h1>
         </div>        
         <Card>

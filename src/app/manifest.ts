@@ -2,16 +2,16 @@ import type { MetadataRoute } from 'next'
  
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Agent Doodle',
-    short_name: 'Agent Doodle',
-    description: 'Dynamic AI forms and questionaires',
+    name: 'Open Agents Builder',
+    short_name: 'Open Agents Builder',
+    description: 'Open Agents Builder - build business oriented AI agents at no-time',
     start_url: '/',
     display: 'standalone',
     background_color: '#000',
     theme_color: '#000',
     icons: [
       {
-        src: '/img/agent-doodle-logo.svg',
+        src: '/img/OAB-Logo-Small.svg',
         sizes: 'any',
         type: 'image/svg+xml',
       },
