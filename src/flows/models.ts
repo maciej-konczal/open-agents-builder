@@ -237,12 +237,12 @@ export const agentsValidators = ({t, setError}) => {
 }
 
 
-export const flowsValidator = ({t, setError}) => {
+export const flowsValidators = ({t, setError}) => {
   return {
     validate: {
       inputs: (v)  => {
         let index = 0;
-        for (const flow of (v as AgentFlow[])) {\
+        for (const flow of (v as AgentFlow[])) {
           if (!flow.code) {
             setError('inputs', {
               message: t('Please set the Codes of all flows')

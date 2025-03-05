@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import React, { use, useEffect, useState } from 'react';
-import { AgentDefinition, agentsValidators, EditorStep, FlowInputVariable, inputValidators } from '@/flows/models';
+import { AgentDefinition, agentsValidators, flowsValidators, EditorStep, FlowInputVariable, inputValidators } from '@/flows/models';
 import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { ExecProvider } from '@/contexts/exec-context';
 import { Input } from '@/components/ui/input';
 import { FlowsDeleteDialog } from '@/components/flows/flows-delete-dialog';
+import DataLoader from '@/components/data-loader';
 
 export default function FlowsPage() {
 
@@ -228,6 +229,10 @@ export default function FlowsPage() {
 
       </div>
 
+          {!initialLoadDone && (
+            <DataLoader />
+          )}
+
 
           {rootFlow && (
             
@@ -248,6 +253,11 @@ export default function FlowsPage() {
                       <AccordionTrigger>{t('Available sub-agents')}</AccordionTrigger>
                       <AccordionContent>
                         <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
+                        {errors.agents && (
+                            <p className="text-red-500 text-sm">
+                            {errors.agents.message as string}
+                            </p>
+                        )}                                  
                       </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="debugger">
@@ -267,7 +277,12 @@ export default function FlowsPage() {
                     setCurrentTabs(['agents']);
                 }}
                 agentNames={agents.map(a => a.name)}
-                />                        
+                />
+                {errors.flows && (
+                    <p className="text-red-500 text-sm">
+                    {errors.flows.message as string}
+                    </p>
+                )}                          
           </div>
 
           )}
