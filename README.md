@@ -1,7 +1,83 @@
 ![OAB logo](.readme-assets/OAB-Logo-dark.svg#gh-dark-mode-only)
 ![OAB logo](.readme-assets/OAB-Logo.svg#gh-light-mode-only)
 
+## Multi-Agent Development IDE and Platform for Business
 
+Open Agents Builder is an Enterprise Grade AI Agents development platform:
+
+- Design effective multi-agent workflows based on composable building blocks: `oneOf`, `parallel`, `sequence`, `evaluator`, `forEach`. [Read more at Anthropic blog...](https://www.anthropic.com/engineering/building-effective-agents)
+- Publish the flows as API,
+- 📆 All business features like: **Order Managemnt (OMS), Product Information (PIM), CPQ, Customers, Bookings/Calendar, Custom Entitie**s - all included within UI,
+- Use Open Agents Builder as an **App Backend** - full API support for any type of entities managable in the backend,
+- Use Vercel AI tools to integrate 3rd party systems and give the AI business services (like `createOrderTool`, `createCalendarEventTool`, `listProductsTool`, vector DB support - **all basic tools are included***)
+- 🛠️ Enterprise features like **audit logs, permissions, sharing, data encryption** are all included
+- 👩‍💼 **Customer facing apps** support - by the interactive Chat interface - included,
+- **API keys management, permissions, statistics** - all the features enterprises like - included.
+
+
+💵 **Production grade Business Agents** within hours. With Open Agents Builder you are able to build the fully fledge POC (Proof of Concept) app for your Business Stakeholders **within hours, not days**.
+
+### Hackers?
+Design the flows visually and then integrate it via API with your existing apps or generate the TypeScript code for [flows-ai](https://github.com/callstackincubator/flows-ai)
+
+
+<table>
+    <tr>
+        <td>
+            <a href=".readme-assets/screenshot-oab-2.png">
+                <img src=".readme-assets/screenshot-oab-2.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-1.png">
+                <img src=".readme-assets/screenshot-oab-1.png" alt="Screenshot" />
+            </a>
+        </td>
+    </tr>
+</table>
+
+### Business users?
+Cooperate with developers - all your business logic changes (using natural language) are immediately available via API!
+
+Create a customer facing agent, get a unique link, send it to the users or call it via API! 
+
+
+<table>
+    <tr>
+        <td>
+            <a href=".readme-assets/screenshot-oab-3.png">
+                <img src=".readme-assets/screenshot-oab-3.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-4.png">
+                <img src=".readme-assets/screenshot-oab-4.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-5.png">
+                <img src=".readme-assets/screenshot-oab-5.png" alt="Screenshot" />
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href=".readme-assets/screenshot-oab-6.png">
+                <img src=".readme-assets/screenshot-oab-6.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-7.png">
+                <img src=".readme-assets/screenshot-oab-7.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-8.png">
+                <img src=".readme-assets/screenshot-oab-8.png" alt="Screenshot" />
+            </a>
+        </td>
+    </tr>    
+</table>
 
 ## Build AI Agents for Business: Bookings, Intake forms, Orders, Support, Integrations ....
 
@@ -17,9 +93,6 @@ Open Agents Builder let you create custom AI agents for Business. You can create
 - 💾 collects data in any format you request (**JSON, markdown etc.**),
 - ✏️ can collect the **leads** or save them in external CRM,
 - 🛠️ are able to call all set of tools - sending e-mails, accessing calendar, external CRM's, data sources etc.
-
-
-**Create an agent, get a unique link, send it to the users or call it via API!**
 
 It can literally replace dozen other SaaS tools like:
 - eCommerce,
@@ -124,9 +197,12 @@ It can literally replace dozen other SaaS tools like:
     </tr>
 </table>    
 
-## Features
+## Admin panel Features
 
 - **Multi language** support more than 54 languages instantly!
+- **Visually create Flows** which are compliant with [flows-ai](https://flows-ai.callstack.com/) framework and the Multi-agent building blogs [suggested by Anthropic](https://www.anthropic.com/engineering/building-effective-agents),
+- **Manage orders** - full, yet simple, OMS is included - with "Chat with orders" AI support,
+- **Manage products** - PIM ins also included letting you create products for the agents to oeprate really quick, including variants, tax rates, custom attributes support,
 - **Create new agents and polls** just based on your text description it takes 20s to create your first inquiry!
 - **Chat for the end users** send unique link t ousers to get the results,
 - **Event/action flows** - to dynamically react for user answers,
