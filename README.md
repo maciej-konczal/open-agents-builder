@@ -1,9 +1,14 @@
-<img src=".readme-assets/screenshot-hero.png" />
+![OAB logo](.readme-assets/OAB-Logo-dark.svg#gh-dark-mode-only)
+![OAB logo](.readme-assets/OAB-Logo.svg#gh-light-mode-only)
 
-## Build AI Assistants for Bookings, Intake forms, Orders, Support ....
 
-Open Agents Builder let you create interactive AI agents that:
+
+## Build AI Agents for Business: Bookings, Intake forms, Orders, Support, Integrations ....
+
+Open Agents Builder let you create custom AI agents for Business. You can create the **customer facing** agents or **complex business workflows** that:
+:
 - 💵 can sell things on Instagram,
+- ✏️ can integrate all sort of business systems - ERP, PIM, CRM
 - 🛠️ can configure sophisticated products (CPQ),
 - 💁‍♀️ automates your Company and **saves you tons of time** and money otherwise spend on assisting personel,
 - 🎯 are focused on the goal, **dynamically setting the questions based on previous answers**!
@@ -13,7 +18,8 @@ Open Agents Builder let you create interactive AI agents that:
 - ✏️ can collect the **leads** or save them in external CRM,
 - 🛠️ are able to call all set of tools - sending e-mails, accessing calendar, external CRM's, data sources etc.
 
-**Create an agent, get a unique link, send it to the users or share on your webpage!**
+
+**Create an agent, get a unique link, send it to the users or call it via API!**
 
 It can literally replace dozen other SaaS tools like:
 - eCommerce,
