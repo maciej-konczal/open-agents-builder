@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import React, { use, useEffect, useState } from 'react';
-import { AgentDefinition, EditorStep, FlowInputVariable } from '@/flows/models';
+import { AgentDefinition, EditorStep, FlowInputVariable, inputValidators } from '@/flows/models';
 import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,7 @@ export default function FlowsPage() {
   const [initialLoadDone, setInitialLoadDone] = useState<boolean>(false);
   const [executeFlowDialogOpen, setExecuteFlowDialogOpen] = useState<boolean>(false);
 
-  const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, getValues, watch, formState: { errors }, setError } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
@@ -66,7 +66,8 @@ export default function FlowsPage() {
     setValue('agents', value);
   }
 
-  register('inputs')
+  register('inputs', inputValidators({ t, setError }));
+  
   const onVariablesChanged = (value: FlowInputVariable[]) => {
     setValue('inputs', value);
   }
@@ -237,6 +238,11 @@ export default function FlowsPage() {
                       <AccordionTrigger>{t('Inputs')}</AccordionTrigger>
                       <AccordionContent>
                         <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
+                        {errors.inputs && (
+                            <p className="text-red-500 text-sm">
+                            {errors.inputs.message as string}
+                            </p>
+                        )}                        
                       </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="agents">

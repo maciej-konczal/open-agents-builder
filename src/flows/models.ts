@@ -208,3 +208,24 @@ export type FlowStackTraceElement = {
   startedAt: Date;
   finishedAt?: Date;
 }
+
+
+export const inputValidators = ({t, setError}) => {
+    return {
+      validate: {
+        inputs: (v)  => {
+          let index = 0;
+          for (const input of (v as FlowInputVariable[])) {
+            if (!input.name) {
+              setError('inputs', {
+                message: t('Please set the Symbols of all variables')
+              })
+              return false;
+            }
+            index ++;
+          }
+          return true;
+        }
+      }
+    }
+  }
