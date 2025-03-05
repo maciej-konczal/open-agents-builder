@@ -7,7 +7,7 @@ import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import React from 'react';
 import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
-import { AgentDefinition } from '@/flows/models';
+import { AgentDefinition, agentsValidators } from '@/flows/models';
 import { Button } from '@/components/ui/button';
 
 export default function AgentsPage() {
@@ -16,11 +16,12 @@ export default function AgentsPage() {
   const router = useRouter();
   const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
 
-  const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, getValues, watch, formState: { errors }, setError } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });
 
   const agents = watch('agents') ?? [];
+  register('agents', agentsValidators({ t, setError }))
 
   const onAgentsChanged = (value: AgentDefinition[]) => {
     setValue('agents', value);

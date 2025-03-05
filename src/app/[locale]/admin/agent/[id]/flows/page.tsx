@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import React, { use, useEffect, useState } from 'react';
-import { AgentDefinition, EditorStep, FlowInputVariable, inputValidators } from '@/flows/models';
+import { AgentDefinition, agentsValidators, EditorStep, FlowInputVariable, inputValidators } from '@/flows/models';
 import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
 import { Button } from '@/components/ui/button';
@@ -38,10 +38,6 @@ export default function FlowsPage() {
     defaultValues: agent ? agent.toForm(null) : {},
   });  
 
-  
-  register('defaultFlow')
-  register('flows')
-
   const [editFlowId, setEditFlowId] = useState<number>(-1);
   const [editFlowName, setEditFlowName] = useState<string>('');
   const [editFlowError, setAddFlowError] = useState<string>('');
@@ -66,8 +62,11 @@ export default function FlowsPage() {
     setValue('agents', value);
   }
 
+  register('defaultFlow')
   register('inputs', inputValidators({ t, setError }));
-  
+  register('agents', agentsValidators({ t, setError }))
+  register('flows', flowsValidators({ t, setError }))
+
   const onVariablesChanged = (value: FlowInputVariable[]) => {
     setValue('inputs', value);
   }
