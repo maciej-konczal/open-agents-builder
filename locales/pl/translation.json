@@ -526,5 +526,10 @@
   "+ Add attribute": "+ Dodaj atrybut",
   "List products": "Lista produktów",
   "Create order": "Utwórz zamówienie",
-  "Input": "Prompt:"
+  "Input": "Prompt:",
+  "Short text": "Krótki tekst",
+  "Long text": "Długi tekst",
+  "Number": "Liczba",
+  "JSON Object": "Obiekt JSON",
+  "File (b64)": "Plik (b64)"
 }

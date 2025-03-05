@@ -1,22 +1,13 @@
 'use client'
 import React, { useState } from 'react'
-import { FlowInputVariable, FlowInputType } from './types'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { TrashIcon, VariableIcon } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { FlowInputType, FlowInputVariable, INPUT_TYPES } from '@/flows/models'
 
-/** Lista do wyboru w <select> */
-const INPUT_TYPES: FlowInputType[] = [
-  'shortText',
-  'url',
-  'longText',
-  'number',
-  'json',
-  'fileBase64',
-]
 
 // Prosty regex do walidacji nazwy zmiennej:
 const variableNameRegex = /^[a-zA-Z_$][0-9a-zA-Z_$]*$/
@@ -39,6 +30,7 @@ export function FlowInputVariablesEditor({
   })
 
   const { t } = useTranslation();
+
 
 
 // Adding a new variable
@@ -103,9 +95,9 @@ export function FlowInputVariablesEditor({
                     updateVariable(index, { type: e.target.value as FlowInputType })
                   }
                 >
-                  {INPUT_TYPES.map((t) => (
-                    <option key={t} value={t}>
-                      {t}
+                  {INPUT_TYPES.map((it) => (
+                    <option key={it} value={it.type}>
+                      {t(it.label)}
                     </option>
                   ))}
                 </select>
