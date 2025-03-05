@@ -1,3 +1,4 @@
+import { AgentFlow } from "@/data/client/models"
 import { CoreMessage } from "ai"
 import { Flow } from "flows-ai"
 
@@ -208,3 +209,77 @@ export type FlowStackTraceElement = {
   startedAt: Date;
   finishedAt?: Date;
 }
+
+export const agentsValidators = ({t, setError}) => {
+  return {
+    validate: {
+      inputs: (v)  => {
+        let index = 0;
+        for (const agt of (v as AgentDefinition[])) {
+          if (!agt.name) {
+            setError('agents', {
+              message: t('Please set the Names of all Agents')
+            })
+            return false;
+          }
+          if (!agt.model) {
+            setError('agents', {
+              message: t('Please set the Models of all Agents')
+            })
+            return false;
+          }
+          index ++;
+        }
+        return true;
+      }
+    }
+  }
+}
+
+
+export const flowsValidators = ({t, setError}) => {
+  return {
+    validate: {
+      inputs: (v)  => {
+        let index = 0;
+        for (const flow of (v as AgentFlow[])) {
+          if (!flow.code) {
+            setError('inputs', {
+              message: t('Please set the Codes of all flows')
+            })
+            return false;
+          }
+          if (!flow.name) {
+            setError('inputs', {
+              message: t('Please set the Names of all flows')
+            })
+            return false;
+          } 
+          index ++;
+        }
+        return true;
+      }
+    }
+  }
+}
+
+
+export const inputValidators = ({t, setError}) => {
+    return {
+      validate: {
+        inputs: (v)  => {
+          let index = 0;
+          for (const input of (v as FlowInputVariable[])) {
+            if (!input.name) {
+              setError('inputs', {
+                message: t('Please set the Symbols of all variables')
+              })
+              return false;
+            }
+            index ++;
+          }
+          return true;
+        }
+      }
+    }
+  }

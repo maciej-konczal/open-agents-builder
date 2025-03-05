@@ -53,7 +53,7 @@ export function FlowInputVariablesEditor({
 
   return (
     <div>
-      <div className="space-y-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 xxl:grid-cols-4 gap-2">
         {variables.map((variable, index) => {
           // We will validate the variable name
           const isNameValid = variable.name === '' || variableNameRegex.test(variable.name)
@@ -85,31 +85,33 @@ export function FlowInputVariablesEditor({
                 />
               </div>
 
-              {/* Typ */}
-              <div className="space-y-2 flex items-center space-x-2">
-                <Label className="block text-sm">{t('Type')}:</Label>
-                <select
-                  className="border p-2 rounded text-sm"
-                  value={variable.type}
-                  onChange={(e) =>
-                    updateVariable(index, { type: e.target.value as FlowInputType })
-                  }
-                >
-                  {INPUT_TYPES.map((it) => (
-                    <option key={it} value={it.type}>
-                      {t(it.label)}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  id={`required-checkbox-${index}`}
-                  type="checkbox"
-                  checked={variable.required}
-                  onChange={(e) => updateVariable(index, { required: e.target.checked })}
-                />
-                <Label htmlFor={`required-checkbox-${index}`}>{t('Required')}</Label>            
+              <div className="flex justify-between">
+                {/* Typ */}
+                <div className="space-y-2 flex items-center space-x-2">
+                  <Label className="block text-sm">{t('Type')}:</Label>
+                  <select
+                    className="border p-2 rounded text-sm"
+                    value={variable.type}
+                    onChange={(e) =>
+                      updateVariable(index, { type: e.target.value as FlowInputType })
+                    }
+                  >
+                    {INPUT_TYPES.map((it) => (
+                      <option key={it.type} value={it.type}>
+                        {t(it.label)}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    id={`required-checkbox-${index}`}
+                    type="checkbox"
+                    checked={variable.required}
+                    onChange={(e) => updateVariable(index, { required: e.target.checked })}
+                  />
+                  <Label htmlFor={`required-checkbox-${index}`}>{t('Required')}</Label>            
+                </div>
 
-                <div className="items-end align-right justify-end items-center">
+                <div className="items-end flex w-fit justify-end items-center">
                     <Button  title={t('Remove input')} variant="outline" onClick={() => handleDeleteVariable(index)}>
                     <TrashIcon className="w-4 h-4" />
                     </Button>

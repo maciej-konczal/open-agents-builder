@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useTranslation } from 'react-i18next'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
-import { PlusIcon, TrashIcon } from 'lucide-react'
+import { GitBranchIcon, PlusIcon, TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface FlowStepEditorProps {
@@ -57,7 +57,7 @@ export function FlowStepEditor({
           <div className="flex items-center gap-2">
             <Label className="w-20">{t('Agent')}:</Label>
             <select
-              className="border p-1 rounded text-sm"
+              className="border p-2 rounded text-sm"
               value={step.agent ? step.agent : (availableAgentNames.length > 0 ? availableAgentNames[0] : '')}
               onChange={handleAgentChange}
             >
@@ -71,11 +71,11 @@ export function FlowStepEditor({
           </div>
 
           <div className="flex items-center gap-2">
-            <Label className="w-20">{t('Input')}</Label>
+            <Label className="w-20">{t('Prompt')}</Label>
             <Input
               value={step.input}
               onChange={handleInputChange}
-              placeholder="Treść inputu..."
+              placeholder={t("AI instruction or other input you'd like to pass to this Agent")}
             />
           </div>
         </Card>
@@ -138,13 +138,13 @@ export function FlowStepEditor({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
-                + step
+                {t('+ step')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
-                + sequence
+                {t('+ sequence')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'parallel', steps: [] })}>
-                + parallel
+                {t('+ parallel')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -154,7 +154,7 @@ export function FlowStepEditor({
                   })
                 }
               >
-                + oneOf
+                {t('+ oneOf')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -165,7 +165,7 @@ export function FlowStepEditor({
                   })
                 }
               >
-                + forEach
+                {t('+ forEach')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -176,7 +176,7 @@ export function FlowStepEditor({
                   })
                 }
               >
-                + evaluator
+                {t('+ evaluator')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -190,7 +190,7 @@ export function FlowStepEditor({
                   })
                 }
               >
-                + bestOfAll
+                {t('+ bestOfAll')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -249,18 +249,18 @@ export function FlowStepEditor({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="sm">
-                Dodaj krok
+                <PlusIcon className="w-4 h-4" />{t('Add step')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
-                + step
+                {t('+ step')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
-                + sequence
+                {t('+ sequence')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'parallel', steps: [] })}>
-                + parallel
+                {t('+ parallel')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -270,7 +270,7 @@ export function FlowStepEditor({
                   })
                 }
               >
-                + oneOf
+                {t('+ oneOf')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -281,7 +281,7 @@ export function FlowStepEditor({
                   })
                 }
               >
-                + forEach
+                {t('+ forEach')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -292,7 +292,7 @@ export function FlowStepEditor({
                   })
                 }
               >
-                + evaluator
+                {t('+ evaluator')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -306,7 +306,7 @@ export function FlowStepEditor({
                   })
                 }
               >
-                + bestOfAll
+                {t('+ bestOfAll')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -405,9 +405,9 @@ case 'oneOf': {
   }
 
   return (
-    <Card className="p-4 my-2 border space-y-4">
+    <Card className="p-2 my-2 border space-y-2">
       <div className="flex justify-between items-center">
-        <div className="font-semibold text-lg">OneOf</div>
+        <div className="font-semibold text-m">{t('OneOf')}</div>
         <Button variant="outline" size="sm" onClick={onDelete}>
               <TrashIcon className="w-4 h-4" />
             </Button>
@@ -417,7 +417,7 @@ case 'oneOf': {
         {branches.map((br, idx) => (
           <Card key={idx} className="p-2 border space-y-2">
             <div className="flex justify-between">
-              <Label className="text-sm">When:</Label>
+              <Label className="text-sm">{t('When')}:</Label>
               <Button
                 size="sm"
                 variant="outline"
@@ -447,17 +447,17 @@ case 'oneOf': {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="secondary" size="sm">
-            Dodaj branch
+            <GitBranchIcon className="w-4 h-4" /> {t('Add branch...')}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
-          <DropdownMenuItem onSelect={() => addBranch('step')}>+ step</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => addBranch('sequence')}>+ sequence</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => addBranch('parallel')}>+ parallel</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => addBranch('oneOf')}>+ oneOf</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => addBranch('forEach')}>+ forEach</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => addBranch('evaluator')}>+ evaluator</DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => addBranch('bestOfAll')}>+ bestOfAll</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('step')}>{t('+ step')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('sequence')}>{t('+ sequence')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('parallel')}>{t('+ parallel')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('oneOf')}>{t('+ oneOf')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('forEach')}>{t('+ forEach')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('evaluator')}>{t('+ evaluator')}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => addBranch('bestOfAll')}>{t('+ bestOfAll')}</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </Card>
@@ -482,7 +482,7 @@ case 'oneOf': {
       return (
         <Card className="p-2 my-2 border space-y-2">
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg ml-2">{t('ForEach')}</div>
+            <div className="font-semibold text-m ml-2">{t('ForEach')}</div>
             <Button variant="outline" size="sm" onClick={onDelete}>
               <TrashIcon className="w-4 h-4" />
             </Button>
@@ -527,7 +527,7 @@ case 'oneOf': {
       return (
         <Card className="p-2 my-2 border space-y-2">
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg ml-2">{t('Evaluator')}</div>
+            <div className="font-semibold text-m ml-2">{t('Evaluator')}</div>
             <Button variant="outline" size="sm" onClick={onDelete}>
               <TrashIcon className="w-4 h-4" />
             </Button>
@@ -539,7 +539,7 @@ case 'oneOf': {
           </div>
 
           <div className="flex items-center gap-2">
-            <Label className="w-32">Max iterations:</Label>
+            <Label className="w-32">{t('Max iterations')}:</Label>
             <Input
               type="number"
               value={max_iterations ?? ''}
@@ -586,16 +586,16 @@ case 'oneOf': {
       }
 
       return (
-        <Card className="p-4 my-2 border space-y-4">
+        <Card className="p-2 my-2 border space-y-2">
           <div className="flex justify-between items-center">
-            <div className="font-semibold text-lg">BestOfAll</div>
+            <div className="font-semibold text-m">{t('BestOfAll')}</div>
             <Button variant="outline" size="sm" onClick={onDelete}>
               <TrashIcon className="w-4 h-4" />
             </Button>
           </div>
 
           <div className="flex items-center gap-2">
-            <Label className="w-32">Criteria:</Label>
+            <Label className="w-32">{t('Criteria')}:</Label>
             <Input value={criteria} onChange={handleCriteriaChange} />
           </div>
 
@@ -614,18 +614,18 @@ case 'oneOf': {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="sm">
-                Dodaj krok
+                <PlusIcon className="w-4 h-4" /> {t('Add step')}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
-                + step
+                {t('+ step')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
-                + sequence
+                {t('+ sequence')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'parallel', steps: [] })}>
-                + parallel
+                {t('+ parallel')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -635,7 +635,7 @@ case 'oneOf': {
                   })
                 }
               >
-                + oneOf
+                {t('+ oneOf')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -646,7 +646,7 @@ case 'oneOf': {
                   })
                 }
               >
-                + forEach
+                {t('+ forEach')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -657,7 +657,7 @@ case 'oneOf': {
                   })
                 }
               >
-                + evaluator
+                {t('+ evaluator')}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onSelect={() =>
@@ -671,7 +671,7 @@ case 'oneOf': {
                   })
                 }
               >
-                + bestOfAll
+                {t('+ bestOfAll')}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>        </Card>

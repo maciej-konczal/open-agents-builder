@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
 import React, { use, useEffect, useState } from 'react';
-import { AgentDefinition, EditorStep, FlowInputVariable } from '@/flows/models';
+import { AgentDefinition, agentsValidators, flowsValidators, EditorStep, FlowInputVariable, inputValidators } from '@/flows/models';
 import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { ExecProvider } from '@/contexts/exec-context';
 import { Input } from '@/components/ui/input';
 import { FlowsDeleteDialog } from '@/components/flows/flows-delete-dialog';
+import DataLoader from '@/components/data-loader';
 
 export default function FlowsPage() {
 
@@ -34,13 +35,9 @@ export default function FlowsPage() {
   const [initialLoadDone, setInitialLoadDone] = useState<boolean>(false);
   const [executeFlowDialogOpen, setExecuteFlowDialogOpen] = useState<boolean>(false);
 
-  const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
+  const { register, handleSubmit, setValue, getValues, watch, formState: { errors }, setError } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
   });  
-
-  
-  register('defaultFlow')
-  register('flows')
 
   const [editFlowId, setEditFlowId] = useState<number>(-1);
   const [editFlowName, setEditFlowName] = useState<string>('');
@@ -66,7 +63,11 @@ export default function FlowsPage() {
     setValue('agents', value);
   }
 
-  register('inputs')
+  register('defaultFlow')
+  register('inputs', inputValidators({ t, setError }));
+  register('agents', agentsValidators({ t, setError }))
+  register('flows', flowsValidators({ t, setError }))
+
   const onVariablesChanged = (value: FlowInputVariable[]) => {
     setValue('inputs', value);
   }
@@ -228,6 +229,10 @@ export default function FlowsPage() {
 
       </div>
 
+          {!initialLoadDone && (
+            <DataLoader />
+          )}
+
 
           {rootFlow && (
             
@@ -237,12 +242,22 @@ export default function FlowsPage() {
                       <AccordionTrigger>{t('Inputs')}</AccordionTrigger>
                       <AccordionContent>
                         <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
+                        {errors.inputs && (
+                            <p className="text-red-500 text-sm">
+                            {errors.inputs.message as string}
+                            </p>
+                        )}                        
                       </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="agents">
                       <AccordionTrigger>{t('Available sub-agents')}</AccordionTrigger>
                       <AccordionContent>
                         <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
+                        {errors.agents && (
+                            <p className="text-red-500 text-sm">
+                            {errors.agents.message as string}
+                            </p>
+                        )}                                  
                       </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="debugger">
@@ -262,7 +277,12 @@ export default function FlowsPage() {
                     setCurrentTabs(['agents']);
                 }}
                 agentNames={agents.map(a => a.name)}
-                />                        
+                />
+                {errors.flows && (
+                    <p className="text-red-500 text-sm">
+                    {errors.flows.message as string}
+                    </p>
+                )}                          
           </div>
 
           )}

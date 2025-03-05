@@ -5,17 +5,19 @@
 
 Open Agents Builder is an Enterprise Grade AI Agents development platform:
 
-- Design effective multi-agent workflows based on composable building blocks: `oneOf`, `parallel`, `sequence`, `evaluator`, `forEach`. [Read more at Anthropic blog...](https://www.anthropic.com/engineering/building-effective-agents)
-- Publish the flows as API,
+- 💾 Design effective multi-agent workflows based on composable building blocks: `oneOf`, `parallel`, `sequence`, `evaluator`, `forEach`. [Read more at Anthropic blog...](https://www.anthropic.com/engineering/building-effective-agents)
+- 🕸️ Publish the flows as API,
 - 📆 All business features like: **Order Managemnt (OMS), Product Information (PIM), CPQ, Customers, Bookings/Calendar, Custom Entitie**s - all included within UI,
-- Use Open Agents Builder as an **App Backend** - full API support for any type of entities managable in the backend,
-- Use Vercel AI tools to integrate 3rd party systems and give the AI business services (like `createOrderTool`, `createCalendarEventTool`, `listProductsTool`, vector DB support - **all basic tools are included***)
+- 👩🏽‍💻 Use Open Agents Builder as an **App Backend** - full API support for any type of entities managable in the backend,
+- 🔧 Use Vercel AI tools  to integrate 3rd party systems and give the AI business services (like `createOrderTool`, `createCalendarEventTool`, `listProductsTool`, vector DB support - **all basic tools are included***)
 - 🛠️ Enterprise features like **audit logs, permissions, sharing, data encryption** are all included
 - 👩‍💼 **Customer facing apps** support - by the interactive Chat interface - included,
 - **API keys management, permissions, statistics** - all the features enterprises like - included.
 
 
 💵 **Production grade Business Agents** within hours. With Open Agents Builder you are able to build the fully fledge POC (Proof of Concept) app for your Business Stakeholders **within hours, not days**.
+
+## Making the **Enterprise** Hackers and Business users worlds met.
 
 ### Hackers?
 Design the flows visually and then integrate it via API with your existing apps or generate the TypeScript code for [flows-ai](https://github.com/callstackincubator/flows-ai)
@@ -82,7 +84,7 @@ Create a customer facing agent, get a unique link, send it to the users or call 
 ## Build AI Agents for Business: Bookings, Intake forms, Orders, Support, Integrations ....
 
 Open Agents Builder let you create custom AI agents for Business. You can create the **customer facing** agents or **complex business workflows** that:
-:
+
 - 💵 can sell things on Instagram,
 - ✏️ can integrate all sort of business systems - ERP, PIM, CRM
 - 🛠️ can configure sophisticated products (CPQ),
@@ -107,97 +109,7 @@ It can literally replace dozen other SaaS tools like:
 - Feedback forms,
 - NPS software.
 
-## Screenshots
-
-<table>
-    <tr>
-        <td>
-            <a href=".readme-assets/screenshot-17.png">
-                <img src=".readme-assets/screenshot-17.png" alt="Screenshot" />
-            </a>
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-18.png">
-                <img src=".readme-assets/screenshot-18.png" alt="Screenshot" />
-            </a>      
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-19.png">
-                <img src=".readme-assets/screenshot-19.png" alt="Screenshot" />
-            </a>      
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href=".readme-assets/screenshot-20.png">
-                <img src=".readme-assets/screenshot-20.png" alt="Screenshot" />
-            </a>
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-11.png">
-                <img src=".readme-assets/screenshot-11.png" alt="Screenshot" />
-            </a>      
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-9.png">
-                <img src=".readme-assets/screenshot-9.png" alt="Screenshot" />
-            </a>      
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href=".readme-assets/screenshot-12.png">
-                <img src=".readme-assets/screenshot-12.png" alt="Screenshot" />
-            </a>
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-14.png">
-                <img src=".readme-assets/screenshot-14.png" alt="Screenshot" />
-            </a>      
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-15.png">
-                <img src=".readme-assets/screenshot-15.png" alt="Screenshot" />
-            </a>      
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href=".readme-assets/screenshot-13.png">
-                <img src=".readme-assets/screenshot-13.png" alt="Screenshot" />
-            </a>
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-2.png">
-                <img src=".readme-assets/screenshot-2.png" alt="Screenshot" />
-            </a>      
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-3.png">
-                <img src=".readme-assets/screenshot-3.png" alt="Screenshot" />
-            </a>      
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <a href=".readme-assets/screenshot-4.png">
-                <img src=".readme-assets/screenshot-4.png" alt="Screenshot" />
-            </a>
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-5.png">
-                <img src=".readme-assets/screenshot-5.png" alt="Screenshot" />
-            </a>      
-        </td>
-        <td>
-            <a href=".readme-assets/screenshot-1.png">
-                <img src=".readme-assets/screenshot-6.png" alt="Screenshot" />
-            </a>      
-        </td>
-    </tr>
-</table>    
-
-## Admin panel Features
+## Admin panel features
 
 - **Multi language** support more than 54 languages instantly!
 - **Visually create Flows** which are compliant with [flows-ai](https://flows-ai.callstack.com/) framework and the Multi-agent building blogs [suggested by Anthropic](https://www.anthropic.com/engineering/building-effective-agents),
@@ -215,64 +127,9 @@ It can literally replace dozen other SaaS tools like:
 - **Tools** - extensible tools framework so the agent can send e-mails, Slack messages, export data to systems like CRM etc.
 - **Templates** - including ready-made templates like CRM app, pre-visit inquiry etc.
 
-## Businesses supported by Open Agents Builder
-
-Below is a list of industries that have a genuine need for both scheduling appointments and gathering additional data, yet are not as heavily “covered” by popular booking tools. No beating around the bush:
-
-1. **💈 E-Commerce, Social commerce** 
-   - *Examples:* Selling things on Instagram  
-   - *Why?* You probably need a simple eCommerce. With Open Agents Builder you may create a whole eCommerce under a single link that you paste into your Instagram profile. Moreover it will answer user questions and let them customize the products!
-
-2. **🔧 B2B, CPQ, Qutation Engine** 
-   - *Examples:* Negotiating quotes or configuring very complex products
-   - *Why?* Your Sales team probably spend hours on calls with customers. Now you can outsource it to Open Agents Builder generated agent. Provide it with all the products, your negotiation strategies and its gonna do the reset finalizing with the order. Great for made-for-order use cases!
-
-3. **👩‍💻 Workshops and Thematic Courses**  
-   - *Examples:* Cooking classes, painting, sewing, or coding courses for kids.  
-   - *Why?* Instructors often need to know the participant’s skill level, preferences (e.g., diet, tools, materials). Quickly gathering details and setting a date is a perfect job for a chat assistant.
-
-4. **🖨️ Home Appliance Repair Services (AGD, RTV, Computers)**  
-   - *Examples:* Washing machine, laptop, and TV repairs.  
-   - *Why?* There are always questions about the model, serial number, type of fault, and then scheduling a technician’s visit. It’s best to handle all of this in one efficient process.
-
-5. **👩‍🏫 Training and Consulting Firms**  
-   - *Examples:* Marketing consultations, workplace safety (BHP) training, communication workshops.  
-   - *Why?* They often need to gather a brief, determine the number of participants, and understand expectations. A chat-based system that schedules directly into a calendar is a game-changer.
-
-6. **🗒️ Legal and Tax Advisory Services**  
-   - *Examples:* Small law firms, accounting offices.  
-   - *Why?* Before taking on a case, a lawyer or accountant needs key details—case type, documents, deadlines. Instead of endless emails, a quick chat session can collect this info and schedule a meeting instantly.
-
-7. **🏠 Real Estate Agencies**  
-   - *Examples:* Agencies handling apartment, house, or commercial property sales.  
-   - *Why?* How often does an agent ask: “What’s your budget?” “Are you looking for a fixer-upper or a move-in-ready home?”—over and over again. Embedding these questions into an automated chat + a scheduling system will streamline the process and save everyone’s nerves.
-
-8. **📁 Technical Consulting Services (e.g., Interior Designers, Architects)**  
-   - *Examples:* Interior designers, landscape architects, installation planners.  
-   - *Why?* Before starting work, such a specialist needs to know things like square footage, aesthetic preferences, and budget. A chatbot with an automated scheduler eliminates countless phone calls and emails.
-
-9. **🚕 Automotive Services (Beyond Standard Car Repair Shops)**  
-   - *Examples:* Mobile tire service, upholstery cleaning, car detailing.  
-   - *Why?* Customers need to provide details like license plate numbers, service type, vehicle condition. Then there’s the scheduling—do they prefer morning or evening? All of it can be handled in one place.
-
-10. **👨🏻‍🏫 Language Schools and Private Tutors**  
-   - *Examples:* Group language courses, one-on-one online lessons.  
-   - *Why?* Skill level, learning goals (business, hobby, exam prep), preferred times—these details fit perfectly into an automated chat with a scheduling system.
-
-11. **🎉 Event Organizers (e.g., Photo Sessions, Shows, Corporate Events)**  
-   - *Examples:* Photography studios, corporate event planners.  
-   - *Why?* Organizing an event requires coordinating many details—number of attendees, catering, location, needed equipment. A chat system with automatic booking and data collection reduces the chaos.
-
-12. **🪑 Mobile On-Site Services**  
-   - *Examples:* Mobile car washes, mobile pet grooming, bike repair at the client’s location.  
-   - *Why?* They require scheduling an address, time, and sometimes details like the type of equipment or pet breed. A short chat survey—and voila, appointment confirmed.
-
-
-These industries share a common challenge: before an appointment happens, key client information needs to be collected. Doodle Agent can solve two problems at once—automating information gathering and scheduling visits, saving time, stress, and gallons of coffee. Sound like a plan? Absolutely!
-
 ## Use Cases 
 
-Open Agents Builder is a very simple tool you can run on your own or use the [hosted version](https://agentdoodle.com). 
+Open Agents Builder is a very simple tool you can run on your own or use the [hosted version](https://openagentsbuilder.com). 
 
 ### E-commerce
 
