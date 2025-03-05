@@ -14,12 +14,16 @@ import { Checkbox } from "./ui/checkbox";
 import { Label } from "@uiw/react-json-view";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 export function OnboardingDialog() {
 
     const templateContext = useContext(TemplateContext);
     const agentContext = useAgentContext();
     const router = useRouter();
+
+    const { theme, systemTheme } = useTheme();
+    const currentTheme = (theme === 'system' ? systemTheme : theme)  
 
     const { t } = useTranslation();
 

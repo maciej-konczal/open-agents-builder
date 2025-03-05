@@ -40,9 +40,7 @@ export function Header() {
       <StatsPopup />
       {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<SharedKeysPopup />) : (null)}
       <div className="flex-1">
-        <img src={ currentTheme === 'dark' ? "/img/OAB-Logo-Small-dark.svg" : "/img/OAB-Logo-Small.svg"} alt="Open Agents Builder" className="w-10"/>
-      </div>
-      <div className="flex-1"><h1 className="text-lg font-bold text-left">{t('Open Agents Builder')}</h1>
+        <img src={ currentTheme === 'dark' ? "/img/OAB-Logo-Small.svg" : "/img/OAB-Logo.svg"} alt="Open Agents Builder" className="w-64"/>
       </div>
       {!dbContext?.acl || dbContext.acl.role === 'owner' ? (<ChangeKeyPopup />) : (null)}
       <div className="flex items-center gap-4">
