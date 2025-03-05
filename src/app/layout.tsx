@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 
 
 export default function RootLayout({
-  children, params: {locale}
+  children, params: { locale }
 }: Readonly<{
   children: React.ReactNode;
-  params: {locale: string}
+  params: { locale: string }
 }>) {
   return (
     <html lang={locale}>
@@ -37,16 +37,16 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no"></meta>
       </head>
       <body className={inter.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >      
-        <div vaul-drawer-wrapper="" className="bg-background touch-none">
-          {children}
-        </div>
-        <Toaster position="bottom-right" />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div vaul-drawer-wrapper="" className="bg-background touch-none">
+            {children}
+          </div>
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>
