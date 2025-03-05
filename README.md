@@ -17,13 +17,8 @@ Open Agents Builder is an Enterprise Grade AI Agents development platform:
 
 💵 **Production grade Business Agents** within hours. With Open Agents Builder you are able to build the fully fledge POC (Proof of Concept) app for your Business Stakeholders **within hours, not days**.
 
-**Developers?**
+### Hackers?
 Design the flows visually and then integrate it via API with your existing apps or generate the TypeScript code for [flows-ai](https://github.com/callstackincubator/flows-ai)
-
-**Business users?**
-Cooperate with developers - all your business logic changes (using natural language) are immediately available via API!
-
-Create a customer facing agent, get a unique link, send it to the users or call it via API! 
 
 
 <table>
@@ -41,6 +36,48 @@ Create a customer facing agent, get a unique link, send it to the users or call 
     </tr>
 </table>
 
+### Business users?
+Cooperate with developers - all your business logic changes (using natural language) are immediately available via API!
+
+Create a customer facing agent, get a unique link, send it to the users or call it via API! 
+
+
+<table>
+    <tr>
+        <td>
+            <a href=".readme-assets/screenshot-oab-3.png">
+                <img src=".readme-assets/screenshot-oab-3.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-4.png">
+                <img src=".readme-assets/screenshot-oab-4.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-5.png">
+                <img src=".readme-assets/screenshot-oab-5.png" alt="Screenshot" />
+            </a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <a href=".readme-assets/screenshot-oab-6.png">
+                <img src=".readme-assets/screenshot-oab-6.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-7.png">
+                <img src=".readme-assets/screenshot-oab-7.png" alt="Screenshot" />
+            </a>
+        </td>
+        <td>
+            <a href=".readme-assets/screenshot-oab-8.png">
+                <img src=".readme-assets/screenshot-oab-8.png" alt="Screenshot" />
+            </a>
+        </td>
+    </tr>    
+</table>
 
 ## Build AI Agents for Business: Bookings, Intake forms, Orders, Support, Integrations ....
 
