@@ -26,7 +26,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
         const stg = new StorageService(requestContext.databaseIdHash, 'commerce');
         const attRepo = new ServerAttachmentRepository(requestContext.databaseIdHash, 'commerce');
 
-        let indexMd = '# Agent Doodle Products Export\n\n';
+        let indexMd = '# Open Agents Builder Products Export\n\n';
 
         for (const result of allResults) {
 

@@ -59,7 +59,7 @@ import { max } from "moment";
           )}
         <Hr style={hr} />
         <Link href="https://agentdoodle.com" style={reportLink}>
-          Agent Doodle, dostarczony przez CatchTheTornado. Polityka prywatności i warunki: https://agentdoodle.com
+          Open Agents Builder, dostarczony przez CatchTheTornado. Polityka prywatności i warunki: https://agentdoodle.com
         </Link>
       </Container>
       </Body>

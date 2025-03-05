@@ -91,7 +91,7 @@ export async function authorizeSaasToken(databaseIdHash?:string | null, saasToke
                     // this is a data encyrption using the CTT stored encryption key (passed by SaaSContext)
                     // to achieve the end2end encryption, for user messages we need to:
                     // User - means Agent-Doodle user
-                    // End User - meands Agent Doodle generated agent user (so use of our users's agent)
+                    // End User - meands Open Agents Builder generated agent user (so use of our users's agent)
                     // - generate a dynamic per-session encryption key and store it with the agent End User
                     // - encrypt the message with the generated key
                     // - store the encrypted message in the database

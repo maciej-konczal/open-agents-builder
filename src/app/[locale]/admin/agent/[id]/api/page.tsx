@@ -104,7 +104,7 @@ export default function APIPage() {
           <CardContent className="p-4 text-sm">
           <h3 className="font-bold text-sm mb-4">{t('API Access activated!')}</h3>
 
-            <p>{t("That's great now you have API access to Agent Doodle! Let's go start building!")}</p>
+            <p>{t("That's great now you have API access to Open Agents Builder! Let's go start building!")}</p>
 
           <h4 className="mb-4 mt-4 font-bold text-sm ">{t('Read API docs and check the examples')}</h4>
           <p className="mb-4">{t('Full API Docs and some app examples are avaialable on our Github page: ')}

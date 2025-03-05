@@ -8,7 +8,7 @@ import i18nConfig from '@/app/i18nConfig';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Agent Doodle",
+  title: "Open Agents Builder",
   description: "Build an interactive AI agent from a single prompt; send it as a link; process results; ideal for interactive bookings, pre-visit chats, polls, and many more"
 };
 

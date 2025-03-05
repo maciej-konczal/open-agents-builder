@@ -27,7 +27,7 @@ export function SharingPopup({ autoLoginInProgress, databaseIdHash, eem }: { aut
       <div className="max-w-600">
         <div className="flex">
           <img alt="Application logo" className="w-16 mr-5" src={currentTheme === 'dark' ? `/img/OAB-Logo-Small-dark.svg` : `/img/OAB-Logo-Small-dark.svg`} />
-          <h1 className="text-5xl text-center p-8 pl-0">{t('Agent Doodle')}</h1>
+          <h1 className="text-5xl text-center p-8 pl-0">{t('Open Agents Builder')}</h1>
         </div>        
         <Card>
           <CardHeader className="text-sm">

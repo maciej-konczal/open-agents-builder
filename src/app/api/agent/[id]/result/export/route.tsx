@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
         const converter = new showdown.Converter({ tables: true, completeHTMLDocument: true, openLinksInNewWindow: true });
         converter.setFlavor('github');
 
-        let indexMd = '# Agent Doodle Export\n\n';
+        let indexMd = '# Open Agents Builder Export\n\n';
 
         for (const result of allResults) {
             if (result.content) {

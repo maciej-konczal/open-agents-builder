@@ -28,7 +28,7 @@ export function SaaSNotifications() {
     useEffect(() => {
         if (saasContext.saasToken && saasContext.userId) {
             if (!saasContext.emailVerified) {
-                setNotifications(notifications => addNotification(notifications, t('Please go to your Inbox and verify your email address to use all features of Agent Doodle'), 'warning', 'email-verification'));            
+                setNotifications(notifications => addNotification(notifications, t('Please go to your Inbox and verify your email address to use all features of Open Agents Builder'), 'warning', 'email-verification'));            
             } else 
             {
                 setNotifications(notifications => removeNotification(notifications, 'email-verification'));
