@@ -23,7 +23,6 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
   const [currentTab, setCurrentTab] = useState('authorize');
 
   const searchParams = useSearchParams();
-
   const router = useRouter();
 
   useEffect(() => {
@@ -38,7 +37,7 @@ export function AuthorizePopup({ autoLoginInProgress }: { autoLoginInProgress: b
   }, [saasContext?.userId]);
   return (
     <div className="p-4 grid items-center justify-center h-screen">
-     {!applicationLoaded || autoLoginInProgress ? (<div className="w-96 flex items-center justify-center flex-col"><div className="flex-row h-40 w-40"><img src={currentTheme === 'dark' ? '/img/OAB-Logo-Small-dark.svg' : '/img/OAB-Logo-Small.svg'} /></div><div><DataLoader /></div></div>):(
+     {!applicationLoaded || autoLoginInProgress ? (<div className="w-96 flex items-center justify-center flex-col"><div><DataLoader /></div></div>):(
       <div>
         <Suspense fallback={<div>{t('Loading SaaSContext...')}</div>}>
           <SaaSContextLoader />
