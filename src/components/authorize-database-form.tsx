@@ -125,7 +125,7 @@ export function AuthorizeDatabaseForm({
         </div>
         {termsUrl ? (
           <div className="items-center justify-between gap-4 mt-4 text-sm">
-           {t('Logging in you accept Agent Doodle ')}<Link className="underline hover:text-blue-500" target="_blank"  href={termsUrl + (i18n.language === 'pl' ? '-pl' : '')}>{t('Terms of Service')}</Link>{t(' and ')}<Link className="underline hover:text-blue-500" target="_blank"  href={privacyUrl+ (i18n.language === 'pl' ? '-pl' : '')}>{t('Privacy Policy')}</Link>.
+           {t('Logging in you accept Open Agents Builder ')}<Link className="underline hover:text-blue-500" target="_blank"  href={termsUrl + (i18n.language === 'pl' ? '-pl' : '')}>{t('Terms of Service')}</Link>{t(' and ')}<Link className="underline hover:text-blue-500" target="_blank"  href={privacyUrl+ (i18n.language === 'pl' ? '-pl' : '')}>{t('Privacy Policy')}</Link>.
           </div>
         ) : null}
         <div className="flex items-center justify-between gap-4 mt-4">

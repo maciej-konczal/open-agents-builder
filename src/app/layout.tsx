@@ -8,17 +8,17 @@ import i18nConfig from '@/app/i18nConfig';
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Agent Doodle",
+  title: "Open Agents Builder",
   description: "Build an interactive AI agent from a single prompt; send it as a link; process results; ideal for interactive bookings, pre-visit chats, polls, and many more"
 };
 
 
 
 export default function RootLayout({
-  children, params: {locale}
+  children, params: { locale }
 }: Readonly<{
   children: React.ReactNode;
-  params: {locale: string}
+  params: { locale: string }
 }>) {
   return (
     <html lang={locale}>
@@ -37,16 +37,16 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no"></meta>
       </head>
       <body className={inter.className}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >      
-        <div vaul-drawer-wrapper="" className="bg-background touch-none">
-          {children}
-        </div>
-        <Toaster position="bottom-right" />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <div vaul-drawer-wrapper="" className="bg-background touch-none">
+            {children}
+          </div>
+          <Toaster position="bottom-right" />
         </ThemeProvider>
       </body>
     </html>

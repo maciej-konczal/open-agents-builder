@@ -183,6 +183,16 @@ export type FlowInputType =
 | 'json'
 | 'fileBase64'
 
+
+export const INPUT_TYPES: { type: FlowInputType, label: string}[] = [
+  { type: 'shortText', label: 'Short text' },
+  { type: 'url', label: 'URL' },
+  { type: 'longText', label: 'Long text' },
+  { type: 'number', label: 'Number' },
+  { type: 'json', label: 'JSON Object' },
+  { type: 'fileBase64', label: 'File (b64)' }
+]
+
 export interface FlowInputVariable {
   name: string
   description?: string

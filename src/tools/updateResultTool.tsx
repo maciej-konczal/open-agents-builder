@@ -83,9 +83,9 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
                     const renderedTextTemplate = ReactDOMServer.renderToStaticMarkup(<CreateResultEmailTemplatePlain agent={currentAgentDTO} result={result} resultFormat={format} url={url} userName={existingSessionDTO.userName} userEmail={existingSessionDTO.userEmail}/>)
         
                     const { data, error } = await resend.emails.send({
-                      from: 'Agent Doodle <results@updates.agentdoodle.com>',
+                      from: 'Open Agents Builder <results@updates.agentdoodle.com>',
                       to: [currentAgent.options?.resultEmail ?? ''],
-                      subject: i18next.t('Agent Doodle result', { lng: language }),
+                      subject: i18next.t('Open Agents Builder result', { lng: language }),
                       text: renderedTextTemplate,
                       html: renderedHtmlTemplate
                     });

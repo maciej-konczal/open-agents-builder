@@ -22,6 +22,7 @@ import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import { ExecProvider } from '@/contexts/exec-context';
 import { Input } from '@/components/ui/input';
+import { FlowsDeleteDialog } from '@/components/flows/flows-delete-dialog';
 
 export default function FlowsPage() {
 
@@ -108,9 +109,16 @@ export default function FlowsPage() {
 
   return (
     <div className="space-y-6">
+
+{ isDirty ? (
+        <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
+      ) : (
+      <AgentStatus status={status} />
+      ) }
+
       <div>
         {flows?.length > 0 && (
-          <select className="form-select w-full m-2 p-2" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
+          <select className="form-select text-sm w-full m-2 p-2 rounded border" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
             const flow = flows.find(f => f.code === e.target.value);
             if (flow) {
               setRootFlow(flow.flow);
@@ -163,12 +171,6 @@ export default function FlowsPage() {
                         } else {
                             setValue('flows', [...flows, { name: editFlowName, code: editFlowCode, flow: { type: 'sequence', steps: [] } }]);
                         }
-
-                        if (flows.length === 1) {
-                            setValue('defaultFlow', flows[0].code);
-                            setRootFlow(flows[0].flow);
-                            setCurrentFlow(flows[0]);
-                        }
                         setEditFlowDialogOpen(false);
                     } else {
                         setAddFlowError(error);                        
@@ -204,13 +206,28 @@ export default function FlowsPage() {
           <Button variant="outline" size="sm" onClick={() => setCurrentTabs(['debugger'])} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
         )}
 
+        {currentFlow && (
+            <FlowsDeleteDialog agentFlow={currentFlow} onDeleteFlow={(flow) => {
+                setCurrentFlow(undefined);
+                setRootFlow(undefined);
+
+                const filteredFlows = flows.filter(f => f.code !== flow.code);
+                sessionStorage.removeItem('currentFlow')
+                setValue('flows', filteredFlows);
+
+                if (filteredFlows.length > 0) {
+                    if (defaultFlow === flow.code)
+                        setValue('defaultFlow', filteredFlows[filteredFlows.length-1].code);
+
+                    setRootFlow(filteredFlows[filteredFlows.length-1].flow);
+                    setCurrentFlow(filteredFlows[filteredFlows.length-1]);     
+                }               
+            }
+
+        }/>)}
+
       </div>
 
-      { isDirty ? (
-        <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
-      ) : (
-      <AgentStatus status={status} />
-      ) }
 
           {rootFlow && (
             

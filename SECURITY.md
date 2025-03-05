@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-We're supporting the following versions of Agent Doodle with ongoing security updates and monitoring:
+We're supporting the following versions of Open Agents Builder with ongoing security updates and monitoring:
 
 | Version | Supported          |
 | ------- | ------------------ |

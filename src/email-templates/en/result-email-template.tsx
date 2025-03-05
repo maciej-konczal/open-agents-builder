@@ -58,7 +58,7 @@ import {
           )}
           <Hr style={hr} />
           <Link href="https://agentdoodle.com" style={reportLink}>
-            Agent Doodle, provided by CatchTheTornado. For Privacy and Terms visit: https://agentdoodle.com
+            Open Agents Builder, provided by CatchTheTornado. For Privacy and Terms visit: https://agentdoodle.com
           </Link>
         </Container>
       </Body>

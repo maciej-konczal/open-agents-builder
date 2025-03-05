@@ -1,9 +1,14 @@
-<img src=".readme-assets/screenshot-hero.png" />
+![OAB logo](.readme-assets/OAB-Logo-dark.svg#gh-dark-mode-only)
+![OAB logo](.readme-assets/OAB-Logo.svg#gh-light-mode-only)
 
-## Build AI Assistants for Bookings, Intake forms, Orders, Support ....
 
-Agent Doodle let you create interactive AI agents that:
+
+## Build AI Agents for Business: Bookings, Intake forms, Orders, Support, Integrations ....
+
+Open Agents Builder let you create custom AI agents for Business. You can create the **customer facing** agents or **complex business workflows** that:
+:
 - 💵 can sell things on Instagram,
+- ✏️ can integrate all sort of business systems - ERP, PIM, CRM
 - 🛠️ can configure sophisticated products (CPQ),
 - 💁‍♀️ automates your Company and **saves you tons of time** and money otherwise spend on assisting personel,
 - 🎯 are focused on the goal, **dynamically setting the questions based on previous answers**!
@@ -13,7 +18,8 @@ Agent Doodle let you create interactive AI agents that:
 - ✏️ can collect the **leads** or save them in external CRM,
 - 🛠️ are able to call all set of tools - sending e-mails, accessing calendar, external CRM's, data sources etc.
 
-**Create an agent, get a unique link, send it to the users or share on your webpage!**
+
+**Create an agent, get a unique link, send it to the users or call it via API!**
 
 It can literally replace dozen other SaaS tools like:
 - eCommerce,
@@ -133,17 +139,17 @@ It can literally replace dozen other SaaS tools like:
 - **Tools** - extensible tools framework so the agent can send e-mails, Slack messages, export data to systems like CRM etc.
 - **Templates** - including ready-made templates like CRM app, pre-visit inquiry etc.
 
-## Businesses supported by Agent Doodle
+## Businesses supported by Open Agents Builder
 
 Below is a list of industries that have a genuine need for both scheduling appointments and gathering additional data, yet are not as heavily “covered” by popular booking tools. No beating around the bush:
 
 1. **💈 E-Commerce, Social commerce** 
    - *Examples:* Selling things on Instagram  
-   - *Why?* You probably need a simple eCommerce. With Agent Doodle you may create a whole eCommerce under a single link that you paste into your Instagram profile. Moreover it will answer user questions and let them customize the products!
+   - *Why?* You probably need a simple eCommerce. With Open Agents Builder you may create a whole eCommerce under a single link that you paste into your Instagram profile. Moreover it will answer user questions and let them customize the products!
 
 2. **🔧 B2B, CPQ, Qutation Engine** 
    - *Examples:* Negotiating quotes or configuring very complex products
-   - *Why?* Your Sales team probably spend hours on calls with customers. Now you can outsource it to Agent Doodle generated agent. Provide it with all the products, your negotiation strategies and its gonna do the reset finalizing with the order. Great for made-for-order use cases!
+   - *Why?* Your Sales team probably spend hours on calls with customers. Now you can outsource it to Open Agents Builder generated agent. Provide it with all the products, your negotiation strategies and its gonna do the reset finalizing with the order. Great for made-for-order use cases!
 
 3. **👩‍💻 Workshops and Thematic Courses**  
    - *Examples:* Cooking classes, painting, sewing, or coding courses for kids.  
@@ -190,7 +196,7 @@ These industries share a common challenge: before an appointment happens, key cl
 
 ## Use Cases 
 
-Agent Doodle is a very simple tool you can run on your own or use the [hosted version](https://agentdoodle.com). 
+Open Agents Builder is a very simple tool you can run on your own or use the [hosted version](https://agentdoodle.com). 
 
 ### E-commerce
 
@@ -226,7 +232,7 @@ Automatically answer all the users questions + use the event based actions to re
 
 ## Getting started
 
-Agent Doodle has literally no external dependencies. If you like to run it locally or **contribute** please just execute the following commands.
+Open Agents Builder has literally no external dependencies. If you like to run it locally or **contribute** please just execute the following commands.
 
 ```bash
 git clone https://github.com/CatchTheTornado/agent-doodle
@@ -255,4 +261,4 @@ That's it! Now you can get open your browser and navigate to: https://localhost:
 
 ## License
 
-Agent Doodle is released under [MIT](LICENSE) license.
+Open Agents Builder is released under [MIT](LICENSE) license.

@@ -89,13 +89,6 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
 
   return (
     <Card className="p-4 my-2 space-y-3">
-      <div className="flex justify-between">
-        <div className="font-semibold text-lg">Agent: {agent.name || '(bez nazwy)'}</div>
-        <Button variant="destructive" onClick={onDelete}>
-          Usuń
-        </Button>
-      </div>
-
       <div className="flex items-center gap-2">
         <Label className="w-12">{t('Name')}</Label>
         <Input value={agent.name} onChange={handleNameChange} />
@@ -185,6 +178,12 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
         <div className="mt-2">
           <Button variant="secondary" className="text-sm" onClick={addTool}><PlusIcon className="w-4 h-4" />{t('Add tool')}</Button>
         </div>
+
+        <div className="flex justify-end">
+        <Button title={t('Remove agent')} variant="outline" onClick={onDelete}>
+          <TrashIcon className="w-4 -h4"/>
+        </Button>
+      </div>        
       </div>
     </Card>
   )

@@ -14,12 +14,16 @@ import { Checkbox } from "./ui/checkbox";
 import { Label } from "@uiw/react-json-view";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { toast } from "sonner";
+import { useTheme } from "next-themes";
 
 export function OnboardingDialog() {
 
     const templateContext = useContext(TemplateContext);
     const agentContext = useAgentContext();
     const router = useRouter();
+
+    const { theme, systemTheme } = useTheme();
+    const currentTheme = (theme === 'system' ? systemTheme : theme)  
 
     const { t } = useTranslation();
 
@@ -39,9 +43,9 @@ export function OnboardingDialog() {
                 <DialogHeader>
                     {templateContext?.onboardingWellcomeHeader ? (
                         <DialogTitle className="text-center items-center justify-center">
-                            <div className="flex justify-center"><img src="/img/agent-doodle-logo.svg" className="w-40 h-40" /></div>
-                            <h2 className="text-2xl font-bold">{t('Welcome to Agent Doodle')}</h2>
-                            <p className="text-sm pt-3 pb-3">{t('In Agent Doodle, you create an AI Assistant that will chat with your customers, colleagues, or anyone who gets the link. Choose a template to get started creating your first Assistant.')}</p>
+                            <div className="flex justify-center"><img src={currentTheme === 'dark' ? "/img/OAB-Logo-Small-dark.svg" : "/img/OAB-Logo-Small.svg"} className="w-40 h-40" /></div>
+                            <h2 className="text-2xl font-bold">{t('Welcome to Open Agents Builder')}</h2>
+                            <p className="text-sm pt-3 pb-3">{t('In Open Agents Builder, you create an AI Assistant that will chat with your customers, colleagues, or anyone who gets the link. Choose a template to get started creating your first Assistant.')}</p>
                         </DialogTitle>
                     ) : (
                         <DialogTitle className="text-center items-center justify-center">
@@ -51,7 +55,7 @@ export function OnboardingDialog() {
                 </DialogHeader>
                     <ScrollArea className="maxh-[60vh] pr-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                    {templateContext?.templates.filter(t=>t.icon).map((template, index) => (
+                    {templateContext?.templates.filter(t=>t.icon).slice(-4).map((template, index) => (
                         <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
                             <CardContent className="p-4">
                                 <div className="flex items-center mb-3">
