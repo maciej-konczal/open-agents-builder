@@ -53,7 +53,7 @@ export function FlowInputVariablesEditor({
 
   return (
     <div>
-      <div className="space-y-4">
+      <div className="grid md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 xxl:grid-cols-4 gap-2">
         {variables.map((variable, index) => {
           // We will validate the variable name
           const isNameValid = variable.name === '' || variableNameRegex.test(variable.name)
@@ -96,7 +96,7 @@ export function FlowInputVariablesEditor({
                   }
                 >
                   {INPUT_TYPES.map((it) => (
-                    <option key={it} value={it.type}>
+                    <option key={it.type} value={it.type}>
                       {t(it.label)}
                     </option>
                   ))}
