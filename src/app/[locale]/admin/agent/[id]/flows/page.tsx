@@ -83,15 +83,6 @@ export default function FlowsPage() {
     const savedFlow = safeJsonParse(sessionStorage.getItem('currentFlow') ?? '', null);
     
     if (flows && flows.length > 0 && !initialLoadDone) {
-
-
-      if (editFlowId < 0 ) { // move to the last flow
-        setValue('defaultFlow', flows[flows.length-1].code);
-        setRootFlow(flows[flows.length-1].flow);
-        setCurrentFlow(flows[flows.length-1]);       
-        return;                         
-      }
-
       if (savedFlow || defaultFlow) {
         const flow = savedFlow ? flows.find(f => f.code === savedFlow.code) : flows.find(f => f.code === defaultFlow);
         if (flow) {
@@ -219,9 +210,21 @@ export default function FlowsPage() {
             <FlowsDeleteDialog agentFlow={currentFlow} onDeleteFlow={(flow) => {
                 setCurrentFlow(undefined);
                 setRootFlow(undefined);
+
+                const filteredFlows = flows.filter(f => f.code !== flow.code);
                 sessionStorage.removeItem('currentFlow')
-                setValue('flows', flows.filter(f => f.code !== flow.code));
-        }}/>)}
+                setValue('flows', filteredFlows);
+
+                if (filteredFlows.length > 0) {
+                    if (defaultFlow === flow.code)
+                        setValue('defaultFlow', filteredFlows[filteredFlows.length-1].code);
+
+                    setRootFlow(filteredFlows[filteredFlows.length-1].flow);
+                    setCurrentFlow(filteredFlows[filteredFlows.length-1]);     
+                }               
+            }
+
+        }/>)}
 
       </div>
 
