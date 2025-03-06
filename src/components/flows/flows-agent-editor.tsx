@@ -87,12 +87,21 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
     onChange({ ...agent, tools: updatedTools })
   }
 
+  const isNameValid = agent.name !== ''
+  const isPromptvalid = agent.system !== ''
+
+
   return (
     <Card className="p-4 my-2 space-y-3">
       <div className="flex items-center gap-2">
         <Label className="w-12">{t('Name')}</Label>
         <Input value={agent.name} onChange={handleNameChange} />
       </div>
+      {!isNameValid && (
+            <p className="flex-row text-red-500 text-sm mt-1">
+            {t('The agent name must be not empty.')}
+            </p>
+        )}
 
       <div className="flex items-center gap-2">
         <Label className="w-12">{t('Model')}</Label>
@@ -118,6 +127,12 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
           onChange={handleSystemChange}
         />
       </div>
+
+      {!isPromptvalid && (
+            <p className="flex-row text-red-500 text-sm mt-1">
+            {t('The prompt must be not empty.')}
+            </p>
+        )}            
 
       {/* Lista narzędzi */}
       <div className="mt-4">

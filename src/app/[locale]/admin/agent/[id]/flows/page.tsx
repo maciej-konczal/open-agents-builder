@@ -242,22 +242,12 @@ export default function FlowsPage() {
                       <AccordionTrigger>{t('Inputs')}</AccordionTrigger>
                       <AccordionContent>
                         <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
-                        {errors.inputs && (
-                            <p className="text-red-500 text-sm">
-                            {errors.inputs.message as string}
-                            </p>
-                        )}                        
                       </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="agents">
                       <AccordionTrigger>{t('Available sub-agents')}</AccordionTrigger>
                       <AccordionContent>
                         <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
-                        {errors.agents && (
-                            <p className="text-red-500 text-sm">
-                            {errors.agents.message as string}
-                            </p>
-                        )}                                  
                       </AccordionContent>
                   </AccordionItem>
                   <AccordionItem value="debugger">
