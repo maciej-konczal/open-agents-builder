@@ -87,7 +87,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 console.log('RQ', execRequest, inputObject.test);
 
                 const { agents, flows, inputs } = masterAgent;           
-                const execFLow = async (flow: AgentFlow) => {
+                const execFLow = async (flow: AgentFlow) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
                     const compiledFlow = setStackTraceJsonPaths(convertToFlowDefinition(flow?.flow));
 
                     console.log(compiledFlow);
@@ -167,7 +167,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         })
                     };
 
-
+                    // TODO: add support for execRequest.execMode == 'async' - storing trace and returning trace id 
                     const response = await execute(
                         compiledFlow, {
                             agents: compiledAgents,
