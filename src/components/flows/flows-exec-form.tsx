@@ -94,7 +94,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                         setExecutionInProgress(true);
                                         try {
                                             const apiClient = new AgentApiClient('', dbContext, saasContext);
-                                            const response = await apiClient.exec(agent?.id, flow.code, requestParams, getSessionHeaders());
+                                            const response = await apiClient.exec(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
 
                                             setFlowResult(response);
                                             setCurrentTabs(['result'])

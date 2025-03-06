@@ -76,6 +76,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const execRequestSchema = z.object({
                     flow: z.string(),
+                    execMode: z.enum(['sync','async']).default('sync').optional(),
                     input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
                 });                
 
