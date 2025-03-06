@@ -26,10 +26,7 @@ import { createDynamicZodSchemaForInputs } from "@/flows/inputs";
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
     try {
         const recordLocator = params.id;
-        const requestContext = await authorizeRequestContext(request);
         const saasContext = await authorizeSaasContext(request);
-        const agentsRepo = new ServerAgentRepository(requestContext.databaseIdHash);
-
 
         const databaseIdHash = request.headers.get('Database-Id-Hash');
         const sessionId = request.headers.get('Agent-Session-Id') || nanoid();
@@ -67,10 +64,15 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
         } else { 
 
+            const agentsRepo = new ServerAgentRepository(databaseIdHash);
             const dto = await agentsRepo.findOne({ id: recordLocator });
 
             if (dto) {
                 const masterAgent = Agent.fromDTO(dto);
+
+                if(!masterAgent.published) {
+                    await authorizeRequestContext(request); // force admin authorization
+                }
 
                 const execRequestSchema = z.object({
                     flow: z.string(),
