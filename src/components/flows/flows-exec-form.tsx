@@ -29,6 +29,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
     const { t, i18n } = useTranslation();
+    const [currentTabs, setCurrentTabs] = useState<string[]>([]);
 
     const [requestParams, setRequestParams] = useState<Record<string, any> | string>();
     const [generalError, setGeneralError] = useState<string | null>(null);
@@ -96,6 +97,8 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                             const response = await apiClient.exec(agent?.id, flow.code, requestParams, getSessionHeaders());
 
                                             setFlowResult(response);
+                                            setCurrentTabs(['result'])
+
                                             console.log(response);
                                         } catch (e) {
                                             toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
@@ -120,7 +123,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
             }
 
         {flowResult ? (
-            <Accordion type="multiple" className="w-full mt-4">
+            <Accordion type="multiple" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}  className="w-full mt-4">
                 <AccordionItem value={"result"}>
                     <AccordionTrigger>{t('Result')}</AccordionTrigger>
                     <AccordionContent>
