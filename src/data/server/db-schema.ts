@@ -17,6 +17,7 @@ export const agents = sqliteTable('agents', {
     tools: text('tools', { mode: 'json' }),
     prompt: text('prompt').notNull(),
     flows: text('flows'),
+    published: text('published'),
     defaultFlow: text('defaultFlow'),
     inputs: text('inputs'),
     agents: text('agents'),

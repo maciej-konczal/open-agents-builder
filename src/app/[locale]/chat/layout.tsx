@@ -2,6 +2,7 @@
 
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
+import { ThemeProvider } from '@/components/theme-provider';
 import { ExecProvider } from '@/contexts/exec-context';
 
 const i18nNamespaces = ['translation'];
@@ -19,7 +20,14 @@ export default async function GeneraChatlLayout({
   return (
     <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
       <ExecProvider>
-        {children}
+      <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </ExecProvider>
     </TranslationProvider>
   );

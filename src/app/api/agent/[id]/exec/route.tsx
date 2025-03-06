@@ -20,20 +20,13 @@ import { validateTokenQuotas } from "@/lib/quotas";
 import { SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
 import { setStackTraceJsonPaths } from "@/lib/json-path";
+import { createDynamicZodSchemaForInputs } from "@/flows/inputs";
 
-
-const execRequestSchema = z.object({
-    flow: z.string(),
-    input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
-});
 
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
     try {
         const recordLocator = params.id;
-        const requestContext = await authorizeRequestContext(request);
         const saasContext = await authorizeSaasContext(request);
-        const agentsRepo = new ServerAgentRepository(requestContext.databaseIdHash);
-
 
         const databaseIdHash = request.headers.get('Database-Id-Hash');
         const sessionId = request.headers.get('Agent-Session-Id') || nanoid();
@@ -47,7 +40,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         const currentDateTimeIso = request.headers.get('Current-Datetime-Iso') || new Date().toISOString();
         const currentLocalDateTime = request.headers.get('Current-Datetime') || new Date().toLocaleString();
         const currentTimezone = request.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
-
 
         if (saasContext.isSaasMode) {
             if (!saasContext.hasAccess) {
@@ -67,21 +59,35 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
         let existingSession = await sessionRepo.findOne({ id: sessionId });
-        const execRequest = await execRequestSchema.parse(await request.json());
-
-        console.log('RQ', execRequest);
 
         if(!recordLocator){
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
         } else { 
 
+            const agentsRepo = new ServerAgentRepository(databaseIdHash);
             const dto = await agentsRepo.findOne({ id: recordLocator });
 
             if (dto) {
                 const masterAgent = Agent.fromDTO(dto);
 
+                if(!masterAgent.published) {
+                    await authorizeRequestContext(request); // force admin authorization
+                }
+
+                const execRequestSchema = z.object({
+                    flow: z.string(),
+                    execMode: z.enum(['sync','async']).default('sync').optional(),
+                    input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
+                });                
+
+                const execRequest = await execRequestSchema.parse(await request.json());
+                const inputSchema = createDynamicZodSchemaForInputs({ availableInputs: masterAgent.inputs ?? []})
+
+                const inputObject = await inputSchema.parse(execRequest.input);
+                console.log('RQ', execRequest, inputObject.test);
+
                 const { agents, flows, inputs } = masterAgent;           
-                const execFLow = async (flow: AgentFlow) => {
+                const execFLow = async (flow: AgentFlow) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
                     const compiledFlow = setStackTraceJsonPaths(convertToFlowDefinition(flow?.flow));
 
                     console.log(compiledFlow);
@@ -89,6 +95,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     const compiledAgents:Record<string, any> = {}
                     const stackTrace:FlowStackTraceElement[] = []
 
+                    // we need to put the inputs into the flow
                     for(const a of agents || []) {
 
                         const toolReg: Record<string, ToolConfiguration> = {}
@@ -160,7 +167,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         })
                     };
 
-
+                    // TODO: add support for execRequest.execMode == 'async' - storing trace and returning trace id 
                     const response = await execute(
                         compiledFlow, {
                             agents: compiledAgents,

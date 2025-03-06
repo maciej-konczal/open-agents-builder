@@ -18,6 +18,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { nanoid } from "nanoid";
 import { useExecContext } from "@/contexts/exec-context";
 import moment from "moment";
+import { FlowInputValuesFiller } from "./flows-input-filler";
 
 export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
@@ -28,7 +29,9 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
     const { t, i18n } = useTranslation();
+    const [currentTabs, setCurrentTabs] = useState<string[]>([]);
 
+    const [requestParams, setRequestParams] = useState<Record<string, any> | string>();
     const [generalError, setGeneralError] = useState<string | null>(null);
     
     const [executionInProgress, setExecutionInProgress] = useState<boolean>(false);
@@ -74,44 +77,53 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                             <div className="text-red-500 text-center">{generalError}</div>
                         </div>
                     ) : (
-                        <div className="flex">
-                        {executionInProgress ? <DataLoaderIcon /> : null}
-                            <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
+                        <div>
+                            <div className="mb-2">
+                                <FlowInputValuesFiller variables={agent?.inputs ?? []} onChange={(values) => {
+                                    setRequestParams(values);
+                                }} />
+                            </div>
+                            <div className="flex">
+                            {executionInProgress ? <DataLoaderIcon /> : null}
+                                <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
 
-                            const flow = flows.find(f => f.code === agentFlow?.code);
+                                const flow = flows.find(f => f.code === agentFlow?.code);
 
-                            if (flow) {
-                                const exec = async () => {
-                                    setExecutionInProgress(true);
-                                    try {
-                                        const apiClient = new AgentApiClient('', dbContext, saasContext);
-                                        const response = await apiClient.exec(agent?.id, flow.code, null, getSessionHeaders());
+                                if (flow) {
+                                    const exec = async () => {
+                                        setExecutionInProgress(true);
+                                        try {
+                                            const apiClient = new AgentApiClient('', dbContext, saasContext);
+                                            const response = await apiClient.exec(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
 
-                                        setFlowResult(response);
-                                        console.log(response);
-                                    } catch (e) {
-                                        toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
-                                        console.error(e);
+                                            setFlowResult(response);
+                                            setCurrentTabs(['result'])
+
+                                            console.log(response);
+                                        } catch (e) {
+                                            toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
+                                            console.error(e);
+                                        }
+                                        setExecutionInProgress(false);
                                     }
-                                    setExecutionInProgress(false);
+
+                                    exec();
+
+
+                                } else {
+                                    toast.error(t('Flow is not defined'));
                                 }
 
-                                exec();
-
-
-                            } else {
-                                toast.error(t('Flow is not defined'));
-                            }
-
-                        }}><PlayIcon className="w-4 h-4"/>{t('Execute')}</Button>
-                        <div className="ml-2 text-xs h-8 items-center flex">{t('Session Id: ')} {execContext.sessionId}</div>
+                            }}><PlayIcon className="w-4 h-4"/>{t('Execute')}</Button>
+                            <div className="ml-2 text-xs h-8 items-center flex">{t('Session Id: ')} {execContext.sessionId}</div>
+                        </div>
                     </div>
                     )
                 )
             }
 
         {flowResult ? (
-            <Accordion type="multiple" className="w-full mt-4">
+            <Accordion type="multiple" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}  className="w-full mt-4">
                 <AccordionItem value={"result"}>
                     <AccordionTrigger>{t('Result')}</AccordionTrigger>
                     <AccordionContent>

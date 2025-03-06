@@ -36,7 +36,7 @@ const AuthorizationGuard = ({ children } : {children: React.ReactNode | undefine
         });
 
     return (dbContext?.authStatus === DatabaseAuthStatus.Authorized) ? (
-        <>{children}</>) : (params.databaseIdHash ? <SharingPopup eem={params.eem} databaseIdHash={params.databaseIdHash as string}  autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
+        <>{children}</>) : (params.databaseIdHash && params.eem ? <SharingPopup eem={params.eem} databaseIdHash={params.databaseIdHash as string}  autoLoginInProgress={autoLoginInProgress} /> : <AuthorizePopup autoLoginInProgress={autoLoginInProgress} />);
 };
 
 export default AuthorizationGuard;

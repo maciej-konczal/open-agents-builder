@@ -237,6 +237,7 @@ export class Agent {
     prompt?: string;
     expectedResult?: string;
     safetyRules?: string;
+    published?: boolean;
     events?: Record<string, EventConfiguration>;
     tools?: Record<string, ToolConfiguration>;
     locale: string;
@@ -255,6 +256,7 @@ export class Agent {
     constructor(agentDTO: AgentDTO | Agent) {
         this.id = agentDTO.id;
         this.displayName = agentDTO.displayName;
+        this.published = typeof agentDTO.published === 'string' ? JSON.parse(agentDTO.published ?? 'false') : agentDTO.published;
         this.options = typeof agentDTO.options === 'string' ? JSON.parse(agentDTO.options as string) : agentDTO.options;
 
         this.prompt = agentDTO.prompt;
@@ -292,6 +294,7 @@ export class Agent {
             prompt: this.prompt,
             expectedResult: this.expectedResult,
             safetyRules: this.safetyRules,
+            published: JSON.stringify(this.published),
             events: JSON.stringify(this.events),
             tools: JSON.stringify(this.tools),
             locale: this.locale,
@@ -315,6 +318,7 @@ export class Agent {
             prompt: this?.prompt || '',
             expectedResult: this?.expectedResult || '',
             safetyRules: this?.safetyRules || '',
+            published: this?.published || false,
             welcomeInfo: this?.options?.welcomeMessage || '',
             termsConditions: this?.options?.termsAndConditions || '',
             confirmTerms: this?.options?.mustConfirmTerms || false,
@@ -346,6 +350,7 @@ export class Agent {
             displayName: data.displayName ?? agent?.displayName,
             expectedResult: data.expectedResult ?? agent?.expectedResult,
             safetyRules: data.safetyRules ?? agent?.safetyRules,
+            published: data.published ?? agent?.published,
             prompt: data.prompt ?? agent?.prompt,
             createdAt: agent?.createdAt || getCurrentTS(),
             updatedAt: getCurrentTS(),

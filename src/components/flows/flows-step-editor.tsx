@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../ui/dropdown-menu'
 import { GitBranchIcon, PlusIcon, TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
+import { Textarea } from '../ui/textarea'
 
 interface FlowStepEditorProps {
   step: EditorStep
@@ -41,7 +42,7 @@ export function FlowStepEditor({
       const handleAgentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         onChange({ ...step, agent: e.target.value })
       }
-      const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         onChange({ ...step, input: e.target.value })
       }
 
@@ -72,10 +73,11 @@ export function FlowStepEditor({
 
           <div className="flex items-center gap-2">
             <Label className="w-20">{t('Prompt')}</Label>
-            <Input
+            <Textarea
+               rows={3}
               value={step.input}
               onChange={handleInputChange}
-              placeholder={t("AI instruction or other input you'd like to pass to this Agent")}
+              placeholder={t("AI instruction or other input you'd like to pass to this Agent use @variableName to input the specific variables into context")}
             />
           </div>
         </Card>
@@ -226,7 +228,7 @@ export function FlowStepEditor({
       }
 
       return (
-        <Card className="my-2 border space-y-2">
+        <Card className="my-2 p-2 border space-y-2">
           <div className="flex justify-between items-center">
             <div className="font-semibold text-m ml-2">{t('Parallel')}</div>
             <Button variant="outline" size="sm" onClick={onDelete}>
@@ -534,7 +536,7 @@ case 'oneOf': {
           </div>
 
           <div className="flex items-center gap-2">
-            <Label className="w-32">Criteria:</Label>
+            <Label className="w-32">{t('Criteria')}:</Label>
             <Input value={criteria} onChange={handleCriteriaChange} />
           </div>
 

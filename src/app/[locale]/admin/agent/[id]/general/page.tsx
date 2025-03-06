@@ -299,6 +299,18 @@ export default function GeneralPage() {
         <LocaleSelect fieldName='locale' register={register} />
       </div>
       )}
+      <div>
+        <label htmlFor="published" className="flex items-center text-sm font-medium">
+        <Input
+          type="checkbox"
+          id="published"
+          {...register('published')}
+          className="mr-2 w-4"
+        />
+        {t('Agent is published')}
+        </label>
+        {errors.collectUserInfo && <p className="mt-2 text-sm text-red-600">{errors.collectUserInfo.message}</p>}
+      </div>      
       <div className="flex justify-between">
         <Button
         type="submit"

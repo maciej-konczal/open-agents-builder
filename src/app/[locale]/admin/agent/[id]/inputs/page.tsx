@@ -43,11 +43,6 @@ export default function InputsPage() {
 
         <div>
             <FlowInputVariablesEditor variables={variables} onChange={onVariablesChanged} />
-            {errors.inputs && (
-                <p className="text-red-500 text-sm">
-                  {errors.inputs.message as string}
-                </p>
-              )}
         </div>
 
         <Button onClick={handleSubmit(onSubmit)}
