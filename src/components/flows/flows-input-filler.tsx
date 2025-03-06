@@ -39,16 +39,9 @@ export function FlowInputValuesFiller({
     return Number.isNaN(parsed) ? undefined : parsed
   }
 
-  if (!variables || variables.length === 0) {
-    return (
-      <Card className="p-4">
-        <p className="text-sm italic">{t('No inputs to fill.')}</p>
-      </Card>
-    )
-  }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 grid cols-2">
         {variables.length === 0 && (
           <Card key='request-body' className="p-4 space-y-2 border">
           <Label className="text-sm font-semibold">
@@ -138,16 +131,6 @@ export function FlowInputValuesFiller({
         )
       })}
 
-      <div className="pt-2">
-        <Button
-          variant="outline"
-          onClick={() => {
-            console.log('Current input values:', values)
-          }}
-        >
-          {t('Show values in console')}
-        </Button>
-      </div>
     </div>
   )
 }

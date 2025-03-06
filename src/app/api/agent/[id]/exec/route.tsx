@@ -83,7 +83,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 const inputSchema = createDynamicZodSchemaForInputs({ availableInputs: masterAgent.inputs ?? []})
 
                 const inputObject = await inputSchema.parse(execRequest.input);
-                console.log('RQ', execRequest, inputObject);
+                console.log('RQ', execRequest, inputObject.test);
 
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => {

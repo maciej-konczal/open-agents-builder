@@ -76,42 +76,44 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                             <div className="text-red-500 text-center">{generalError}</div>
                         </div>
                     ) : (
-                        <div className="flex">
+                        <div>
+                            <div className="mb-2">
+                                <FlowInputValuesFiller variables={agent?.inputs ?? []} onChange={(values) => {
+                                    setRequestParams(values);
+                                }} />
+                            </div>
+                            <div className="flex">
+                            {executionInProgress ? <DataLoaderIcon /> : null}
+                                <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
 
-                        <FlowInputValuesFiller variables={agent?.inputs ?? []} onChange={(values) => {
-                            setRequestParams(values);
-                        }} />
+                                const flow = flows.find(f => f.code === agentFlow?.code);
 
-                        {executionInProgress ? <DataLoaderIcon /> : null}
-                            <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
+                                if (flow) {
+                                    const exec = async () => {
+                                        setExecutionInProgress(true);
+                                        try {
+                                            const apiClient = new AgentApiClient('', dbContext, saasContext);
+                                            const response = await apiClient.exec(agent?.id, flow.code, requestParams, getSessionHeaders());
 
-                            const flow = flows.find(f => f.code === agentFlow?.code);
-
-                            if (flow) {
-                                const exec = async () => {
-                                    setExecutionInProgress(true);
-                                    try {
-                                        const apiClient = new AgentApiClient('', dbContext, saasContext);
-                                        const response = await apiClient.exec(agent?.id, flow.code, requestParams, getSessionHeaders());
-
-                                        setFlowResult(response);
-                                        console.log(response);
-                                    } catch (e) {
-                                        toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
-                                        console.error(e);
+                                            setFlowResult(response);
+                                            console.log(response);
+                                        } catch (e) {
+                                            toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
+                                            console.error(e);
+                                        }
+                                        setExecutionInProgress(false);
                                     }
-                                    setExecutionInProgress(false);
+
+                                    exec();
+
+
+                                } else {
+                                    toast.error(t('Flow is not defined'));
                                 }
 
-                                exec();
-
-
-                            } else {
-                                toast.error(t('Flow is not defined'));
-                            }
-
-                        }}><PlayIcon className="w-4 h-4"/>{t('Execute')}</Button>
-                        <div className="ml-2 text-xs h-8 items-center flex">{t('Session Id: ')} {execContext.sessionId}</div>
+                            }}><PlayIcon className="w-4 h-4"/>{t('Execute')}</Button>
+                            <div className="ml-2 text-xs h-8 items-center flex">{t('Session Id: ')} {execContext.sessionId}</div>
+                        </div>
                     </div>
                     )
                 )
