@@ -10,7 +10,7 @@ import { AgentDefinition, agentsValidators, flowsValidators, EditorStep, FlowInp
 import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
 import { Button } from '@/components/ui/button';
-import {  DialogContent, DialogTrigger, Dialog, DialogFooter, DialogHeader } from '@/components/ui/dialog';
+import { DialogContent, DialogTrigger, Dialog, DialogFooter, DialogHeader } from '@/components/ui/dialog';
 import { NetworkIcon, TextIcon, ZapIcon } from 'lucide-react';
 import { safeJsonParse } from '@/lib/utils';
 import { set } from 'date-fns';
@@ -37,7 +37,7 @@ export default function FlowsPage() {
 
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors }, setError } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
-  });  
+  });
 
   const [editFlowId, setEditFlowId] = useState<number>(-1);
   const [editFlowName, setEditFlowName] = useState<string>('');
@@ -58,7 +58,7 @@ export default function FlowsPage() {
       setRootFlow(value);
     }
   }
-  
+
   const onAgentsChanged = (value: AgentDefinition[]) => {
     setValue('agents', value);
   }
@@ -73,7 +73,7 @@ export default function FlowsPage() {
   }
 
 
-  useEffect(() => { 
+  useEffect(() => {
     if (rootFlow && currentFlow) {
       setInitialLoadDone(true);
       setValue('flows', flows.map(f => f.code === currentFlow.code ? { ...f, flow: rootFlow } : f));
@@ -82,7 +82,7 @@ export default function FlowsPage() {
 
   useEffect(() => {
     const savedFlow = safeJsonParse(sessionStorage.getItem('currentFlow') ?? '', null);
-    
+
     if (flows && flows.length > 0 && !initialLoadDone) {
       if (savedFlow || defaultFlow) {
         const flow = savedFlow ? flows.find(f => f.code === savedFlow.code) : flows.find(f => f.code === defaultFlow);
@@ -111,11 +111,11 @@ export default function FlowsPage() {
   return (
     <div className="space-y-6">
 
-{ isDirty ? (
+      {isDirty ? (
         <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
       ) : (
-      <AgentStatus status={status} />
-      ) }
+        <AgentStatus status={status} />
+      )}
 
       <div>
         {flows?.length > 0 && (
@@ -131,7 +131,7 @@ export default function FlowsPage() {
             ))}
           </select>
         )}
-        <Dialog open={editFlowDialogOpen}  onOpenChange={setEditFlowDialogOpen}>
+        <Dialog open={editFlowDialogOpen} onOpenChange={setEditFlowDialogOpen}>
           <DialogContent>
             <div className="space-y-4 p-4">
               <h3 className="font-bold text-m">{t('Add new flow')}</h3>
@@ -139,57 +139,57 @@ export default function FlowsPage() {
                 <div className="text-red-500 text-sm p-4 border border-red-500 bg-red-200">{editFlowError}</div>
               )}
 
-                <div>
-                    <label className="text-sm">{t('Flow name')}</label>           
-                    <Input type="text" placeholder={t('Flow name')} className="form-input w-full text-sm" value={editFlowName} onChange={(e) => setEditFlowName(e.target.value)} />
-                </div>
-              
-                <div>
-                    <label className="mt-4 text-sm">{t('Flow code')}</label>
-                    <Input type="text" placeholder={t('Flow code')} className="form-input w-full text-sm" value={editFlowCode} onChange={(e) => setEditFlowCode(e.target.value)} />
-                </div>
+              <div>
+                <label className="text-sm">{t('Flow name')}</label>
+                <Input type="text" placeholder={t('Flow name')} className="form-input w-full text-sm" value={editFlowName} onChange={(e) => setEditFlowName(e.target.value)} />
+              </div>
+
+              <div>
+                <label className="mt-4 text-sm">{t('Flow code')}</label>
+                <Input type="text" placeholder={t('Flow code')} className="form-input w-full text-sm" value={editFlowCode} onChange={(e) => setEditFlowCode(e.target.value)} />
+              </div>
             </div>
-            <div className="flex justify-end p-4">  
-                <Button onClick={() => {
+            <div className="flex justify-end p-4">
+              <Button onClick={() => {
 
-                    let error = '';
+                let error = '';
 
-                    if (editFlowCode){ 
-                    if (editFlowId < 0) if (flows && flows.find(f => f.code === editFlowCode)) {
-                        error = t('Flow with this code already exists');
-                    } 
-                    } else {
-                        error = t('Flow code is required');
-                    }
-
-                    if (!editFlowName) {
-                        error = t('Flow name is required');
-                    }
-                    
-                    if (!error) {
-                        if (editFlowId >= 0) {
-                            setValue('flows', flows.map((f, index) => index === editFlowId ? { name: editFlowName, code: editFlowCode, flow: f.flow } : f));
-                        } else {
-                            setValue('flows', [...flows, { name: editFlowName, code: editFlowCode, flow: { type: 'sequence', steps: [] } }]);
-                        }
-                        setEditFlowDialogOpen(false);
-                    } else {
-                        setAddFlowError(error);                        
-                    }
+                if (editFlowCode) {
+                  if (editFlowId < 0) if (flows && flows.find(f => f.code === editFlowCode)) {
+                    error = t('Flow with this code already exists');
+                  }
+                } else {
+                  error = t('Flow code is required');
                 }
-                }>{t('Save changes')}</Button>
-            </div>     
+
+                if (!editFlowName) {
+                  error = t('Flow name is required');
+                }
+
+                if (!error) {
+                  if (editFlowId >= 0) {
+                    setValue('flows', flows.map((f, index) => index === editFlowId ? { name: editFlowName, code: editFlowCode, flow: f.flow } : f));
+                  } else {
+                    setValue('flows', [...flows, { name: editFlowName, code: editFlowCode, flow: { type: 'sequence', steps: [] } }]);
+                  }
+                  setEditFlowDialogOpen(false);
+                } else {
+                  setAddFlowError(error);
+                }
+              }
+              }>{t('Save changes')}</Button>
+            </div>
           </DialogContent>
         </Dialog>
 
 
 
         <Button variant="outline" size="sm" onClick={() => {
-            setEditFlowCode('');
-            setEditFlowName('');
-            setEditFlowId(-1);
-            setEditFlowDialogOpen(true)
-          }
+          setEditFlowCode('');
+          setEditFlowName('');
+          setEditFlowId(-1);
+          setEditFlowDialogOpen(true)
+        }
         } className="ml-2"><NetworkIcon className="w-4 h-4" />{t('Add flow')}</Button>
 
         <Button variant="outline" size="sm" onClick={() => {
@@ -198,90 +198,91 @@ export default function FlowsPage() {
           setEditFlowId(flows.findIndex(f => f.code === currentFlow?.code) ?? -1);
           setEditFlowDialogOpen(true)
         }
-      } className="ml-2" title={t('Rename flow...')}><TextIcon className="w-4 h-4" /></Button>
+        } className="ml-2" title={t('Rename flow...')}><TextIcon className="w-4 h-4" /></Button>
 
         {currentFlow && (
-          <Button variant="outline" size="sm" onClick={() => setValue('defaultFlow', currentFlow?.code)} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Set as default flow')}</Button>
+          <Button variant="outline" size="sm" onClick={() => setValue('defaultFlow', currentFlow?.code)} className="ml-2"><ZapIcon className="w-4 h-4" />{t('Set as default flow')}</Button>
         )}
         {currentFlow && (
-          <Button variant="outline" size="sm" onClick={() => setCurrentTabs(['debugger'])} className="ml-2"><ZapIcon className="w-4 h-4"/>{t('Execute')}</Button>
+          <Button variant="outline" size="sm" onClick={() => setCurrentTabs(['debugger'])} className="ml-2"><ZapIcon className="w-4 h-4" />{t('Execute')}</Button>
         )}
 
         {currentFlow && (
-            <FlowsDeleteDialog agentFlow={currentFlow} onDeleteFlow={(flow) => {
-                setCurrentFlow(undefined);
-                setRootFlow(undefined);
+          <FlowsDeleteDialog agentFlow={currentFlow} onDeleteFlow={(flow) => {
+            setCurrentFlow(undefined);
+            setRootFlow(undefined);
 
-                const filteredFlows = flows.filter(f => f.code !== flow.code);
-                sessionStorage.removeItem('currentFlow')
-                setValue('flows', filteredFlows);
+            const filteredFlows = flows.filter(f => f.code !== flow.code);
+            sessionStorage.removeItem('currentFlow')
+            setValue('flows', filteredFlows);
 
-                if (filteredFlows.length > 0) {
-                    if (defaultFlow === flow.code)
-                        setValue('defaultFlow', filteredFlows[filteredFlows.length-1].code);
+            if (filteredFlows.length > 0) {
+              if (defaultFlow === flow.code)
+                setValue('defaultFlow', filteredFlows[filteredFlows.length - 1].code);
 
-                    setRootFlow(filteredFlows[filteredFlows.length-1].flow);
-                    setCurrentFlow(filteredFlows[filteredFlows.length-1]);     
-                }               
+              setRootFlow(filteredFlows[filteredFlows.length - 1].flow);
+              setCurrentFlow(filteredFlows[filteredFlows.length - 1]);
             }
+          }
 
-        }/>)}
+          } />)}
 
       </div>
 
-          {!initialLoadDone && (
-            <DataLoader />
+      {!initialLoadDone && (
+        <DataLoader />
+      )}
+
+
+      {rootFlow && (
+
+        <div>
+          <Accordion type="multiple" className="w-full" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}>
+            <AccordionItem value="inputs">
+              <AccordionTrigger>{t('Inputs')}</AccordionTrigger>
+              <AccordionContent>
+                <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="agents">
+              <AccordionTrigger>{t('Available sub-agents')}</AccordionTrigger>
+              <AccordionContent>
+                <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="debugger">
+              <AccordionTrigger>{t('Debugger')}</AccordionTrigger>
+              <AccordionContent>
+                <ExecProvider>
+                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />
+                </ExecProvider>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          <FlowBuilder
+            flow={rootFlow}
+            inputs={inputs}
+            onFlowChange={onFlowChanged}
+            onNoAgentsError={() => {
+              setCurrentTabs(['agents']);
+            }}
+            agentNames={agents.map(a => a.name)}
+          />
+          {errors.flows && (
+            <p className="text-red-500 text-sm">
+              {errors.flows.message as string}
+            </p>
           )}
+        </div>
 
+      )}
 
-          {rootFlow && (
-            
-            <div>
-                <Accordion type="multiple"  className="w-full" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}>
-                  <AccordionItem value="inputs">
-                      <AccordionTrigger>{t('Inputs')}</AccordionTrigger>
-                      <AccordionContent>
-                        <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
-                      </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="agents">
-                      <AccordionTrigger>{t('Available sub-agents')}</AccordionTrigger>
-                      <AccordionContent>
-                        <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
-                      </AccordionContent>
-                  </AccordionItem>
-                  <AccordionItem value="debugger">
-                      <AccordionTrigger>{t('Debugger')}</AccordionTrigger>
-                      <AccordionContent>
-                        <ExecProvider>
-                          <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />
-                        </ExecProvider>
-                      </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-
-                <FlowBuilder
-                flow={rootFlow}
-                onFlowChange={onFlowChanged}
-                onNoAgentsError={() => {
-                    setCurrentTabs(['agents']);
-                }}
-                agentNames={agents.map(a => a.name)}
-                />
-                {errors.flows && (
-                    <p className="text-red-500 text-sm">
-                    {errors.flows.message as string}
-                    </p>
-                )}                          
-          </div>
-
-          )}
-
-        <Button onClick={handleSubmit(onSubmit)}
+      <Button onClick={handleSubmit(onSubmit)}
         className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
+      >
         {t('Save')}
-        </Button>
+      </Button>
     </div>
   );
 }

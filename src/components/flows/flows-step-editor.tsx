@@ -1,7 +1,7 @@
 // FlowStepEditor.tsx
 'use client'
 import React from 'react'
-import { EditorStep } from '@/flows/models'
+import { EditorStep, FlowInputVariable } from '@/flows/models'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -11,12 +11,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { GitBranchIcon, PlusIcon, TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { Textarea } from '../ui/textarea'
+import { Mention } from 'primereact/mention';
 
 interface FlowStepEditorProps {
   step: EditorStep
   onChange: (newStep: EditorStep) => void
   onDelete: () => void
   onNoAgentsError?: () => void
+  inputs: FlowInputVariable[]
   availableAgentNames: string[]
 }
 
@@ -25,7 +27,8 @@ export function FlowStepEditor({
   onChange,
   onDelete,
   availableAgentNames,
-  onNoAgentsError
+  onNoAgentsError,
+  inputs
 }: FlowStepEditorProps) {
 
   const { t } = useTranslation();
@@ -42,7 +45,7 @@ export function FlowStepEditor({
       const handleAgentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         onChange({ ...step, agent: e.target.value })
       }
-      const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const handleInputChange = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         onChange({ ...step, input: e.target.value })
       }
 
@@ -73,9 +76,14 @@ export function FlowStepEditor({
 
           <div className="flex items-center gap-2">
             <Label className="w-20">{t('Prompt')}</Label>
-            <Textarea
-               rows={3}
-              value={step.input}
+            <Mention
+              autoResize
+              rows={3} 
+              itemTemplate={(item) => <div>{item.name}</div>}
+              className="text-sm w-full p-2 flex"
+              suggestions={inputs}
+              trigger={['@', '#']}
+              value={step.input} 
               onChange={handleInputChange}
               placeholder={t("AI instruction or other input you'd like to pass to this Agent use @variableName to input the specific variables into context")}
             />
@@ -123,6 +131,7 @@ export function FlowStepEditor({
           <div className="ml-2">
             {steps.map((child, idx) => (
               <FlowStepEditor
+                inputs={inputs}
                 key={idx}
                 step={child}
                 onChange={(ns) => handleChangeAt(idx, ns)}
@@ -239,6 +248,7 @@ export function FlowStepEditor({
           <div className="ml-2">
             {steps.map((child, idx) => (
               <FlowStepEditor
+                inputs={inputs}
                 key={idx}
                 step={child}
                 onChange={(ns) => handleChangeAt(idx, ns)}
@@ -434,6 +444,7 @@ case 'oneOf': {
             />
 
             <FlowStepEditor
+              inputs={inputs}
               step={br.flow}
               onChange={(nf) => handleChangeBranchFlow(idx, nf)}
               onDelete={() =>
@@ -497,6 +508,7 @@ case 'oneOf': {
 
           <div className="ml-2">
             <FlowStepEditor
+              inputs={inputs}
               step={inputFlow}
               onChange={handleFlowChange}
               onDelete={() =>
@@ -551,6 +563,7 @@ case 'oneOf': {
 
           <div className="ml-2">
             <FlowStepEditor
+              inputs={inputs}
               step={subFlow}
               onChange={handleSubFlowChange}
               onDelete={() =>
@@ -604,6 +617,7 @@ case 'oneOf': {
           <div className="ml-2">
             {steps.map((child, idx) => (
               <FlowStepEditor
+                inputs={inputs}
                 key={idx}
                 step={child}
                 onChange={(ns) => handleChangeAt(idx, ns)}

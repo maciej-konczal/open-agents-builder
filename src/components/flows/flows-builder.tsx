@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { EditorStep } from '@/flows/models'
+import { EditorStep, FlowInputVariable } from '@/flows/models'
 import { FlowStepEditor } from './flows-step-editor'
 
 interface FlowBuilderProps {
@@ -20,7 +20,9 @@ interface FlowBuilderProps {
   /**
    * List of agent names that can be selected in 'step' type steps.
    */
-  agentNames: string[]
+  agentNames: string[],
+
+  inputs: FlowInputVariable[]
 }
 
 /**
@@ -31,6 +33,7 @@ export default function FlowBuilder({
   onFlowChange,
   agentNames,
   onNoAgentsError
+  inputs,
 }: FlowBuilderProps) {
   // Helper function to display the flow in the console
   const exportFlow = () => {
@@ -40,6 +43,7 @@ export default function FlowBuilder({
   return (
       <FlowStepEditor
         step={flow}
+        inputs={inputs}
         onNoAgentsError={onNoAgentsError}
         onChange={onFlowChange}
         onDelete={() => {
