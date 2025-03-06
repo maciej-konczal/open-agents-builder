@@ -1,12 +1,15 @@
 'use client'
 
 import { AIConsentBannerComponent } from "@/components/ai-consent-banner";
+import AuthorizationGuard from "@/components/authorization-guard";
 import { Chat } from "@/components/chat";
 import { ChatInitForm } from "@/components/chat-init-form";
 import { CookieConsentBannerComponent } from "@/components/cookie-consent-banner";
 import DataLoader from "@/components/data-loader";
 import FeedbackWidget from "@/components/feedback-widget";
-import { useExecContext } from "@/contexts/exec-context";
+import { DatabaseContextProvider } from "@/contexts/db-context";
+import { ExecContextType, useExecContext } from "@/contexts/exec-context";
+import { SaaSContextProvider } from "@/contexts/saas-context";
 import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
 import moment from "moment";
@@ -68,7 +71,28 @@ export default function ChatPage({children,
         }
       }, [chatContext.agent, chatContext.initFormRequired, chatContext.initFormDone]);
 
-    return (
+      const authorizedChat =  () => (
+        (chatContext.initFormRequired && !chatContext.initFormDone) ? (
+          <ChatInitForm
+              welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
+            displayName={chatContext.agent?.displayName ?? ''}
+          />
+      ):(
+          <Chat 
+              headers={getSessionHeaders()} 
+              welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
+              messages={messages}
+              handleInputChange={handleInputChange}
+              isLoading={isLoading}
+              handleSubmit={handleSubmit}
+              input={input}
+              displayName={chatContext.agent?.displayName ?? ''}
+          />
+      )    
+    )
+
+
+      return (
       <div>
         <AIConsentBannerComponent />
         <div className="pt-10">
@@ -84,22 +108,16 @@ export default function ChatPage({children,
               <div className="text-red-500 text-center">{generalError}</div>
             </div>
           ): (
-             (chatContext.initFormRequired && !chatContext.initFormDone) ? (
-                <ChatInitForm
-                    welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
-                   displayName={chatContext.agent?.displayName ?? ''}
-                />
-            ):(
-                <Chat 
-                    headers={getSessionHeaders()} 
-                    welcomeMessage={chatContext.agent?.options?.welcomeMessage ?? ''}
-                    messages={messages}
-                    handleInputChange={handleInputChange}
-                    isLoading={isLoading}
-                    handleSubmit={handleSubmit}
-                    input={input}
-                    displayName={chatContext.agent?.displayName ?? ''}
-                />
+              chatContext.agent?.published ? (
+                authorizedChat()
+            ) : (
+                  <DatabaseContextProvider>
+                    <SaaSContextProvider>
+                      <AuthorizationGuard>
+                        {authorizedChat()}
+                      </AuthorizationGuard>
+                    </SaaSContextProvider>
+                  </DatabaseContextProvider>
             )
           )
         )}

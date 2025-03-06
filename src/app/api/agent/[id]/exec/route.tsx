@@ -20,12 +20,8 @@ import { validateTokenQuotas } from "@/lib/quotas";
 import { SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
 import { setStackTraceJsonPaths } from "@/lib/json-path";
+import { createDynamicZodSchemaForInputs } from "@/flows/inputs";
 
-
-const execRequestSchema = z.object({
-    flow: z.string(),
-    input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
-});
 
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
     try {
@@ -48,7 +44,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         const currentLocalDateTime = request.headers.get('Current-Datetime') || new Date().toLocaleString();
         const currentTimezone = request.headers.get('Current-Timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-
         if (saasContext.isSaasMode) {
             if (!saasContext.hasAccess) {
                 return Response.json({ message: "Unauthorized", status: 403 }, { status: 403 });
@@ -67,9 +62,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
         let existingSession = await sessionRepo.findOne({ id: sessionId });
-        const execRequest = await execRequestSchema.parse(await request.json());
-
-        console.log('RQ', execRequest);
 
         if(!recordLocator){
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
@@ -79,6 +71,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
             if (dto) {
                 const masterAgent = Agent.fromDTO(dto);
+
+                const execRequestSchema = z.object({
+                    flow: z.string(),
+                    input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
+                });                
+
+                createDynamicZodSchemaForInputs({ availableInputs: agent.})
+                const execRequest = await execRequestSchema.parse(await request.json());
+
+                console.log('RQ', execRequest);
+        
 
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => {
