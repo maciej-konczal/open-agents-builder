@@ -79,10 +79,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
                 });                
 
-                createDynamicZodSchemaForInputs({ availableInputs: agent.})
                 const execRequest = await execRequestSchema.parse(await request.json());
+                const inputSchema = createDynamicZodSchemaForInputs({ availableInputs: masterAgent.inputs ?? []})
 
-                console.log('RQ', execRequest);
+                const inputObject = await inputSchema.parse(execRequest.input);
+                console.log('RQ', execRequest, inputObject);
         
 
                 const { agents, flows, inputs } = masterAgent;           
@@ -94,6 +95,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     const compiledAgents:Record<string, any> = {}
                     const stackTrace:FlowStackTraceElement[] = []
 
+                    // we need to put the inputs into the flow
                     for(const a of agents || []) {
 
                         const toolReg: Record<string, ToolConfiguration> = {}
