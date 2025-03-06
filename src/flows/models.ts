@@ -215,7 +215,8 @@ export const agentsValidators = ({t, setError}) => {
     validate: {
       inputs: (v)  => {
         let index = 0;
-        for (const agt of (v as AgentDefinition[])) {
+        const agents = (v as AgentDefinition[]);
+        for (const agt of agents) {
           if (!agt.name) {
             setError('agents', {
               message: t('Please set the Names of all Agents')
@@ -228,6 +229,12 @@ export const agentsValidators = ({t, setError}) => {
             })
             return false;
           }
+          if (agents.filter(vv => vv.name == agt.name).length >1) {
+            setError('agents', {
+              message: t('The agent names must be unique')
+            })
+            return false;
+          }          
           index ++;
         }
         return true;
@@ -269,10 +276,17 @@ export const inputValidators = ({t, setError}) => {
       validate: {
         inputs: (v)  => {
           let index = 0;
-          for (const input of (v as FlowInputVariable[])) {
+          const variables = (v as FlowInputVariable[])
+          for (const input of variables) {
             if (!input.name) {
               setError('inputs', {
                 message: t('Please set the Symbols of all variables')
+              })
+              return false;
+            }
+            if (variables.filter(vv => vv.name == input.name).length >1) {
+              setError('inputs', {
+                message: t('The input names must be unique')
               })
               return false;
             }

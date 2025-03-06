@@ -63,7 +63,7 @@ export function FlowInputValuesFiller({
             />         
             </Card>   
         )}
-      {variables.map((variable, index) => {
+      {variables.filter(v=>v.name).map((variable, index) => {
         const currentValue = values[variable.name] ?? ''
         const isRequired = variable.required
         let inputField: JSX.Element

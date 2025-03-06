@@ -1,51 +1,44 @@
-// AgentsEditor.tsx
 'use client'
 import React, { useState } from 'react'
-import { AgentDefinition, ToolSetting } from './types'
+import { AgentDefinition, ToolSetting } from '@/flows/models'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 
-// Import listy dostępnych narzędzi i ich konfiguratorów:
 import { toolConfigurators } from '@/tools/configurators'
 import { useTranslation } from 'react-i18next'
 import { PlusIcon, TextIcon, TrashIcon, WorkflowIcon } from 'lucide-react'
 
-// Możemy zdefiniować listę modeli:
 const availableOpenAIModels = [
-  'gpt-4o', // cokolwiek jest w Twoim setupie
+  'gpt-4o', 
   'gpt-1o'
 ]
 
 // Komponent do edycji pojedynczego agenta:
 interface FlowAgentEditorProps {
   agent: AgentDefinition
+  agents: AgentDefinition[]
   onChange: (updated: AgentDefinition) => void
   onDelete: () => void
 }
 
-export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorProps) {
+export function FlowAgentEditor({ agent, onChange, onDelete, agents }: FlowAgentEditorProps) {
 
   const { t } = useTranslation();
 
-  // Edycja nazwy
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ ...agent, name: e.target.value })
   }
-  // Edycja modelu
   const handleModelChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     onChange({ ...agent, model: e.target.value })
   }
-  // Edycja system promptu
   const handleSystemChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange({ ...agent, system: e.target.value })
   }
 
-  // Narzędzia: dodanie nowego
   const addTool = () => {
-    // Na start – wybieramy cokolwiek z toolConfigurators (pierwszy lepszy klucz?)
     const firstToolName = Object.keys(toolConfigurators)[0]
     const newTool: ToolSetting = {
       name: firstToolName || 'unknownTool',
@@ -57,7 +50,6 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
     })
   }
 
-  // Usunięcie narzędzia
   const removeTool = (index: number) => {
     onChange({
       ...agent,
@@ -65,19 +57,15 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
     })
   }
 
-  // Zmiana nazwy narzędzia
   const handleToolNameChange = (index: number, newToolName: string) => {
     const updatedTools = [...agent.tools]
     updatedTools[index] = {
       ...updatedTools[index],
       name: newToolName,
-      // Reset options gdy zmieniamy narzędzie?
-      // options: {}
     }
     onChange({ ...agent, tools: updatedTools })
   }
 
-  // Edycja opcji narzędzia (po zamknięciu popupu)
   const handleToolOptionsChange = (index: number, newOptions: any) => {
     const updatedTools = [...agent.tools]
     updatedTools[index] = {
@@ -87,9 +75,8 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
     onChange({ ...agent, tools: updatedTools })
   }
 
-  const isNameValid = agent.name !== ''
-  const isPromptvalid = agent.system !== ''
-
+  const isNameValid = agent.name !== '' && agents.filter(aa => aa.name == agent.name).length <=1
+  const isPromptValid = agent.system !== ''
 
   return (
     <Card className="p-4 my-2 space-y-3">
@@ -99,7 +86,7 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
       </div>
       {!isNameValid && (
             <p className="flex-row text-red-500 text-sm mt-1">
-            {t('The agent name must be not empty.')}
+            {t('The agent name must be not empty and must be uniqe.')}
             </p>
         )}
 
@@ -128,13 +115,12 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
         />
       </div>
 
-      {!isPromptvalid && (
+      {!isPromptValid && (
             <p className="flex-row text-red-500 text-sm mt-1">
             {t('The prompt must be not empty.')}
             </p>
         )}            
 
-      {/* Lista narzędzi */}
       <div className="mt-4">
         <div className="flex flex-col gap-2">
           {agent.tools.map((tool, index) => {
@@ -204,9 +190,6 @@ export function FlowAgentEditor({ agent, onChange, onDelete }: FlowAgentEditorPr
   )
 }
 
-/**
- * Wrapper, który renderuje odpowiedni konfigurator na podstawie toolName.
- */
 function ToolConfiguratorWrapper({
   toolName,
   toolOptions,
@@ -229,7 +212,6 @@ function ToolConfiguratorWrapper({
   )
 }
 
-// Komponent lista agentów:
 interface FlowAgentsEditorProps {
   agents: AgentDefinition[]
   onChange: (updated: AgentDefinition[]) => void
@@ -273,6 +255,7 @@ export function FlowAgentsEditor({ agents, onChange }: FlowAgentsEditorProps) {
         {agents.map((agent, index) => (
           <FlowAgentEditor
             key={index}
+            agents={agents}
             agent={agent}
             onChange={(updated) => updateAgent(index, updated)}
             onDelete={() => deleteAgent(index)}
