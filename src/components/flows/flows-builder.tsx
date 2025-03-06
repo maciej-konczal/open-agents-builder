@@ -32,8 +32,8 @@ export default function FlowBuilder({
   flow,
   onFlowChange,
   agentNames,
-  onNoAgentsError
-  inputs,
+  onNoAgentsError,
+  inputs
 }: FlowBuilderProps) {
   // Helper function to display the flow in the console
   const exportFlow = () => {

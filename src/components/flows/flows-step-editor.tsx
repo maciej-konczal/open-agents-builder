@@ -33,6 +33,38 @@ export function FlowStepEditor({
 
   const { t } = useTranslation();
 
+  const [suggestions, setSuggestions] = React.useState<FlowInputVariable[]>([]);
+  const onSearch = (event) => {
+    //in a real application, make a request to a remote url with the query and return suggestions, for demo we filter at client side
+    setTimeout(() => {
+        const query = event.query;
+        let suggestions;
+
+        if (!query.trim().length) {
+            suggestions = [...inputs];
+        }
+        else {
+            suggestions = inputs.filter((inputs) => {
+                return inputs.name.toLowerCase().startsWith(query.toLowerCase());
+            });
+        }
+
+        setSuggestions(suggestions);
+    }, 250);
+}
+
+const itemTemplate = (suggestion: FlowInputVariable) => {
+    return (
+        <div className="flex align-items-center p-2 text-sm bg-background">
+            <span className="flex flex-column ml-2">
+                @{suggestion.description ? suggestion.description : suggestion.name}
+            </span>
+        </div>
+    );
+}
+ 
+
+
   if (!step) {
     return <div className="text-sm text-red-500">{t('No steps to display')}</div>
   }
@@ -78,10 +110,14 @@ export function FlowStepEditor({
             <Label className="w-20">{t('Prompt')}</Label>
             <Mention
               autoResize
-              rows={3} 
-              itemTemplate={(item) => <div>{item.name}</div>}
+              rows={5} 
+              field="name"
+              inputClassName="w-full p-2 border border-input bg-background rounded-md"
+              panelClassName="rounded-md border border-input bg-background"
+              itemTemplate={itemTemplate}
               className="text-sm w-full p-2 flex"
-              suggestions={inputs}
+              suggestions={suggestions}
+              onSearch={onSearch}
               trigger={['@', '#']}
               value={step.input} 
               onChange={handleInputChange}
