@@ -18,6 +18,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { nanoid } from "nanoid";
 import { useExecContext } from "@/contexts/exec-context";
 import moment from "moment";
+import { FlowInputValuesFiller } from "./flows-input-filler";
 
 export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
@@ -29,6 +30,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     const saasContext = useContext(SaaSContext);
     const { t, i18n } = useTranslation();
 
+    const [requestParams, setRequestParams] = useState<Record<string, any> | string>();
     const [generalError, setGeneralError] = useState<string | null>(null);
     
     const [executionInProgress, setExecutionInProgress] = useState<boolean>(false);
@@ -75,6 +77,11 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                         </div>
                     ) : (
                         <div className="flex">
+
+                        <FlowInputValuesFiller variables={agent?.inputs ?? []} onChange={(values) => {
+                            setRequestParams(values);
+                        }} />
+
                         {executionInProgress ? <DataLoaderIcon /> : null}
                             <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
 
@@ -85,7 +92,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                     setExecutionInProgress(true);
                                     try {
                                         const apiClient = new AgentApiClient('', dbContext, saasContext);
-                                        const response = await apiClient.exec(agent?.id, flow.code, null, getSessionHeaders());
+                                        const response = await apiClient.exec(agent?.id, flow.code, requestParams, getSessionHeaders());
 
                                         setFlowResult(response);
                                         console.log(response);
