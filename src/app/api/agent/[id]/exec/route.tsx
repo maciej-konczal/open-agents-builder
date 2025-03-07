@@ -210,7 +210,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                                         
                             tools: { 
                                 ...customTools,
-                                updateResultTool: createUpdateResultTool('', null).tool,
+                                updateResultTool: createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool,
                             }
                         })
                     };
