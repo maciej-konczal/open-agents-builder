@@ -213,8 +213,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 updateResultTool: createUpdateResultTool('', null).tool,
                             }
                         })
-                        console.log(customTools);
-
                     };
                     // TODO: add support for execRequest.execMode == 'async' - storing trace and returning trace id 
                     const response = await execute(
