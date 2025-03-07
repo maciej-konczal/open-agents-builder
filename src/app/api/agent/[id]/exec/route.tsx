@@ -12,7 +12,7 @@ import { agent, execute } from 'flows-ai'
 import { convertToFlowDefinition, FlowStackTraceElement, messagesSupportingAgent } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
-import { CoreUserMessage, FilePart, generateText, ToolSet } from "ai";
+import { CoreUserMessage, FilePart, generateText, ImagePart, ToolSet } from "ai";
 import { createUpdateResultTool } from "@/tools/updateResultTool";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -122,10 +122,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             } as CoreUserMessage
                             for(const v of usedVariables) {
                                 if (filesToUpload[v]) {  // this is file
-                                    (newInput.content as Array<FilePart>).push(
+                                    (newInput.content as Array<ImagePart>).push(
                                         {
-                                            type: 'file',
-                                            data: filesToUpload[v],
+                                            type: 'image',
+                                            image: filesToUpload[v],
                                             mimeType: filesToUpload[v].match(/^data:(.*?);base64,/)?.[1] || 'application/octet-stream'
                                         }
                                     );
@@ -236,6 +236,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         }
     } catch (error) {
+        console.log(error.requestBodyValues.messages)
+        console.error(error)
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
     }
 }
