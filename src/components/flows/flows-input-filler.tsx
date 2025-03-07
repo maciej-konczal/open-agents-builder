@@ -70,10 +70,7 @@ export function FlowInputValuesFiller({
                 value={currentValue}
                 onChange={(e) => handleValueChange(variable.name, e.target.value)}
                 placeholder={variable.description || variable.name}
-                // Dla fileBase64 możesz też wstawić:
-                // type="file" i w onChange wczytywać plik jako Base64
-                // type="file" np. z FileReader
-                type={variable.type === 'fileBase64' ? 'text' : 'text'}
+                type={variable.type === 'fileBase64' ? 'file' : 'text'}
               />
             )
             break
