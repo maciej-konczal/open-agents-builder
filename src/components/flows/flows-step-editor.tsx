@@ -78,7 +78,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
         onChange({ ...step, agent: e.target.value })
       }
       const handleInputChange = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        onChange({ ...step, input: e.target.value })
+        onChange({ ...step, agent: step.agent, input: e.target.value })
       }
 
       return (
@@ -184,7 +184,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : '', input: '' })}>
                 {t('+ step')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
