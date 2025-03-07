@@ -9,10 +9,10 @@ import { NextRequest } from "next/server";
 import { Agent, AgentFlow, Session, ToolConfiguration } from "@/data/client/models";
 import { openai } from "@ai-sdk/openai";
 import { agent, execute } from 'flows-ai'
-import { convertToFlowDefinition, FlowStackTraceElement } from "@/flows/models";
+import { convertToFlowDefinition, FlowStackTraceElement, messagesSupportingAgent } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
-import { ToolSet } from "ai";
+import { generateText, ToolSet } from "ai";
 import { createUpdateResultTool } from "@/tools/updateResultTool";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -21,6 +21,8 @@ import { SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
 import { setStackTraceJsonPaths } from "@/lib/json-path";
 import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVariableNames, injectVariables, replaceVariablesInString } from "@/flows/inputs";
+import { StorageService } from "@/lib/storage-service";
+
 
 
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
@@ -60,6 +62,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
         let existingSession = await sessionRepo.findOne({ id: sessionId });
 
+        const storageService = new StorageService(databaseIdHash, 'temp');
+
         if(!recordLocator){
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
         } else { 
@@ -74,7 +78,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     try  {
                         await authorizeRequestContext(request); // force admin authorization
                     } catch (e) {
-                        return Response.json({ message: 'Unauthorized', status: 401 }, { status: 401 });
+                        return Response.json({ message: 'Unauthorized', status: 401 }, { status: 401 }); // token invaidation
                     }
                 }
 
@@ -90,8 +94,48 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 const inputObject = await inputSchema.parse(execRequest.input);
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
-                    console.log(flow?.flow)
-                    const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), inputObject)
+                   
+                    const variablesToInject: Record<string, string> = {}
+                    const filesToUpload: Record<string, string> = {}
+                    for(const i of masterAgent?.inputs ?? []) {
+                        if (i.type !== 'fileBase64') {
+                            variablesToInject[i.name] = inputObject[i.name] as string // skip the files 
+                        } else {
+                            filesToUpload[i.name] = inputObject[i.name] as string
+                        }
+                    }
+
+                    const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
+                    applyInputTransformation(compiledFlow, (currentNode) => {
+
+                        if (currentNode.input && typeof currentNode.input === 'string') {
+                            const usedVariables = extractVariableNames(currentNode.input);
+                            const newInput = {
+                                role: 'user',
+                                content: [
+                                    {
+                                        type: 'text',
+                                        data: replaceVariablesInString(currentNode.input, variablesToInject)
+                                    }
+                                ]
+                            }
+                            for(const v of usedVariables) {
+                                if (filesToUpload[v]) {  // this is file
+                                    newInput.content.push(
+                                        {
+                                            type: 'file',
+                                            data: filesToUpload[v],
+                                        }
+                                    );
+                                }
+                                
+                            }
+
+                            return JSON.stringify(newInput);
+                        }
+
+                        return currentNode.input;
+                    });
 
                     console.log(compiledFlow);
 
@@ -115,7 +159,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         let currentTraceElement = { flow: compiledFlow, result: null } as FlowStackTraceElement;
 
                         const customTools = await prepareAgentTools(toolReg, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, recordLocator, sessionId) as ToolSet;
-                        compiledAgents[a.name] = agent({ // add stats support here
+                        compiledAgents[a.name] = messagesSupportingAgent({ // add stats support here
 
                             onStepFinish: async (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
                                 const { usage, response } = result;
@@ -160,6 +204,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             model: openai(a.model, {}),
                             name: a.name,
                             system: a.system,
+                            messages: [],
                                                         
                             tools: { 
                                 ...customTools,
@@ -168,22 +213,24 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         })
                     };
 
+                    console.log('CAPRA',compiledAgents);
+
                     // TODO: add support for execRequest.execMode == 'async' - storing trace and returning trace id 
                     const response = await execute(
                         compiledFlow, {
-                            agents: compiledAgents,
+                        agents: compiledAgents,
                         onFlowStart: (flow) => {
-                                stackTrace.push({ flow, result: null, messages: [], startedAt: new Date() });
-                            },
-                            onFlowFinish: (flow, result) => {
-                                
-                                //console.log('Flow finished', flow.agent, flow.name, result);
-                            },
-                        }
+                            stackTrace.push({ flow, result: null, messages: [], startedAt: new Date() });
+                        },
+                        onFlowFinish: (flow, result) => {
+
+                            //console.log('Flow finished', flow.agent, flow.name, result);
+                        },
+                    }
                     )
 
-                    console.log(stackTrace);
-                    console.log(response);
+                    //console.log(stackTrace);
+                    //console.log(response);
 
                     return response;
                 };

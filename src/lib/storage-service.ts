@@ -21,6 +21,31 @@ export class StorageService {
         fs.writeFileSync(path.resolve(this.uploadPath, storageKey), buffer);
     }
 
+    public async saveAttachmentFromBase64(base64: string, storageKey: string): Promise<void> {
+        const buffer = Buffer.from(base64, 'base64');
+        if (!fs.existsSync(this.uploadPath)) {
+            fs.mkdirSync(this.uploadPath, { recursive: true });
+        }
+        fs.writeFileSync(path.resolve(this.uploadPath, storageKey), buffer);
+    }
+
+    public async savePlainTextAttachment(text: string, storageKey: string): Promise<void> {
+        if (!fs.existsSync(this.uploadPath)) {
+            fs.mkdirSync(this.uploadPath, { recursive: true });
+        }
+        fs.writeFileSync(path.resolve(this.uploadPath, storageKey), text, 'utf8');
+    }
+
+    public readPlainTextAttachment(storageKey: string): string {
+        const filePath = path.resolve(this.uploadPath, storageKey);
+        return fs.readFileSync(filePath, 'utf8');
+    }
+
+    public fileExists(storageKey: string): boolean {
+        const filePath = path.resolve(this.uploadPath, storageKey);
+        return fs.existsSync(filePath);
+    }
+
     public readAttachment(storageKey: string): ArrayBuffer {
         const filePath = path.resolve(this.uploadPath, storageKey);
         const buffer = fs.readFileSync(filePath);

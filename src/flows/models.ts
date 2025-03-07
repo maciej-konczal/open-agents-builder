@@ -1,6 +1,8 @@
 import { AgentFlow } from "@/data/client/models"
-import { CoreMessage } from "ai"
-import { Flow } from "flows-ai"
+import { CoreMessage, generateText } from "ai"
+import { Agent, Flow } from "flows-ai"
+import s from 'dedent'
+import { safeJsonParse } from "@/lib/utils"
 
 // Agent structure
 export interface ToolSetting {
@@ -295,3 +297,50 @@ export const inputValidators = ({t, setError}) => {
       }
     }
   }
+
+
+  /**
+   * Helper function to create a user-defined agent that can then be referneced in a flow.
+   * Like `generateText` in Vercel AI SDK, but we're taking care of `prompt`.
+   */
+  export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<typeof generateText>[0]): Agent {
+      return async ({ input }, context) => {
+        console.log(input)
+          if (typeof input === 'string') {
+          const objInput = safeJsonParse(input, null)
+          console.log('objInput', objInput)
+
+          if (objInput && objInput.role) // this is a workaround for the case when the input is a message
+          {
+            const messages = [{
+              ...objInput
+            }, {
+              role: 'user',
+              content: `Here is the context: ${JSON.stringify(context)}`
+            }] as CoreMessage[];
+
+            delete(rest.prompt);
+            console.log(messages);
+
+            const response = await generateText({
+              ...rest,
+              maxSteps,
+              messages
+            })
+            return response.text          
+        } 
+      }
+          
+      // default flow
+      const response = await generateText({
+          ...rest,
+          maxSteps,
+          prompt: s`
+            Here is the context: ${JSON.stringify(context)}
+            Here is the instruction: ${JSON.stringify(input)}
+          `,
+        })
+        return response.text
+        
+      }
+    }

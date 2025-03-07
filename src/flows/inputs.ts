@@ -32,6 +32,61 @@ export function replaceVariablesInString(str: string, variables: Record<string, 
 }
 
 /**
+ * Recursively processes FlowDefinition, calling the transformInputFn function on each node,
+ * which returns a new value for `flowDef.input`.
+ *
+ * @param flowDef - object returned by convertToFlowDefinition
+ * @param transformInputFn - function transforming the `input` field in each node.
+ *    Receives the current node (flowDef) as a parameter; should return a new value for flowDef.input.
+ */
+export function applyInputTransformation(
+  flowDef: any,
+  transformInputFn: (currentNode: any) => any
+): void {
+  // 1) First, update "input" based on the external function
+  flowDef.input = transformInputFn(flowDef);
+
+  // 2) Recursion depending on the type of agent
+  switch (flowDef.agent) {
+    case 'sequenceAgent':
+    case 'parallelAgent':
+    case 'bestOfAllAgent': {
+      // In these agents, the "input" field is an array of FlowDefinition
+      if (Array.isArray(flowDef.input)) {
+        flowDef.input.forEach((child: any) => applyInputTransformation(child, transformInputFn));
+      }
+      break;
+    }
+
+    case 'oneOfAgent': {
+      // In "oneOfAgent", "input" is also an array of FlowDefinition
+      if (Array.isArray(flowDef.input)) {
+        flowDef.input.forEach((child: any) => applyInputTransformation(child, transformInputFn));
+      }
+      // NOTE: if you also want to transform `flowDef.conditions`,
+      //       additional operations can be done here (if needed).
+      break;
+    }
+
+    case 'forEachAgent':
+    case 'optimizeAgent': {
+      // "input" is a single FlowDefinition
+      if (flowDef.input && typeof flowDef.input === 'object') {
+        applyInputTransformation(flowDef.input, transformInputFn);
+      }
+      break;
+    }
+
+    default: {
+      // "step" (agent is e.g., 'translationAgent') or other custom,
+      // does not contain nested structures, so no recursion.
+      break;
+    }
+  }
+}
+
+
+/**
  * Recursively injects variable values into all text fields (input, conditions, criteria, etc.)
  * within the given flowDef structure.
  *
