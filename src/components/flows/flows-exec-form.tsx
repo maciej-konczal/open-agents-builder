@@ -87,23 +87,22 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                             </div>
                             <div className="flex">
                                 {executionInProgress ? 
-                                    <div>
                                         <DataLoaderIcon />
-                                        <span className="text-xs text-gray-500 text-sm">{t('Executing flow (' + timeElapsed + ')... ')}</span>
-                                    </div>: null}
+                                : null}
                                 <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
-
                                 const flow = flows.find(f => f.code === agentFlow?.code);
 
                                 if (flow) {
                                     const exec = async () => {
+                                        setTimeElapsed(0);
                                         setExecutionInProgress(true);
                                         try {
                                             const apiClient = new AgentApiClient('', dbContext, saasContext);
                                             timeCounter = setInterval(() => {
-                                                setTimeElapsed(timeElapsed + 1);
+                                                setTimeElapsed(prv => prv + 1);
                                             }, 1000);
                                             const response = await apiClient.exec(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
+                                            clearInterval(timeCounter);
 
                                             setFlowResult(response);
                                             setCurrentTabs(['result'])
@@ -124,7 +123,14 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                 }
 
                             }}><PlayIcon className="w-4 h-4"/>{t('Execute')}</Button>
-                            <div className="ml-2 text-xs h-8 items-center flex">{t('Session Id: ')} {execContext.sessionId}</div>
+                            <div className="ml-2 text-xs h-8 items-center flex">{t('Session Id: ')} {execContext.sessionId}
+
+                            { executionInProgress && (
+                                    <div className="ml-2 text-xs flex ">{t(' - executing flow (' + timeElapsed + ' seconds)... ')}</div>
+                                )}
+
+
+                            </div>
                         </div>
                     </div>
                     )
