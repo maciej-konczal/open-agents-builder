@@ -33,6 +33,7 @@ export default function FlowsPage() {
 
   const [editFlowDialogOpen, setEditFlowDialogOpen] = useState<boolean>(false);
   const [initialLoadDone, setInitialLoadDone] = useState<boolean>(false);
+  const [dataLoaderVisible, setDataLoaderVisible] = useState<boolean>(true);
   const [executeFlowDialogOpen, setExecuteFlowDialogOpen] = useState<boolean>(false);
 
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors }, setError } = useForm({
@@ -77,7 +78,7 @@ export default function FlowsPage() {
     if (rootFlow && currentFlow) {
       setInitialLoadDone(true);
       setValue('flows', flows.map(f => f.code === currentFlow.code ? { ...f, flow: rootFlow } : f));
-    }
+    }     
   }, [rootFlow, currentFlow]);
 
   useEffect(() => {
@@ -98,6 +99,9 @@ export default function FlowsPage() {
         setCurrentFlow(flows[0]);
       }
     }
+
+    setDataLoaderVisible(false);
+
   }, [flows, initialLoadDone]);
 
   useEffect(() => {
@@ -167,11 +171,21 @@ export default function FlowsPage() {
                 }
 
                 if (!error) {
-                  if (editFlowId >= 0) {
-                    setValue('flows', flows.map((f, index) => index === editFlowId ? { name: editFlowName, code: editFlowCode, flow: f.flow } : f));
+                  let newFlows = null;
+                  if (editFlowId >= 0) {                    
+                    newFlows = flows.map((f, index) => index === editFlowId ? { name: editFlowName, code: editFlowCode, flow: f.flow } : f);
                   } else {
-                    setValue('flows', [...flows, { name: editFlowName, code: editFlowCode, flow: { type: 'sequence', steps: [] } }]);
+                    newFlows = [...flows, { name: editFlowName, code: editFlowCode, flow: { type: 'sequence', steps: [] } }];
                   }
+
+                  setValue('flows', newFlows);
+
+                    if (!defaultFlow)
+                      setValue('defaultFlow', newFlows[newFlows.length - 1].code);
+      
+                    setRootFlow(newFlows[newFlows.length - 1].flow);
+                    setCurrentFlow(newFlows[newFlows.length - 1]);
+                  
                   setEditFlowDialogOpen(false);
                 } else {
                   setAddFlowError(error);
@@ -229,7 +243,7 @@ export default function FlowsPage() {
 
       </div>
 
-      {!initialLoadDone && (
+      {dataLoaderVisible && (
         <DataLoader />
       )}
 

@@ -9,10 +9,10 @@ import { NextRequest } from "next/server";
 import { Agent, AgentFlow, Session, ToolConfiguration } from "@/data/client/models";
 import { openai } from "@ai-sdk/openai";
 import { agent, execute } from 'flows-ai'
-import { convertToFlowDefinition, FlowStackTraceElement } from "@/flows/models";
+import { convertToFlowDefinition, FlowStackTraceElement, messagesSupportingAgent } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
-import { ToolSet } from "ai";
+import { CoreUserMessage, FilePart, generateText, ImagePart, ToolSet } from "ai";
 import { createUpdateResultTool } from "@/tools/updateResultTool";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -20,7 +20,10 @@ import { validateTokenQuotas } from "@/lib/quotas";
 import { SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
 import { setStackTraceJsonPaths } from "@/lib/json-path";
-import { createDynamicZodSchemaForInputs } from "@/flows/inputs";
+import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVariableNames, injectVariables, replaceVariablesInString } from "@/flows/inputs";
+import { StorageService } from "@/lib/storage-service";
+import { files } from "jszip";
+
 
 
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
@@ -60,6 +63,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         const sessionRepo = new ServerSessionRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
         let existingSession = await sessionRepo.findOne({ id: sessionId });
 
+        const storageService = new StorageService(databaseIdHash, 'temp');
+
         if(!recordLocator){
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
         } else { 
@@ -71,7 +76,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 const masterAgent = Agent.fromDTO(dto);
 
                 if(!masterAgent.published) {
-                    await authorizeRequestContext(request); // force admin authorization
+                    try  {
+                        await authorizeRequestContext(request); // force admin authorization
+                    } catch (e) {
+                        return Response.json({ message: 'Unauthorized', status: 401 }, { status: 401 }); // token invaidation
+                    }
                 }
 
                 const execRequestSchema = z.object({
@@ -84,14 +93,54 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 const inputSchema = createDynamicZodSchemaForInputs({ availableInputs: masterAgent.inputs ?? []})
 
                 const inputObject = await inputSchema.parse(execRequest.input);
-                console.log('RQ', execRequest, inputObject.test);
-
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
-                    const compiledFlow = setStackTraceJsonPaths(convertToFlowDefinition(flow?.flow));
+                   
+                    const variablesToInject: Record<string, string> = {}
+                    const filesToUpload: Record<string, string> = {}
+                    for(const i of masterAgent?.inputs ?? []) {
+                        if (i.type !== 'fileBase64') {
+                            variablesToInject[i.name] = inputObject[i.name] as string // skip the files 
+                        } else {
+                            filesToUpload[i.name] = inputObject[i.name] as string
+                        }
+                    }
+                    const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
+                    applyInputTransformation(compiledFlow, (currentNode) => {
 
-                    console.log(compiledFlow);
+                        if (currentNode.input && typeof currentNode.input === 'string') {
+                            const usedVariables = extractVariableNames(currentNode.input);
+                            const newInput = {
+                                role: 'user',
+                                content: [
+                                    {
+                                        type: 'text',
+                                        text: replaceVariablesInString(currentNode.input, variablesToInject)
+                                    }
+                                ] 
+                            } as CoreUserMessage
 
+    
+                            
+                            for(const v of (usedVariables && usedVariables.length > 0 ? usedVariables : (masterAgent?.inputs?.map(i => i.name) ?? []))) {
+                                if (filesToUpload[v]) {  // this is file
+                                    (newInput.content as Array<ImagePart>).push(
+                                        {
+                                            type: 'image',
+                                            image: filesToUpload[v],
+                                            mimeType: filesToUpload[v].match(/^data:(.*?);base64,/)?.[1] || 'application/octet-stream'
+                                        }
+                                    );
+                                }
+                                
+                            }
+
+                            console.log('NI', newInput)
+                            return JSON.stringify(newInput);
+                        }
+
+                        return currentNode.input;
+                    });
                     const compiledAgents:Record<string, any> = {}
                     const stackTrace:FlowStackTraceElement[] = []
 
@@ -102,7 +151,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                         
                         for (const ts of a.tools) {
-                            toolReg['tool-' + (new Date().getTime())] = {
+                            toolReg['tool-' + (nanoid())] = {
                                 description: '',
                                 tool: ts.name,
                                 options: ts.options
@@ -112,12 +161,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         let currentTraceElement = { flow: compiledFlow, result: null } as FlowStackTraceElement;
 
                         const customTools = await prepareAgentTools(toolReg, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, recordLocator, sessionId) as ToolSet;
-                        compiledAgents[a.name] = agent({ // add stats support here
+                        compiledAgents[a.name] = messagesSupportingAgent({ // add stats support here
 
                             onStepFinish: async (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
                                 const { usage, response } = result;
-
-                                console.log('MES', response.messages.map(m => m.content));
 
                                 let session = null
                                 if (existingSession && existingSession.messages) {
@@ -159,30 +206,30 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             model: openai(a.model, {}),
                             name: a.name,
                             system: a.system,
+                            messages: [],
                                                         
                             tools: { 
                                 ...customTools,
-                                updateResultTool: createUpdateResultTool('', null).tool,
+                                updateResultTool: createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool,
                             }
                         })
                     };
-
                     // TODO: add support for execRequest.execMode == 'async' - storing trace and returning trace id 
                     const response = await execute(
                         compiledFlow, {
-                            agents: compiledAgents,
+                        agents: compiledAgents,
                         onFlowStart: (flow) => {
-                                stackTrace.push({ flow, result: null, messages: [], startedAt: new Date() });
-                            },
-                            onFlowFinish: (flow, result) => {
-                                
-                                //console.log('Flow finished', flow.agent, flow.name, result);
-                            },
-                        }
+                            stackTrace.push({ flow, result: null, messages: [], startedAt: new Date() });
+                        },
+                        onFlowFinish: (flow, result) => {
+
+                            //console.log('Flow finished', flow.agent, flow.name, result);
+                        },
+                    }
                     )
 
-                    console.log(stackTrace);
-                    console.log(response);
+                    //console.log(stackTrace);
+                    //console.log(response);
 
                     return response;
                 };
@@ -193,6 +240,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         }
     } catch (error) {
+        console.error(error)
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
     }
 }

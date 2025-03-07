@@ -78,7 +78,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
         onChange({ ...step, agent: e.target.value })
       }
       const handleInputChange = (e: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        onChange({ ...step, input: e.target.value })
+        onChange({ ...step, agent: step.agent, input: e.target.value })
       }
 
       return (
@@ -184,7 +184,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : '', input: '' })}>
                 {t('+ step')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
@@ -197,7 +197,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                 onSelect={() =>
                   addStep({
                     type: 'oneOf',
-                    branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
+                    branches: [{ when: 'condition', flow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' } }],
                   })
                 }
               >
@@ -208,7 +208,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                   addStep({
                     type: 'forEach',
                     item: 'SomeZodSchemaOrString',
-                    inputFlow: { type: 'step', agent: '', input: '' },
+                    inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                   })
                 }
               >
@@ -219,7 +219,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                   addStep({
                     type: 'evaluator',
                     criteria: '',
-                    subFlow: { type: 'step', agent: '', input: '' },
+                    subFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                   })
                 }
               >
@@ -231,8 +231,8 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                     type: 'bestOfAll',
                     criteria: '',
                     steps: [
-                      { type: 'step', agent: '', input: '' },
-                      { type: 'step', agent: '', input: '' },
+                      { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
+                      { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                     ],
                   })
                 }
@@ -301,7 +301,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' })}>
                 {t('+ step')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
@@ -314,7 +314,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                 onSelect={() =>
                   addStep({
                     type: 'oneOf',
-                    branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
+                    branches: [{ when: 'condition', flow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' } }],
                   })
                 }
               >
@@ -325,7 +325,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                   addStep({
                     type: 'forEach',
                     item: 'SomeZodSchemaOrString',
-                    inputFlow: { type: 'step', agent: '', input: '' },
+                    inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                   })
                 }
               >
@@ -336,7 +336,7 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                   addStep({
                     type: 'evaluator',
                     criteria: '',
-                    subFlow: { type: 'step', agent: '', input: '' },
+                    subFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                   })
                 }
               >
@@ -348,8 +348,8 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                     type: 'bestOfAll',
                     criteria: '',
                     steps: [
-                      { type: 'step', agent: '', input: '' },
-                      { type: 'step', agent: '', input: '' },
+                      { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
+                      { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                     ],
                   })
                 }
@@ -374,7 +374,7 @@ case 'oneOf': {
     let newFlow: EditorStep
     switch (flowType) {
       case 'step':
-        newFlow = { type: 'step', agent: '', input: '' }
+        newFlow = { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' }
         break
       case 'sequence':
         newFlow = { type: 'sequence', steps: [] }
@@ -388,7 +388,7 @@ case 'oneOf': {
           branches: [
             {
               when: 'condition',
-              flow: { type: 'step', agent: '', input: '' },
+              flow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
             },
           ],
         }
@@ -397,14 +397,14 @@ case 'oneOf': {
         newFlow = {
           type: 'forEach',
           item: 'SomeZodSchemaOrString',
-          inputFlow: { type: 'step', agent: '', input: '' },
+          inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
         }
         break
       case 'evaluator':
         newFlow = {
           type: 'evaluator',
           criteria: '',
-          subFlow: { type: 'step', agent: '', input: '' },
+          subFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
         }
         break
       case 'bestOfAll':
@@ -412,14 +412,14 @@ case 'oneOf': {
           type: 'bestOfAll',
           criteria: '',
           steps: [
-            { type: 'step', agent: '', input: '' },
-            { type: 'step', agent: '', input: '' },
+            { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
+            { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
           ],
         }
         break
       default:
         // na wszelki wypadek
-        newFlow = { type: 'step', agent: '', input: '' }
+        newFlow = { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' }
         break
     }
 
@@ -474,17 +474,29 @@ case 'oneOf': {
                 <TrashIcon />
               </Button>
             </div>
-            <Input
-              value={br.when}
+
+            <Mention
+              autoResize
+              rows={5} 
+              field="name"
+              inputClassName="w-full p-2 border border-input bg-background rounded-md"
+              panelClassName="rounded-md border border-input bg-background"
+              itemTemplate={itemTemplate}
+              className="text-sm w-full p-2 flex"
+              suggestions={suggestions}
+              onSearch={onSearch}
+              trigger={['@', '#']}
+              value={br.when} 
               onChange={(e) => handleChangeBranchCondition(idx, e.target.value)}
-            />
+              placeholder={t("AI instruction for evaluating criteria, you may use @variableName to input the specific variables into context")}
+            />            
 
             <FlowStepEditor
               inputs={inputs}
               step={br.flow}
               onChange={(nf) => handleChangeBranchFlow(idx, nf)}
               onDelete={() =>
-                handleChangeBranchFlow(idx, { type: 'step', agent: '', input: '' })
+                handleChangeBranchFlow(idx, { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' })
               }
               availableAgentNames={availableAgentNames}
             />
@@ -548,7 +560,7 @@ case 'oneOf': {
               step={inputFlow}
               onChange={handleFlowChange}
               onDelete={() =>
-                onChange({ ...step, inputFlow: { type: 'step', agent: '', input: '' } })
+                onChange({ ...step, inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' } })
               }
               availableAgentNames={availableAgentNames}
             />
@@ -585,7 +597,22 @@ case 'oneOf': {
 
           <div className="flex items-center gap-2">
             <Label className="w-32">{t('Criteria')}:</Label>
-            <Input value={criteria} onChange={handleCriteriaChange} />
+            <Mention
+              autoResize
+              rows={5} 
+              field="name"
+              inputClassName="w-full p-2 border border-input bg-background rounded-md"
+              panelClassName="rounded-md border border-input bg-background"
+              itemTemplate={itemTemplate}
+              className="text-sm w-full p-2 flex"
+              suggestions={suggestions}
+              onSearch={onSearch}
+              trigger={['@', '#']}
+              value={step.criteria} 
+              onChange={handleCriteriaChange}
+              placeholder={t("AI instruction for evaluating criteria, you may use @variableName to input the specific variables into context")}
+            />
+
           </div>
 
           <div className="flex items-center gap-2">
@@ -605,7 +632,7 @@ case 'oneOf': {
               onDelete={() =>
                 onChange({
                   ...step,
-                  subFlow: { type: 'step', agent: '', input: '' },
+                  subFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                 })
               }
               availableAgentNames={availableAgentNames}
@@ -647,7 +674,23 @@ case 'oneOf': {
 
           <div className="flex items-center gap-2">
             <Label className="w-32">{t('Criteria')}:</Label>
-            <Input value={criteria} onChange={handleCriteriaChange} />
+
+            <Mention
+              autoResize
+              rows={5} 
+              field="name"
+              inputClassName="w-full p-2 border border-input bg-background rounded-md"
+              panelClassName="rounded-md border border-input bg-background"
+              itemTemplate={itemTemplate}
+              className="text-sm w-full p-2 flex"
+              suggestions={suggestions}
+              onSearch={onSearch}
+              trigger={['@', '#']}
+              value={step.criteria} 
+              onChange={handleCriteriaChange}
+              placeholder={t("AI instruction for evaluating criteria, you may use @variableName to input the specific variables into context")}
+            />
+
           </div>
 
           <div className="ml-2">
@@ -670,7 +713,7 @@ case 'oneOf': {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: '', input: '' })}>
+              <DropdownMenuItem onSelect={() => addStep({ type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' })}>
                 {t('+ step')}
               </DropdownMenuItem>
               <DropdownMenuItem onSelect={() => addStep({ type: 'sequence', steps: [] })}>
@@ -683,7 +726,7 @@ case 'oneOf': {
                 onSelect={() =>
                   addStep({
                     type: 'oneOf',
-                    branches: [{ when: 'condition', flow: { type: 'step', agent: '', input: '' } }],
+                    branches: [{ when: 'condition', flow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' } }],
                   })
                 }
               >
@@ -694,7 +737,7 @@ case 'oneOf': {
                   addStep({
                     type: 'forEach',
                     item: 'SomeZodSchemaOrString',
-                    inputFlow: { type: 'step', agent: '', input: '' },
+                    inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                   })
                 }
               >
@@ -705,7 +748,7 @@ case 'oneOf': {
                   addStep({
                     type: 'evaluator',
                     criteria: '',
-                    subFlow: { type: 'step', agent: '', input: '' },
+                    subFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                   })
                 }
               >
@@ -717,8 +760,8 @@ case 'oneOf': {
                     type: 'bestOfAll',
                     criteria: '',
                     steps: [
-                      { type: 'step', agent: '', input: '' },
-                      { type: 'step', agent: '', input: '' },
+                      { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
+                      { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
                     ],
                   })
                 }
