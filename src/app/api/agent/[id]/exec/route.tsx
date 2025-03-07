@@ -12,7 +12,7 @@ import { agent, execute } from 'flows-ai'
 import { convertToFlowDefinition, FlowStackTraceElement, messagesSupportingAgent } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
-import { generateText, ToolSet } from "ai";
+import { CoreUserMessage, FilePart, generateText, ToolSet } from "ai";
 import { createUpdateResultTool } from "@/tools/updateResultTool";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -22,6 +22,7 @@ import ServerStatRepository from "@/data/server/server-stat-repository";
 import { setStackTraceJsonPaths } from "@/lib/json-path";
 import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVariableNames, injectVariables, replaceVariablesInString } from "@/flows/inputs";
 import { StorageService } from "@/lib/storage-service";
+import { files } from "jszip";
 
 
 
@@ -115,30 +116,27 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 content: [
                                     {
                                         type: 'text',
-                                        data: replaceVariablesInString(currentNode.input, variablesToInject)
+                                        text: replaceVariablesInString(currentNode.input, variablesToInject)
                                     }
-                                ]
-                            }
+                                ] 
+                            } as CoreUserMessage
                             for(const v of usedVariables) {
                                 if (filesToUpload[v]) {  // this is file
-                                    newInput.content.push(
+                                    (newInput.content as Array<FilePart>).push(
                                         {
                                             type: 'file',
                                             data: filesToUpload[v],
+                                            mimeType: filesToUpload[v].match(/^data:(.*?);base64,/)?.[1] || 'application/octet-stream'
                                         }
                                     );
                                 }
                                 
                             }
-
                             return JSON.stringify(newInput);
                         }
 
                         return currentNode.input;
                     });
-
-                    console.log(compiledFlow);
-
                     const compiledAgents:Record<string, any> = {}
                     const stackTrace:FlowStackTraceElement[] = []
 
@@ -212,9 +210,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             }
                         })
                     };
-
-                    console.log('CAPRA',compiledAgents);
-
                     // TODO: add support for execRequest.execMode == 'async' - storing trace and returning trace id 
                     const response = await execute(
                         compiledFlow, {

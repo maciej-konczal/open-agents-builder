@@ -1,5 +1,5 @@
 import { AgentFlow } from "@/data/client/models"
-import { CoreMessage, generateText } from "ai"
+import { CoreMessage, CoreUserMessage, generateText } from "ai"
 import { Agent, Flow } from "flows-ai"
 import s from 'dedent'
 import { safeJsonParse } from "@/lib/utils"
@@ -308,20 +308,19 @@ export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<t
     console.log(input)
     if (typeof input === 'string') {
       const objInput = safeJsonParse(input, null)
-      console.log('objInput', objInput)
-
       if (objInput && objInput.role) // this is a workaround for the case when the input is a message
       {
-        const messages = [{
-          ...objInput
-        }, {
+        const messages = [objInput, {
           role: 'user',
-          content: `Here is the context: ${JSON.stringify(context)}`
-        }] as CoreMessage[];
+          content: [{
+            type: 'text',
+            text: `Here is the context: ${JSON.stringify(context)}`
+          }]
+        }] as CoreUserMessage[];
 
         delete (rest.prompt);
-        console.log(messages);
-
+        console.log('M', messages);
+        
         const response = await generateText({
           ...rest,
           maxSteps,
