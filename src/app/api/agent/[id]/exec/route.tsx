@@ -84,14 +84,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 const inputSchema = createDynamicZodSchemaForInputs({ availableInputs: masterAgent.inputs ?? []})
 
                 const inputObject = await inputSchema.parse(execRequest.input);
-                console.log('RQ', execRequest, inputObject.test);
-
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
-                    console.log(flow?.flow)
                     const compiledFlow = convertToFlowDefinition(flow?.flow);
-
-                    console.log(compiledFlow);
 
                     const compiledAgents:Record<string, any> = {}
                     const stackTrace:FlowStackTraceElement[] = []
@@ -117,8 +112,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             onStepFinish: async (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
                                 const { usage, response } = result;
-
-                                console.log('MES', response.messages.map(m => m.content));
 
                                 let session = null
                                 if (existingSession && existingSession.messages) {
