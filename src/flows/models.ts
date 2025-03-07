@@ -61,17 +61,17 @@ export type EditorStep =
 // convert.ts
 
 /**
- * Funkcja rekurencyjnie konwertująca wewnętrzny EditorStep 
- * na docelowy JSON w formacie flows-ai.
+ * Function recursively converting internal EditorStep 
+ * to the target JSON format for flows-ai.
  *
- * W flows-ai:
- *  - sequence => { agent: 'sequenceAgent', input: [...docelowe sub-flows...] }
+ * In flows-ai:
+ *  - sequence => { agent: 'sequenceAgent', input: [...target sub-flows...] }
  *  - parallel => { agent: 'parallelAgent', input: [...sub...] }
  *  - oneOf => { agent: 'oneOfAgent', input: [...], conditions: [...] }
  *  - forEach => { agent: 'forEachAgent', item, input }
  *  - evaluator => { agent: 'optimizeAgent', input, criteria, max_iterations? }
  *  - bestOfAll => { agent: 'bestOfAllAgent', input: [...], criteria }
- *  - step => { agent: 'someUserAgent', input: '...' } (jeśli user agent)
+ *  - step => { agent: 'someUserAgent', input: '...' } (if user agent)
  */
 export function convertToFlowDefinition(step: EditorStep): any {
   switch (step.type) {
