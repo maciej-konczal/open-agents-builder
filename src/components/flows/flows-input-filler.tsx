@@ -4,10 +4,9 @@ import React, { useState, ChangeEvent } from 'react'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 import { useTranslation } from 'react-i18next'
 import { FlowInputType, FlowInputVariable } from '@/flows/models'
-import { Textarea } from '@/components/ui/textarea'
 
 interface FlowInputValuesFillerProps {
   variables: FlowInputVariable[]
@@ -23,13 +22,14 @@ export function FlowInputValuesFiller({
   const { t } = useTranslation()
 
   const [values, setValues] = useState<Record<string, any>>(initialValues)
+
   const handleValueChange = (name: string, newValue: any) => {
     if (name) {
-        const updated = { ...values, [name]: newValue }
-        setValues(updated)
-        onChange?.(updated)
+      const updated = { ...values, [name]: newValue }
+      setValues(updated)
+      onChange?.(updated)
     } else {
-        onChange?.(newValue ?? '')
+      onChange?.(newValue ?? '')
     }
   }
 
@@ -39,24 +39,45 @@ export function FlowInputValuesFiller({
     return Number.isNaN(parsed) ? undefined : parsed
   }
 
+  // Helper function to load a file and encode it in base64:
+  const handleFileBase64Change = async (
+    e: ChangeEvent<HTMLInputElement>,
+    variableName: string
+  ) => {
+    const file = e.target.files?.[0]
+    if (!file) {
+      handleValueChange(variableName, '')
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (loadEvent) => {
+      const base64String = loadEvent.target?.result
+      if (typeof base64String === 'string') {
+        handleValueChange(variableName, base64String)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
 
   return (
     <div className="space-y-4 grid cols-2">
-        {variables.length === 0 && (
-          <Card key='request-body' className="p-4 space-y-2 border">
+      {variables.length === 0 && (
+        <Card key='request-body' className="p-4 space-y-2 border">
           <Label className="text-sm font-semibold">
             {t('Flow input')}
           </Label>
-            <p className="text-xs text-gray-600">{t('Flow input')}</p>
-            <Textarea
-              className="border rounded px-3 py-2 text-sm w-full"
-              rows={4}
-              placeholder={t('Input data - can be JSON, or just text')}
-              onChange={(e) => handleValueChange('', e.target.value)}
-            />         
-            </Card>   
-        )}
-      {variables.filter(v=>v.name).map((variable, index) => {
+          <p className="text-xs text-gray-600">{t('Flow input')}</p>
+          <Textarea
+            className="border rounded px-3 py-2 text-sm w-full"
+            rows={4}
+            placeholder={t('Input data - can be JSON, or just text')}
+            onChange={(e) => handleValueChange('', e.target.value)}
+          />
+        </Card>
+      )}
+
+      {variables.filter(v => v.name).map((variable, index) => {
         const currentValue = values[variable.name] ?? ''
         const isRequired = variable.required
         let inputField: JSX.Element
@@ -64,13 +85,20 @@ export function FlowInputValuesFiller({
         switch (variable.type) {
           case 'shortText':
           case 'url':
-          case 'fileBase64':
             inputField = (
               <Input
                 value={currentValue}
                 onChange={(e) => handleValueChange(variable.name, e.target.value)}
                 placeholder={variable.description || variable.name}
-                type={variable.type === 'fileBase64' ? 'file' : 'text'}
+              />
+            )
+            break
+
+          case 'fileBase64':
+            inputField = (
+              <Input
+                type="file"
+                onChange={(e) => handleFileBase64Change(e, variable.name)}
               />
             )
             break
@@ -127,7 +155,6 @@ export function FlowInputValuesFiller({
           </Card>
         )
       })}
-
     </div>
   )
 }
