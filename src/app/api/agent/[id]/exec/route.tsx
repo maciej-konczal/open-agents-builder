@@ -20,7 +20,7 @@ import { validateTokenQuotas } from "@/lib/quotas";
 import { SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
 import { setStackTraceJsonPaths } from "@/lib/json-path";
-import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVariableNames, replaceVariablesInString } from "@/flows/inputs";
+import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVariableNames, injectVariables, replaceVariablesInString } from "@/flows/inputs";
 
 
 export async function POST(request: NextRequest, { params }: { params: { id: string }} ) {
@@ -71,7 +71,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 const masterAgent = Agent.fromDTO(dto);
 
                 if(!masterAgent.published) {
-                    await authorizeRequestContext(request); // force admin authorization
+                    try  {
+                        await authorizeRequestContext(request); // force admin authorization
+                    } catch (e) {
+                        return Response.json({ message: 'Unauthorized', status: 401 }, { status: 401 });
+                    }
                 }
 
                 const execRequestSchema = z.object({
@@ -87,13 +91,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
                     console.log(flow?.flow)
-                    const compiledFlow = convertToFlowDefinition(flow?.flow)
-                    applyInputTransformation(compiledFlow, (currentNode) => {
-                        const usedVars = extractVariableNames(currentNode.input);
-                        console.log(usedVars);
-                        // if used for example file - transform input to messages
-                        return replaceVariablesInString(currentNode.input, inputObject);
-                    })
+                    const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), inputObject)
 
                     console.log(compiledFlow);
 

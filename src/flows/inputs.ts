@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { FlowInputVariable } from "./models";
 
-
 /**
  * Helper function to extract variable names in the format @variable
  * Returns an array of names (without '@').
@@ -12,7 +11,7 @@ export function extractVariableNames(str: string): string[] {
   let match: RegExpExecArray | null;
 
   while ((match = regex.exec(str)) !== null) {
-    // match[1] is the text after @, e.g., 'variableName' when matching '@variableName'
+    // match[1] is the text after @, e.g., 'variableName' from '@variableName'
     result.push(match[1]);
   }
   return result;
@@ -20,69 +19,83 @@ export function extractVariableNames(str: string): string[] {
 
 /**
  * Replaces all occurrences of @name in the given string
- * with the values from the replacements[name] object.
+ * using the values from variables[name].
  */
-export function replaceVariablesInString(str: string, replacements: Record<string, string>): string {
+export function replaceVariablesInString(str: string, variables: Record<string, string>): string {
   let newStr = str;
-  for (const [varName, value] of Object.entries(replacements)) {
-    // Create a regular expression to find all occurrences of @varName (globally 'g').
+  for (const [varName, value] of Object.entries(variables)) {
+    // Create a RegExp to find all occurrences of @varName (globally 'g').
     const pattern = new RegExp(`@${varName}`, 'g');
     newStr = newStr.replace(pattern, value);
   }
   return newStr;
 }
 
-
 /**
- * Recursively processes FlowDefinition, calling the transformInputFn function on each node,
- * which returns a new value for `flowDef.input`.
+ * Recursively injects variable values into all text fields (input, conditions, criteria, etc.)
+ * within the given flowDef structure.
  *
- * @param flowDef - object returned by convertToFlowDefinition
- * @param transformInputFn - function transforming the `input` field in each node.
- *    It receives the current node (flowDef) as a parameter; it should return a new value for flowDef.input.
+ * @param flowDef    The flow definition object (from convertToFlowDefinition or similar)
+ * @param variables  A record of variableName->replacementValue
+ * @returns          The same flowDef, with replaced string values
  */
-export function applyInputTransformation(
-  flowDef: any,
-  transformInputFn: (currentNode: any) => any
-): void {
-  // 1) First, update the "input" based on the external function
-  flowDef.input = transformInputFn(flowDef);
+export function injectVariables(flowDef: any, variables: Record<string, string>): any {
+  // 1) If the current node has a string input, replace the variables
+  if (typeof flowDef.input === 'string') {
+    flowDef.input = replaceVariablesInString(flowDef.input, variables);
+  }
 
-  // 2) Recursion depending on the type of agent
+  // 2) If there's a conditions array (e.g. oneOfAgent), replace variables in each condition (if string)
+  if (Array.isArray(flowDef.conditions)) {
+    flowDef.conditions = flowDef.conditions.map((condition: any) => {
+      return typeof condition === 'string'
+        ? replaceVariablesInString(condition, variables)
+        : condition;
+    });
+  }
+
+  // 3) If there's a criteria field (e.g. bestOfAllAgent, optimizeAgent) and it's a string, replace vars
+  if (typeof flowDef.criteria === 'string') {
+    flowDef.criteria = replaceVariablesInString(flowDef.criteria, variables);
+  }
+
+  // 4) Recurse into child flows depending on the agent type
   switch (flowDef.agent) {
     case 'sequenceAgent':
     case 'parallelAgent':
     case 'bestOfAllAgent': {
-      // In these agents, the "input" field is an array of FlowDefinition
+      // input is an array of subflow definitions
       if (Array.isArray(flowDef.input)) {
-        flowDef.input.forEach((child: any) => applyInputTransformation(child, transformInputFn));
+        flowDef.input.forEach((child: any) => injectVariables(child, variables));
       }
       break;
     }
 
     case 'oneOfAgent': {
-      // In "oneOfAgent" the "input" is also an array of FlowDefinition
+      // input is an array of subflow definitions
       if (Array.isArray(flowDef.input)) {
-        flowDef.input.forEach((child: any) => applyInputTransformation(child, transformInputFn));
+        flowDef.input.forEach((child: any) => injectVariables(child, variables));
       }
       break;
     }
 
     case 'forEachAgent':
     case 'optimizeAgent': {
-      // "input" is a single FlowDefinition
+      // input is a single subflow
       if (flowDef.input && typeof flowDef.input === 'object') {
-        applyInputTransformation(flowDef.input, transformInputFn);
+        injectVariables(flowDef.input, variables);
       }
       break;
     }
 
     default: {
-      // "step" (e.g., agent is 'translationAgent') or other custom agents,
-      // does not contain nested structures, so no recursion is needed.
+      // e.g. "step" or other agent with no nested flows
       break;
     }
   }
+
+  // Return the updated flowDef (mutated in place)
+  return flowDef;
 }
 
 export function createDynamicZodSchemaForInputs({
