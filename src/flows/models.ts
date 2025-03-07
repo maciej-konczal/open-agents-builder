@@ -6,8 +6,8 @@ import { safeJsonParse } from "@/lib/utils"
 
 // Agent structure
 export interface ToolSetting {
-    name: string // e.g. "calendarList"
-    options: any // object with parameters for the given tool
+  name: string // e.g. "calendarList"
+  options: any // object with parameters for the given tool
 }
 
 export interface AgentDefinition {
@@ -21,43 +21,43 @@ export interface AgentDefinition {
 
 export type EditorStep =
   | {
-      type: 'step'
-      agent: string
-      input: string
-    }
+    type: 'step'
+    agent: string
+    input: string
+  }
   | {
-      type: 'sequence'
-      steps: EditorStep[]
-    }
+    type: 'sequence'
+    steps: EditorStep[]
+  }
   | {
-      type: 'parallel'
-      steps: EditorStep[]
-    }
+    type: 'parallel'
+    steps: EditorStep[]
+  }
   | {
-      type: 'oneOf'
-      // tablica warunków i sub-flow
-      // "branches" to [ {when: string, flow: EditorStep}, ... ]
-      branches: {
-        when: string
-        flow: EditorStep
-      }[]
-    }
+    type: 'oneOf'
+    // tablica warunków i sub-flow
+    // "branches" to [ {when: string, flow: EditorStep}, ... ]
+    branches: {
+      when: string
+      flow: EditorStep
+    }[]
+  }
   | {
-      type: 'forEach'
-      item: string
-      inputFlow: EditorStep
-    }
+    type: 'forEach'
+    item: string
+    inputFlow: EditorStep
+  }
   | {
-      type: 'evaluator'
-      criteria: string
-      max_iterations?: number
-      subFlow: EditorStep
-    }
+    type: 'evaluator'
+    criteria: string
+    max_iterations?: number
+    subFlow: EditorStep
+  }
   | {
-      type: 'bestOfAll'
-      criteria: string
-      steps: EditorStep[]
-    };
+    type: 'bestOfAll'
+    criteria: string
+    steps: EditorStep[]
+  };
 
 
 // convert.ts
@@ -177,15 +177,15 @@ export function convertToFlowDefinition(step: EditorStep): any {
 
 
 export type FlowInputType =
-| 'shortText'
-| 'url'
-| 'longText'
-| 'number'
-| 'json'
-| 'fileBase64'
+  | 'shortText'
+  | 'url'
+  | 'longText'
+  | 'number'
+  | 'json'
+  | 'fileBase64'
 
 
-export const INPUT_TYPES: { type: FlowInputType, label: string}[] = [
+export const INPUT_TYPES: { type: FlowInputType, label: string }[] = [
   { type: 'shortText', label: 'Short text' },
   { type: 'url', label: 'URL' },
   { type: 'longText', label: 'Long text' },
@@ -210,10 +210,10 @@ export type FlowStackTraceElement = {
   finishedAt?: Date;
 }
 
-export const agentsValidators = ({t, setError}) => {
+export const agentsValidators = ({ t, setError }) => {
   return {
     validate: {
-      inputs: (v)  => {
+      inputs: (v) => {
         let index = 0;
         const agents = (v as AgentDefinition[]);
         for (const agt of agents) {
@@ -229,13 +229,13 @@ export const agentsValidators = ({t, setError}) => {
             })
             return false;
           }
-          if (agents.filter(vv => vv.name == agt.name).length >1) {
+          if (agents.filter(vv => vv.name == agt.name).length > 1) {
             setError('agents', {
               message: t('The agent names must be unique')
             })
             return false;
-          }          
-          index ++;
+          }
+          index++;
         }
         return true;
       }
@@ -244,10 +244,10 @@ export const agentsValidators = ({t, setError}) => {
 }
 
 
-export const flowsValidators = ({t, setError}) => {
+export const flowsValidators = ({ t, setError }) => {
   return {
     validate: {
-      inputs: (v)  => {
+      inputs: (v) => {
         let index = 0;
         for (const flow of (v as AgentFlow[])) {
           if (!flow.code) {
@@ -261,8 +261,8 @@ export const flowsValidators = ({t, setError}) => {
               message: t('Please set the Names of all flows')
             })
             return false;
-          } 
-          index ++;
+          }
+          index++;
         }
         return true;
       }
@@ -271,76 +271,76 @@ export const flowsValidators = ({t, setError}) => {
 }
 
 
-export const inputValidators = ({t, setError}) => {
-    return {
-      validate: {
-        inputs: (v)  => {
-          let index = 0;
-          const variables = (v as FlowInputVariable[])
-          for (const input of variables) {
-            if (!input.name) {
-              setError('inputs', {
-                message: t('Please set the Symbols of all variables')
-              })
-              return false;
-            }
-            if (variables.filter(vv => vv.name == input.name).length >1) {
-              setError('inputs', {
-                message: t('The input names must be unique')
-              })
-              return false;
-            }
-            index ++;
+export const inputValidators = ({ t, setError }) => {
+  return {
+    validate: {
+      inputs: (v) => {
+        let index = 0;
+        const variables = (v as FlowInputVariable[])
+        for (const input of variables) {
+          if (!input.name) {
+            setError('inputs', {
+              message: t('Please set the Symbols of all variables')
+            })
+            return false;
           }
-          return true;
+          if (variables.filter(vv => vv.name == input.name).length > 1) {
+            setError('inputs', {
+              message: t('The input names must be unique')
+            })
+            return false;
+          }
+          index++;
         }
+        return true;
       }
     }
   }
+}
 
 
-  /**
-   * Helper function to create a user-defined agent that can then be referneced in a flow.
-   * Like `generateText` in Vercel AI SDK, but we're taking care of `prompt`.
-   */
-  export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<typeof generateText>[0]): Agent {
-      return async ({ input }, context) => {
-        console.log(input)
-          if (typeof input === 'string') {
-          const objInput = safeJsonParse(input, null)
-          console.log('objInput', objInput)
+/**
+ * Helper function to create a user-defined agent that can then be referneced in a flow.
+ * Like `generateText` in Vercel AI SDK, but we're taking care of `prompt`.
+ */
+export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<typeof generateText>[0]): Agent {
+  return async ({ input }, context) => {
+    console.log(input)
+    if (typeof input === 'string') {
+      const objInput = safeJsonParse(input, null)
+      console.log('objInput', objInput)
 
-          if (objInput && objInput.role) // this is a workaround for the case when the input is a message
-          {
-            const messages = [{
-              ...objInput
-            }, {
-              role: 'user',
-              content: `Here is the context: ${JSON.stringify(context)}`
-            }] as CoreMessage[];
+      if (objInput && objInput.role) // this is a workaround for the case when the input is a message
+      {
+        const messages = [{
+          ...objInput
+        }, {
+          role: 'user',
+          content: `Here is the context: ${JSON.stringify(context)}`
+        }] as CoreMessage[];
 
-            delete(rest.prompt);
-            console.log(messages);
+        delete (rest.prompt);
+        console.log(messages);
 
-            const response = await generateText({
-              ...rest,
-              maxSteps,
-              messages
-            })
-            return response.text          
-        } 
-      }
-          
-      // default flow
-      const response = await generateText({
+        const response = await generateText({
           ...rest,
           maxSteps,
-          prompt: s`
+          messages
+        })
+        return response.text
+      }
+    }
+
+    // default flow
+    const response = await generateText({
+      ...rest,
+      maxSteps,
+      prompt: s`
             Here is the context: ${JSON.stringify(context)}
             Here is the instruction: ${JSON.stringify(input)}
           `,
-        })
-        return response.text
-        
-      }
-    }
+    })
+    return response.text
+
+  }
+}
