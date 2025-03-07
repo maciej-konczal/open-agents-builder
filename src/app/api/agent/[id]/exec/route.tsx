@@ -88,7 +88,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const { agents, flows, inputs } = masterAgent;           
                 const execFLow = async (flow: AgentFlow) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
-                    const compiledFlow = applyInputTransformation(setStackTraceJsonPaths(convertToFlowDefinition(flow?.flow)), (currentNode) => {
+                    console.log(flow?.flow)
+                    const compiledFlow = applyInputTransformation(convertToFlowDefinition(flow?.flow), (currentNode) => {
 
                         const usedVars = extractVariableNames(currentNode.input);
                         console.log(usedVars);

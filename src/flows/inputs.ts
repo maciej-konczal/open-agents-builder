@@ -114,8 +114,8 @@ export function createDynamicZodSchemaForInputs({
         break;
       case "fileBase64":
         zodType = z.string().regex(
-          /^[A-Za-z0-9+/]+={0,2}$/,
-          "Niepoprawny format Base64"
+          /^data:[a-zA-Z0-9]+\/[a-zA-Z0-9.-]+;base64,[A-Za-z0-9+/]+={0,2}$/,
+          "Wrong base64 format"
         );
         break;
       default:

@@ -24,6 +24,8 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
 
     const [sessionId, setSessionId] = useState<string>(nanoid());
+    const [timeElapsed, setTimeElapsed] = useState<number>(0);
+    let timeCounter = null;
     const [isInitializing, setIsInitializing] = useState<boolean>(true);
     const [flowResult, setFlowResult] = useState<any | null>(null);
     const dbContext = useContext(DatabaseContext);
@@ -84,7 +86,11 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                 }} />
                             </div>
                             <div className="flex">
-                            {executionInProgress ? <DataLoaderIcon /> : null}
+                                {executionInProgress ? 
+                                    <div>
+                                        <DataLoaderIcon />
+                                        <span className="text-xs text-gray-500 text-sm">{t('Executing flow (' + timeElapsed + ')... ')}</span>
+                                    </div>: null}
                                 <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
 
                                 const flow = flows.find(f => f.code === agentFlow?.code);
@@ -94,6 +100,9 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                         setExecutionInProgress(true);
                                         try {
                                             const apiClient = new AgentApiClient('', dbContext, saasContext);
+                                            timeCounter = setInterval(() => {
+                                                setTimeElapsed(timeElapsed + 1);
+                                            }, 1000);
                                             const response = await apiClient.exec(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
 
                                             setFlowResult(response);
