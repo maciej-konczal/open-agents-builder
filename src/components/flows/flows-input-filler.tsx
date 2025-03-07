@@ -98,6 +98,7 @@ export function FlowInputValuesFiller({
             inputField = (
               <Input
                 type="file"
+                accept="image/png, image/jpeg, image/webp"
                 onChange={(e) => handleFileBase64Change(e, variable.name)}
               />
             )

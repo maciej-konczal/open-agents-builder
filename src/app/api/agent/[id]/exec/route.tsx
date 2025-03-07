@@ -105,7 +105,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             filesToUpload[i.name] = inputObject[i.name] as string
                         }
                     }
-
                     const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
                     applyInputTransformation(compiledFlow, (currentNode) => {
 
@@ -120,7 +119,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     }
                                 ] 
                             } as CoreUserMessage
-                            for(const v of usedVariables) {
+
+    
+                            
+                            for(const v of (usedVariables && usedVariables.length > 0 ? usedVariables : (masterAgent?.inputs?.map(i => i.name) ?? []))) {
                                 if (filesToUpload[v]) {  // this is file
                                     (newInput.content as Array<ImagePart>).push(
                                         {
@@ -132,6 +134,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 }
                                 
                             }
+
+                            console.log('NI', newInput)
                             return JSON.stringify(newInput);
                         }
 
@@ -147,7 +151,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                         
                         for (const ts of a.tools) {
-                            toolReg['tool-' + (new Date().getTime())] = {
+                            toolReg['tool-' + (nanoid())] = {
                                 description: '',
                                 tool: ts.name,
                                 options: ts.options
@@ -209,6 +213,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 updateResultTool: createUpdateResultTool('', null).tool,
                             }
                         })
+                        console.log(customTools);
+
                     };
                     // TODO: add support for execRequest.execMode == 'async' - storing trace and returning trace id 
                     const response = await execute(
@@ -236,7 +242,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         }
     } catch (error) {
-        console.log(error.requestBodyValues.messages)
         console.error(error)
         return Response.json({ message: getErrorMessage(error), status: 499 }, {status: 499});
     }

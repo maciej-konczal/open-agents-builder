@@ -318,9 +318,7 @@ export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<t
           }]
         }] as CoreUserMessage[];
 
-        delete (rest.prompt);
-        console.log('M', messages);
-        
+        delete (rest.prompt);        
         const response = await generateText({
           ...rest,
           maxSteps,
