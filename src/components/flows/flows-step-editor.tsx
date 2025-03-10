@@ -207,8 +207,8 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                 onSelect={() =>
                   addStep({
                     type: 'forEach',
-                    item: 'SomeZodSchemaOrString',
-                    inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
+                    item: t('Zod schema, or string describing the input structure'),
+                    inputFlow: { type: 'sequence', steps: [] },
                   })
                 }
               >
@@ -324,8 +324,8 @@ const itemTemplate = (suggestion: FlowInputVariable) => {
                 onSelect={() =>
                   addStep({
                     type: 'forEach',
-                    item: 'SomeZodSchemaOrString',
-                    inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
+                    item: t('Zod schema, or string describing the input structure'),
+                    inputFlow: { type: 'sequence', steps: []},
                   })
                 }
               >
@@ -396,8 +396,8 @@ case 'oneOf': {
       case 'forEach':
         newFlow = {
           type: 'forEach',
-          item: 'SomeZodSchemaOrString',
-          inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
+          item: t('Zod schema, or string describing the input structure'),
+          inputFlow: { type: 'sequence', steps: []},
         }
         break
       case 'evaluator':
@@ -532,7 +532,7 @@ case 'oneOf': {
     case 'forEach': {
       const { item, inputFlow } = step
 
-      const handleItemChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const handleItemChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         onChange({ ...step, item: e.target.value })
       }
 
@@ -551,7 +551,7 @@ case 'oneOf': {
 
           <div className="flex items-center gap-2">
             <Label className="w-20">{t('schema')}</Label>
-            <Input value={item} onChange={handleItemChange} />
+            <Textarea value={item} onChange={handleItemChange} />
           </div>
 
           <div className="ml-2">
@@ -736,8 +736,8 @@ case 'oneOf': {
                 onSelect={() =>
                   addStep({
                     type: 'forEach',
-                    item: 'SomeZodSchemaOrString',
-                    inputFlow: { type: 'step', agent: (availableAgentNames && availableAgentNames.length > 0 ? availableAgentNames[0] : ''), input: '' },
+                    item: t('Zod schema, or string describing the input structure'),
+                    inputFlow: { type: 'sequence', steps: []},
                   })
                 }
               >

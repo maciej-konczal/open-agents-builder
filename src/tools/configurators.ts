@@ -6,6 +6,7 @@ import { CalendarScheduleConfigurator } from './calendarScheduleTool-configurato
 import { DayNameConfigurator } from './dayNameTool-configurator';
 import { CreateOrderToolConfigurator } from './createOrderTool-configurator';
 import { ListProductsConfigurator } from './listProductsTool-configurator';
+import { HttpConfigurator } from './httpTool-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -40,5 +41,9 @@ export const toolConfigurators: Record<string, ToolConfiguratorDescriptor> = {
   listProducts: {
     displayName: 'List products',
     configurator: ListProductsConfigurator
+  },
+  httpTool: {
+    displayName: 'HTTP Requests',
+    configurator: HttpConfigurator
   }
 }
