@@ -36,6 +36,49 @@ function toErrorWithMessage(maybeError: unknown): ErrorWithMessage {
 	}
 }
 
+import axios, { AxiosError } from 'axios';
+
+/**
+ * Formats an Axios error into a readable error message.
+ * @param error - The error object thrown by an Axios request.
+ * @returns A formatted error message string.
+ */
+export function formatAxiosError(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status || 'Unknown Status';
+    const data = error.response?.data;
+
+    let errorMessage = `HTTP Error ${status}`;
+
+    if (data) {
+      if (typeof data === 'string') {
+        errorMessage += `: ${data}`;
+      } else if (typeof data === 'object') {
+        errorMessage += `: ${JSON.stringify(data, null, 2)}`;
+      }
+    } else {
+      errorMessage += `: ${error.message}`;
+    }
+
+    return errorMessage;
+  }
+
+  return `Unexpected error: ${error instanceof Error ? error.message : String(error)}`;
+}
+
+/**
+ * Wrapper function to handle Axios errors gracefully.
+ * @param callback - The async function to execute.
+ */
+async function safeRequest<T>(callback: () => Promise<T>): Promise<T> {
+  try {
+    return await callback();
+  } catch (error) {
+    throw new Error(formatAxiosError(error));
+  }
+}
+
+
 export function getErrorMessage(error: unknown) {
 	return toErrorWithMessage(error).message
 }

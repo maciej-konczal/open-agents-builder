@@ -87,6 +87,7 @@ export function FlowInputValuesFiller({
           case 'url':
             inputField = (
               <Input
+                className="text-sm"
                 value={currentValue}
                 onChange={(e) => handleValueChange(variable.name, e.target.value)}
                 placeholder={variable.description || variable.name}
@@ -98,7 +99,8 @@ export function FlowInputValuesFiller({
             inputField = (
               <Input
                 type="file"
-                accept="image/png, image/jpeg, image/webp"
+                className="text-sm"
+                accept="text/*, image/png, image/jpeg, image/webp"
                 onChange={(e) => handleFileBase64Change(e, variable.name)}
               />
             )
@@ -121,6 +123,7 @@ export function FlowInputValuesFiller({
             inputField = (
               <Input
                 type="number"
+                className="text-sm"
                 value={currentValue}
                 placeholder={variable.description || variable.name}
                 onChange={(e) =>
@@ -134,6 +137,7 @@ export function FlowInputValuesFiller({
             inputField = (
               <Textarea
                 rows={4}
+                className="text-sm"
                 value={currentValue}
                 onChange={(e) => handleValueChange(variable.name, e.target.value)}
               />

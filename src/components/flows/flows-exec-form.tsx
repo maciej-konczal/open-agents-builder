@@ -10,7 +10,7 @@ import { SaaSContext } from '@/contexts/saas-context';
 import JsonView from "@uiw/react-json-view";
 import { ChatMessageMarkdown } from "../chat-message-markdown";
 import { PlayIcon } from "lucide-react";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 import DataLoader from "../data-loader";
 import { Card, CardContent } from "../ui/card";
 import { DataLoaderIcon } from "../data-loader-icon";
@@ -19,6 +19,9 @@ import { nanoid } from "nanoid";
 import { useExecContext } from "@/contexts/exec-context";
 import moment from "moment";
 import { FlowInputValuesFiller } from "./flows-input-filler";
+import { Axios, AxiosError } from "axios";
+import { Chunk, DebugLog } from "./flows-debug-log";
+import { set } from "date-fns";
 
 export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
@@ -38,6 +41,9 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     
     const [executionInProgress, setExecutionInProgress] = useState<boolean>(false);
     const [currentFlow, setCurrentFlow] = useState<AgentFlow | undefined>(agentFlow);
+
+
+    const [stackTraceChunks, setStackTraceChunks] = useState<Chunk[]>([]);
 
 
     const getSessionHeaders = () => {
@@ -91,23 +97,57 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                 : null}
                                 <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
                                 const flow = flows.find(f => f.code === agentFlow?.code);
+                                
+
+                                const requiredFields = agent?.inputs?.filter(input => input.required).map(input => input.name) ?? [];
+                                if (requestParams && typeof requestParams === 'object') {
+                                    const missingFields = requiredFields.filter(field => !requestParams[field]);
+
+                                    if (missingFields.length > 0) {
+                                        toast.error(t('Please fill in all required fields: ') + missingFields.join(', '));
+                                        setFlowResult(t('Please fill in all required fields: ') + missingFields.join(', '));
+                                        return;
+                                    }
+                                }
+
+                                if (!requestParams && requiredFields.length > 0) {
+                                    toast.error(t('Please fill in all required fields: ') + requiredFields.join(', '));
+                                    setFlowResult(t('Please fill in all required fields: ') + requiredFields.join(', '));
+                                    return;
+                                }
 
                                 if (flow) {
                                     const exec = async () => {
                                         setTimeElapsed(0);
+                                        setStackTraceChunks([]);
                                         setExecutionInProgress(true);
                                         try {
                                             const apiClient = new AgentApiClient('', dbContext, saasContext);
+                                            //setFlowResult(response);
+                                            setCurrentTabs(['result', 'trace']);
+
                                             timeCounter = setInterval(() => {
                                                 setTimeElapsed(prv => prv + 1);
                                             }, 1000);
-                                            const response = await apiClient.exec(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
+                                            try {
+                                                const stream =await apiClient.execStream(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
+
+                                                for await (const chunk of stream) {
+                                                    console.log("Received chunk:", chunk);
+                                                    setStackTraceChunks(prv => [...prv, chunk]);
+
+                                                    if (chunk['type'] === 'finalResult') {
+                                                        setFlowResult(chunk['result']);
+                                                    }
+                                                }
+                                            } catch (e) {
+                                                const respData = (e as AxiosError).response?.data ?? t('An error occurred');
+                                                setFlowResult(safeJsonParse(respData as string, respData));
+                                            }
+
                                             clearInterval(timeCounter);
 
-                                            setFlowResult(response);
-                                            setCurrentTabs(['result'])
 
-                                            console.log(response);
                                         } catch (e) {
                                             toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
                                             console.error(e);
@@ -137,19 +177,21 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                 )
             }
 
-        {flowResult ? (
+        {flowResult || stackTraceChunks && stackTraceChunks.length > 0 ? (
             <Accordion type="multiple" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}  className="w-full mt-4">
-                <AccordionItem value={"result"}>
-                    <AccordionTrigger>{t('Result')}</AccordionTrigger>
-                    <AccordionContent>
-                        {(typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
-                            <JsonView value={flowResult} />}
-                    </AccordionContent>
-                </AccordionItem>
+                {flowResult && (
+                    <AccordionItem value={"result"}>
+                        <AccordionTrigger>{t('Result')}</AccordionTrigger>
+                        <AccordionContent>
+                            {(typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
+                                <JsonView value={flowResult} />}
+                        </AccordionContent>
+                    </AccordionItem>
+                )}
                 <AccordionItem value={"trace"}>
                     <AccordionTrigger>{t('Trace')}</AccordionTrigger>
                     <AccordionContent>
-                        <JsonView value={flowResult.trace} />
+                        <DebugLog chunks={stackTraceChunks} />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

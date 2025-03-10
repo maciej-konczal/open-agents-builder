@@ -201,15 +201,6 @@ export interface FlowInputVariable {
   type: FlowInputType
 }
 
-
-export type FlowStackTraceElement = {
-  flow: Flow,
-  result?: any;
-  messages: CoreMessage[];
-  startedAt: Date;
-  finishedAt?: Date;
-}
-
 export const agentsValidators = ({ t, setError }) => {
   return {
     validate: {
@@ -340,4 +331,22 @@ export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<t
     return response.text
 
   }
+}
+
+
+
+export interface Chunk {
+  type: string
+  name?: string
+  startedAt?: string
+  finishedAt?: string
+  input?: any
+  messages?: Array<{
+    role: string
+    content: Array<{ type: string; text: string }>
+    id?: string
+  }>
+  result?: string | string[]
+  message?: string;
+  response?: string
 }
