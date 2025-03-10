@@ -1,35 +1,56 @@
-export function setStackTraceJsonPaths(obj: any, path: string = '$'): any {
-    if (typeof obj !== 'object' || obj === null || Array.isArray(obj)) {
-        return obj; // Skip non-object values
+/** 
+ * Recursively traverses the given object (and its children via "input" and "item") 
+ * updating each node's "name" property to reflect the path of agents from the root.
+ */
+export function setRecursiveNames(obj: any, path: string[] = []): void {
+    // Skip if not an object
+    if (!obj || typeof obj !== 'object') {
+      return;
     }
-
-    // Set the "name" property with the current path
-    if (!obj['_name']) obj['_name'] = path;
-    obj['name'] = (obj['_name'] ?? '') + path;
-
-    // Recursively process child objects
-    for (const key in obj) {
-        if (obj.hasOwnProperty(key)) {
-            const value = obj[key];
-
-            if (typeof value === 'object' && value !== null) {
-                if (Array.isArray(value)) {
-                    // Handle arrays separately by iterating over elements
-                    value.forEach((item, index) => {
-                        if (typeof item === 'object' && item !== null) {
-                            setStackTraceJsonPaths(item, `${path}[${index}]`); // Use bracket notation for arrays
-                        }
-                    });
-                } else {
-                    setStackTraceJsonPaths(value, `${path}.${key}`); // Use dot notation for objects
-                }
-            }
+  
+    // If this node has an 'agent', extend our path
+    if (typeof obj.agent === 'string') {
+      const newPath = [...path, obj.agent];
+      // Update the node's name to be the full path joined by " > "
+      obj.name = newPath.join(' > ');
+  
+      // Recursively handle "input"
+      if (Array.isArray(obj.input)) {
+        for (const child of obj.input) {
+          setRecursiveNames(child, newPath);
         }
+      } else if (obj.input && typeof obj.input === 'object') {
+        setRecursiveNames(obj.input, newPath);
+      }
+  
+      // Recursively handle "item"
+      if (Array.isArray(obj.item)) {
+        for (const child of obj.item) {
+          setRecursiveNames(child, newPath);
+        }
+      } else if (obj.item && typeof obj.item === 'object') {
+        setRecursiveNames(obj.item, newPath);
+      }
+  
+    } else {
+      // Even if there's no 'agent', we should still go deeper if "input" or "item" exist
+      if (Array.isArray(obj.input)) {
+        for (const child of obj.input) {
+          setRecursiveNames(child, path);
+        }
+      } else if (obj.input && typeof obj.input === 'object') {
+        setRecursiveNames(obj.input, path);
+      }
+  
+      if (Array.isArray(obj.item)) {
+        for (const child of obj.item) {
+          setRecursiveNames(child, path);
+        }
+      } else if (obj.item && typeof obj.item === 'object') {
+        setRecursiveNames(obj.item, path);
+      }
     }
-
-    return obj;
-}
-
+  }
 
 export function getObjectByPath(obj: any, path: string): any {
     if (!path.startsWith('$')) {

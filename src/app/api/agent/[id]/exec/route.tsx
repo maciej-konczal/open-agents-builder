@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Agent, AgentFlow, Session, ToolConfiguration } from "@/data/client/models";
 import { openai } from "@ai-sdk/openai";
 import { agent, execute } from 'flows-ai'
-import { convertToFlowDefinition, FlowStackTraceElement, messagesSupportingAgent } from "@/flows/models";
+import { Chunk, convertToFlowDefinition, messagesSupportingAgent } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
 import { CoreUserMessage, FilePart, generateText, ImagePart, ToolSet } from "ai";
@@ -19,7 +19,7 @@ import { nanoid } from "nanoid";
 import { validateTokenQuotas } from "@/lib/quotas";
 import { resultDTOSchema, SessionDTO, StatDTO } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
-import { setStackTraceJsonPaths } from "@/lib/json-path";
+import { setRecursiveNames } from "@/lib/json-path";
 import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVariableNames, injectVariables, replaceVariablesInString } from "@/flows/inputs";
 import { StorageService } from "@/lib/storage-service";
 import { files } from "jszip";
@@ -100,10 +100,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const execFLow = async (flow: AgentFlow, controller: ReadableStreamDefaultController<any> | null = null) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
 
+                    let level = 0;
                     const variablesToInject: Record<string, string> = {}
                     const filesToUpload: Record<string, string> = {}
                     for (const i of masterAgent?.inputs ?? []) {
-                        if (i.type !== 'fileBase64') {
+                        if (i.type !== 'fileBase64') { // TODO: process PDF files to images or OCR
                             variablesToInject[i.name] = inputObject[i.name] as string // skip the files 
                         } else {
                             filesToUpload[i.name] = inputObject[i.name] as string
@@ -138,15 +139,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 }
 
                             }
-
-                            console.log('NI', newInput)
                             return JSON.stringify(newInput);
                         }
 
                         return currentNode.input;
                     });
                     const compiledAgents: Record<string, any> = {}
-                    const stackTrace: FlowStackTraceElement[] = []
+                    const stackTrace: Chunk[] = []
 
                     // we need to put the inputs into the flow
                     for (const a of agents || []) {
@@ -161,9 +160,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 options: ts.options
                             }
                         }
-
-                        let currentTraceElement = { flow: compiledFlow, result: null } as FlowStackTraceElement;
-
                         const customTools = await prepareAgentTools(toolReg, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, recordLocator, sessionId) as ToolSet;
                         compiledAgents[a.name] = messagesSupportingAgent({ // add stats support here
 
@@ -206,13 +202,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     }
                                 }
 
+                                const chunk =                                         {
+                                    type: 'stepFinish',
+                                    name: a.name + ' (' + a.model + ')',
+                                    messages: result.response.messages
+                                }
+
+                                stackTrace.push(chunk);
+
                                 if (controller && execRequest.outputMode === 'stream') {
                                     controller.enqueue(encoder.encode(JSON.stringify(
-                                        {
-                                            type: 'stepFinish',
-                                            name: a.name + '(' + a.model + ')',
-                                            messages: result.response.messages
-                                        }
+                                        chunk
                                     )))
                                 }
 
@@ -230,21 +230,24 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     };
 
                     // TODO: add support for execRequest.execMode == 'async' - storing trace and returning trace id 
+                    setRecursiveNames(compiledFlow);
                     const response = await execute(
                         compiledFlow, {
                         agents: compiledAgents,
                         onFlowStart: (flow) => {
+                            const chunk =                                     {
+                                type: 'flowStart',
+                                name: flow.name,
+                                input: flow.input,
+                                startedAt: new Date(),
+                            };
                             if (controller && execRequest.outputMode === 'stream') {
                                 controller.enqueue(encoder.encode(JSON.stringify(
-                                    {
-                                        type: 'flowStart',
-                                        name: flow.agent,
-                                        input: flow.input,
-                                        startedAt: new Date(),
-                                    }
+                                    chunk
                                 )))
                             }
-                            stackTrace.push({ flow, result: null, messages: [], startedAt: new Date() });
+
+                            stackTrace.push(chunk);
                         },
                         onFlowFinish: (flow, result) => {
 
@@ -263,16 +266,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     }
                     )
 
-                    //console.log(stackTrace);
-                    //console.log(response);
+                    const chunk = {
+                        type: 'finalResponse',
+                        name: flow.name,
+                        result: response,
+                        finishedAt: new Date(),
+                    }
+                    stackTrace.push(chunk);
                     if (controller && execRequest.outputMode === 'stream') {
                         controller.enqueue(encoder.encode(JSON.stringify(
-                            {
-                                type: 'finalResponse',
-                                name: flow.name,
-                                response,
-                                finishedAt: new Date(),
-                            }
+                            chunk
                         )))
                     }
 

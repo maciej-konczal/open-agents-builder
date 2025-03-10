@@ -135,6 +135,10 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                                 for await (const chunk of stream) {
                                                     console.log("Received chunk:", chunk);
                                                     setStackTraceChunks(prv => [...prv, chunk]);
+
+                                                    if (chunk['type'] === 'finalResult') {
+                                                        setFlowResult(chunk['result']);
+                                                    }
                                                 }
                                             } catch (e) {
                                                 const respData = (e as AxiosError).response?.data ?? t('An error occurred');

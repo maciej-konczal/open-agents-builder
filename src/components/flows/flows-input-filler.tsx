@@ -100,7 +100,7 @@ export function FlowInputValuesFiller({
               <Input
                 type="file"
                 className="text-sm"
-                accept="image/png, image/jpeg, image/webp"
+                accept="text/*, image/png, image/jpeg, image/webp"
                 onChange={(e) => handleFileBase64Change(e, variable.name)}
               />
             )

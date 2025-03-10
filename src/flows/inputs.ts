@@ -45,6 +45,7 @@ export function applyInputTransformation(
 ): void {
   // 1) First, update "input" based on the external function
   flowDef.input = transformInputFn(flowDef);
+  if(!flowDef.name) flowDef.name = flowDef.agent;
 
   // 2) Recursion depending on the type of agent
   switch (flowDef.agent) {
