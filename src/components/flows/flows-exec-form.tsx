@@ -92,6 +92,17 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                 : null}
                                 <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
                                 const flow = flows.find(f => f.code === agentFlow?.code);
+                                
+                                if (requestParams && typeof requestParams === 'object') {
+                                    const requiredFields = agent?.inputs?.filter(input => input.required).map(input => input.name) ?? [];
+                                    const missingFields = requiredFields.filter(field => !requestParams[field]);
+
+                                    if (missingFields.length > 0) {
+                                        toast.error(t('Please fill in all required fields: ') + missingFields.join(', '));
+                                        setFlowResult(t('Please fill in all required fields: ') + missingFields.join(', '));
+                                        return;
+                                    }
+                                }
 
                                 if (flow) {
                                     const exec = async () => {
