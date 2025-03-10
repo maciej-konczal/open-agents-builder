@@ -10,7 +10,7 @@ import { SaaSContext } from '@/contexts/saas-context';
 import JsonView from "@uiw/react-json-view";
 import { ChatMessageMarkdown } from "../chat-message-markdown";
 import { PlayIcon } from "lucide-react";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 import DataLoader from "../data-loader";
 import { Card, CardContent } from "../ui/card";
 import { DataLoaderIcon } from "../data-loader-icon";
@@ -19,6 +19,7 @@ import { nanoid } from "nanoid";
 import { useExecContext } from "@/contexts/exec-context";
 import moment from "moment";
 import { FlowInputValuesFiller } from "./flows-input-filler";
+import { Axios, AxiosError } from "axios";
 
 export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
@@ -101,13 +102,21 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                             timeCounter = setInterval(() => {
                                                 setTimeElapsed(prv => prv + 1);
                                             }, 1000);
-                                            const response = await apiClient.exec(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
+                                            try {
+                                                const stream = await apiClient.execStream(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
+
+                                                for await (const chunk of stream) {
+                                                    console.log("Received chunk:", chunk);
+                                                }
+                                            } catch (e) {
+                                                const respData = (e as AxiosError).response?.data ?? t('An error occurred');
+                                                setFlowResult(safeJsonParse(respData as string, respData));
+                                            }
+
                                             clearInterval(timeCounter);
 
-                                            setFlowResult(response);
+                                            //setFlowResult(response);
                                             setCurrentTabs(['result'])
-
-                                            console.log(response);
                                         } catch (e) {
                                             toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
                                             console.error(e);

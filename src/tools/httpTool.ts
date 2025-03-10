@@ -28,7 +28,7 @@ async function makeHttpRequest({
   } catch (error) {
     if (axios.isAxiosError(error)) {
       throw new Error(
-        formatAxiosError(error);
+        formatAxiosError(error)
       )
     } else {
       throw new Error(`Unknown error: ${getErrorMessage(error)}`)

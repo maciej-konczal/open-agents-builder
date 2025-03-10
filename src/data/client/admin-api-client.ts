@@ -113,17 +113,7 @@ export class AdminApiClient {
     headers: Record<string, string> = {}
   ): Promise<T | T[]> {
 
-    if (this.dbContext?.accessToken || repeatedRequestAccessToken) {
-      headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;
-    }
-
-    if(this.databaseIdHash) {
-      headers['Database-Id-Hash'] = this.databaseIdHash;
-    }
-
-    if(this.saasToken) {
-      headers['SaaS-Token'] = this.saasToken;
-    }
+    this.setAuthHeader<T>(repeatedRequestAccessToken, headers);
 
     if (!repeatedRequestAccessToken) { //  if this is just a repeated request - in case of token refresh we're not encrypting data second time
       if (formData) {
@@ -142,9 +132,9 @@ export class AdminApiClient {
             body = await this.encryptionFilter.encrypt(body, encryptionSettings);
           }
         }
-    } else [
+    } else {
       console.log('Repeated request to ' + endpoint + ', skipping encryption')
-    ]
+    }
     const config: AxiosRequestConfig = {
       method,
       url: `${this.baseUrl}${endpoint}`,
@@ -199,6 +189,20 @@ export class AdminApiClient {
     } catch (error) {
       console.error(error);
       throw new ApiError('Request failed' + getErrorMessage(error) + ' [' + error.code + ']', error.code, error);
+    }
+  }
+
+  protected setAuthHeader<T>(repeatedRequestAccessToken: string, headers: Record<string, string>) {
+    if (this.dbContext?.accessToken || repeatedRequestAccessToken) {
+      headers['Authorization'] = `Bearer ${repeatedRequestAccessToken ? repeatedRequestAccessToken : this.dbContext?.accessToken}`;
+    }
+
+    if (this.databaseIdHash) {
+      headers['Database-Id-Hash'] = this.databaseIdHash;
+    }
+
+    if (this.saasToken) {
+      headers['SaaS-Token'] = this.saasToken;
     }
   }
 }
