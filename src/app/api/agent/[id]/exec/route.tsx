@@ -210,7 +210,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     controller.enqueue(encoder.encode(JSON.stringify(
                                         {
                                             type: 'stepFinish',
-                                            name: flow.name,
+                                            name: a.name + '(' + a.model + ')',
                                             messages: result.response.messages
                                         }
                                     )))
@@ -238,7 +238,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 controller.enqueue(encoder.encode(JSON.stringify(
                                     {
                                         type: 'flowStart',
-                                        name: flow.name,
+                                        name: flow.agent,
                                         input: flow.input,
                                         startedAt: new Date(),
                                     }
@@ -248,16 +248,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         },
                         onFlowFinish: (flow, result) => {
 
-                            if (controller && execRequest.outputMode === 'stream') {
-                                controller.enqueue(encoder.encode(JSON.stringify(
-                                    {
-                                        type: 'flowFinish',
-                                        name: flow.name,
-                                        finishedAt: new Date(),
-                                        result
-                                    }
-                                )))
-                            }
+                            // if (controller && execRequest.outputMode === 'stream') {
+                            //     controller.enqueue(encoder.encode(JSON.stringify(
+                            //         {
+                            //             type: 'flowFinish',
+                            //             name: flow.name,
+                            //             finishedAt: new Date(),
+                            //             result
+                            //         }
+                            //     )))
+                            // }
                             //console.log('Flow finished', flow.agent, flow.name, result);
                         },
                     }
