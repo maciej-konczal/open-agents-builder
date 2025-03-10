@@ -265,6 +265,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                     //console.log(stackTrace);
                     //console.log(response);
+                    if (controller && execRequest.outputMode === 'stream') {
+                        controller.enqueue(encoder.encode(JSON.stringify(
+                            {
+                                type: 'finalResponse',
+                                name: flow.name,
+                                response,
+                                finishedAt: new Date(),
+                            }
+                        )))
+                    }
+
 
                     return response;
                 };

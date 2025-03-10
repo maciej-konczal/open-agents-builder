@@ -93,8 +93,9 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                 <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
                                 const flow = flows.find(f => f.code === agentFlow?.code);
                                 
+
+                                const requiredFields = agent?.inputs?.filter(input => input.required).map(input => input.name) ?? [];
                                 if (requestParams && typeof requestParams === 'object') {
-                                    const requiredFields = agent?.inputs?.filter(input => input.required).map(input => input.name) ?? [];
                                     const missingFields = requiredFields.filter(field => !requestParams[field]);
 
                                     if (missingFields.length > 0) {
@@ -102,6 +103,12 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                         setFlowResult(t('Please fill in all required fields: ') + missingFields.join(', '));
                                         return;
                                     }
+                                }
+
+                                if (!requestParams && requiredFields.length > 0) {
+                                    toast.error(t('Please fill in all required fields: ') + requiredFields.join(', '));
+                                    setFlowResult(t('Please fill in all required fields: ') + requiredFields.join(', '));
+                                    return;
                                 }
 
                                 if (flow) {
@@ -114,7 +121,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                                 setTimeElapsed(prv => prv + 1);
                                             }, 1000);
                                             try {
-                                                const stream = await apiClient.execStream(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
+                                                const stream =await apiClient.execStream(agent?.id, flow.code, requestParams, 'sync', getSessionHeaders());
 
                                                 for await (const chunk of stream) {
                                                     console.log("Received chunk:", chunk);
