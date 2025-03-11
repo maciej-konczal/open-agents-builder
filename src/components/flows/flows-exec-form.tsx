@@ -29,8 +29,8 @@ export enum ExecFormDisplayMode {
     Admin = 'admin'
 }
 
-export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, displayMode } :
-    { agent: Agent | undefined; agentFlow: AgentFlow | undefined; flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[], displayMode: ExecFormDisplayMode }) {
+export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, displayMode, onVariablesChanged } :
+    { agent: Agent | undefined; agentFlow: AgentFlow | undefined; flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[], displayMode: ExecFormDisplayMode, onVariablesChanged?: (vars: Record<string, any> | string) => void; }) {
 
     const [sessionId, setSessionId] = useState<string>(nanoid());
     const [timeElapsed, setTimeElapsed] = useState<number>(0);
@@ -95,6 +95,8 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
                             <div className="mb-2">
                                 <FlowInputValuesFiller variables={agent?.inputs ?? []} onChange={(values) => {
                                     setRequestParams(values);
+                                    if (onVariablesChanged)
+                                        onVariablesChanged(values);
                                 }} />
                             </div>
                             {execError && (

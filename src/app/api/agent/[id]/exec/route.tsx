@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         const databaseIdHash = request.headers.get('Database-Id-Hash');
         const sessionId = request.headers.get('Agent-Session-Id') || nanoid();
-        const agentId = request.headers.get('Agent-Id');
+        const agentId = recordLocator || request.headers.get('Agent-Id');
 
         if (!databaseIdHash || !agentId || !sessionId) {
             return Response.json('The required HTTP headers: Database-Id-Hash, Agent-Session-Id and Agent-Id missing', { status: 400 });
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const execRequestSchema = z.object({
                     flow: z.string(),
-                    outputMode: z.enum(['stream', '']).default('stream').optional(),
+                    outputMode: z.enum(['stream', 'buffer']).default('stream').optional(),
                     execMode: z.enum(['sync', 'async']).default('sync').optional(),
                     input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
                 });

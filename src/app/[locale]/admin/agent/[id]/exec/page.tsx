@@ -19,6 +19,8 @@ import { DatabaseContext } from '@/contexts/db-context';
 import { Button } from '@/components/ui/button';
 import { useCopyToClipboard } from 'react-use';
 import { toast } from 'sonner';
+import SyntaxHighlighter from 'react-syntax-highlighter';
+import { set } from 'date-fns';
 
 export default function ExecPage() {
 
@@ -48,6 +50,13 @@ export default function ExecPage() {
   const [currentFlow, setCurrentFlow] = useState<AgentFlow | undefined>(undefined);
   const [shareLink, setShareLink] = useState<string>('');
 
+  const [execMode, setExecMode] = useState<string>('sync');
+  const [outputMode, setOutputMode] = useState<string>('stream');
+
+  const [apiCallVars, setApiCallVars] = useState<Record<string, string> | string>();
+
+  const [snippet1, setSnippiet1] = useState<string>('');
+
   const onFlowChanged = (value: EditorStep) => {
     if (rootFlow) {
       setRootFlow(value);
@@ -57,8 +66,25 @@ export default function ExecPage() {
   useEffect(() => {
     if (currentFlow) {
       setShareLink(`${process.env.NEXT_PUBLIC_APP_URL}/exec/${dbContext?.databaseIdHash}/${agentContext.current?.id}?flow=${currentFlow.code}`);
+
+      const inputObj = {
+        input: apiCallVars,
+        flow: currentFlow.code,
+        execMode,
+        outputMode
+      }
+      setSnippiet1(`
+curl -X POST \
+${!agent?.published ? `-H "Authorization: Bearer \${OPEN_AGENT_BUILDER_API_KEY}"` : ``} \
+-H "database-id-hash: ${dbContext?.databaseIdHash ?? ''}" \
+-H "Content-Type: application/json" \
+-d '${typeof apiCallVars === "string" ? inputObj : JSON.stringify(inputObj)}' \
+${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent/${agent?.id}/exec
+`);
+
+
     }
-  }, [currentFlow]);
+  }, [currentFlow, apiCallVars, execMode, outputMode]);
 
   useEffect(() => { 
     if (rootFlow && currentFlow) {
@@ -155,7 +181,9 @@ export default function ExecPage() {
                 <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Run the flow')} {currentFlow && t(`[${currentFlow?.name}]`)}</div></AccordionTrigger>
                 <AccordionContent>
                   <ExecProvider>
-                    <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} />
+                    <FlowsExecForm onVariablesChanged={(vars) => {
+                        setApiCallVars(vars); 
+                    }} agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} />
                   </ExecProvider>
                 </AccordionContent>
               </AccordionItem>
@@ -164,7 +192,36 @@ export default function ExecPage() {
               <AccordionTrigger>
                 <div className="flex"><CogIcon className="mr-2"/> {t('Run via API')}</div>
               </AccordionTrigger>
-              <AccordionContent>
+              <AccordionContent className="p-2">
+                {!agent?.published && (
+                <p className="text-sm mb-2">{t('In order to use the API make sure you have at least one API key ')} <a className="underline text-blue-300" href={"/admin/agent/" + agent?.id + "/api" }>{t('created on the API tab')}</a></p>
+                )}
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">{t('Execution mode')}</label>
+                  <select value={execMode} onChange={(e) => setExecMode(e.target.value)} className="form-select text-sm w-full mb-2 p-2 rounded border">
+                    <option value="sync">{t('Synchronous')}</option>
+                    <option value="async">{t('Asynchronous')}</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">{t('Output mode')}</label>
+                  <select value={outputMode} onChange={(e) => setOutputMode(e.target.value)}  className="form-select text-sm w-full mb-2 p-2 rounded border">
+                    <option value="stream">{t('Stream')}</option>
+                    <option value="buffer">{t('Buffer')}</option>
+                  </select>
+                </div>
+
+                <p className="text-sm">{t('You can run this flow via API by sending a POST request to the following endpoint')}:</p>
+
+<SyntaxHighlighter language="bash" wrapLines={true}>
+  {snippet1}
+</SyntaxHighlighter>
+<Button size={"sm"} className="mt-4" variant={"outline"} onClick={() => {
+  copy(snippet1)
+}}><CopyIcon className="w-4 h-4 mr-2" />{t('Copy snippet')}</Button>
+
+
               </AccordionContent>
             </AccordionItem>            
           </Accordion>
