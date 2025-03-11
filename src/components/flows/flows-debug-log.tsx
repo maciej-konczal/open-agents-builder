@@ -44,7 +44,7 @@ export function DebugLog({ chunks }: DebugLogProps) {
     >
       {chunks.map((chunk, index) => {
         // Attempt to derive a date (flowStart => startedAt, flowFinish => finishedAt, etc.)
-        const date = chunk.startedAt || chunk.finishedAt || t("No date")
+        const date = chunk.timestamp || t("No date")
         const headerTitle = chunk.name
           ? `${chunk.name} (${chunk.type})`
           : chunk.type

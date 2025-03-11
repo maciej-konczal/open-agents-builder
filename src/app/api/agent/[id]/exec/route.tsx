@@ -25,6 +25,7 @@ import { StorageService } from "@/lib/storage-service";
 import { files } from "jszip";
 import { exec } from "child_process";
 import { getMimeType, processFiles } from "@/lib/file-extractor";
+import { timestamp } from "drizzle-orm/mysql-core";
 
 
 
@@ -98,12 +99,18 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 const inputObject = await inputSchema.parse(execRequest.input);
                 const { agents, flows, inputs } = masterAgent;
                 const encoder = new TextEncoder();
+                    const compiledAgents: Record<string, any> = {}
+                    const stackTrace: Chunk[] = []
 
                 const execFLow = async (flow: AgentFlow, controller: ReadableStreamDefaultController<any> | null = null) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
 
                     let level = 0;
                     const variablesToInject: Record<string, string> = {}
                     let filesToUpload: Record<string, string | string[]> = {}
+                    const compiledAgents: Record<string, any> = {}
+                    const stackTrace: Chunk[] = []
+
+
                     for (const i of masterAgent?.inputs ?? []) {
                         if (i.type !== 'fileBase64') { // TODO: process PDF files to images or OCR
                             variablesToInject[i.name] = inputObject[i.name] as string // skip the files 
@@ -112,7 +119,20 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         }
                     }
 
+                    const filesChunk =  {
+                        type: 'stepFinish',
+                        timestamp: new Date(),
+                        name: 'Extracting text from files ...'
+                    }
+                    stackTrace.push(filesChunk);
+                    if (controller && execRequest.outputMode === 'stream') {
+                        controller.enqueue(encoder.encode(JSON.stringify(
+                            filesChunk
+                        )))
+                    }                    
+
                     filesToUpload = processFiles({ inputObject: filesToUpload, pdfExtractText: false }); //extract text or convert PDF to images
+             
                     const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
                     applyInputTransformation(compiledFlow, (currentNode) => {
 
@@ -133,8 +153,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             for (const v of (usedVariables && usedVariables.length > 0 ? usedVariables : (masterAgent?.inputs?.map(i => i.name) ?? []))) {
                                 if (filesToUpload[v]) {  // this is file
 
-                                    const fileMapper = (file: string) => { // we get images from PDF or text from other formats
-                                        console.log(file);
+                                    const fileMapper = (key: string, file: string) => { // we get images from PDF or text from other formats
                                         if (getMimeType(file)?.startsWith('image')) {
                                             (newInput.content as Array<ImagePart>).push(
                                                 {
@@ -147,18 +166,17 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                             (newInput.content as Array<TextPart>).push(
                                                 {
                                                     type: 'text',
-                                                    text: file
+                                                    text: 'This is the content of @'+key + ' file:' + file
                                                 }
                                             );
                                         }
                                     }
 
-console.log(newInput.content);
                                     if (Array.isArray(filesToUpload[v])) {
-                                        filesToUpload[v].forEach(fileMapper);
+                                        filesToUpload[v].forEach((fc) => fileMapper(v, fc as string));
                                     } else 
                                     {
-                                        fileMapper(filesToUpload[v] as string);
+                                        fileMapper(v, filesToUpload[v] as string);
                                     }
 
                                 }
@@ -169,8 +187,6 @@ console.log(newInput.content);
 
                         return currentNode.input;
                     });
-                    const compiledAgents: Record<string, any> = {}
-                    const stackTrace: Chunk[] = []
 
                     // we need to put the inputs into the flow
                     for (const a of agents || []) {
@@ -229,6 +245,7 @@ console.log(newInput.content);
 
                                 const chunk =                                         {
                                     type: 'stepFinish',
+                                    timestamp: new Date(),
                                     name: a.name + ' (' + a.model + ')',
                                     messages: result.response.messages
                                 }
@@ -264,7 +281,7 @@ console.log(newInput.content);
                                 type: 'flowStart',
                                 name: flow.name,
                                 input: flow.input,
-                                startedAt: new Date(),
+                                timestamp: new Date(),
                             };
                             if (controller && execRequest.outputMode === 'stream') {
                                 controller.enqueue(encoder.encode(JSON.stringify(
@@ -292,10 +309,10 @@ console.log(newInput.content);
                     )
 
                     const chunk = {
-                        type: 'finalResponse',
+                        type: 'finalResult',
                         name: flow.name,
                         result: response,
-                        finishedAt: new Date(),
+                        timestamp: new Date(),
                     }
                     stackTrace.push(chunk);
                     if (controller && execRequest.outputMode === 'stream') {
