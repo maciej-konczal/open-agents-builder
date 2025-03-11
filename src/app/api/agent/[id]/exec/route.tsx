@@ -108,7 +108,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     const compiledAgents: Record<string, any> = {}
                     const stackTrace: Chunk[] = []
 
+                    let lastChunk = new Date();
                     const outputAndTrace = (chunk: Chunk) => {
+                        chunk.duration = (new Date().getTime() - lastChunk.getTime()) / 1000; // in seconds
                         const textChunk = replaceBase64Content(JSON.stringify(
                             chunk
                         ))
@@ -118,6 +120,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         }
 
                         stackTrace.push(JSON.parse(textChunk)); // serialize it back
+                        lastChunk = new Date();
                     }                        
 
 
@@ -309,8 +312,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         timestamp: new Date(),
                     }
                     outputAndTrace(chunk);
-
-                    console.log(stackTrace);
                     return response;
                 };
 

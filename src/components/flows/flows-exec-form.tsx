@@ -103,6 +103,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                 const flow = flows.find(f => f.code === agentFlow?.code);
                                 
 
+                                setFlowResult(null);
                                 const requiredFields = agent?.inputs?.filter(input => input.required).map(input => input.name) ?? [];
                                 if (requestParams && typeof requestParams === 'object') {
                                     const missingFields = requiredFields.filter(field => !requestParams[field]);

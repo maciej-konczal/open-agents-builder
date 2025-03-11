@@ -337,6 +337,7 @@ export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<t
 
 export interface Chunk {
   type: string
+  duration?: number;
   name?: string
   timestamp?: Date
   input?: any

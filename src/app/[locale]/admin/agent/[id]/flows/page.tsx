@@ -11,7 +11,7 @@ import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
 import { Button } from '@/components/ui/button';
 import { DialogContent, DialogTrigger, Dialog, DialogFooter, DialogHeader } from '@/components/ui/dialog';
-import { NetworkIcon, TextIcon, ZapIcon } from 'lucide-react';
+import { NetworkIcon, TextIcon, VariableIcon, WorkflowIcon, ZapIcon } from 'lucide-react';
 import { safeJsonParse } from '@/lib/utils';
 import { set } from 'date-fns';
 import { FlowsExecForm } from '@/components/flows/flows-exec-form';
@@ -253,13 +253,15 @@ export default function FlowsPage() {
         <div>
           <Accordion type="multiple" className="w-full" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}>
             <AccordionItem value="inputs">
-              <AccordionTrigger>{t('Inputs')}</AccordionTrigger>
+              <AccordionTrigger>
+                <div className="flex"><VariableIcon className="mr-2"/> {t('Inputs')}</div>
+              </AccordionTrigger>
               <AccordionContent>
                 <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="agents">
-              <AccordionTrigger>{t('Available sub-agents')}</AccordionTrigger>
+              <AccordionTrigger><div className="flex"><WorkflowIcon className="mr-2"/>{t('Available sub-agents')}</div></AccordionTrigger>
               <AccordionContent>
                 <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
               </AccordionContent>
