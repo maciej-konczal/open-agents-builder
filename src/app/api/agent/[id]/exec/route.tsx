@@ -75,6 +75,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             const agentsRepo = new ServerAgentRepository(databaseIdHash);
             const dto = await agentsRepo.findOne({ id: recordLocator });
 
+            const updateResultToolInstance = createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
+
             if (dto) {
                 const masterAgent = Agent.fromDTO(dto);
 
@@ -267,7 +269,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             tools: {
                                 ...customTools,
-                                updateResultTool: createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool,
+                                updateResultTool: updateResultToolInstance,
                             }
                         })
                     };
@@ -315,14 +317,19 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     const resultRepo = new ServerResultRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
                     const existingResult = await resultRepo.findOne({ sessionId });
                     if (!existingResult) {
-                        resultRepo.upsert({ sessionId }, {
-                            sessionId,
-                            agentId,
-                            content: response,
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
-                            format: safeJsonParse(response, null) !== null ? 'json' : 'markdown'
-                        });
+
+                        if (updateResultToolInstance.execute) {
+                            updateResultToolInstance.execute({
+                                sessionId,
+                                format: safeJsonParse(response, null) !== null ? 'json' : 'markdown',
+                                result: response,
+                                language: 'en'
+                            }, {
+                                messages: [],
+                                toolCallId: nanoid(),
+                            })
+                        }
+
                     }
                     return response;
                 };
