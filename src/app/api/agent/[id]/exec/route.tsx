@@ -12,7 +12,7 @@ import { agent, execute } from 'flows-ai'
 import { Chunk, convertToFlowDefinition, messagesSupportingAgent } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
-import { CoreUserMessage, FilePart, generateText, ImagePart, ToolSet } from "ai";
+import { CoreUserMessage, FilePart, generateText, ImagePart, TextPart, ToolSet } from "ai";
 import { createUpdateResultTool } from "@/tools/updateResultTool";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -24,6 +24,7 @@ import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVaria
 import { StorageService } from "@/lib/storage-service";
 import { files } from "jszip";
 import { exec } from "child_process";
+import { getMimeType, processFiles } from "@/lib/file-extractor";
 
 
 
@@ -102,7 +103,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                     let level = 0;
                     const variablesToInject: Record<string, string> = {}
-                    const filesToUpload: Record<string, string> = {}
+                    let filesToUpload: Record<string, string | string[]> = {}
                     for (const i of masterAgent?.inputs ?? []) {
                         if (i.type !== 'fileBase64') { // TODO: process PDF files to images or OCR
                             variablesToInject[i.name] = inputObject[i.name] as string // skip the files 
@@ -110,6 +111,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             filesToUpload[i.name] = inputObject[i.name] as string
                         }
                     }
+
+                    filesToUpload = processFiles({ inputObject: filesToUpload, pdfExtractText: false }); //extract text or convert PDF to images
                     const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
                     applyInputTransformation(compiledFlow, (currentNode) => {
 
@@ -129,13 +132,35 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             for (const v of (usedVariables && usedVariables.length > 0 ? usedVariables : (masterAgent?.inputs?.map(i => i.name) ?? []))) {
                                 if (filesToUpload[v]) {  // this is file
-                                    (newInput.content as Array<ImagePart>).push(
-                                        {
-                                            type: 'image',
-                                            image: filesToUpload[v],
-                                            mimeType: filesToUpload[v].match(/^data:(.*?);base64,/)?.[1] || 'application/octet-stream'
+
+                                    const fileMapper = (file: string) => { // we get images from PDF or text from other formats
+                                        console.log(file);
+                                        if (getMimeType(file)?.startsWith('image')) {
+                                            (newInput.content as Array<ImagePart>).push(
+                                                {
+                                                    type: 'image',
+                                                    image: file,
+                                                    mimeType: getMimeType(file) || 'application/octet-stream'
+                                                }
+                                            );
+                                        } else {
+                                            (newInput.content as Array<TextPart>).push(
+                                                {
+                                                    type: 'text',
+                                                    text: file
+                                                }
+                                            );
                                         }
-                                    );
+                                    }
+
+console.log(newInput.content);
+                                    if (Array.isArray(filesToUpload[v])) {
+                                        filesToUpload[v].forEach(fileMapper);
+                                    } else 
+                                    {
+                                        fileMapper(filesToUpload[v] as string);
+                                    }
+
                                 }
 
                             }
