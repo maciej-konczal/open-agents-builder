@@ -7,8 +7,9 @@ import { ChatInitForm } from "@/components/chat-init-form";
 import { CookieConsentBannerComponent } from "@/components/cookie-consent-banner";
 import DataLoader from "@/components/data-loader";
 import FeedbackWidget from "@/components/feedback-widget";
+import { FlowsExecForm } from "@/components/flows/flows-exec-form";
 import { DatabaseContextProvider } from "@/contexts/db-context";
-import { useExecContext } from "@/contexts/exec-context";
+import { ExecProvider, useExecContext } from "@/contexts/exec-context";
 import { SaaSContextProvider } from "@/contexts/saas-context";
 import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
@@ -55,7 +56,16 @@ export default function ExecPage({children,
           />
       ):(
         <div>
-          Exec form ...
+          {execContext.agent && execContext.agent.flows && execContext.agent.flows.length > 0 && execContext.agent.inputs && execContext.agent.agents ? (
+            <ExecProvider>
+              <FlowsExecForm agent={execContext?.agent} agentFlow={execContext?.agent?.flows[0]} agents={execContext.agent?.agents} inputs={execContext.agent?.inputs} flows={execContext.agent?.flows} />
+            </ExecProvider>
+            ) : (
+            <div className="text-center">
+              <div className="flex justify-center m-4 text-red-400 text-2xl">{t('Error')}</div>
+              <div className="text-red-500 text-center">{t('The specified agent has no flows defined or there is an error in the flows definition. Please contact the author.')}</div>
+            </div>   
+          )}
         </div>
       ))
     }
