@@ -11,7 +11,7 @@ import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
 import { Button } from '@/components/ui/button';
 import { DialogContent, DialogTrigger, Dialog, DialogFooter, DialogHeader } from '@/components/ui/dialog';
-import { NetworkIcon, TextIcon, VariableIcon, WorkflowIcon, ZapIcon } from 'lucide-react';
+import { NetworkIcon, PlayIcon, TextIcon, VariableIcon, WorkflowIcon, ZapIcon } from 'lucide-react';
 import { safeJsonParse } from '@/lib/utils';
 import { set } from 'date-fns';
 import { FlowsExecForm } from '@/components/flows/flows-exec-form';
@@ -123,7 +123,7 @@ export default function FlowsPage() {
 
       <div>
         {flows?.length > 0 && (
-          <select className="form-select text-sm w-full m-2 p-2 rounded border" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
+          <select className="form-select text-sm w-full mb-2 p-2 rounded border" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
             const flow = flows.find(f => f.code === e.target.value);
             if (flow) {
               setRootFlow(flow.flow);
@@ -204,7 +204,7 @@ export default function FlowsPage() {
           setEditFlowId(-1);
           setEditFlowDialogOpen(true)
         }
-        } className="ml-2"><NetworkIcon className="w-4 h-4" />{t('Add flow')}</Button>
+        } className="mb-2"><NetworkIcon className="w-4 h-4" />{t('Add flow')}</Button>
 
         <Button variant="outline" size="sm" onClick={() => {
           setEditFlowCode(currentFlow?.code ?? '');
@@ -212,13 +212,13 @@ export default function FlowsPage() {
           setEditFlowId(flows.findIndex(f => f.code === currentFlow?.code) ?? -1);
           setEditFlowDialogOpen(true)
         }
-        } className="ml-2" title={t('Rename flow...')}><TextIcon className="w-4 h-4" /></Button>
+        } className="ml-2 mb-2" title={t('Rename flow...')}><TextIcon className="w-4 h-4" /></Button>
 
         {currentFlow && (
-          <Button variant="outline" size="sm" onClick={() => setValue('defaultFlow', currentFlow?.code)} className="ml-2"><ZapIcon className="w-4 h-4" />{t('Set as default flow')}</Button>
+          <Button variant="outline" size="sm" onClick={() => setValue('defaultFlow', currentFlow?.code)} className="ml-2 mb-2"><ZapIcon className="w-4 h-4" />{t('Set as default flow')}</Button>
         )}
         {currentFlow && (
-          <Button variant="outline" size="sm" onClick={() => setCurrentTabs(['debugger'])} className="ml-2"><ZapIcon className="w-4 h-4" />{t('Execute')}</Button>
+          <Button variant="outline" size="sm" onClick={() => setCurrentTabs(['debugger'])} className="ml-2 mb-2"><ZapIcon className="w-4 h-4" />{t('Execute')}</Button>
         )}
 
         {currentFlow && (
@@ -252,7 +252,7 @@ export default function FlowsPage() {
 
         <div>
           <Accordion type="multiple" className="w-full" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}>
-            <AccordionItem value="inputs">
+            <AccordionItem value="inputs" className="rounded-lg border pl-2 pr-2 mb-2">
               <AccordionTrigger>
                 <div className="flex"><VariableIcon className="mr-2"/> {t('Inputs')}</div>
               </AccordionTrigger>
@@ -260,14 +260,14 @@ export default function FlowsPage() {
                 <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="agents">
+            <AccordionItem value="agents"  className="rounded-lg border pl-2 pr-2 mb-2">
               <AccordionTrigger><div className="flex"><WorkflowIcon className="mr-2"/>{t('Available sub-agents')}</div></AccordionTrigger>
               <AccordionContent>
                 <FlowAgentsEditor agents={agents} onChange={onAgentsChanged} />
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="debugger">
-              <AccordionTrigger>{t('Debugger')}</AccordionTrigger>
+            <AccordionItem value="debugger"  className="rounded-lg border pl-2 pr-2 mb-2">
+              <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Debugger')}</div></AccordionTrigger>
               <AccordionContent>
                 <ExecProvider>
                   <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />

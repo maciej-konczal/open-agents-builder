@@ -72,8 +72,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
         }, [agent, dbContext?.databaseIdHash, i18n.language]);
 
   return (
-    <Card>
-        <CardContent className="p-4">
+    <div>
             {isInitializing ? (
                 <div className="text-center">
                     <div className="flex justify-center m-4"><DataLoader /></div>
@@ -208,10 +207,6 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
             </Accordion>
         ) : null}
 
-        </CardContent>  
-
-        
-
-    </Card>
+    </div>
   );
 }
