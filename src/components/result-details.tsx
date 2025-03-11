@@ -6,8 +6,10 @@ import { useTranslation } from "react-i18next"
 import { formatDate } from "@/lib/utils"
 import Link from "next/link"
 import { SessionHeader } from "./session-header"
+import { Agent } from "@/data/client/models"
 
 export interface ResultDetailsProps {
+  agent: Agent,
   sessionStart: Date
   sessionEnd: Date
   userName: string
@@ -26,7 +28,8 @@ const ResultDetails: FC<ResultDetailsProps> = ({
   messageCount,
   inputTokens,
   outputTokens,
-  sessionId
+  sessionId,
+  agent
 }) => {
   const duration = sessionEnd.getTime() - sessionStart.getTime()
   const durationInMinutes = Math.round(duration / 60000)
@@ -51,11 +54,13 @@ const ResultDetails: FC<ResultDetailsProps> = ({
             <TimerIcon className="w-4 h-4 mr-2" /> {t('Duration')}: <span className="ml-2 font-medium">{durationInMinutes} {t('min')}</span>
           </div>
           
-          <div className="flex text-xs">
-            <Link className="flex" href={`/admin/agent/${sessionId}/sessions/${sessionId}`}>
-              <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{messageCount}</span>
-            </Link>
-          </div>
+          {agent.agentType !== 'flow' && (
+            <div className="flex text-xs">
+              <Link className="flex" href={`/admin/agent/${sessionId}/sessions/${sessionId}`}>
+                <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{messageCount}</span>
+              </Link>
+            </div>
+          )}
 
           <div className="flex text-xs">
             <Link className="flex" href={`/admin/agent/${sessionId}/sessions/${sessionId}`}>

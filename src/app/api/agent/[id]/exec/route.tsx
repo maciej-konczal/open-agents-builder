@@ -36,7 +36,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
         const databaseIdHash = request.headers.get('Database-Id-Hash');
         const sessionId = request.headers.get('Agent-Session-Id') || nanoid();
-        const agentId = request.headers.get('Agent-Id');
+        const agentId = recordLocator || request.headers.get('Agent-Id');
 
         if (!databaseIdHash || !agentId || !sessionId) {
             return Response.json('The required HTTP headers: Database-Id-Hash, Agent-Session-Id and Agent-Id missing', { status: 400 });
@@ -75,6 +75,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             const agentsRepo = new ServerAgentRepository(databaseIdHash);
             const dto = await agentsRepo.findOne({ id: recordLocator });
 
+            const updateResultToolInstance = createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
+
             if (dto) {
                 const masterAgent = Agent.fromDTO(dto);
 
@@ -88,7 +90,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const execRequestSchema = z.object({
                     flow: z.string(),
-                    outputMode: z.enum(['stream', '']).default('stream').optional(),
+                    outputMode: z.enum(['stream', 'buffer']).default('stream').optional(),
                     execMode: z.enum(['sync', 'async']).default('sync').optional(),
                     input: z.any() // @TODO: generate z.object for passed variables dynamically based on agent.inputs
                 });
@@ -267,7 +269,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             tools: {
                                 ...customTools,
-                                updateResultTool: createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool,
+                                updateResultTool: updateResultToolInstance,
                             }
                         })
                     };
@@ -315,18 +317,24 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     const resultRepo = new ServerResultRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
                     const existingResult = await resultRepo.findOne({ sessionId });
                     if (!existingResult) {
-                        resultRepo.upsert({ sessionId }, {
-                            sessionId,
-                            agentId,
-                            content: response,
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
-                            format: safeJsonParse(response, null) !== null ? 'json' : 'markdown'
-                        });
+
+                        if (updateResultToolInstance.execute) {
+                            updateResultToolInstance.execute({
+                                sessionId,
+                                format: safeJsonParse(response, null) !== null ? 'json' : 'markdown',
+                                result: response,
+                                language: 'en'
+                            }, {
+                                messages: [],
+                                toolCallId: nanoid(),
+                            })
+                        }
+
                     }
                     return response;
                 };
 
+                if (execRequest.execMode === 'async') execRequest.outputMode = 'buffer'; // async mode always returns buffer
                 if (execRequest.outputMode === 'stream') {
                     const stream = new ReadableStream({
                         async start(controller) {
@@ -353,7 +361,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         }
                     });
                 } else {
-                    return Response.json(await execFLow(flows?.find(f => f.code === execRequest.flow) as AgentFlow));
+
+                    if (execRequest.execMode === 'async') {
+                        execFLow(flows?.find(f => f.code === execRequest.flow) as AgentFlow)
+                        return Response.json({
+                            sessionId,
+                            resultUrl: `/api/agent/${recordLocator}/result/${sessionId}`
+                        });
+                    } else {
+                        return Response.json(await execFLow(flows?.find(f => f.code === execRequest.flow) as AgentFlow));
+                    }
                 }
             }
 

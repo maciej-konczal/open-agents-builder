@@ -148,7 +148,7 @@ export function AgentSidebar() {
   const [sidebarItems, setSidebarItems] = React.useState(availableItems);
 
   useEffect(() => {  
-    setSidebarItems(availableItems.filter(item => !item.agentTypes || item.agentTypes?.includes(agentContext.dirtyAgent?.agentType || '')));
+    setSidebarItems(availableItems.filter(item => !item.agentTypes || item.agentTypes?.includes((agentContext.dirtyAgent || agentContext.current)?.agentType || '')));
   }, [agentContext.dirtyAgent?.agentType, agentContext.current?.agentType]);
 
   return (

@@ -153,7 +153,9 @@ export default function ResultsPage() {
               <FolderOpenIcon className="w-4 h-4" />
             </Button>
 
-            <SessionMessagesDialog sessionId={result.sessionId} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} />
+            {agentContext.current?.agentType !== 'flow' && (
+              <SessionMessagesDialog sessionId={result.sessionId} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} />
+            )}
 
 
             <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {

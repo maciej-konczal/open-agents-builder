@@ -4,10 +4,11 @@ import { AIConsentBannerComponent } from "@/components/ai-consent-banner";
 import AuthorizationGuard from "@/components/authorization-guard";
 import { Chat } from "@/components/chat";
 import { ChatInitForm } from "@/components/chat-init-form";
+import { ChatMessageMarkdown } from "@/components/chat-message-markdown";
 import { CookieConsentBannerComponent } from "@/components/cookie-consent-banner";
 import DataLoader from "@/components/data-loader";
 import FeedbackWidget from "@/components/feedback-widget";
-import { FlowsExecForm } from "@/components/flows/flows-exec-form";
+import { ExecFormDisplayMode, FlowsExecForm } from "@/components/flows/flows-exec-form";
 import { DatabaseContextProvider } from "@/contexts/db-context";
 import { ExecProvider, useExecContext } from "@/contexts/exec-context";
 import { SaaSContextProvider } from "@/contexts/saas-context";
@@ -15,7 +16,8 @@ import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
 import moment from "moment";
 import { nanoid } from "nanoid";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -29,6 +31,8 @@ export default function ExecPage({children,
     const [generalError, setGeneralError] = useState<string | null>(null);
     const execContext = useExecContext();
     const { t } = useTranslation();
+
+    const searchParams = useSearchParams();
 
     useEffect(() => {
       // TODO: add Exec context similar to chat context
@@ -55,10 +59,15 @@ export default function ExecPage({children,
             displayName={execContext.agent?.displayName ?? ''}
           />
       ):(
-        <div>
+        <div className="w-full max-w-2xl mx-auto">
+          <div className="text-sm p-4 mb-4">
+            <ChatMessageMarkdown>
+              {execContext.agent?.options?.welcomeMessage ?? ''}
+            </ChatMessageMarkdown>
+          </div>
           {execContext.agent && execContext.agent.flows && execContext.agent.flows.length > 0 && execContext.agent.inputs && execContext.agent.agents ? (
             <ExecProvider>
-              <FlowsExecForm agent={execContext?.agent} agentFlow={execContext?.agent?.flows[0]} agents={execContext.agent?.agents} inputs={execContext.agent?.inputs} flows={execContext.agent?.flows} />
+              <FlowsExecForm agent={execContext?.agent} agentFlow={execContext?.agent?.flows.find(f=>f.code === (searchParams.get('flow') ?? execContext?.agent?.defaultFlow) )?? execContext?.agent?.flows[0]} agents={execContext.agent?.agents} inputs={execContext.agent?.inputs} flows={execContext.agent?.flows} displayMode={ExecFormDisplayMode.EndUser} />
             </ExecProvider>
             ) : (
             <div className="text-center">

@@ -76,7 +76,10 @@ export default function SessionsPage() {
             }}>
               <FolderOpenIcon className="w-4 h-4" />
             </Button>
-            <SessionMessagesDialog sessionId={session.id} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}  />
+
+            {agentContext.current?.agentType !== 'flow' && (
+              <SessionMessagesDialog sessionId={session.id} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}  />
+            )}
 
             <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
               copy(process.env.NEXT_PUBLIC_APP_URL + `/admin/agent/${session.agentId}/sessions/${session.id}`)
@@ -98,7 +101,7 @@ export default function SessionsPage() {
           </CardHeader>
           <CardContent className="text-sm">
             <SessionHeader session={session} />
-            <RenderSession session={session} />
+            <RenderSession agent={agentContext.current} session={session} />
             <SessionCalendarEvents displayMode={CalendarEventsDisplayMode.icon} sessionId={session.id} />
             <div className="pt-4 flex justify-end">
               <SessionDeleteDialog session={session} />
