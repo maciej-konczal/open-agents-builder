@@ -1,12 +1,15 @@
 'use client'
 
 import { AIConsentBannerComponent } from "@/components/ai-consent-banner";
+import AuthorizationGuard from "@/components/authorization-guard";
 import { Chat } from "@/components/chat";
 import { ChatInitForm } from "@/components/chat-init-form";
 import { CookieConsentBannerComponent } from "@/components/cookie-consent-banner";
 import DataLoader from "@/components/data-loader";
 import FeedbackWidget from "@/components/feedback-widget";
+import { DatabaseContextProvider } from "@/contexts/db-context";
 import { useExecContext } from "@/contexts/exec-context";
+import { SaaSContextProvider } from "@/contexts/saas-context";
 import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
 import moment from "moment";
@@ -23,23 +26,39 @@ export default function ExecPage({children,
   }) {
     const [isInitializing, setIsInitializing] = useState(true);
     const [generalError, setGeneralError] = useState<string | null>(null);
-    const chatContext = useExecContext();
+    const execContext = useExecContext();
     const { t } = useTranslation();
 
     useEffect(() => {
       // TODO: add Exec context similar to chat context
-        // chatContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
-        //   console.error(e);
-        //   setGeneralError(t(getErrorMessage(e)));
-        // }).then(() => {
-        //   setIsInitializing(false);
-        // });
+         execContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
+           console.error(e);
+           setGeneralError(t(getErrorMessage(e)));
+         }).then(() => {
+           setIsInitializing(false);
+         });
     }, [params.id, params.databaseIdHash, params.locale]);
 
     // useEffect(() => {
-    //     if (chatContext.agent){
+    //     if (execContext.agent){
     //     }
-    //   }, [chatContext.agent, chatContext.initFormRequired, chatContext.initFormDone]);
+    //   }, [execContext.agent, execContext.initFormRequired, execContext.initFormDone]);
+
+
+    const authorizedExec = () => {
+      return (
+
+        (execContext.initFormRequired && !execContext.initFormDone) ? (
+          <ChatInitForm
+              welcomeMessage={execContext.agent?.options?.welcomeMessage ?? ''}
+            displayName={execContext.agent?.displayName ?? ''}
+          />
+      ):(
+        <div>
+          Exec form ...
+        </div>
+      ))
+    }
 
     return (
       <div>
@@ -57,9 +76,18 @@ export default function ExecPage({children,
               <div className="text-red-500 text-center">{generalError}</div>
             </div>
           ): (
-            <div>Input forms</div>
+            execContext.agent?.published ? (
+              authorizedExec()
+          ) : (
+                <DatabaseContextProvider>
+                  <SaaSContextProvider>
+                    <AuthorizationGuard>
+                      {authorizedExec()}
+                    </AuthorizationGuard>
+                  </SaaSContextProvider>
+                </DatabaseContextProvider>
           )
-        )}
+        ))}
         <FeedbackWidget />
         <CookieConsentBannerComponent />
         </div>

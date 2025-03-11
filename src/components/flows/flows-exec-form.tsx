@@ -24,7 +24,7 @@ import {  DebugLog } from "./flows-debug-log";
 import { set } from "date-fns";
 
 export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
-    { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
+    { agent: Agent | undefined; agentFlow: AgentFlow | undefined; flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
 
     const [sessionId, setSessionId] = useState<string>(nanoid());
     const [timeElapsed, setTimeElapsed] = useState<number>(0);
