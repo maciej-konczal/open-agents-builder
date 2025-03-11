@@ -10,6 +10,7 @@ import { EditorStep } from '@/flows/models';
 import { AgentFlow } from '@/data/client/models';
 import { safeJsonParse } from '@/lib/utils';
 import { FlowsExecForm } from '@/components/flows/flows-exec-form';
+import { ExecProvider } from '@/contexts/exec-context';
 
 export default function ExecPage() {
 
@@ -102,7 +103,9 @@ export default function ExecPage() {
 
         <div>
           {rootFlow && currentFlow && agent && (
-            <FlowsExecForm agentFlow={currentFlow} agent={agent} agents={agents ?? []} flows={flows ?? []} inputs={inputs ?? []} rootFlow={rootFlow}  />
+                <ExecProvider>
+                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows}/>
+                </ExecProvider>
           )}
 
         </div>
