@@ -170,3 +170,9 @@ function cleanupTempDir(dirPath: string) {
     // In real code, handle or log errors if you want
   }
 }
+
+
+export const replaceBase64Content = (data) => {
+  // Remove all base64 encoded content from the "image" fields
+    return data.replace(/"image":"data:image\/[a-zA-Z]*;base64,[^"]+"/g, '"image":"Attachment content"');
+};

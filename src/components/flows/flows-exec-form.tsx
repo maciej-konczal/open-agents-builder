@@ -31,6 +31,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
     let timeCounter = null;
     const [isInitializing, setIsInitializing] = useState<boolean>(true);
     const [flowResult, setFlowResult] = useState<any | null>(null);
+    const [execError, setExecError] = useState<string | null>(null);
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
     const { t, i18n } = useTranslation();
@@ -91,6 +92,9 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                     setRequestParams(values);
                                 }} />
                             </div>
+                            {execError && (
+                                <div className="text-red-500 text-sm p-3">{execError}</div>
+                            )}
                             <div className="flex">
                                 {executionInProgress ? 
                                         <DataLoaderIcon />
@@ -105,20 +109,21 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
 
                                     if (missingFields.length > 0) {
                                         toast.error(t('Please fill in all required fields: ') + missingFields.join(', '));
-                                        setFlowResult(t('Please fill in all required fields: ') + missingFields.join(', '));
+                                        setExecError(t('Please fill in all required fields: ') + missingFields.join(', '));
                                         return;
                                     }
                                 }
 
                                 if (!requestParams && requiredFields.length > 0) {
                                     toast.error(t('Please fill in all required fields: ') + requiredFields.join(', '));
-                                    setFlowResult(t('Please fill in all required fields: ') + requiredFields.join(', '));
+                                    setExecError(t('Please fill in all required fields: ') + requiredFields.join(', '));
                                     return;
                                 }
 
                                 if (flow) {
                                     const exec = async () => {
                                         setTimeElapsed(0);
+                                        setExecError('');
                                         setStackTraceChunks([]);
                                         setExecutionInProgress(true);
                                         try {
@@ -139,6 +144,10 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                                     if (chunk['type'] === 'finalResult') {
                                                         setFlowResult(chunk['result']);
                                                     }
+
+                                                    if (chunk['type'] === 'error') {
+                                                        setExecError(chunk['message']);
+                                                    }
                                                 }
                                             } catch (e) {
                                                 const respData = (e as AxiosError).response?.data ?? t('An error occurred');
@@ -149,6 +158,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
 
 
                                         } catch (e) {
+                                            setExecError(t('Failed to execute flow: ') + getErrorMessage(e));
                                             toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
                                             console.error(e);
                                         }
