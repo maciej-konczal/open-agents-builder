@@ -17,7 +17,7 @@ import { ChatMessageMarkdown } from "../chat-message-markdown"
 import { useTranslation } from "react-i18next"
 import { Chunk } from "@/flows/models"
 import Markdown from "react-markdown"
-import { TimerIcon } from "lucide-react"
+import { HourglassIcon, TimerIcon } from "lucide-react"
 import { DataLoaderIcon } from "../data-loader-icon"
 
 // Types for your chunk data. Adjust fields as needed.
@@ -64,10 +64,10 @@ export function DebugLog({ chunks }: DebugLogProps) {
                   <div className="font-semibold items-left text-left justify-start">{headerTitle}</div>
                   <div className="ml-2 text-xs text-gray-500 flex items-center">{date}
                   {chunk.duration && (
-                    <span className="ml-2 text-gray-500"><TimerIcon className="w-4 h-4"/> ({chunk.duration} s)</span>
+                    <div className="flex ml-2 text-gray-500"><TimerIcon className="w-4 h-4 mr-2 ml-2"/> ({chunk.duration} s)</div>
                   )}
                   {chunk.type !== "error" && chunk.type !== "finalResult" && index == chunks.length-1 && (
-                    <DataLoaderIcon />
+                    <div className="p-2 items-center justify-center"><HourglassIcon className="w-4 h-4 " /></div>
                   )}
                   </div>
                 </div>

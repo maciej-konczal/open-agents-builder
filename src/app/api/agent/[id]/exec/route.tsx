@@ -4,7 +4,7 @@ import ServerResultRepository from "@/data/server/server-result-repository";
 import ServerSessionRepository from "@/data/server/server-session-repository";
 import { auditLog, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
 import { authorizeRequestContext } from "@/lib/authorization-api"
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import { Agent, AgentFlow, Session, ToolConfiguration } from "@/data/client/models";
 import { openai } from "@ai-sdk/openai";
@@ -142,10 +142,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     filesToUpload = processFiles({ inputObject: filesToUpload, pdfExtractText: false }); //extract text or convert PDF to images
              
                     const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
+                    const overallToolCalls = {}
+
                     applyInputTransformation(compiledFlow, (currentNode) => {
-
-                    const overallTools = {}
-
                         if (currentNode.input && typeof currentNode.input === 'string') {
                             const usedVariables = extractVariableNames(currentNode.input);
                             const newInput = {
@@ -216,7 +215,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             onStepFinish: async (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
                                 const { usage, response } = result;
-
                                 let session = null
                                 if (existingSession && existingSession.messages) {
                                     session = Session.fromDTO(existingSession);
@@ -312,6 +310,20 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         timestamp: new Date(),
                     }
                     outputAndTrace(chunk);
+
+
+                    const resultRepo = new ServerResultRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
+                    const existingResult = await resultRepo.findOne({ sessionId });
+                    if (!existingResult) {
+                        resultRepo.upsert({ sessionId }, {
+                            sessionId,
+                            agentId,
+                            content: response,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                            format: safeJsonParse(response, null) !== null ? 'json' : 'markdown'
+                        });
+                    }
                     return response;
                 };
 
