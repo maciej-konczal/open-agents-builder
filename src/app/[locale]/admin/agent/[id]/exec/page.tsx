@@ -9,7 +9,7 @@ import React, { use, useContext, useEffect, useState } from 'react';
 import { EditorStep } from '@/flows/models';
 import { AgentFlow } from '@/data/client/models';
 import { safeJsonParse } from '@/lib/utils';
-import { FlowsExecForm } from '@/components/flows/flows-exec-form';
+import { ExecFormDisplayMode, FlowsExecForm } from '@/components/flows/flows-exec-form';
 import { ExecProvider } from '@/contexts/exec-context';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { CogIcon, CopyIcon, PlayIcon, ShareIcon } from 'lucide-react';
@@ -137,7 +137,7 @@ export default function ExecPage() {
               <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Run the flow')}</div></AccordionTrigger>
               <AccordionContent>
                 <ExecProvider>
-                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />
+                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} />
                 </ExecProvider>
               </AccordionContent>
             </AccordionItem>

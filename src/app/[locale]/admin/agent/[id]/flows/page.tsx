@@ -14,7 +14,7 @@ import { DialogContent, DialogTrigger, Dialog, DialogFooter, DialogHeader } from
 import { NetworkIcon, PlayIcon, TextIcon, VariableIcon, WorkflowIcon, ZapIcon } from 'lucide-react';
 import { safeJsonParse } from '@/lib/utils';
 import { set } from 'date-fns';
-import { FlowsExecForm } from '@/components/flows/flows-exec-form';
+import { ExecFormDisplayMode, FlowsExecForm } from '@/components/flows/flows-exec-form';
 import { Accordion, AccordionContent, AccordionTrigger } from '@/components/ui/accordion';
 import { AccordionItem } from '@radix-ui/react-accordion';
 import { FlowInputVariablesEditor } from '@/components/flows/flows-input-variables-editor';
@@ -270,7 +270,7 @@ export default function FlowsPage() {
               <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Debugger')}</div></AccordionTrigger>
               <AccordionContent>
                 <ExecProvider>
-                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />
+                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} />
                 </ExecProvider>
               </AccordionContent>
             </AccordionItem>

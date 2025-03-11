@@ -22,9 +22,15 @@ import { FlowInputValuesFiller } from "./flows-input-filler";
 import { Axios, AxiosError } from "axios";
 import {  DebugLog } from "./flows-debug-log";
 import { set } from "date-fns";
+import { EndUserLog } from "./flows-end-user-log";
 
-export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
-    { agent: Agent | undefined; agentFlow: AgentFlow | undefined; flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
+export enum ExecFormDisplayMode {
+    EndUser = 'enduser',
+    Admin = 'admin'
+}
+
+export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, displayMode } :
+    { agent: Agent | undefined; agentFlow: AgentFlow | undefined; flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[], displayMode: ExecFormDisplayMode }) {
 
     const [sessionId, setSessionId] = useState<string>(nanoid());
     const [timeElapsed, setTimeElapsed] = useState<number>(0);
@@ -187,25 +193,41 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                 )
             }
 
-        {flowResult || stackTraceChunks && stackTraceChunks.length > 0 ? (
-            <Accordion type="multiple" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}  className="w-full mt-4">
-                {flowResult && (
-                    <AccordionItem value={"result"}>
-                        <AccordionTrigger>{t('Result')}</AccordionTrigger>
+        {displayMode === ExecFormDisplayMode.EndUser && (
+            flowResult || stackTraceChunks && stackTraceChunks.length > 0 ? (
+                <div>
+                    {stackTraceChunks && stackTraceChunks.length > 0 && (
+                        <EndUserLog chunks={stackTraceChunks} />
+                    )}
+
+                    { flowResult && (   
+                        (typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
+                                    <JsonView value={flowResult} /> )}
+                                                     
+                </div>
+            ) : null
+        )}
+
+        {displayMode == ExecFormDisplayMode.Admin && (
+            flowResult || stackTraceChunks && stackTraceChunks.length > 0 ? (
+                <Accordion type="multiple" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}  className="w-full mt-4">
+                    {flowResult && (
+                        <AccordionItem value={"result"}>
+                            <AccordionTrigger>{t('Result')}</AccordionTrigger>
+                            <AccordionContent>
+                                {(typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
+                                    <JsonView value={flowResult} />}
+                            </AccordionContent>
+                        </AccordionItem>
+                    )}
+                    <AccordionItem value={"trace"}>
+                        <AccordionTrigger>{t('Trace')}</AccordionTrigger>
                         <AccordionContent>
-                            {(typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
-                                <JsonView value={flowResult} />}
+                            <DebugLog chunks={stackTraceChunks} />
                         </AccordionContent>
                     </AccordionItem>
-                )}
-                <AccordionItem value={"trace"}>
-                    <AccordionTrigger>{t('Trace')}</AccordionTrigger>
-                    <AccordionContent>
-                        <DebugLog chunks={stackTraceChunks} />
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
-        ) : null}
+                </Accordion>
+            ) : null)}
 
     </div>
   );
