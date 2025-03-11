@@ -327,6 +327,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     return response;
                 };
 
+                if (execRequest.execMode === 'async') execRequest.outputMode = 'buffer'; // async mode always returns buffer
                 if (execRequest.outputMode === 'stream') {
                     const stream = new ReadableStream({
                         async start(controller) {
@@ -353,7 +354,16 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         }
                     });
                 } else {
-                    return Response.json(await execFLow(flows?.find(f => f.code === execRequest.flow) as AgentFlow));
+
+                    if (execRequest.execMode === 'async') {
+                        execFLow(flows?.find(f => f.code === execRequest.flow) as AgentFlow)
+                        return Response.json({
+                            sessionId,
+                            resultUrl: `/api/agent/${recordLocator}/result/${sessionId}`
+                        });
+                    } else {
+                        return Response.json(await execFLow(flows?.find(f => f.code === execRequest.flow) as AgentFlow));
+                    }
                 }
             }
 

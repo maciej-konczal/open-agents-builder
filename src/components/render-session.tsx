@@ -1,4 +1,4 @@
-import { Session } from "@/data/client/models";
+import { Agent, Session } from "@/data/client/models";
 import DataLoader from "./data-loader";
 import { useTranslation } from "react-i18next";
 import { formatDate } from "@/lib/utils";
@@ -6,7 +6,7 @@ import { Mail, CalendarIcon, TimerIcon, MessageCircleIcon, TagIcon, BarChartIcon
 import { Badge } from "./ui/badge";
 import Link from "next/link";
 
-export function RenderSession({ session }: { session: Session | undefined}) {
+export function RenderSession({ agent, session }: { agent: Agent | undefined | null, session: Session | undefined}) {
 
     const { t } = useTranslation();
     const duration = session?.createdAt && session?.finalizedAt ?  Math.round((new Date(session?.finalizedAt).getTime() - new Date(session?.createdAt).getTime()) / 60000) + t(' min') : t('not finished')
@@ -28,11 +28,13 @@ export function RenderSession({ session }: { session: Session | undefined}) {
             <TimerIcon className="w-4 h-4 mr-2" /> {t('Duration')}: <span className="ml-2 font-medium">{duration}</span>
           </div>
           
+          {agent?.agentType !== 'flow' && (
           <div className="flex text-xs">
             <Link className="flex" href={`/admin/agent/${session.agentId}/sessions/${session.id}`}>
               <MessageCircleIcon className="w-4 h-4 mr-2"/> {t('Messages')}: <span className="ml-2 font-medium">{session.messages ? session.messages?.length : t('no messages yet')}</span>
             </Link>
           </div>
+          )}
 
           <div className="flex text-xs">
             <Link className="flex" href={`/admin/agent/${session.agentId}/sessions/${session.id}`}>

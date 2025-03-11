@@ -24,6 +24,7 @@ import { SaaSContext } from '@/contexts/saas-context';
 import DataLoader from '@/components/data-loader';
 import { CalendarEventsDisplayMode, SessionCalendarEvents } from '@/components/session-calendar-events';
 import Calendar from '../../calendar/page';
+import { agent } from 'flows-ai';
 
 
 export default function SingleResultPage() {
@@ -117,6 +118,7 @@ export default function SingleResultPage() {
           { result ? (
           <CardContent className="pt-6">
             <ResultDetails 
+              agent={agentContext.current}
               sessionId={result?.sessionId || ''}
               userName={result?.userName || ''}
               userEmail={result?.userEmail || ''}
@@ -129,7 +131,9 @@ export default function SingleResultPage() {
             <Tabs defaultValue="content" className="mt-4">
               <TabsList className="grid grid-cols-3">
                   <TabsTrigger value="content" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Result')}</TabsTrigger>
-                  <TabsTrigger value="chat" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Message history')}</TabsTrigger>
+                  {agentContext.current?.agentType !== 'flow' && (
+                    <TabsTrigger value="chat" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Message history')}</TabsTrigger>
+                  )}
                   <TabsTrigger value="calendar" className="dark:data-[state=active]:bg-zinc-900 data-[state=active]:bg-zinc-100 data-[state=active]:text-gray-200 p-2 rounded-md text-sm">{t('Calendar')}</TabsTrigger>
               </TabsList>
               <TabsContent value="calendar" className="p-2 text-sm">
@@ -157,14 +161,16 @@ export default function SingleResultPage() {
                 }}>
                   <WandSparkles className="w-4 h-4" />{t('Transform with AI')}
                 </Button>
-              </TabsContent>      
-              <TabsContent value="chat" className="p-2 text-sm">
-                <ChatMessages 
-                      displayTimestamps={true}
-                      displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
-                      messages={session?.messages ?? []}
-                  />
-                </TabsContent>
+              </TabsContent>
+              {agentContext.current?.agentType !== 'flow' && (
+                <TabsContent value="chat" className="p-2 text-sm">
+                  <ChatMessages 
+                        displayTimestamps={true}
+                        displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
+                        messages={session?.messages ?? []}
+                    />
+                  </TabsContent>
+              )}
             </Tabs>                  
           </CardContent>
           ) : (<CardContent>
