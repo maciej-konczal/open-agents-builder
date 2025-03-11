@@ -104,7 +104,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
                                 {executionInProgress ? 
                                         <DataLoaderIcon />
                                 : null}
-                                <Button disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
+                                <Button className={executionInProgress ? "ml-2" : ""} disabled={executionInProgress} variant={"secondary"} size="sm" onClick={() => {
                                 const flow = flows.find(f => f.code === agentFlow?.code);
                                 
 

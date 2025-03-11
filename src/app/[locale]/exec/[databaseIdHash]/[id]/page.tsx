@@ -16,7 +16,8 @@ import { getErrorMessage } from "@/lib/utils";
 import { useChat } from "ai/react";
 import moment from "moment";
 import { nanoid } from "nanoid";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
@@ -30,6 +31,8 @@ export default function ExecPage({children,
     const [generalError, setGeneralError] = useState<string | null>(null);
     const execContext = useExecContext();
     const { t } = useTranslation();
+
+    const searchParams = useSearchParams();
 
     useEffect(() => {
       // TODO: add Exec context similar to chat context
@@ -64,7 +67,7 @@ export default function ExecPage({children,
           </div>
           {execContext.agent && execContext.agent.flows && execContext.agent.flows.length > 0 && execContext.agent.inputs && execContext.agent.agents ? (
             <ExecProvider>
-              <FlowsExecForm agent={execContext?.agent} agentFlow={execContext?.agent?.flows[0]} agents={execContext.agent?.agents} inputs={execContext.agent?.inputs} flows={execContext.agent?.flows} displayMode={ExecFormDisplayMode.EndUser} />
+              <FlowsExecForm agent={execContext?.agent} agentFlow={execContext?.agent?.flows.find(f=>f.code === (searchParams.get('flow') ?? execContext?.agent?.defaultFlow) )?? execContext?.agent?.flows[0]} agents={execContext.agent?.agents} inputs={execContext.agent?.inputs} flows={execContext.agent?.flows} displayMode={ExecFormDisplayMode.EndUser} />
             </ExecProvider>
             ) : (
             <div className="text-center">

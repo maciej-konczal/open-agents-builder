@@ -61,7 +61,7 @@ export function DebugLog({ chunks }: DebugLogProps) {
             <AccordionItem value={`chunk-${index}`}>
               <AccordionTrigger>
                 <div className="grid grid-cols-2 w-full">
-                  <div className="font-semibold items-left text-left justify-start">{headerTitle}</div>
+                  <div className="font-semibold items-left text-left justify-start">{index+1}. {headerTitle}</div>
                   <div className="ml-2 text-xs text-gray-500 flex items-center">{date}
                   {chunk.duration && (
                     <div className="flex ml-2 text-gray-500"><TimerIcon className="w-4 h-4 mr-2 ml-2"/> ({chunk.duration} s)</div>

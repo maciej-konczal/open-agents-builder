@@ -35,6 +35,7 @@ export default function ExecPage() {
   });  
 
   register('flows')
+  const defaultFlow = watch('defaultFlow') ?? '';
 
   const [newFlowName, setNewFlowName] = useState<string>('');
   const [addFlowError, setAddFlowError] = useState<string>('');
@@ -55,7 +56,7 @@ export default function ExecPage() {
 
   useEffect(() => {
     if (currentFlow) {
-      setShareLink(`${process.env.NEXT_PUBLIC_APP_URL}/exec/${dbContext?.databaseIdHash}/${agentContext.current?.id}`);
+      setShareLink(`${process.env.NEXT_PUBLIC_APP_URL}/exec/${dbContext?.databaseIdHash}/${agentContext.current?.id}?flow=${currentFlow.code}`);
     }
   }, [currentFlow]);
 
@@ -116,6 +117,22 @@ export default function ExecPage() {
       <AgentStatus status={status} />
       ) }
 
+
+        {flows?.length > 0 && (
+          <select className="form-select text-sm w-full mb-2 p-2 rounded border" value={currentFlow?.code ?? defaultFlow} onChange={(e) => {
+            const flow = flows.find(f => f.code === e.target.value);
+            if (flow) {
+              setRootFlow(flow.flow);
+              setCurrentFlow(flow);
+            }
+          }}>
+            {flows.map((flow, index) => (
+              <option key={index} value={flow.code}>{flow.name}</option>
+            ))}
+          </select>
+        )}
+
+
           <Accordion type="multiple" className="w-full" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}>
             <AccordionItem value="share"  className="rounded-lg border pl-2 pr-2 mb-2">
               <AccordionTrigger><div className="flex"><ShareIcon className="mr-2"/>{t('Share the flow link')}</div></AccordionTrigger>
@@ -133,14 +150,16 @@ export default function ExecPage() {
                 </div>
               </AccordionContent>
             </AccordionItem>
-            <AccordionItem value="run"  className="rounded-lg border pl-2 pr-2 mb-2">
-              <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Run the flow')}</div></AccordionTrigger>
-              <AccordionContent>
-                <ExecProvider>
-                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} />
-                </ExecProvider>
-              </AccordionContent>
-            </AccordionItem>
+            {agent && (
+              <AccordionItem value="run"  className="rounded-lg border pl-2 pr-2 mb-2">
+                <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Run the flow')} {currentFlow && t(`[${currentFlow?.name}]`)}</div></AccordionTrigger>
+                <AccordionContent>
+                  <ExecProvider>
+                    <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} />
+                  </ExecProvider>
+                </AccordionContent>
+              </AccordionItem>
+            )}
             <AccordionItem value="api" className="rounded-lg border pl-2 pr-2 mb-2">
               <AccordionTrigger>
                 <div className="flex"><CogIcon className="mr-2"/> {t('Run via API')}</div>
