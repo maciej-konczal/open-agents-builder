@@ -17,6 +17,8 @@ import { ChatMessageMarkdown } from "../chat-message-markdown"
 import { useTranslation } from "react-i18next"
 import { Chunk } from "@/flows/models"
 import Markdown from "react-markdown"
+import { HourglassIcon, TimerIcon } from "lucide-react"
+import { DataLoaderIcon } from "../data-loader-icon"
 
 // Types for your chunk data. Adjust fields as needed.
 
@@ -44,7 +46,7 @@ export function DebugLog({ chunks }: DebugLogProps) {
     >
       {chunks.map((chunk, index) => {
         // Attempt to derive a date (flowStart => startedAt, flowFinish => finishedAt, etc.)
-        const date = chunk.startedAt || chunk.finishedAt || t("No date")
+        const date = chunk.timestamp || t("No date")
         const headerTitle = chunk.name
           ? `${chunk.name} (${chunk.type})`
           : chunk.type
@@ -57,9 +59,18 @@ export function DebugLog({ chunks }: DebugLogProps) {
             className="mb-2"
           >
             <AccordionItem value={`chunk-${index}`}>
-              <AccordionTrigger className="flex items-center justify-between">
-                <span className="font-semibold">{headerTitle}</span>
-                <span className="ml-2 text-xs text-gray-500">{date}</span>
+              <AccordionTrigger>
+                <div className="grid grid-cols-2 w-full">
+                  <div className="font-semibold items-left text-left justify-start">{headerTitle}</div>
+                  <div className="ml-2 text-xs text-gray-500 flex items-center">{date}
+                  {chunk.duration && (
+                    <div className="flex ml-2 text-gray-500"><TimerIcon className="w-4 h-4 mr-2 ml-2"/> ({chunk.duration} s)</div>
+                  )}
+                  {chunk.type !== "error" && chunk.type !== "finalResult" && index == chunks.length-1 && (
+                    <div className="p-2 items-center justify-center"><HourglassIcon className="w-4 h-4 " /></div>
+                  )}
+                  </div>
+                </div>
               </AccordionTrigger>
 
               <AccordionContent>
@@ -95,7 +106,7 @@ export function DebugLog({ chunks }: DebugLogProps) {
                   )}
 
                   {/* If there's an input or anything else you want to display */}
-                  {chunk.input && (
+                  {chunk.input && (typeof chunk.input === 'string' || Object.values(chunk.input).length > 0) && (
                     <div>
                       <div className="font-semibold">{t('Input')}:</div>
                       {(typeof chunk.input === 'string') ? (safeJsonParse(chunk.input, null) === null ? <ChatMessageMarkdown>{chunk.input}</ChatMessageMarkdown>: <ChatMessages messages={[JSON.parse(chunk.input)]} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} displayTimestamps={false} />) :

@@ -63,7 +63,8 @@ const availableItems : {
     icon: BookTemplateIcon, 
     label: 'Expected result', 
     href: '/admin/agent/[id]/expected-result',
-    pattern: '/admin/agent/[id]/expected-result'
+    pattern: '/admin/agent/[id]/expected-result',
+    agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
   },
   {
     icon: CogIcon,

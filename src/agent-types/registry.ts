@@ -51,7 +51,7 @@ export const agentTypesRegistry : AgentTypeDescriptor[] = [
             pl: "Agenci oparte na przepływach pozwalają na tworzenie **złożonych scenariuszy**. Mogą być używane do **automatyzacji procesów** i rozwijania aplikacji, które są wywoływane przez API lub inne agenty, za pomocą **języka naturalnego**. Mogą być używane do **tworzenia drzew decyzyjnych** lub **integracji**.",
             en: "Flow-based agents let you create **complex scenarios**. They can be used to **automate processes** and develop apps that are called by API or other agents, using **natural language**. They can be used to **create decision trees** or **integrations**."    
         },
-        supportsUserFacingUI: false,
+        supportsUserFacingUI: true,
         requiredTabs: [],
         displayName: {
             'pl': 'Aplikacja / Workflow [API]',

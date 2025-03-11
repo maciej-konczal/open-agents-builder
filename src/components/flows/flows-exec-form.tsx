@@ -1,5 +1,5 @@
 import { Agent, AgentFlow } from "@/data/client/models";
-import { AgentDefinition, convertToFlowDefinition, EditorStep, FlowInputVariable } from "@/flows/models";
+import { AgentDefinition, Chunk, convertToFlowDefinition, EditorStep, FlowInputVariable } from "@/flows/models";
 import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -20,17 +20,18 @@ import { useExecContext } from "@/contexts/exec-context";
 import moment from "moment";
 import { FlowInputValuesFiller } from "./flows-input-filler";
 import { Axios, AxiosError } from "axios";
-import { Chunk, DebugLog } from "./flows-debug-log";
+import {  DebugLog } from "./flows-debug-log";
 import { set } from "date-fns";
 
 export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
-    { agent: Agent | undefined; agentFlow: AgentFlow | undefined; rootFlow: EditorStep | undefined, flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
+    { agent: Agent | undefined; agentFlow: AgentFlow | undefined; flows: AgentFlow[], agents: AgentDefinition[]; inputs: FlowInputVariable[] }) {
 
     const [sessionId, setSessionId] = useState<string>(nanoid());
     const [timeElapsed, setTimeElapsed] = useState<number>(0);
     let timeCounter = null;
     const [isInitializing, setIsInitializing] = useState<boolean>(true);
     const [flowResult, setFlowResult] = useState<any | null>(null);
+    const [execError, setExecError] = useState<string | null>(null);
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);
     const { t, i18n } = useTranslation();
@@ -71,8 +72,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
         }, [agent, dbContext?.databaseIdHash, i18n.language]);
 
   return (
-    <Card>
-        <CardContent className="p-4">
+    <div>
             {isInitializing ? (
                 <div className="text-center">
                     <div className="flex justify-center m-4"><DataLoader /></div>
@@ -91,6 +91,9 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                     setRequestParams(values);
                                 }} />
                             </div>
+                            {execError && (
+                                <div className="text-red-500 text-sm p-3">{execError}</div>
+                            )}
                             <div className="flex">
                                 {executionInProgress ? 
                                         <DataLoaderIcon />
@@ -99,26 +102,28 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                 const flow = flows.find(f => f.code === agentFlow?.code);
                                 
 
+                                setFlowResult(null);
                                 const requiredFields = agent?.inputs?.filter(input => input.required).map(input => input.name) ?? [];
                                 if (requestParams && typeof requestParams === 'object') {
                                     const missingFields = requiredFields.filter(field => !requestParams[field]);
 
                                     if (missingFields.length > 0) {
                                         toast.error(t('Please fill in all required fields: ') + missingFields.join(', '));
-                                        setFlowResult(t('Please fill in all required fields: ') + missingFields.join(', '));
+                                        setExecError(t('Please fill in all required fields: ') + missingFields.join(', '));
                                         return;
                                     }
                                 }
 
                                 if (!requestParams && requiredFields.length > 0) {
                                     toast.error(t('Please fill in all required fields: ') + requiredFields.join(', '));
-                                    setFlowResult(t('Please fill in all required fields: ') + requiredFields.join(', '));
+                                    setExecError(t('Please fill in all required fields: ') + requiredFields.join(', '));
                                     return;
                                 }
 
                                 if (flow) {
                                     const exec = async () => {
                                         setTimeElapsed(0);
+                                        setExecError('');
                                         setStackTraceChunks([]);
                                         setExecutionInProgress(true);
                                         try {
@@ -139,6 +144,10 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
                                                     if (chunk['type'] === 'finalResult') {
                                                         setFlowResult(chunk['result']);
                                                     }
+
+                                                    if (chunk['type'] === 'error') {
+                                                        setExecError(chunk['message']);
+                                                    }
                                                 }
                                             } catch (e) {
                                                 const respData = (e as AxiosError).response?.data ?? t('An error occurred');
@@ -149,6 +158,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
 
 
                                         } catch (e) {
+                                            setExecError(t('Failed to execute flow: ') + getErrorMessage(e));
                                             toast.error(t('Failed to execute flow: ') + getErrorMessage(e));
                                             console.error(e);
                                         }
@@ -197,10 +207,6 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows } :
             </Accordion>
         ) : null}
 
-        </CardContent>  
-
-        
-
-    </Card>
+    </div>
   );
 }

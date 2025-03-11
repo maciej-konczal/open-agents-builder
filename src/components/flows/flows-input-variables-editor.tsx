@@ -64,6 +64,7 @@ export function FlowInputVariablesEditor({
               <div className="space-y-2">
                 <Label className="block text-sm">{t('Symbol')}:</Label>
                 <Input
+                  className="text-sm"
                   value={variable.name}
                   onChange={(e) => updateVariable(index, { name: e.target.value })}
                   placeholder={t("eg. userEmail")}
@@ -79,6 +80,7 @@ export function FlowInputVariablesEditor({
               <div className="space-y-2">
                 <Label className="block text-sm">{t('Description (optional)')}</Label>
                 <Input
+                  className="text-sm"
                   value={variable.description || ''}
                   onChange={(e) => updateVariable(index, { description: e.target.value })}
                   placeholder={t('eg. user e-mail')}
@@ -105,6 +107,7 @@ export function FlowInputVariablesEditor({
                   <input
                     id={`required-checkbox-${index}`}
                     type="checkbox"
+                    className="text-sm"
                     checked={variable.required}
                     onChange={(e) => updateVariable(index, { required: e.target.checked })}
                   />

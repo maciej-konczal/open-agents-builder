@@ -70,6 +70,7 @@ export default function SessionsPage() {
         <Card key={session.id}>
           <CardHeader>
             <CardTitle>
+              
             <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary" onClick={() => {
               router.push(`/admin/agent/${session.agentId}/sessions/${session.id}`);
             }}>

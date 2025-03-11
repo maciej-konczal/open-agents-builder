@@ -4,7 +4,7 @@ import ServerResultRepository from "@/data/server/server-result-repository";
 import ServerSessionRepository from "@/data/server/server-session-repository";
 import { auditLog, authorizeSaasContext, genericDELETE } from "@/lib/generic-api";
 import { authorizeRequestContext } from "@/lib/authorization-api"
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 import { Agent, AgentFlow, Session, ToolConfiguration } from "@/data/client/models";
 import { openai } from "@ai-sdk/openai";
@@ -12,7 +12,7 @@ import { agent, execute } from 'flows-ai'
 import { Chunk, convertToFlowDefinition, messagesSupportingAgent } from "@/flows/models";
 import { prepareAgentTools } from "@/app/api/chat/route";
 import { toolRegistry } from "@/tools/registry";
-import { CoreUserMessage, FilePart, generateText, ImagePart, ToolSet } from "ai";
+import { CoreUserMessage, FilePart, generateText, ImagePart, TextPart, ToolSet } from "ai";
 import { createUpdateResultTool } from "@/tools/updateResultTool";
 import { z } from "zod";
 import { nanoid } from "nanoid";
@@ -24,6 +24,8 @@ import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVaria
 import { StorageService } from "@/lib/storage-service";
 import { files } from "jszip";
 import { exec } from "child_process";
+import { getMimeType, processFiles, replaceBase64Content } from "@/lib/file-extractor";
+import { timestamp } from "drizzle-orm/mysql-core";
 
 
 
@@ -102,7 +104,26 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                     let level = 0;
                     const variablesToInject: Record<string, string> = {}
-                    const filesToUpload: Record<string, string> = {}
+                    let filesToUpload: Record<string, string | string[]> = {}
+                    const compiledAgents: Record<string, any> = {}
+                    const stackTrace: Chunk[] = []
+
+                    let lastChunk = new Date();
+                    const outputAndTrace = (chunk: Chunk) => {
+                        chunk.duration = (new Date().getTime() - lastChunk.getTime()) / 1000; // in seconds
+                        const textChunk = replaceBase64Content(JSON.stringify(
+                            chunk
+                        ))
+                        
+                        if (controller && execRequest.outputMode === 'stream') {
+                            controller.enqueue(encoder.encode(textChunk));
+                        }
+
+                        stackTrace.push(JSON.parse(textChunk)); // serialize it back
+                        lastChunk = new Date();
+                    }                        
+
+
                     for (const i of masterAgent?.inputs ?? []) {
                         if (i.type !== 'fileBase64') { // TODO: process PDF files to images or OCR
                             variablesToInject[i.name] = inputObject[i.name] as string // skip the files 
@@ -110,9 +131,20 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             filesToUpload[i.name] = inputObject[i.name] as string
                         }
                     }
-                    const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
-                    applyInputTransformation(compiledFlow, (currentNode) => {
 
+                    const filesChunk =  {
+                        type: 'stepFinish',
+                        timestamp: new Date(),
+                        name: 'Extracting text from files ...'
+                    }
+                    outputAndTrace(filesChunk);             
+
+                    filesToUpload = processFiles({ inputObject: filesToUpload, pdfExtractText: false }); //extract text or convert PDF to images
+             
+                    const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
+                    const overallToolCalls = {}
+
+                    applyInputTransformation(compiledFlow, (currentNode) => {
                         if (currentNode.input && typeof currentNode.input === 'string') {
                             const usedVariables = extractVariableNames(currentNode.input);
                             const newInput = {
@@ -129,13 +161,33 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             for (const v of (usedVariables && usedVariables.length > 0 ? usedVariables : (masterAgent?.inputs?.map(i => i.name) ?? []))) {
                                 if (filesToUpload[v]) {  // this is file
-                                    (newInput.content as Array<ImagePart>).push(
-                                        {
-                                            type: 'image',
-                                            image: filesToUpload[v],
-                                            mimeType: filesToUpload[v].match(/^data:(.*?);base64,/)?.[1] || 'application/octet-stream'
+
+                                    const fileMapper = (key: string, file: string) => { // we get images from PDF or text from other formats
+                                        if (getMimeType(file)?.startsWith('image')) {
+                                            (newInput.content as Array<ImagePart>).push(
+                                                {
+                                                    type: 'image',
+                                                    image: file,
+                                                    mimeType: getMimeType(file) || 'application/octet-stream'
+                                                }
+                                            );
+                                        } else {
+                                            (newInput.content as Array<TextPart>).push(
+                                                {
+                                                    type: 'text',
+                                                    text: 'This is the content of @'+key + ' file:' + file
+                                                }
+                                            );
                                         }
-                                    );
+                                    }
+
+                                    if (Array.isArray(filesToUpload[v])) {
+                                        filesToUpload[v].forEach((fc) => fileMapper(v, fc as string));
+                                    } else 
+                                    {
+                                        fileMapper(v, filesToUpload[v] as string);
+                                    }
+
                                 }
 
                             }
@@ -144,8 +196,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                         return currentNode.input;
                     });
-                    const compiledAgents: Record<string, any> = {}
-                    const stackTrace: Chunk[] = []
 
                     // we need to put the inputs into the flow
                     for (const a of agents || []) {
@@ -165,7 +215,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             onStepFinish: async (result) => { // TODO build traces in here, save it to db; one session may have multiple traces
                                 const { usage, response } = result;
-
                                 let session = null
                                 if (existingSession && existingSession.messages) {
                                     session = Session.fromDTO(existingSession);
@@ -204,17 +253,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                                 const chunk =                                         {
                                     type: 'stepFinish',
+                                    timestamp: new Date(),
                                     name: a.name + ' (' + a.model + ')',
                                     messages: result.response.messages
                                 }
-
-                                stackTrace.push(chunk);
-
-                                if (controller && execRequest.outputMode === 'stream') {
-                                    controller.enqueue(encoder.encode(JSON.stringify(
-                                        chunk
-                                    )))
-                                }
+                                outputAndTrace(chunk);
 
                             },
                             model: openai(a.model, {}),
@@ -235,19 +278,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         compiledFlow, {
                         agents: compiledAgents,
                         onFlowStart: (flow) => {
-                            const chunk =                                     {
+                            const chunk = {
                                 type: 'flowStart',
                                 name: flow.name,
                                 input: flow.input,
-                                startedAt: new Date(),
+                                timestamp: new Date(),
                             };
-                            if (controller && execRequest.outputMode === 'stream') {
-                                controller.enqueue(encoder.encode(JSON.stringify(
-                                    chunk
-                                )))
-                            }
-
-                            stackTrace.push(chunk);
+                            outputAndTrace(chunk);
                         },
                         onFlowFinish: (flow, result) => {
 
@@ -267,19 +304,26 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     )
 
                     const chunk = {
-                        type: 'finalResponse',
+                        type: 'finalResult',
                         name: flow.name,
                         result: response,
-                        finishedAt: new Date(),
+                        timestamp: new Date(),
                     }
-                    stackTrace.push(chunk);
-                    if (controller && execRequest.outputMode === 'stream') {
-                        controller.enqueue(encoder.encode(JSON.stringify(
-                            chunk
-                        )))
-                    }
+                    outputAndTrace(chunk);
 
 
+                    const resultRepo = new ServerResultRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null);
+                    const existingResult = await resultRepo.findOne({ sessionId });
+                    if (!existingResult) {
+                        resultRepo.upsert({ sessionId }, {
+                            sessionId,
+                            agentId,
+                            content: response,
+                            createdAt: new Date().toISOString(),
+                            updatedAt: new Date().toISOString(),
+                            format: safeJsonParse(response, null) !== null ? 'json' : 'markdown'
+                        });
+                    }
                     return response;
                 };
 

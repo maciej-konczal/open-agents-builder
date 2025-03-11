@@ -172,6 +172,20 @@ git clone https://github.com/CatchTheTornado/agent-doodle
 cd agent-doodle
 ```
 
+Install required dependencies: `poppler` and `markitdown`:
+
+```bash
+pip install markitdown
+pip install poppler
+```
+or - install `pipx` using `brew install pipx` (on Mac) or `apt-get install pipx` (on Debian) for managing your defualt Python 3 env automatically, and run:
+
+```bash
+pipx install markitdown
+pipx install poppler
+```
+
+
 Now, edit the `ENV` variables:
 
 ```bash

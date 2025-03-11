@@ -5,17 +5,30 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
-import React, { useEffect, useState } from 'react';
+import React, { use, useContext, useEffect, useState } from 'react';
 import { EditorStep } from '@/flows/models';
 import { AgentFlow } from '@/data/client/models';
 import { safeJsonParse } from '@/lib/utils';
 import { FlowsExecForm } from '@/components/flows/flows-exec-form';
+import { ExecProvider } from '@/contexts/exec-context';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { CogIcon, CopyIcon, PlayIcon, ShareIcon } from 'lucide-react';
+import { FlowAgentsEditor } from '@/components/flows/flows-agent-editor';
+import { Input } from '@/components/ui/input';
+import { DatabaseContext } from '@/contexts/db-context';
+import { Button } from '@/components/ui/button';
+import { useCopyToClipboard } from 'react-use';
+import { toast } from 'sonner';
 
 export default function ExecPage() {
 
+  const dbContext = useContext(DatabaseContext);
+  const agentContext = useAgentContext();
   const { t } = useTranslation();
   const router = useRouter();
+  const [, copy] = useCopyToClipboard();
   const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
+  const [currentTabs, setCurrentTabs] = useState<string[]>(['run', 'share']);
 
   const { register, handleSubmit, setValue, getValues, watch, formState: { errors } } = useForm({
     defaultValues: agent ? agent.toForm(null) : {},
@@ -32,12 +45,19 @@ export default function ExecPage() {
   const flows = watch('flows') ?? [] as AgentFlow[];
   const [rootFlow, setRootFlow] = useState<EditorStep | undefined>(undefined);
   const [currentFlow, setCurrentFlow] = useState<AgentFlow | undefined>(undefined);
+  const [shareLink, setShareLink] = useState<string>('');
 
   const onFlowChanged = (value: EditorStep) => {
     if (rootFlow) {
       setRootFlow(value);
     }
   }
+
+  useEffect(() => {
+    if (currentFlow) {
+      setShareLink(`${process.env.NEXT_PUBLIC_APP_URL}/exec/${dbContext?.databaseIdHash}/${agentContext.current?.id}`);
+    }
+  }, [currentFlow]);
 
   useEffect(() => { 
     if (rootFlow && currentFlow) {
@@ -90,23 +110,45 @@ export default function ExecPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-
-      </div>
-
       { isDirty ? (
         <AgentStatus status={{ id: 'dirty', message: t('You have unsaved changes'), type: 'warning' }} />
       ) : (
       <AgentStatus status={status} />
       ) }
 
-        <div>
-          {rootFlow && currentFlow && agent && (
-            <FlowsExecForm agentFlow={currentFlow} agent={agent} agents={agents ?? []} flows={flows ?? []} inputs={inputs ?? []} rootFlow={rootFlow}  />
-          )}
-
-        </div>
-
+          <Accordion type="multiple" className="w-full" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}>
+            <AccordionItem value="share"  className="rounded-lg border pl-2 pr-2 mb-2">
+              <AccordionTrigger><div className="flex"><ShareIcon className="mr-2"/>{t('Share the flow link')}</div></AccordionTrigger>
+              <AccordionContent>
+                <p className="text-sm">{t('To let the users use this flow please simply copy and share the following link')}:</p>
+                <div className="flex pt-2">
+                  <Input type="text" value={shareLink} readOnly className="w-full"/>
+                  <Button variant="ghost"  onClick={() => {
+                    copy(shareLink)
+                    toast.info(t('Link has been copied to clipboard'));
+                  } 
+                }>
+                    <CopyIcon className="w-4 h-4 mt-2 cursor-pointer"/>
+                  </Button>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="run"  className="rounded-lg border pl-2 pr-2 mb-2">
+              <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Run the flow')}</div></AccordionTrigger>
+              <AccordionContent>
+                <ExecProvider>
+                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} />
+                </ExecProvider>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="api" className="rounded-lg border pl-2 pr-2 mb-2">
+              <AccordionTrigger>
+                <div className="flex"><CogIcon className="mr-2"/> {t('Run via API')}</div>
+              </AccordionTrigger>
+              <AccordionContent>
+              </AccordionContent>
+            </AccordionItem>            
+          </Accordion>
     </div>
   );
 }
