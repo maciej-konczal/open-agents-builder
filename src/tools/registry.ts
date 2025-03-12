@@ -38,7 +38,6 @@ export const toolRegistry = {
       listProducts: createListProductsTool(databaseIdHash),
       attachmentContent: createAttachmentContentTool(databaseIdHash, storageKey, StorageSchemas.Default),
       listAttachments: createListAttachmentsTool(databaseIdHash, storageKey, StorageSchemas.Default),
-
       httpTool: httpTool
     }
 

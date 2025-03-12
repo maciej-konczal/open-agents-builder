@@ -9,7 +9,7 @@ export function createTraceTool(databaseIdHash: string, traceLog: (chunk: Chunk)
     return {
     displayName: 'Trace status',
     tool:tool({
-        description: 'Trace status',
+        description: 'Trace status when user ask you explcitly to trace something or to use this tool. Otherwise don not use it',
         parameters: z.object({
             type: z.string().describe('Required type of the trace: message, step, result, error'),
             name: z.string().optional(),

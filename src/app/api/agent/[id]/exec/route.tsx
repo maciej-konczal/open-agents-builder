@@ -176,19 +176,21 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     type: 'text',
                                     text: 'User input: ' + JSON.stringify(execRequest.input)
                                 });
-                                (newInput.content as Array<TextPart>).push({
-                                    type: 'text',
-                                    text: 'Context: ' + JSON.stringify({
-                                        sessionId,
-                                        currentDateTimeIso,
-                                        currentLocalDateTime,
-                                        currentTimezone,
-                                        agentId,
-                                        defaultLocale: masterAgent.locale
-                                    })
-                                }
-                                )
                             }
+                            (newInput.content as Array<TextPart>).push({
+                                type: 'text',
+                                text: 'Context: ' + JSON.stringify({
+                                    sessionId,
+                                    currentDateTimeIso,
+                                    currentLocalDateTime,
+                                    currentTimezone,
+                                    agentId,
+                                    defaultLocale: masterAgent.locale
+                                })
+                            })
+                            
+                            
+                            
                             for (const v of (usedVariables && usedVariables.length > 0 ? usedVariables : (masterAgent?.inputs?.map(i => i.name) ?? []))) {
                                 if (filesToUpload[v]) {  // this is file
 
@@ -298,7 +300,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     }
                                 }
 
-                                const chunk =                                         {
+                                const chunk = {
                                     type: 'stepFinish',
                                     timestamp: new Date(),
                                     name: a.name + ' (' + a.model + ')',
@@ -315,7 +317,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                             tools: {
                                 ...customTools,
                                 traceTool: traceToolInstance,
-                                updateResultTool: updateResultToolInstance,
+                                updateResultTool: updateResultToolInstance
                             }
                         })
                     };
