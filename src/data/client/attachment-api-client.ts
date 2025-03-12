@@ -66,7 +66,7 @@ export class AttachmentApiClient extends AdminApiClient {
       const { limit, offset, orderBy, query } = params;
       const queryParams = urlParamsForQuery({ limit, offset, orderBy: orderBy || '', query: query || '' });
       return this.request<GetAttachmentPaginatedResponse>(
-        `/api/attachment?${queryParams}`,
+        `/api/attachment/query?${queryParams}`,
         "GET",
         { ecnryptedFields: [] }
       ) as Promise<GetAttachmentPaginatedResponse>;
