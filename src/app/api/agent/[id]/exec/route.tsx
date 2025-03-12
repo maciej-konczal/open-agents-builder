@@ -316,7 +316,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             tools: {
                                 ...customTools,
-                                traceTool: traceToolInstance,
+                                //traceTool: traceToolInstance,
                                 updateResultTool: updateResultToolInstance
                             }
                         })
