@@ -119,7 +119,7 @@ export function CreateDatabaseForm({
           />
           {errors.email && <span className="text-red-500 text-sm">{t('E-mail must be a valid e-mail address and unique')}</span>}
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {t('Please enter your e-email adress which let us create an account and a database for You.')}
+              {t('Please enter your e-email address which let us create an account and a database for You.')}
           </p>        
 
         </div>
