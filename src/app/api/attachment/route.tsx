@@ -1,10 +1,11 @@
 import { AttachmentDTO, attachmentDTOSchema, StorageSchemas } from "@/data/dto";
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
-import { authorizeStorageSchema, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeSaasContext, authorizeStorageSchema, genericGET, genericPUT } from "@/lib/generic-api";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
+import { processFiles } from "@/lib/file-extractor";
 
 
 // Rest of the code
@@ -29,19 +30,77 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 async function handlePUTRequest(inputJson: any, request: NextRequest, response: NextResponse, file?: File) {
     const requestContext = await authorizeRequestContext(request, response);
     const storageSchema = await authorizeStorageSchema(request, response);
+    const saasContext = await authorizeSaasContext(request);
+    const attRepo = new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, storageSchema);
 
     const storageService = new StorageService(requestContext.databaseIdHash, storageSchema);
     let apiResult = await genericPUT<AttachmentDTO>(
         inputJson,
         attachmentDTOSchema,
-        new ServerAttachmentRepository(requestContext.databaseIdHash, storageSchema),
+        attRepo,
         'id'
     );
+
+    // TODO add markitdown extraction + data encryption
+
+
     if (apiResult.status === 200) { // validation went OK, now we can store the file
         if (file) { // file could be not uploaded in case of metadata update
             try {
                 const savedAttachment: AttachmentDTO = apiResult.data as AttachmentDTO;
-                storageService.saveAttachment(file, savedAttachment.storageKey);
+                await storageService.saveAttachment(file, savedAttachment.storageKey);
+
+                const extractFileContent = async (savedAttachment: AttachmentDTO) => {
+
+                    try {
+                        const inputObject = {
+                            fileContent : storageService.readAttachmentAsBase64WithMimeType(savedAttachment.storageKey, savedAttachment.mimeType ? savedAttachment.mimeType : "application/octet-stream")
+                        };
+
+                        attRepo.upsert({
+                            id: savedAttachment.id
+                        }, {
+                            ...savedAttachment,
+                            extra: JSON.stringify({ status: 'extracting' })
+                        });
+
+
+                        const processedFiles = processFiles({
+                            inputObject,
+                            pdfExtractText: true
+                        });
+
+                        const extractedContent = processedFiles['fileContent'];
+                        console.log(processedFiles);
+                        if (extractedContent) {
+                            attRepo.upsert({
+                                id: savedAttachment.id
+                            }, {
+                                ...savedAttachment,
+                                extra: '',
+                                content: Array.isArray(extractedContent) ? extractedContent.join("\n") : extractedContent
+                            });
+
+                        } else {
+                            console.error("Error extracting file content", savedAttachment.storageKey, savedAttachment.displayName);
+                        }
+                    } catch (e) {
+                        console.error("Error extracting file content", e);
+                        attRepo.upsert({
+                            id: savedAttachment.id
+                        }, {
+                            ...savedAttachment,
+                            extra: JSON.stringify({ status: 'error', error: getErrorMessage(e) })
+                        });
+
+                    }
+                }
+
+                if (!savedAttachment.mimeType?.startsWith("image")) {
+                    extractFileContent(savedAttachment);
+                }
+                
+
             } catch (e) {
                 console.error("Error saving attachment", e);
                 apiResult.status = 500;
@@ -56,5 +115,7 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
 export async function GET(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
     const storageSchema = await authorizeStorageSchema(request, response);
-    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.databaseIdHash, storageSchema)));
+    const saasContext = await authorizeSaasContext(request);
+
+    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, storageSchema)));
 }

@@ -10,6 +10,10 @@ import { dayNameTool } from './dayNameTool';
 import { createCreateOrderTool } from './createOrderTool';
 import { createListProductsTool } from './listProductsTool';
 import { httpTool } from './httpTool';
+import { createAttachmentContentTool } from './attachmentContentTool';
+import { StorageSchemas } from '@/data/dto';
+import { list } from 'postcss';
+import { createListAttachmentsTool } from './listAttachmentsTool';
 
 
 export type ToolDescriptor = {
@@ -32,7 +36,8 @@ export const toolRegistry = {
       dayName: dayNameTool,
       createOrderTool: createCreateOrderTool(databaseIdHash, agentId, sessionId, storageKey),
       listProducts: createListProductsTool(databaseIdHash),
-
+      attachmentContent: createAttachmentContentTool(databaseIdHash, storageKey, StorageSchemas.Default),
+      listAttachments: createListAttachmentsTool(databaseIdHash, storageKey, StorageSchemas.Default),
       httpTool: httpTool
     }
 

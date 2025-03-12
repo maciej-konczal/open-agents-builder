@@ -17,7 +17,7 @@ const simplifiedAddressSchema = z.object({
     city: z.string().optional().describe("City name"),
     name: z.string().optional().describe("Full name of the recipient or company name"),
     phone: z.string().optional().describe("Phone number - optional"),
-    summary: z.string().optional().describe("Summary of the address could be whole adress combined or some notes etc"),
+    summary: z.string().optional().describe("Summary of the address could be whole address combined or some notes etc"),
     postalCode: z.string().optional().describe("Postal code"),
 });
 

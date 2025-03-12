@@ -40,7 +40,7 @@ const ResultDetails: FC<ResultDetailsProps> = ({
     <Card className="w-full">
       <CardContent className="p-4">
         <div className="grid grid-cols-2 gap-2 text-sm w-full">
-          <SessionHeader session={{ userName, userEmail }} />
+          <SessionHeader session={{ userName, userEmail, id: sessionId }} />
 
           <div className="flex text-xs">
             <CalendarIcon className="w-4 h-4 mr-2" /> {t('Started')}: <span className="ml-2 font-medium">{formatDate(sessionStart)}</span>

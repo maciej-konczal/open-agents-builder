@@ -132,6 +132,9 @@ export async function authorizeSaasToken(databaseIdHash?:string | null, saasToke
 
 export async function authorizeStorageSchema(request: Request, response?: NextResponse): Promise<string> {
     const storageSchema = request.headers.get('Storage-Schema') || StorageSchemas.Default;
+    if (storageSchema === StorageSchemas.Default) // default is empty string
+        return storageSchema;
+    
     if (storageSchema && [StorageSchemas.Commerce, StorageSchemas.Default].includes(storageSchema as StorageSchemas)) {
         return storageSchema;
     } else {

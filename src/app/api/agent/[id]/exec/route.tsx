@@ -17,7 +17,7 @@ import { createUpdateResultTool } from "@/tools/updateResultTool";
 import { z } from "zod";
 import { nanoid } from "nanoid";
 import { validateTokenQuotas } from "@/lib/quotas";
-import { resultDTOSchema, SessionDTO, StatDTO } from "@/data/dto";
+import { resultDTOSchema, SessionDTO, StatDTO, StorageSchemas } from "@/data/dto";
 import ServerStatRepository from "@/data/server/server-stat-repository";
 import { setRecursiveNames } from "@/lib/json-path";
 import { applyInputTransformation, createDynamicZodSchemaForInputs, extractVariableNames, injectVariables, replaceVariablesInString } from "@/flows/inputs";
@@ -26,6 +26,8 @@ import { files } from "jszip";
 import { exec } from "child_process";
 import { getMimeType, processFiles, replaceBase64Content } from "@/lib/file-extractor";
 import { timestamp } from "drizzle-orm/mysql-core";
+import { createTraceTool } from "@/tools/traceTool";
+import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
 
 
 
@@ -75,8 +77,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             const agentsRepo = new ServerAgentRepository(databaseIdHash);
             const dto = await agentsRepo.findOne({ id: recordLocator });
 
-            const updateResultToolInstance = createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
-
             if (dto) {
                 const masterAgent = Agent.fromDTO(dto);
 
@@ -100,10 +100,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const inputObject = await inputSchema.parse(execRequest.input);
                 const { agents, flows, inputs } = masterAgent;
-                const encoder = new TextEncoder();
 
                 const execFLow = async (flow: AgentFlow, controller: ReadableStreamDefaultController<any> | null = null) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
 
+                    const updateResultToolInstance = createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
+                    //const traceToolInstance = 
+                
+                    
                     let level = 0;
                     const variablesToInject: Record<string, string> = {}
                     let filesToUpload: Record<string, string | string[]> = {}
@@ -111,6 +114,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                     const stackTrace: Chunk[] = []
 
                     let lastChunk = new Date();
+                    const encoder = new TextEncoder();
+
                     const outputAndTrace = (chunk: Chunk) => {
                         chunk.duration = (new Date().getTime() - lastChunk.getTime()) / 1000; // in seconds
                         const textChunk = replaceBase64Content(JSON.stringify(
@@ -123,7 +128,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                         stackTrace.push(JSON.parse(textChunk)); // serialize it back
                         lastChunk = new Date();
-                    }                        
+                    }
+                    const traceToolInstance = createTraceTool(databaseIdHash, (params: Chunk) => {
+                        outputAndTrace(params);
+                    }, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool                        
 
 
                     for (const i of masterAgent?.inputs ?? []) {
@@ -134,19 +142,23 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         }
                     }
 
-                    const filesChunk =  {
-                        type: 'stepFinish',
-                        timestamp: new Date(),
-                        name: 'Extracting text from files ...'
+                    if (Object.keys(filesToUpload).length > 0) {
+                        const filesChunk =  {
+                            type: 'stepFinish',
+                            timestamp: new Date(),
+                            name: 'Extracting text from files ...'
+                        }
+                        outputAndTrace(filesChunk);             
                     }
-                    outputAndTrace(filesChunk);             
 
                     filesToUpload = processFiles({ inputObject: filesToUpload, pdfExtractText: false }); //extract text or convert PDF to images
-             
+
+
+                    const attRepo = new ServerAttachmentRepository(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, StorageSchemas.Default);
                     const compiledFlow = injectVariables(convertToFlowDefinition(flow?.flow), variablesToInject)
                     const overallToolCalls = {}
 
-                    applyInputTransformation(compiledFlow, (currentNode) => {
+                    await applyInputTransformation(compiledFlow, async (currentNode) => {
                         if (currentNode.input && typeof currentNode.input === 'string') {
                             const usedVariables = extractVariableNames(currentNode.input);
                             const newInput = {
@@ -159,8 +171,26 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 ]
                             } as CoreUserMessage
 
-
-
+                            if (execRequest.input) { // there's some input passed anyways
+                                (newInput.content as Array<TextPart>).push({
+                                    type: 'text',
+                                    text: 'User input: ' + JSON.stringify(execRequest.input)
+                                });
+                            }
+                            (newInput.content as Array<TextPart>).push({
+                                type: 'text',
+                                text: 'Context: ' + JSON.stringify({
+                                    sessionId,
+                                    currentDateTimeIso,
+                                    currentLocalDateTime,
+                                    currentTimezone,
+                                    agentId,
+                                    defaultLocale: masterAgent.locale
+                                })
+                            })
+                            
+                            
+                            
                             for (const v of (usedVariables && usedVariables.length > 0 ? usedVariables : (masterAgent?.inputs?.map(i => i.name) ?? []))) {
                                 if (filesToUpload[v]) {  // this is file
 
@@ -190,8 +220,25 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                         fileMapper(v, filesToUpload[v] as string);
                                     }
 
-                                }
+                                } else {
+                                    if (v) {
+                                        if (!variablesToInject[v])  { // no uploaded file, no variable - so it's surely an attachment
+                                            const attachments = await attRepo.queryAll( { query: v, limit: 1, offset: 0, orderBy: 'createdAt' });   
 
+                                            if (attachments && attachments.rows.length > 0) {
+                                                if (attachments.rows[0].symbolicNameIdentifier === v) {         
+                                                    (newInput.content as Array<TextPart>).push(
+                                                        {
+                                                            type: 'text',
+                                                            text: 'This is the content of @'+v + ' file:' + attachments.rows[0].content
+                                                        }
+                                                    );                                                
+                                                }
+                                            }
+
+                                        }
+                                    }
+                                }
                             }
                             return JSON.stringify(newInput);
                         }
@@ -253,7 +300,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                     }
                                 }
 
-                                const chunk =                                         {
+                                const chunk = {
                                     type: 'stepFinish',
                                     timestamp: new Date(),
                                     name: a.name + ' (' + a.model + ')',
@@ -269,7 +316,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             tools: {
                                 ...customTools,
-                                updateResultTool: updateResultToolInstance,
+                                traceTool: traceToolInstance,
+                                updateResultTool: updateResultToolInstance
                             }
                         })
                     };

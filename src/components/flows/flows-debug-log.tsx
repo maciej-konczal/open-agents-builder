@@ -82,7 +82,7 @@ export function DebugLog({ chunks }: DebugLogProps) {
                   )}
 
                   {chunk.message && (
-                    <div className="text-red-500">
+                    <div className={chunk.type === 'error' ? "text-red-500" : ''}>
                         <ChatMessageMarkdown>{chunk.message}</ChatMessageMarkdown>
                     </div>
                   )}
@@ -106,11 +106,11 @@ export function DebugLog({ chunks }: DebugLogProps) {
                   )}
 
                   {/* If there's an input or anything else you want to display */}
-                  {chunk.input && (typeof chunk.input === 'string' || Object.values(chunk.input).length > 0) && (
+                  {chunk.input && ((typeof chunk.input === 'string' && chunk.input !== "") && Object.values(chunk.input).length > 0) && (
                     <div>
-                      <div className="font-semibold">{t('Input')}:</div>
+                      <div className="font-semibold">{t('Input')}</div>
                       {(typeof chunk.input === 'string') ? (safeJsonParse(chunk.input, null) === null ? <ChatMessageMarkdown>{chunk.input}</ChatMessageMarkdown>: <ChatMessages messages={[JSON.parse(chunk.input)]} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} displayTimestamps={false} />) :
-                                <JsonView value={safeJsonParse(chunk.input, {})} />}
+                                (chunk.input ? <JsonView value={safeJsonParse(chunk.input, {})} /> : null)}
 
                     </div>
                   )}

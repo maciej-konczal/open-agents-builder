@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
         const converter = new showdown.Converter({ tables: true, completeHTMLDocument: true, openLinksInNewWindow: true });
         converter.setFlavor('github');
         const stg = new StorageService(requestContext.databaseIdHash, 'commerce');
-        const attRepo = new ServerAttachmentRepository(requestContext.databaseIdHash, 'commerce');
+        const attRepo = new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, 'commerce');
 
         let indexMd = '# Open Agents Builder Products Export\n\n';
 

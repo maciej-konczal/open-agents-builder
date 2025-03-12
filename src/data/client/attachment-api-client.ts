@@ -1,9 +1,12 @@
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
-import { AttachmentDTO } from "../dto";
+import { AttachmentDTO, PaginatedResult } from "../dto";
 import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
+import { urlParamsForQuery } from "./base-api-client";
 
 export type PutAttachmentRequest = FormData | AttachmentDTO;
+export type GetAttachmentPaginatedResponse = PaginatedResult<AttachmentDTO[]>;
+
 
 export type PutAttachmentResponseSuccess = {
   message: string;
@@ -58,5 +61,21 @@ export class AttachmentApiClient extends AdminApiClient {
         }
       ) as Promise<DeleteAttachmentResponse>;
     }
+
+    async query(params: { limit: number; offset: number; orderBy?: string; query?: string; }): Promise<GetAttachmentPaginatedResponse> {
+      const { limit, offset, orderBy, query } = params;
+      const queryParams = urlParamsForQuery({ limit, offset, orderBy: orderBy || '', query: query || '' });
+      return this.request<GetAttachmentPaginatedResponse>(
+        `/api/attachment/query?${queryParams}`,
+        "GET",
+        { ecnryptedFields: [] },
+        undefined,
+        undefined,
+        undefined,
+        {
+          'Storage-Schema': this.storageSchema
+        }
+      ) as Promise<GetAttachmentPaginatedResponse>;
+    }    
     
   }

@@ -39,7 +39,8 @@ export type AttachmentAssigmentDTO = {
 
 export const attachmentDTOSchema = z.object({
   id: z.number().positive().optional(),
-  displayName: z.string().min(1),
+  displayName: z.string().optional().nullable(),
+  symbolicNameIdentifier: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
 
   mimeType: z.string().optional().nullable(),
@@ -47,9 +48,11 @@ export const attachmentDTOSchema = z.object({
   json: z.string().optional().nullable(),
   extra: z.string().optional().nullable(),
 
-  size: z.number().positive().int(),
+  size: z.number().positive().int().nullable(),
   storageKey: z.string().min(1),
   filePath: z.string().optional(),
+
+  content: z.string().optional().nullable(),
 
   createdAt: z.string().default(() => getCurrentTS()),
   updatedAt: z.string().default(() => getCurrentTS()),

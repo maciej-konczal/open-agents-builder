@@ -1,7 +1,8 @@
 import { execSync } from 'child_process';
 import { mkdtempSync, writeFileSync, readFileSync, readdirSync, unlinkSync, rmdirSync } from 'fs';
+import { file } from 'jszip';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import path, { join } from 'path';
 
 export interface ProcessFilesParams {
   inputObject: Record<string, string | string[]>; // base64 or array of base64
@@ -24,18 +25,20 @@ export function getFileExtensionFromMimeType(mimeType: string): string {
     'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
     'text/html': 'html',
     'text/csv': 'csv',
+    'application/json': 'json',
+    'application/zip': 'zip',
     'text/markdown': 'md',
+    'text/plain': 'txt'
     // add more as needed...
   };
-  return map[mimeType] || 'bin';
+  return map[mimeType] || "not_convertible";
 }
 
 /**
  * Convert non-image, non-PDF documents to text/Markdown via markitdown.
  */
 export function convertFileToText(filePath: string, outputPath: string): void {
-  // markitdown example: markitdown convert input.pdf -o output.md
-  execSync(`markitdown  "${filePath}" -o "${outputPath}"`, { stdio: 'ignore' });
+  execSync(`markitdown  "${filePath}" > "${outputPath}"`, { stdio: 'ignore' });
 }
 
 /**
@@ -118,6 +121,12 @@ export function processFiles({
         // Save array of images
         result[key] = images;
       } else {
+
+        if(mimeType.startsWith('application/json')) {
+          result[key] = Buffer.from(base64Str.split(',')[1], 'base64').toString('utf-8');
+          continue;
+        }
+
         // Extract text from PDF
         const tempDir = mkdtempSync(join(tmpdir(), 'markitdown-'));
         const inputFilename = join(tempDir, 'input.pdf');
@@ -125,7 +134,6 @@ export function processFiles({
 
         const outputFilename = join(tempDir, 'output.md');
         convertFileToText(inputFilename, outputFilename);
-
         const docText = readFileSync(outputFilename, 'utf-8');
         cleanupTempDir(tempDir);
         // Return the text
@@ -134,20 +142,38 @@ export function processFiles({
       continue;
     }
 
+    const fileExt = getFileExtensionFromMimeType(mimeType);
+    const tempDir = mkdtempSync(join(tmpdir(), 'markitdown-'));
+
     // 3) Any other file => convert to text (via markitdown)
-    {
-      const fileExt = getFileExtensionFromMimeType(mimeType);
-      const tempDir = mkdtempSync(join(tmpdir(), 'markitdown-'));
-      const inputFilename = join(tempDir, `input.${fileExt}`);
-      writeFileSync(inputFilename, Buffer.from(base64Str.split(',')[1], 'base64'));
+    try {
+      if (fileExt === 'not_convertible') { // if thile is not convertible then try to return it as text
+        // If we don't recognize the file type, just pass it
+        // In case of error, return the error message
+        const content = Buffer.from(base64Str.split(',')[1], 'base64');
+        // Check if the content contains non-printable characters
+        const isBinary = content.some(byte => (byte < 32 && byte !== 9 && byte !== 10 && byte !== 13) || byte === 255);
+        if (isBinary) {
+          throw new Error('Unsupported file format: Text file detected');
+        }
+        result[key] = content.toString('utf-8');
+        cleanupTempDir(tempDir);
+        
+      } else {
+        const inputFilename = join(tempDir, `input.${fileExt}`);
+        writeFileSync(inputFilename, Buffer.from(base64Str.split(',')[1], 'base64'));
 
-      const outputFilename = join(tempDir, 'output.md');
-      convertFileToText(inputFilename, outputFilename);
+        const outputFilename = join(tempDir, 'output.md');
+        convertFileToText(inputFilename, outputFilename);
 
-      const docText = readFileSync(outputFilename, 'utf-8');
-      cleanupTempDir(tempDir);
+        const docText = readFileSync(outputFilename, 'utf-8');
+        cleanupTempDir(tempDir);
 
-      result[key] = docText;
+        result[key] = docText;
+      }
+    } catch (e) {
+      console.error(e);
+      continue;
     }
   }
 
