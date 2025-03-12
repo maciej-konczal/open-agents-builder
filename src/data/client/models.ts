@@ -24,6 +24,7 @@ export enum DatabaseAuthStatus {
 
 export type AttachmentExtra = {
     status: string;
+    error: string;
 }
 
 export type AttachmentAssigment = {

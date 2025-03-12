@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
 import InfiniteScroll from "@/components/infinite-scroll";
-import { Loader2, TrashIcon } from "lucide-react";
+import { FileWarningIcon, HourglassIcon, Loader2, TrashIcon } from "lucide-react";
 
 import { AttachmentDTO, PaginatedQuery, PaginatedResult } from "@/data/dto";
 import { getErrorMessage } from "@/lib/utils";
@@ -167,8 +167,12 @@ export default function FilesPage() {
                         <CardContent className="text-xs">
                             <p><span className="font-bold">{t('Type')}:</span> {attachment.mimeType}</p>
                             {attachment.extra && attachment.extra.status === "extracting" && (
-                                <p className="text-red-500">{t("Extracting content...")}</p>
+                                <p className="text-orange-500 flex p-4 text-center justify-center"><HourglassIcon className="mr-2 w-4 h-4" /> {t("Extracting content...")}</p>
                             )}
+                            {attachment.extra && attachment.extra.status === "error" && (
+                                <p className="text-red-500 flex p-4 text-center justify-center"><FileWarningIcon className="mr-2 w-4 h-4" /> {t("Extracting content error")}: {attachment.extra.error}</p>
+                            )}
+
                             {attachment.mimeType?.startsWith("image") && (
                                 <img
                                     src={`/storage/attachment/${dbContext?.databaseIdHash}/${attachment.storageKey}`}
@@ -177,7 +181,7 @@ export default function FilesPage() {
                                 />
                             )}
                             {attachment.content && (
-                                <ChatMessageMarkdown className="text-xs truncate">
+                                <ChatMessageMarkdown className="text-xs h-40 p-4 border bg-white text-gray-500 shadow-sm border-gray-200 rounded mt-2">
                                     {attachment.content.length > 100 ? `${attachment.content.substring(0, 100)}...` : attachment.content}
                                 </ChatMessageMarkdown>
                             )}
@@ -189,12 +193,11 @@ export default function FilesPage() {
                                 </Button>
                                 
                                 <Button
-                                    variant="destructive"
+                                    variant="outline"
                                     size="sm"
                                     onClick={() => handleDelete(attachment)}
                                 >
-                                    <TrashIcon className="w-4 h-4 mr-2" />
-                                    {t("Delete")}
+                                    <TrashIcon className="w-4 h-4" />
                                 </Button>
                             </div>
                         </CardContent>
