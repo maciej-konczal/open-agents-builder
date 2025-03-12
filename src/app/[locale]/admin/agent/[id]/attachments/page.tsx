@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
 import InfiniteScroll from "@/components/infinite-scroll";
-import { FileWarningIcon, HourglassIcon, Loader2, TrashIcon } from "lucide-react";
+import { CopyIcon, FileWarningIcon, HourglassIcon, Loader2, TrashIcon } from "lucide-react";
 
 import { AttachmentDTO, PaginatedQuery, PaginatedResult } from "@/data/dto";
 import { getErrorMessage } from "@/lib/utils";
@@ -25,6 +25,9 @@ import { AttachmentUploader } from "@/components/attachment-uploader";
 import { Attachment } from "@/data/client/models";
 import { ChatMessageMarkdown } from "@/components/chat-message-markdown";
 import { useAgentContext } from "@/contexts/agent-context";
+import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { useCopyToClipboard } from "react-use";
+import { Textarea } from "@/components/ui/textarea";
 
 export default function FilesPage() {
     const router = useRouter();
@@ -32,7 +35,11 @@ export default function FilesPage() {
     const agentContext = useAgentContext();
     const attachmentContext = useAttachmentContext();
     const dbContext = useContext(DatabaseContext);
-    const saasContext = useContext(SaaSContext);    
+    const saasContext = useContext(SaaSContext);   
+    
+    const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+    const [previewContent, setPreviewContent] = useState<string>("");
+    const [, copy] = useCopyToClipboard();
 
     const [queryParams, setQueryParams] = useState<PaginatedQuery>({
         limit: 6,
@@ -155,6 +162,25 @@ export default function FilesPage() {
                     {t("Try adjusting your search or upload new files.")}
                 </NoRecordsAlert>
             )}
+            <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
+                <DialogContent className="p-4 max-w-3xl">
+                <h3 className="text-sm font-bold">{t('File content preview')}:</h3>
+                <div className="flex scrollbar overflow-y-auto h-96">
+                    <ChatMessageMarkdown>{previewContent}</ChatMessageMarkdown>
+                </div>
+                <DialogFooter>
+                    <Button variant="ghost" size={"sm"} onClick={() => {
+                        copy(previewContent);
+                        toast.success(t('File content has been copied to clipboard'));
+                    }}>
+                    <CopyIcon className="w-4 h-4 mr-2" />
+                    </Button>
+
+                    <Button onClick={() => setPreviewDialogOpen(false)}>{t('Close')}</Button>
+                </DialogFooter>
+
+                </DialogContent>
+            </Dialog>
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {attachmentsData.rows.map((attachment) => (
@@ -167,10 +193,10 @@ export default function FilesPage() {
                         <CardContent className="text-xs">
                             <p><span className="font-bold">{t('Type')}:</span> {attachment.mimeType}</p>
                             {((!attachment.content && !attachment.extra?.status && !attachment.extra?.error && !attachment.mimeType?.startsWith('image')) || attachment.extra && attachment.extra.status === "extracting") && (
-                                <p className="text-orange-500 flex p-4 text-center justify-center"><HourglassIcon className="mr-2 w-4 h-4" /> {t("Extracting content...")}</p>
+                                <p className="text-xs h-40 p-4 border bg-white shadow-sm border-gray-200 rounded mt-2 items-center text-orange-500 flex p-4 text-center justify-center"><HourglassIcon className="mr-2 w-4 h-4" /> {t("Extracting content...")}</p>
                             )}
                             {attachment.extra && attachment.extra.status === "error" && (
-                                <p className="text-red-500 flex p-4 text-center justify-center"><FileWarningIcon className="mr-2 w-4 h-4" /> {t("Extracting content error")}: {attachment.extra.error}</p>
+                                <p className="text-xs h-40 p-4 border bg-white shadow-sm border-gray-200 rounded mt-2 text-red-500 flex p-4 text-center justify-center"><FileWarningIcon className="mr-2 w-4 h-4" /> {t("Extracting content error")}: {attachment.extra.error}</p>
                             )}
 
                             {attachment.mimeType?.startsWith("image") && (
@@ -180,10 +206,15 @@ export default function FilesPage() {
                                     className="my-2 max-h-40 object-cover"
                                 />
                             )}
-                            {attachment.content && (
-                                <ChatMessageMarkdown className="text-xs h-40 p-4 border bg-white text-gray-500 shadow-sm border-gray-200 rounded mt-2">
+                            {attachment.content && (                 
+                                <div onClick={() => {
+                                    setPreviewContent(attachment.content);
+                                    setPreviewDialogOpen(true);
+                                }}>
+                                <ChatMessageMarkdown className="cursor-pointer text-xs h-40 p-4 border bg-white text-gray-500 shadow-sm border-gray-200 rounded mt-2">
                                     {attachment.content.length > 100 ? `${attachment.content.substring(0, 100)}...` : attachment.content}
                                 </ChatMessageMarkdown>
+                                </div>               
                             )}
                             <div className="flex justify-end mt-4">
                                 <Button variant={"default"} size="sm" className="mr-2">

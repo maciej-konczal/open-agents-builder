@@ -15,6 +15,7 @@ import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
 import { useAttachmentContext } from "@/contexts/attachment-context";
+import { guessType } from "@/flows/inputs";
 
 export enum FileUploadStatus {
   QUEUED = "QUEUED",
@@ -48,7 +49,6 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
     const newFiles = selectedFiles
-      .filter((f) => f.type === "" || f.type.startsWith("image") || f.type.startsWith("text") || f.type.startsWith("application") || f.type.startsWith("application/vnd.openxmlformats") || f.type.startsWith("application/pdf"))
       .map((file) => ({
         id: nanoid(),
         file,
@@ -58,19 +58,20 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
           id: undefined,
           displayName: file.name,
           description: "",
-          mimeType: file.type,
+          mimeType: file.type ?? guessType(file.name),
           size: file.size,
           storageKey: uuidv4(),
           createdAt: getCurrentTS(),
           updatedAt: getCurrentTS(),
         } as AttachmentDTO,
-      }));
+      })).filter((f) => f.dto.mimeType === "" || f.dto?.mimeType?.startsWith("image") || f.dto?.mimeType?.startsWith("text") || f.dto?.mimeType?.startsWith("application/json")  || f.dto?.mimeType?.startsWith("application/zip") || f.dto?.mimeType?.startsWith("application/vnd.openxmlformats") || f.dto?.mimeType?.startsWith("application/pdf"))
+      ;
 
     setUploadedFiles((prev) => [...prev, ...newFiles]);
     newFiles.forEach((f) => onUpload(f));
   }, []);
 
-  const onUpload = useCallback(
+const onUpload = useCallback(
     async (fileToUpload: UploadedFile) => {
       fileToUpload.status = FileUploadStatus.UPLOADING;
       setUploadedFiles((prev) => [...prev]);
@@ -130,7 +131,7 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
       <label className="block font-medium mb-3 flex"><UploadIcon className="mr-2"/> {t("Upload files")}</label>
       <Input
         type="file"
-        accept="image/*; text/*; application/*; application/vnd.openxmlformats/*; application/pdf"
+        accept="image/*; text/*; application/json; application/zip; application/vnd.openxmlformats/*; application/pdf"
         multiple
         onChange={handleFileSelect}
       />

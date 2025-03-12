@@ -208,3 +208,42 @@ export function createDynamicZodSchemaForInputs({
 
   return z.object(shape);
 }
+
+
+
+// A helper to guess MIME type based on file extension if the browser doesn’t supply one.
+export function guessType(fileName: string): string {
+  const extension = fileName.split(".").pop()?.toLowerCase() || "";
+
+  switch (extension) {
+    case "pdf":
+      return "application/pdf";
+    case "png":
+      return "image/png";
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "docx":
+      return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    case "xlsx":
+      return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+    case "pptx":
+      return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+    case "html":
+      return "text/html";
+    case "csv":
+      return "text/csv";
+    case "json":
+      return "application/json";
+    case "zip":
+      return "application/zip";
+    case "md":
+      return "text/markdown";
+    case "txt":
+      return "text/plain";
+    default:
+      // Fallback if we don't recognize the extension.
+      // Adjust to your preference, e.g. "application/octet-stream"
+      return "application/octet-stream";
+  }
+}
