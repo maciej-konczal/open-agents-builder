@@ -117,9 +117,9 @@ const availableItems : {
   },
   { 
     icon: FolderIcon, 
-    label: 'Files', 
-    href: '/admin/agent/[id]/files',
-    pattern: '/admin/agent/[id]/files',
+    label: 'Attachments', 
+    href: '/admin/agent/[id]/attachments',
+    pattern: '/admin/agent/[id]/attachments',
     activeOnlyOnSavedAgent: true
   },
   { 
