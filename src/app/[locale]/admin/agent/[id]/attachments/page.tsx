@@ -166,7 +166,7 @@ export default function FilesPage() {
                         </CardHeader>
                         <CardContent className="text-xs">
                             <p><span className="font-bold">{t('Type')}:</span> {attachment.mimeType}</p>
-                            {attachment.extra && attachment.extra.status === "extracting" && (
+                            {((!attachment.content && !attachment.extra?.status && !attachment.extra?.error && !attachment.mimeType?.startsWith('image')) || attachment.extra && attachment.extra.status === "extracting") && (
                                 <p className="text-orange-500 flex p-4 text-center justify-center"><HourglassIcon className="mr-2 w-4 h-4" /> {t("Extracting content...")}</p>
                             )}
                             {attachment.extra && attachment.extra.status === "error" && (

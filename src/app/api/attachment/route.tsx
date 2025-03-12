@@ -86,6 +86,13 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
                         }
                     } catch (e) {
                         console.error("Error extracting file content", e);
+                        attRepo.upsert({
+                            id: savedAttachment.id
+                        }, {
+                            ...savedAttachment,
+                            extra: JSON.stringify({ status: 'error', error: getErrorMessage(e) })
+                        });
+
                     }
                 }
 
