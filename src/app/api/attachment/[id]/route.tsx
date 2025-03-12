@@ -1,22 +1,24 @@
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
-import { authorizeStorageSchema, genericDELETE } from "@/lib/generic-api";
+import { authorizeSaasContext, authorizeStorageSchema, genericDELETE } from "@/lib/generic-api";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
+import { NextRequest } from "next/server";
 export const dynamic = 'force-dynamic' // defaults to auto
 
 
-export async function DELETE(request: Request, { params }: { params: { id: string }} ) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string }} ) {
     try {
         const requestContext = await authorizeRequestContext(request);
         const storageSchema = await authorizeStorageSchema(request);
+        const saasContext = await authorizeSaasContext(request);
         const storageService = new StorageService(requestContext.databaseIdHash, storageSchema);
 
         const recordLocator = params.id;
         if(!recordLocator){
             return Response.json({ message: "Invalid request, no id provided within request url", status: 400 }, {status: 400});
         } else { 
-            const repo = new ServerAttachmentRepository(requestContext.databaseIdHash, storageSchema)
+            const repo = new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, storageSchema)
             const recordBeforeDelete = await repo.findOne({ storageKey: recordLocator });
             if (!recordBeforeDelete) {
                 return Response.json({ message: "Record not found", status: 404 }, {status: 404});

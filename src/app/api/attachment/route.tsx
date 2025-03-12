@@ -1,6 +1,6 @@
 import { AttachmentDTO, attachmentDTOSchema, StorageSchemas } from "@/data/dto";
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
-import { authorizeStorageSchema, genericGET, genericPUT } from "@/lib/generic-api";
+import { authorizeSaasContext, authorizeStorageSchema, genericGET, genericPUT } from "@/lib/generic-api";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
@@ -29,18 +29,19 @@ export async function PUT(request: NextRequest, response: NextResponse) {
 async function handlePUTRequest(inputJson: any, request: NextRequest, response: NextResponse, file?: File) {
     const requestContext = await authorizeRequestContext(request, response);
     const storageSchema = await authorizeStorageSchema(request, response);
+    const saasContext = await authorizeSaasContext(request);
 
     const storageService = new StorageService(requestContext.databaseIdHash, storageSchema);
     let apiResult = await genericPUT<AttachmentDTO>(
         inputJson,
         attachmentDTOSchema,
-        new ServerAttachmentRepository(requestContext.databaseIdHash, storageSchema),
+        new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, storageSchema),
         'id'
     );
 
     // TODO add markitdown extraction + data encryption
 
-    
+
     if (apiResult.status === 200) { // validation went OK, now we can store the file
         if (file) { // file could be not uploaded in case of metadata update
             try {
@@ -60,5 +61,7 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
 export async function GET(request: NextRequest, response: NextResponse) {
     const requestContext = await authorizeRequestContext(request, response);
     const storageSchema = await authorizeStorageSchema(request, response);
-    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.databaseIdHash, storageSchema)));
+    const saasContext = await authorizeSaasContext(request);
+
+    return Response.json(await genericGET<AttachmentDTO>(request, new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, storageSchema)));
 }

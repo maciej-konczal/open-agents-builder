@@ -1,5 +1,6 @@
 import { StorageSchemas } from "@/data/dto";
 import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
+import { authorizeSaasContext } from "@/lib/generic-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
 
@@ -7,7 +8,8 @@ import { getErrorMessage } from "@/lib/utils";
 export async function GET(request: Request, { params }: { params: { id: string, databaseIdHash: string }}) {
     try {
         const storageService = new StorageService(params.databaseIdHash, 'commerce');
-        const storageRepo = new ServerAttachmentRepository(params.databaseIdHash, 'commerce');;
+        const saasContext = await authorizeSaasContext(request);
+        const storageRepo = new ServerAttachmentRepository(params.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, 'commerce');;
         const attachment = await storageRepo.findOne({ storageKey: params.id });
 
         if (attachment) {

@@ -48,7 +48,7 @@ export async function POST(req: NextRequest, { params }: { params: { storageKey:
         }
     }
 
-    const attRepo = new ServerAttachmentRepository(databaseIdHash, 'commerce');
+    const attRepo = new ServerAttachmentRepository(databaseIdHash,saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, 'commerce');
 
     const attachment = Attachment.fromDTO(await attRepo.findOne({storageKey: params.storageKey}) as AttachmentDTO);  
     const parsed = await productDTOSchema.safeParse(await req.json());

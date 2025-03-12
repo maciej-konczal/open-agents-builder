@@ -1,12 +1,17 @@
+import ServerAttachmentRepository from "@/data/server/server-attachment-repository";
 import ServerProductRepository from "@/data/server/server-product-repository";
 import { authorizeRequestContext } from "@/lib/authorization-api";
+import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest, response: NextResponse) {
   try {
     const requestContext = await authorizeRequestContext(request, response);
-    const repo = new ServerProductRepository(requestContext.databaseIdHash, 'commerce');
+    const saasContext = await authorizeSaasContext(request);
+    const storageSchema = await authorizeStorageSchema(request, response);
+    
+    const repo = new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, storageSchema);
 
     const url = request.nextUrl;
     const limitParam = url.searchParams.get("limit");
