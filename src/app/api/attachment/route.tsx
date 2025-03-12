@@ -5,6 +5,7 @@ import { authorizeRequestContext } from "@/lib/authorization-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
 import { NextRequest, NextResponse } from "next/server";
+import { processFiles } from "@/lib/file-extractor";
 
 
 // Rest of the code
@@ -47,6 +48,22 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
             try {
                 const savedAttachment: AttachmentDTO = apiResult.data as AttachmentDTO;
                 storageService.saveAttachment(file, savedAttachment.storageKey);
+
+                const extractFileContent = async (savedAttachment: AttachmentDTO) => {
+                    const inputObject = {}
+
+                    storageService.readPlainTextAttachment
+
+                    const processedFiles = processFiles({
+                        inputObject
+                    }
+                }
+
+                if (!savedAttachment.mimeType?.startsWith("image")) {
+                    extractFileContent(savedAttachment);
+                }
+                
+
             } catch (e) {
                 console.error("Error saving attachment", e);
                 apiResult.status = 500;

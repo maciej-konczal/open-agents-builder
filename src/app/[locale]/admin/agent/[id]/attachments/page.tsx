@@ -23,6 +23,7 @@ import { SaaSContext } from "@/contexts/saas-context";
 
 import { AttachmentUploader } from "@/components/attachment-uploader";
 import { Attachment } from "@/data/client/models";
+import { ChatMessageMarkdown } from "@/components/chat-message-markdown";
 
 export default function FilesPage() {
     const router = useRouter();
@@ -161,23 +162,30 @@ export default function FilesPage() {
                                 {attachment.displayName}
                             </CardTitle>
                         </CardHeader>
-                        <CardContent className="text-sm">
-                            <p>{attachment.mimeType}</p>
+                        <CardContent className="text-xs">
+                            <p><span className="font-bold">{t('Type')}:</span> {attachment.mimeType}</p>
                             {attachment.mimeType?.startsWith("image") && (
                                 <img
-                                    src={`/storage/commerce/${dbContext?.databaseIdHash}/${attachment.storageKey}`}
+                                    src={`/storage/attachment/${dbContext?.databaseIdHash}/${attachment.storageKey}`}
                                     alt={attachment.displayName}
                                     className="my-2 max-h-40 object-cover"
                                 />
                             )}
-                            <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => handleDelete(attachment)}
-                            >
-                                <TrashIcon className="w-4 h-4 mr-2" />
-                                {t("Delete")}
-                            </Button>
+                            {attachment.content && (
+                                <ChatMessageMarkdown className="text-xs truncate">
+                                    {attachment.content.length > 100 ? `${attachment.content.substring(0, 100)}...` : attachment.content}
+                                </ChatMessageMarkdown>
+                            )}
+                            <div className="flex justify-end">
+                                <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => handleDelete(attachment)}
+                                >
+                                    <TrashIcon className="w-4 h-4 mr-2" />
+                                    {t("Delete")}
+                                </Button>
+                            </div>
                         </CardContent>
                     </Card>
                 ))}

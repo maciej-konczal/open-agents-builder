@@ -52,6 +52,12 @@ export class StorageService {
         return new Uint8Array(buffer).buffer;
     }
 
+    public readAttachmentAsBase64WithMimeType(storageKey: string, mimeType: string): string {
+        const filePath = path.resolve(this.uploadPath, storageKey);
+        const buffer = fs.readFileSync(filePath).toString('base64');
+        return `data:${mimeType};base64,${buffer}`; 
+    }
+
 
     public deleteAttachment(storageKey: string) {
         return fs.rmSync(path.resolve(this.uploadPath, storageKey));

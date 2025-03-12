@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TrashIcon, UploadIcon } from "lucide-react";
+import { FileIcon, TrashIcon, UploadIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { AttachmentApiClient } from "@/data/client/attachment-api-client";
@@ -130,15 +130,15 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
       <label className="block font-medium mb-3 flex"><UploadIcon className="mr-2"/> {t("Upload files")}</label>
       <Input
         type="file"
-        accept="image/*"
+        accept="image/*; text/*; application/*; application/vnd.openxmlformats/*; application/pdf"
         multiple
         onChange={handleFileSelect}
       />
       <div className="mt-2 space-y-2">
         {uploadedFiles.map((f) => (
           <div key={f.id} className="flex items-center gap-2">
-            <span className="flex-1 text-sm">
-              {f.file.name} - {f.status}
+            <span className="flex-1 text-sm flex">
+              <FileIcon className="w-4 h-4 mr-2"/> {f.file.name} - {f.status}
             </span>
             {f.status === FileUploadStatus.ERROR && (
               <Button
