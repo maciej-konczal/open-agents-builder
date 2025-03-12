@@ -68,7 +68,13 @@ export class AttachmentApiClient extends AdminApiClient {
       return this.request<GetAttachmentPaginatedResponse>(
         `/api/attachment/query?${queryParams}`,
         "GET",
-        { ecnryptedFields: [] }
+        { ecnryptedFields: [] },
+        undefined,
+        undefined,
+        undefined,
+        {
+          'Storage-Schema': this.storageSchema
+        }
       ) as Promise<GetAttachmentPaginatedResponse>;
     }    
     

@@ -3,9 +3,10 @@ import ServerAttachmentRepository from "@/data/server/server-attachment-reposito
 import { authorizeSaasContext } from "@/lib/generic-api";
 import { StorageService } from "@/lib/storage-service";
 import { getErrorMessage } from "@/lib/utils";
+import { NextRequest } from "next/server";
 
 
-export async function GET(request: Request, { params }: { params: { id: string, databaseIdHash: string }}) {
+export async function GET(request: NextRequest, { params }: { params: { id: string, databaseIdHash: string }}) {
     try {
         const storageService = new StorageService(params.databaseIdHash, 'commerce');
         const saasContext = await authorizeSaasContext(request);
