@@ -7,9 +7,9 @@ import { Chunk } from '@/flows/models';
 export function createTraceTool(databaseIdHash: string, traceLog: (chunk: Chunk) => void, storageKey: string | undefined | null): ToolDescriptor
 {
     return {
-    displayName: 'Trace status',
+    displayName: 'Interactively inform the user',
     tool:tool({
-        description: 'Trace status when user ask you explcitly to trace something or to use this tool. Otherwise don not use it',
+        description: 'Inform the UI - sending status to the user; only when user ask you explcitly to trace something or to use this tool. Otherwise don not use it',
         parameters: z.object({
             type: z.string().describe('Required type of the trace: message, step, result, error'),
             name: z.string().optional(),
