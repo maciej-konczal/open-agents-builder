@@ -20,7 +20,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
             const fileContent = await storageService.readAttachment(params.id) // TODO: add streaming
             return new Response(fileContent, { headers });
         } else {
-            return new Response('Product image not found', { status: 404 });
+            return new Response('File not found', { status: 404 });
         }
     } catch (error) {
         console.error(error);

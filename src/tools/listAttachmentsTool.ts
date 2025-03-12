@@ -54,7 +54,7 @@ export function createListAttachmentsTool(
               storageKey: at.storageKey,
               createdAt: at.createdAt,
               updatedAt: at.updatedAt,
-              url: `${process.env.NEXT_PUBLIC_API_URL}/storage/attachment/${databaseIdHash}/${at.id}`,
+              url: `${process.env.APP_URL}/storage/attachment/${databaseIdHash}/${at.storageKey}`,
             }
           });
         } catch (err) {

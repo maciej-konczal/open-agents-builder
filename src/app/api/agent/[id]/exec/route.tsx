@@ -128,7 +128,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         lastChunk = new Date();
                     }
                     const traceToolInstance = createTraceTool(databaseIdHash, (params: Chunk) => {
-                        console.log('Custom trace', params)
                         outputAndTrace(params);
                     }, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool                        
 
@@ -166,6 +165,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                                 ]
                             } as CoreUserMessage
 
+                            if (!usedVariables || usedVariables.length === 0 && execRequest.input) { // there's some input passed anyways
+                                (newInput.content as Array<TextPart>).push({
+                                    type: 'text',
+                                    text: 'User input: ' + JSON.stringify(execRequest.input)
+                                })
+                            }
 
 
                             for (const v of (usedVariables && usedVariables.length > 0 ? usedVariables : (masterAgent?.inputs?.map(i => i.name) ?? []))) {
