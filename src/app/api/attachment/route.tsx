@@ -37,6 +37,10 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
         new ServerAttachmentRepository(requestContext.databaseIdHash, storageSchema),
         'id'
     );
+
+    // TODO add markitdown extraction + data encryption
+
+    
     if (apiResult.status === 200) { // validation went OK, now we can store the file
         if (file) { // file could be not uploaded in case of metadata update
             try {

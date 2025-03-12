@@ -49,6 +49,8 @@ export class Attachment {
     createdAt: string;
     updatedAt: string;
 
+    content: string;
+
     constructor(attachmentDTO: AttachmentDTO) {
         this.id = attachmentDTO.id;
         this.assignedTo = attachmentDTO.assignedTo ? (typeof attachmentDTO.assignedTo == 'string' ? JSON.parse(attachmentDTO.assignedTo) : attachmentDTO.assignedTo) : [];
@@ -63,6 +65,7 @@ export class Attachment {
         this.filePath = attachmentDTO.filePath ? attachmentDTO.filePath : '';
         this.createdAt = attachmentDTO.createdAt;
         this.updatedAt = attachmentDTO.updatedAt;
+        this.content = attachmentDTO.content ? attachmentDTO.content : '';
     }
 
     static fromDTO(fileDTO: AttachmentDTO): Attachment {
@@ -84,6 +87,7 @@ export class Attachment {
             filePath: this.filePath,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
+            content: this.content,
         };
     }
 }

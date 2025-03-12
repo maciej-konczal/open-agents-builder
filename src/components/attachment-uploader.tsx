@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TrashIcon } from "lucide-react";
+import { TrashIcon, UploadIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { AttachmentApiClient } from "@/data/client/attachment-api-client";
@@ -14,6 +14,7 @@ import { AttachmentDTO, StorageSchemas } from "@/data/dto";
 import { getCurrentTS, getErrorMessage } from "@/lib/utils";
 import { DatabaseContextType } from "@/contexts/db-context";
 import { SaaSContextType } from "@/contexts/saas-context";
+import { useAttachmentContext } from "@/contexts/attachment-context";
 
 export enum FileUploadStatus {
   QUEUED = "QUEUED",
@@ -39,6 +40,8 @@ type FileUploaderProps = {
 export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileUploaderProps) {
   const { t } = useTranslation();
 
+
+  const attContext = useAttachmentContext();
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,12 +116,18 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
   );
 
   const removeFileFromQueue = useCallback((file: UploadedFile) => {
-    setUploadedFiles((prev) => prev.filter((f) => f.id !== file.id));
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== file.id)); // add remove from server
+    try {
+      attContext.deleteAttachment(file.dto);
+    } catch (e) {
+      console.error("Error deleting attachment", e);
+      toast.error(t("Error deleting attachment"));
+    }
   }, []);
 
   return (
-    <div className="mt-4">
-      <label className="block font-medium mb-2">{t("Add images")}</label>
+    <div className="">
+      <label className="block font-medium mb-3 flex"><UploadIcon className="mr-2"/> {t("Upload files")}</label>
       <Input
         type="file"
         accept="image/*"
@@ -128,7 +137,7 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
       <div className="mt-2 space-y-2">
         {uploadedFiles.map((f) => (
           <div key={f.id} className="flex items-center gap-2">
-            <span className="flex-1">
+            <span className="flex-1 text-sm">
               {f.file.name} - {f.status}
             </span>
             {f.status === FileUploadStatus.ERROR && (
@@ -149,6 +158,9 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
             </Button>
           </div>
         ))}
+        <div className="text-xs p-2">
+          {t('Supported file types: images, text files, PDFs, Word documents, Excel spreadsheets, PowerPoint presentations. When uploading documents including text (PDF, Office, text, CSV ...) - files will converted to Markdown and available in the Flows and for other AI tools. ')}
+        </div>
       </div>
     </div>
   );

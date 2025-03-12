@@ -80,14 +80,16 @@ export const attachments = sqliteTable('attachments', {
     url: text('url'),
     mimeType: text('mimeType'),
 
-    assignedTo: text('assignedTo', { mode: 'json' }),
+    assignedTo: text('assignedTo'),
 
-    json: text('json', { mode: 'json' }),
-    extra: text('extra', { mode: 'json' }),
+    json: text('json'),
+    extra: text('extra'),
     size: integer('size', { mode: 'number' }),    
 
+    content: text('content'),
 
-    storageKey: text('storageKey'),
+
+    storageKey: text('storageKey').notNull(),
     description: text('description'),
     
     createdAt: text('updatedAt').notNull().default(sql`CURRENT_TIMESTAMP`),
