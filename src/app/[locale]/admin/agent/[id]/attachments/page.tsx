@@ -40,7 +40,7 @@ export default function FilesPage() {
     });
     const [debouncedQueryParams] = useDebounce(queryParams, 500);
 
-    const [attachmentsData, setAttachmentsData] = useState<PaginatedResult<AttachmentDTO[]>>({
+    const [attachmentsData, setAttachmentsData] = useState<PaginatedResult<Attachment[]>>({
         rows: [],
         total: 0,
         limit: 6,
@@ -65,7 +65,7 @@ export default function FilesPage() {
                 });
                 setAttachmentsData({
                     ...response,
-                    rows: response.rows,
+                    rows: response.rows.map((r) => Attachment.fromDTO(r)),
                 });
                 setHasMore(response.rows.length < response.total);
             } catch (error) {
@@ -97,7 +97,7 @@ export default function FilesPage() {
             });
 
             setAttachmentsData((prev) => ({
-                rows: [...prev.rows, ...response.rows],
+                rows: [...prev.rows, ...response.rows].map((r) => Attachment.fromDTO(r)),
                 total: response.total,
                 limit: prev.limit + response.limit,
                 offset: newOffset,
@@ -111,11 +111,11 @@ export default function FilesPage() {
         setIsLoading(false);
     };
 
-    const handleDelete = async (attachment: AttachmentDTO) => {
+    const handleDelete = async (attachment: Attachment) => {
         if (!confirm(t("Are you sure you want to delete this attachment?") || "")) {
             return;
         }
-        await attachmentContext.deleteAttachment(attachment);
+        await attachmentContext.deleteAttachment(attachment.toDTO());
         setAttachmentsData((prev) => ({
             ...prev,
             rows: prev.rows.filter((a) => a.storageKey !== attachment.storageKey),
@@ -131,7 +131,7 @@ export default function FilesPage() {
                 onUploaded={(uploaded) => {
                     setAttachmentsData((prev) => ({
                         ...prev,
-                        rows: [uploaded, ...prev.rows],
+                        rows: [uploaded, ...prev.rows].map((r) => Attachment.fromDTO(r)),
                         total: prev.total + 1,
                     }));
                 }}
@@ -164,6 +164,9 @@ export default function FilesPage() {
                         </CardHeader>
                         <CardContent className="text-xs">
                             <p><span className="font-bold">{t('Type')}:</span> {attachment.mimeType}</p>
+                            {attachment.extra && attachment.extra.status === "extracting" && (
+                                <p className="text-red-500">{t("Extracting content...")}</p>
+                            )}
                             {attachment.mimeType?.startsWith("image") && (
                                 <img
                                     src={`/storage/attachment/${dbContext?.databaseIdHash}/${attachment.storageKey}`}

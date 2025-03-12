@@ -31,12 +31,13 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
     const requestContext = await authorizeRequestContext(request, response);
     const storageSchema = await authorizeStorageSchema(request, response);
     const saasContext = await authorizeSaasContext(request);
+    const attRepo = new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, storageSchema);
 
     const storageService = new StorageService(requestContext.databaseIdHash, storageSchema);
     let apiResult = await genericPUT<AttachmentDTO>(
         inputJson,
         attachmentDTOSchema,
-        new ServerAttachmentRepository(requestContext.databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, storageSchema),
+        attRepo,
         'id'
     );
 
@@ -50,12 +51,36 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
                 storageService.saveAttachment(file, savedAttachment.storageKey);
 
                 const extractFileContent = async (savedAttachment: AttachmentDTO) => {
-                    const inputObject = {}
 
-                    storageService.readPlainTextAttachment
+                    const inputObject = {
+                        fileContent : storageService.readAttachmentAsBase64WithMimeType(savedAttachment.storageKey, savedAttachment.mimeType ? savedAttachment.mimeType : "application/octet-stream")
+                    };
+
+                    attRepo.upsert({
+                        id: savedAttachment.id
+                    }, {
+                        ...savedAttachment,
+                        extra: JSON.stringify({ status: 'extracting' })
+                    });
+
 
                     const processedFiles = processFiles({
-                        inputObject
+                        inputObject,
+                        pdfExtractText: true
+                    });
+
+                    const extractedContent = processedFiles['fileContent'];
+                    if (extractedContent) {
+                        attRepo.upsert({
+                            id: savedAttachment.id
+                        }, {
+                            ...savedAttachment,
+                            extra: '',
+                            content: Array.isArray(extractedContent) ? extractedContent.join("\n") : extractedContent
+                        });
+
+                    } else {
+                        console.error("Error extracting file content", savedAttachment.storageKey, savedAttachment.displayName);
                     }
                 }
 

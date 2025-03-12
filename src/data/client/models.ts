@@ -22,6 +22,9 @@ export enum DatabaseAuthStatus {
     InProgress = 'InProgress'
 }
 
+export type AttachmentExtra = {
+    status: string;
+}
 
 export type AttachmentAssigment = {
     id: string;
@@ -51,24 +54,24 @@ export class Attachment {
 
     content: string;
 
-    constructor(attachmentDTO: AttachmentDTO) {
+    constructor(attachmentDTO: AttachmentDTO | Attachment) {
         this.id = attachmentDTO.id;
         this.assignedTo = attachmentDTO.assignedTo ? (typeof attachmentDTO.assignedTo == 'string' ? JSON.parse(attachmentDTO.assignedTo) : attachmentDTO.assignedTo) : [];
-        this.displayName = attachmentDTO.displayName;
+        this.extra = attachmentDTO.extra ? (typeof attachmentDTO.extra == 'string' ? JSON.parse(attachmentDTO.extra) : attachmentDTO.extra) : [];
         this.description = attachmentDTO.description ? attachmentDTO.description : '';
         this.mimeType = attachmentDTO.mimeType ? attachmentDTO.mimeType : '';
         this.type = attachmentDTO.type ? attachmentDTO.type : '';
         this.json = attachmentDTO.json ? attachmentDTO.json : '';
-        this.extra = attachmentDTO.extra ? attachmentDTO.extra : '';
-        this.size = attachmentDTO.size;
+        this.size = attachmentDTO.size ?? 0;
         this.storageKey = attachmentDTO.storageKey;
+        this.displayName = attachmentDTO.displayName ?? this.storageKey;
         this.filePath = attachmentDTO.filePath ? attachmentDTO.filePath : '';
         this.createdAt = attachmentDTO.createdAt;
         this.updatedAt = attachmentDTO.updatedAt;
         this.content = attachmentDTO.content ? attachmentDTO.content : '';
     }
 
-    static fromDTO(fileDTO: AttachmentDTO): Attachment {
+    static fromDTO(fileDTO: AttachmentDTO | Attachment): Attachment {
         return new Attachment(fileDTO);
     }
 
@@ -81,7 +84,7 @@ export class Attachment {
             mimeType: this.mimeType,
             type: this.type,
             json: this.json,
-            extra: this.extra,
+            extra: JSON.stringify(this.extra),
             size: this.size,
             storageKey: this.storageKey,
             filePath: this.filePath,
