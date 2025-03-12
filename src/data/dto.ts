@@ -40,6 +40,7 @@ export type AttachmentAssigmentDTO = {
 export const attachmentDTOSchema = z.object({
   id: z.number().positive().optional(),
   displayName: z.string().optional().nullable(),
+  symbolicNameIdentifier: z.string().optional().nullable(),
   description: z.string().optional().nullable(),
 
   mimeType: z.string().optional().nullable(),

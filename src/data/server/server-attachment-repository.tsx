@@ -47,6 +47,9 @@ export default class ServerAttachmentRepository extends BaseRepository<Attachmen
     async create(item: AttachmentDTO): Promise<AttachmentDTO> {
         const db = (await this.db());
         item = await this.encryptItem(item);
+        if (item.displayName) {
+            item.symbolicNameIdentifier = item.displayName.replace(/[^a-zA-Z0-9_]/g, '');
+        }
         return this.decryptItem(await create(item, attachments, db)); // generic implementation
     }
 
@@ -62,6 +65,9 @@ export default class ServerAttachmentRepository extends BaseRepository<Attachmen
         if (!existingRecord) {
             existingRecord = await this.create(item);
        } else {
+            if (item.displayName) {
+                item.symbolicNameIdentifier = item.displayName.replace(/[^a-zA-Z0-9_]/g, '');
+            }        
             item = await this.encryptItem(item);  
             existingRecord = item
             existingRecord.updatedAt = getCurrentTS() // TODO: load attachments
@@ -105,6 +111,8 @@ export default class ServerAttachmentRepository extends BaseRepository<Attachmen
           whereCondition = or(
             eq(attachments.id, parseInt(query) > 0 ? parseInt(query) : 0),
             like(attachments.displayName, `%${query}%`),
+            like(attachments.storageKey, `%${query}%`),
+            like(attachments.symbolicNameIdentifier, `%${query}%`),
             like(attachments.mimeType, `%${query}%`)
           );
         }

@@ -164,6 +164,7 @@ export default function ResultsPage() {
             }}>
               <Share2Icon className="w-4 h-4" />
             </Button>            
+
           </CardTitle>
           </CardHeader>
           <CardContent className="text-sm">

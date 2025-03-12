@@ -42,6 +42,7 @@ export class Attachment {
     id?: number;
     assignedTo?: AttachmentAssigment[];
     displayName: string;
+    symbolicNameIdentifier?: string;
     description?: string;
     mimeType?: string;
     type?: string;
@@ -57,6 +58,7 @@ export class Attachment {
 
     constructor(attachmentDTO: AttachmentDTO | Attachment) {
         this.id = attachmentDTO.id;
+        this.symbolicNameIdentifier = attachmentDTO.symbolicNameIdentifier ?? '';
         this.assignedTo = attachmentDTO.assignedTo ? (typeof attachmentDTO.assignedTo == 'string' ? JSON.parse(attachmentDTO.assignedTo) : attachmentDTO.assignedTo) : [];
         this.extra = attachmentDTO.extra ? (typeof attachmentDTO.extra == 'string' ? JSON.parse(attachmentDTO.extra) : attachmentDTO.extra) : [];
         this.description = attachmentDTO.description ? attachmentDTO.description : '';
@@ -80,6 +82,7 @@ export class Attachment {
         return {
             id: this.id,
             assignedTo: JSON.stringify(this.assignedTo),
+            symbolicNameIdentifier: this.symbolicNameIdentifier,
             displayName: this.displayName,
             description: this.description,
             mimeType: this.mimeType,

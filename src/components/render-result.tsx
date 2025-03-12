@@ -30,6 +30,6 @@ export function RenderResult({ result }: { result: Result | undefined}) {
         return <Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{result.content}</Markdown>;
     }
 
-    return result.content ? (<div>{result.content}</div>) : (<div>{t('No content saved in this result.')}</div>);
+    return result.content ? (<Markdown className={styles.markdown} remarkPlugins={[remarkGfm]}>{result.content}</Markdown>) : (<div>{t('No content saved in this result.')}</div>);
 
 }

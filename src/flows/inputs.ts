@@ -6,7 +6,7 @@ import { FlowInputVariable } from "./models";
  * Returns an array of names (without '@').
  */
 export function extractVariableNames(str: string): string[] {
-  const regex = /@(\w+)/g;
+  const regex = /@([a-zA-Z0-9_]+)/g;
   const result: string[] = [];
   let match: RegExpExecArray | null;
 
@@ -39,12 +39,12 @@ export function replaceVariablesInString(str: string, variables: Record<string, 
  * @param transformInputFn - function transforming the `input` field in each node.
  *    Receives the current node (flowDef) as a parameter; should return a new value for flowDef.input.
  */
-export function applyInputTransformation(
+export async function applyInputTransformation(
   flowDef: any,
   transformInputFn: (currentNode: any) => any
-): void {
+): Promise<void> {
   // 1) First, update "input" based on the external function
-  flowDef.input = transformInputFn(flowDef);
+  flowDef.input = await transformInputFn(flowDef);
   if(!flowDef.name) flowDef.name = flowDef.agent;
 
   // 2) Recursion depending on the type of agent
@@ -54,7 +54,7 @@ export function applyInputTransformation(
     case 'bestOfAllAgent': {
       // In these agents, the "input" field is an array of FlowDefinition
       if (Array.isArray(flowDef.input)) {
-        flowDef.input.forEach((child: any) => applyInputTransformation(child, transformInputFn));
+        await Promise.all(flowDef.input.map((child: any) => applyInputTransformation(child, transformInputFn)));
       }
       break;
     }
@@ -62,7 +62,7 @@ export function applyInputTransformation(
     case 'oneOfAgent': {
       // In "oneOfAgent", "input" is also an array of FlowDefinition
       if (Array.isArray(flowDef.input)) {
-        flowDef.input.forEach((child: any) => applyInputTransformation(child, transformInputFn));
+        await Promise.all(flowDef.input.map((child: any) => applyInputTransformation(child, transformInputFn)));
       }
       // NOTE: if you also want to transform `flowDef.conditions`,
       //       additional operations can be done here (if needed).
@@ -73,7 +73,7 @@ export function applyInputTransformation(
     case 'optimizeAgent': {
       // "input" is a single FlowDefinition
       if (flowDef.input && typeof flowDef.input === 'object') {
-        applyInputTransformation(flowDef.input, transformInputFn);
+        await applyInputTransformation(flowDef.input, transformInputFn);
       }
       break;
     }

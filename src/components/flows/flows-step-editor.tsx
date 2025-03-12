@@ -1,6 +1,6 @@
 // FlowStepEditor.tsx
 'use client'
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
 import { EditorStep, FlowInputVariable } from '@/flows/models'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -12,6 +12,11 @@ import { GitBranchIcon, PlusIcon, TrashIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { Textarea } from '../ui/textarea'
 import { Mention } from 'primereact/mention';
+import { Attachment } from '@/data/client/models'
+import { AttachmentApiClient } from '@/data/client/attachment-api-client'
+import { AttachmentDTO, StorageSchemas } from '@/data/dto'
+import { DatabaseContext } from '@/contexts/db-context'
+import { SaaSContext } from '@/contexts/saas-context'
 
 interface FlowStepEditorProps {
   step: EditorStep
@@ -32,6 +37,10 @@ export function FlowStepEditor({
 }: FlowStepEditorProps) {
 
   const { t } = useTranslation();
+  const dbContext = useContext(DatabaseContext);
+  const saasContext = useContext(SaaSContext);
+
+  const [availableAttachments, setAvailableAttachments] = React.useState<string>([]);
 
   const [suggestions, setSuggestions] = React.useState<FlowInputVariable[]>([]);
   const onSearch = (event) => {
@@ -40,18 +49,39 @@ export function FlowStepEditor({
         const query = event.query;
         let suggestions;
 
-        if (!query.trim().length) {
-            suggestions = [...inputs];
-        }
-        else {
-            suggestions = inputs.filter((inputs) => {
-                return inputs.name.toLowerCase().startsWith(query.toLowerCase());
-            });
-        }
 
-        setSuggestions(suggestions);
+        let foundAttachments:FlowInputVariable[] = [];
+        const attApiClient = new AttachmentApiClient('', StorageSchemas.Default, dbContext, saasContext);
+        attApiClient.query({ limit: 100, query, orderBy: 'displayName', offset: 0}).then((result) => {
+
+          if (result.rows && result.rows.length > 0) {
+            foundAttachments = result.rows.map((att: AttachmentDTO) => {
+              return {
+                type: 'fileBase64',
+                name: att.symbolicNameIdentifier || att.storageKey,
+                code: att.symbolicNameIdentifier,
+                required: false
+              }
+            });
+          }
+
+          if (!query.trim().length) {
+            suggestions = [...inputs, ...foundAttachments];
+          }
+          else {
+              suggestions = [...inputs.filter((inputs) => {
+                  return inputs.name.toLowerCase().startsWith(query.toLowerCase());
+              }), ...foundAttachments];
+          }
+
+          setSuggestions(suggestions);
+
+        });
+
+
     }, 250);
 }
+
 
 const itemTemplate = (suggestion: FlowInputVariable) => {
     return (

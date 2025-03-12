@@ -1,6 +1,8 @@
 import { Mail } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
-export function SessionHeader ({ session }: { session: { userName?: string | undefined | null, userEmail?: string | undefined | null} }) {
+export function SessionHeader ({ session }: { session: { id?: string | undefined | null, userName?: string | undefined | null, userEmail?: string | undefined | null} }) {
+    const { t } = useTranslation();
     return (
         <div className="col-span-2 flex justify-between items-center mb-2">
         {session.userName ? (<h2 className="text-lg font-semibold">{session.userName}</h2>) : null}
