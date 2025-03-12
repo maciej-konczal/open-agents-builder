@@ -24,10 +24,12 @@ import { SaaSContext } from "@/contexts/saas-context";
 import { AttachmentUploader } from "@/components/attachment-uploader";
 import { Attachment } from "@/data/client/models";
 import { ChatMessageMarkdown } from "@/components/chat-message-markdown";
+import { useAgentContext } from "@/contexts/agent-context";
 
 export default function FilesPage() {
     const router = useRouter();
     const { t } = useTranslation();
+    const agentContext = useAgentContext();
     const attachmentContext = useAttachmentContext();
     const dbContext = useContext(DatabaseContext);
     const saasContext = useContext(SaaSContext);    
@@ -179,7 +181,13 @@ export default function FilesPage() {
                                     {attachment.content.length > 100 ? `${attachment.content.substring(0, 100)}...` : attachment.content}
                                 </ChatMessageMarkdown>
                             )}
-                            <div className="flex justify-end">
+                            <div className="flex justify-end mt-4">
+                                <Button variant={"default"} size="sm" className="mr-2">
+                                    <Link href={`/storage/attachment/${dbContext?.databaseIdHash}/${attachment.storageKey}`}>
+                                        {t("Download")}
+                                    </Link>
+                                </Button>
+                                
                                 <Button
                                     variant="destructive"
                                     size="sm"

@@ -100,7 +100,7 @@ export function FlowInputValuesFiller({
               <Input
                 type="file"
                 className="text-sm"
-                accept="text/markdown, text/html, text/csv, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, image/png, image/jpeg, image/webp"
+                accept="text/markdown, application/zip, application/json, text/html, text/csv, application/pdf, application/vnd.openxmlformats-officedocument.wordprocessingml.document, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.openxmlformats-officedocument.presentationml.presentation, image/png, image/jpeg, image/webp"
                 onChange={(e) => handleFileBase64Change(e, variable.name)}
               />
             )

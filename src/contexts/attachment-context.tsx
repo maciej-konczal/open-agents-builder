@@ -9,6 +9,8 @@ import { AttachmentDTO, PaginatedQuery, PaginatedResult } from "@/data/dto";
 import { getErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 
+let syncHandler = null;
+
 type AttachmentContextType = {
   loaderStatus: DataLoadingStatus;
   refreshDataSync: string;
@@ -41,6 +43,13 @@ export const AttachmentProvider = ({ children }: { children: ReactNode }) => {
           const response = await client.query(params);
 
           setLoaderStatus(DataLoadingStatus.Success);
+
+          if (syncHandler) clearInterval(syncHandler);
+          syncHandler = setInterval(() => {
+              console.log('Refreshing SaaS data sync ...');
+              setRefreshDataSync(new Date().toISOString());
+          }, 1000 *  30); // refresh data every 30s
+
           return {
                 ...response,
                 rows: response.rows.map((r: any) => Attachment.fromDTO(r))

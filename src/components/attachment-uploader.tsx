@@ -48,7 +48,7 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
     if (!e.target.files) return;
     const selectedFiles = Array.from(e.target.files);
     const newFiles = selectedFiles
-      .filter((f) => f.type.startsWith("image") || f.type.startsWith("text") || f.type.startsWith("application") || f.type.startsWith("application/vnd.openxmlformats") || f.type.startsWith("application/pdf"))
+      .filter((f) => f.type === "" || f.type.startsWith("image") || f.type.startsWith("text") || f.type.startsWith("application") || f.type.startsWith("application/vnd.openxmlformats") || f.type.startsWith("application/pdf"))
       .map((file) => ({
         id: nanoid(),
         file,
@@ -159,7 +159,7 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
           </div>
         ))}
         <div className="text-xs p-2">
-          {t('Supported file types: images, text files, PDFs, Word documents, Excel spreadsheets, PowerPoint presentations. When uploading documents including text (PDF, Office, text, CSV ...) - files will converted to Markdown and available in the Flows and for other AI tools. ')}
+          {t('Supported file types: images, text files, ZIP archives, PDFs, Word documents, Excel spreadsheets, PowerPoint presentations. When uploading documents including text (PDF, Office, text, CSV, ZIP archives...) - files will converted to Markdown and available in the Flows and for other AI tools. ')}
         </div>
       </div>
     </div>

@@ -45,7 +45,7 @@ export class Attachment {
     mimeType?: string;
     type?: string;
     json?: string;
-    extra?: string;
+    extra?: AttachmentExtra;
     size: number;
     storageKey: string;
     filePath?: string;

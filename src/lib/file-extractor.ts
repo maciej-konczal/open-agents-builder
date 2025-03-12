@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import { mkdtempSync, writeFileSync, readFileSync, readdirSync, unlinkSync, rmdirSync } from 'fs';
 import { tmpdir } from 'os';
-import { join } from 'path';
+import path, { join } from 'path';
 
 export interface ProcessFilesParams {
   inputObject: Record<string, string | string[]>; // base64 or array of base64
@@ -24,18 +24,19 @@ export function getFileExtensionFromMimeType(mimeType: string): string {
     'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
     'text/html': 'html',
     'text/csv': 'csv',
+    'application/json': 'json',
+    'application/zip': 'zip',
     'text/markdown': 'md',
     // add more as needed...
   };
-  return map[mimeType] || 'bin';
+  return map[mimeType] || "bin";
 }
 
 /**
  * Convert non-image, non-PDF documents to text/Markdown via markitdown.
  */
 export function convertFileToText(filePath: string, outputPath: string): void {
-  // markitdown example: markitdown convert input.pdf -o output.md
-  execSync(`markitdown  "${filePath}" -o "${outputPath}"`, { stdio: 'ignore' });
+  execSync(`markitdown  "${filePath}" > "${outputPath}"`, { stdio: 'ignore' });
 }
 
 /**
@@ -118,18 +119,35 @@ export function processFiles({
         // Save array of images
         result[key] = images;
       } else {
+
+        if(mimeType.startsWith('application/json')) {
+          result[key] = Buffer.from(base64Str.split(',')[1], 'base64').toString('utf-8');
+          continue;
+        }
+
         // Extract text from PDF
         const tempDir = mkdtempSync(join(tmpdir(), 'markitdown-'));
         const inputFilename = join(tempDir, 'input.pdf');
         writeFileSync(inputFilename, Buffer.from(base64Str.split(',')[1], 'base64'));
 
         const outputFilename = join(tempDir, 'output.md');
-        convertFileToText(inputFilename, outputFilename);
+        try {
+          convertFileToText(inputFilename, outputFilename);
+          const docText = readFileSync(outputFilename, 'utf-8');
+          cleanupTempDir(tempDir);
+          // Return the text
+          result[key] = docText;
 
-        const docText = readFileSync(outputFilename, 'utf-8');
-        cleanupTempDir(tempDir);
-        // Return the text
-        result[key] = docText;
+        } catch (e) {
+          // In case of error, return the error message
+          result[key] = Buffer.from(base64Str.split(',')[1], 'base64').toString('utf-8');
+          cleanupTempDir(tempDir);
+
+          console.error(e);
+          continue;
+        }
+
+
       }
       continue;
     }

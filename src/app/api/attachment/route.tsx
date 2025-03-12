@@ -48,39 +48,44 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
         if (file) { // file could be not uploaded in case of metadata update
             try {
                 const savedAttachment: AttachmentDTO = apiResult.data as AttachmentDTO;
-                storageService.saveAttachment(file, savedAttachment.storageKey);
+                await storageService.saveAttachment(file, savedAttachment.storageKey);
 
                 const extractFileContent = async (savedAttachment: AttachmentDTO) => {
 
-                    const inputObject = {
-                        fileContent : storageService.readAttachmentAsBase64WithMimeType(savedAttachment.storageKey, savedAttachment.mimeType ? savedAttachment.mimeType : "application/octet-stream")
-                    };
+                    try {
+                        const inputObject = {
+                            fileContent : storageService.readAttachmentAsBase64WithMimeType(savedAttachment.storageKey, savedAttachment.mimeType ? savedAttachment.mimeType : "application/octet-stream")
+                        };
 
-                    attRepo.upsert({
-                        id: savedAttachment.id
-                    }, {
-                        ...savedAttachment,
-                        extra: JSON.stringify({ status: 'extracting' })
-                    });
-
-
-                    const processedFiles = processFiles({
-                        inputObject,
-                        pdfExtractText: true
-                    });
-
-                    const extractedContent = processedFiles['fileContent'];
-                    if (extractedContent) {
                         attRepo.upsert({
                             id: savedAttachment.id
                         }, {
                             ...savedAttachment,
-                            extra: '',
-                            content: Array.isArray(extractedContent) ? extractedContent.join("\n") : extractedContent
+                            extra: JSON.stringify({ status: 'extracting' })
                         });
 
-                    } else {
-                        console.error("Error extracting file content", savedAttachment.storageKey, savedAttachment.displayName);
+
+                        const processedFiles = processFiles({
+                            inputObject,
+                            pdfExtractText: true
+                        });
+
+                        const extractedContent = processedFiles['fileContent'];
+                        console.log(processedFiles);
+                        if (extractedContent) {
+                            attRepo.upsert({
+                                id: savedAttachment.id
+                            }, {
+                                ...savedAttachment,
+                                extra: '',
+                                content: Array.isArray(extractedContent) ? extractedContent.join("\n") : extractedContent
+                            });
+
+                        } else {
+                            console.error("Error extracting file content", savedAttachment.storageKey, savedAttachment.displayName);
+                        }
+                    } catch (e) {
+                        console.error("Error extracting file content", e);
                     }
                 }
 
