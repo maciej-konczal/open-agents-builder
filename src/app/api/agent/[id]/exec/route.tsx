@@ -142,12 +142,14 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                         }
                     }
 
-                    const filesChunk =  {
-                        type: 'stepFinish',
-                        timestamp: new Date(),
-                        name: 'Extracting text from files ...'
+                    if (Object.keys(filesToUpload).length > 0) {
+                        const filesChunk =  {
+                            type: 'stepFinish',
+                            timestamp: new Date(),
+                            name: 'Extracting text from files ...'
+                        }
+                        outputAndTrace(filesChunk);             
                     }
-                    outputAndTrace(filesChunk);             
 
                     filesToUpload = processFiles({ inputObject: filesToUpload, pdfExtractText: false }); //extract text or convert PDF to images
 

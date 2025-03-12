@@ -76,7 +76,7 @@ export const attachments = sqliteTable('attachments', {
     id: integer('id', { mode: 'number' }).primaryKey({ autoIncrement: true }),
     
     displayName: text('displayName'),
-    symbolicNameIdentifier: text('symbolicNameIdentifier'),
+    symbolicNameIdentifier: text('safeNameIdentifier'),
     type: text('type'),
     url: text('url'),
     mimeType: text('mimeType'),
