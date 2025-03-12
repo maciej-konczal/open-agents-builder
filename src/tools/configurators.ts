@@ -9,6 +9,7 @@ import { ListProductsConfigurator } from './listProductsTool-configurator';
 import { HttpConfigurator } from './httpTool-configurator';
 import { AttachmentContentConfigurator } from './attachmentContentTool-configurator';
 import { ListAttachmentsConfigurator } from './listAttachmentsTool-configurator';
+import { UpdateResultToolConfigurator } from './updateResultTool-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -55,5 +56,9 @@ export const toolConfigurators: Record<string, ToolConfiguratorDescriptor> = {
   listAttachments: {
     displayName: 'List Attachments',
     configurator: ListAttachmentsConfigurator
+  },
+  updateResultTool: {
+    displayName: 'Update Result',
+    configurator: UpdateResultToolConfigurator
   }
 }

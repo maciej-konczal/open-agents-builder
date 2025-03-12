@@ -14,6 +14,7 @@ import { createAttachmentContentTool } from './attachmentContentTool';
 import { StorageSchemas } from '@/data/dto';
 import { list } from 'postcss';
 import { createListAttachmentsTool } from './listAttachmentsTool';
+import { createUpdateResultTool } from './updateResultTool';
 
 
 export type ToolDescriptor = {
@@ -38,6 +39,7 @@ export const toolRegistry = {
       listProducts: createListProductsTool(databaseIdHash),
       attachmentContent: createAttachmentContentTool(databaseIdHash, storageKey, StorageSchemas.Default),
       listAttachments: createListAttachmentsTool(databaseIdHash, storageKey, StorageSchemas.Default),
+      updateResultTool: createUpdateResultTool(databaseIdHash, storageKey),
       httpTool: httpTool
     }
 
