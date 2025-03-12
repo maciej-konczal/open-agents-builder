@@ -82,7 +82,7 @@ export function AttachmentUploader({ dbContext, saasContext, onUploaded }: FileU
 
         const apiClient = new AttachmentApiClient(
           "",
-          StorageSchemas.Commerce,
+          "",
           dbContext,
           saasContext,
           { useEncryption: false }

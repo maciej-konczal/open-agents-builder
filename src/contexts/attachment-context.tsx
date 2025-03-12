@@ -29,7 +29,7 @@ export const AttachmentProvider = ({ children }: { children: ReactNode }) => {
   const setupApiClient = (): AttachmentApiClient => {
     // Return an instance of AttachmentApiClient
     // If needed, you can set encryptionConfig
-    return new AttachmentApiClient("", "commerce", dbContext, saasContext, {
+    return new AttachmentApiClient("", "", dbContext, saasContext, {
       useEncryption: false,
     });
   };
