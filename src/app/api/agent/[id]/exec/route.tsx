@@ -26,6 +26,7 @@ import { files } from "jszip";
 import { exec } from "child_process";
 import { getMimeType, processFiles, replaceBase64Content } from "@/lib/file-extractor";
 import { timestamp } from "drizzle-orm/mysql-core";
+import { createTraceTool } from "@/tools/traceTool";
 
 
 
@@ -75,8 +76,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             const agentsRepo = new ServerAgentRepository(databaseIdHash);
             const dto = await agentsRepo.findOne({ id: recordLocator });
 
-            const updateResultToolInstance = createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
-
             if (dto) {
                 const masterAgent = Agent.fromDTO(dto);
 
@@ -104,6 +103,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                 const execFLow = async (flow: AgentFlow, controller: ReadableStreamDefaultController<any> | null = null) => { // TODO: export it to AI tool as well to let execute the flows from chat etc
 
+                    const updateResultToolInstance = createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
+                    //const traceToolInstance = 
+                
+                    
                     let level = 0;
                     const variablesToInject: Record<string, string> = {}
                     let filesToUpload: Record<string, string | string[]> = {}
@@ -123,7 +126,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                         stackTrace.push(JSON.parse(textChunk)); // serialize it back
                         lastChunk = new Date();
-                    }                        
+                    }
+                    const traceToolInstance = createTraceTool(databaseIdHash, (params: Chunk) => {
+                        console.log('Custom trace', params)
+                        outputAndTrace(params);
+                    }, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool                        
 
 
                     for (const i of masterAgent?.inputs ?? []) {
@@ -269,6 +276,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
 
                             tools: {
                                 ...customTools,
+                                traceTool: traceToolInstance,
                                 updateResultTool: updateResultToolInstance,
                             }
                         })

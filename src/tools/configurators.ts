@@ -7,6 +7,8 @@ import { DayNameConfigurator } from './dayNameTool-configurator';
 import { CreateOrderToolConfigurator } from './createOrderTool-configurator';
 import { ListProductsConfigurator } from './listProductsTool-configurator';
 import { HttpConfigurator } from './httpTool-configurator';
+import { AttachmentContentConfigurator } from './attachmentContentTool-configurator';
+import { ListAttachmentsConfigurator } from './listAttachmentsTool-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -45,5 +47,13 @@ export const toolConfigurators: Record<string, ToolConfiguratorDescriptor> = {
   httpTool: {
     displayName: 'HTTP Requests',
     configurator: HttpConfigurator
+  },
+  attachmentContent: {
+    displayName: 'Attachment Content',
+    configurator: AttachmentContentConfigurator
+  },
+  listAttachments: {
+    displayName: 'List Attachments',
+    configurator: ListAttachmentsConfigurator
   }
 }

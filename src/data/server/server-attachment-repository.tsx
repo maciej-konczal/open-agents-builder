@@ -73,7 +73,6 @@ export default class ServerAttachmentRepository extends BaseRepository<Attachmen
 
     async findAll(): Promise<AttachmentDTO[]> {
         const db = (await this.db());
-        console.log(db.select().from(attachments).all());
         return Promise.resolve(db.select().from(attachments).all() as AttachmentDTO[])
     }
 
@@ -83,8 +82,8 @@ export default class ServerAttachmentRepository extends BaseRepository<Attachmen
     }
 
 
-      async queryAll({ id, limit, offset, orderBy, query }: 
-        { limit: number; offset: number; orderBy: string; query: string; id?: string;  }
+      async queryAll({ id, limit, offset, orderBy, query, mimeTypes }: 
+        { limit: number; offset: number; orderBy: string; query: string; id?: string; mimeTypes?: string[] }
       ): Promise<PaginatedResult<AttachmentDTO[]>> {
         const db = await this.db();
     
@@ -104,12 +103,19 @@ export default class ServerAttachmentRepository extends BaseRepository<Attachmen
         let whereCondition = null;
         if (query) {
           whereCondition = or(
+            eq(attachments.id, parseInt(query) > 0 ? parseInt(query) : 0),
             like(attachments.displayName, `%${query}%`),
             like(attachments.mimeType, `%${query}%`)
           );
         }
+
+        if (mimeTypes) {
+            whereCondition = or(
+                ...mimeTypes.map((mimeType) => like(attachments.mimeType, `%${mimeType}%`))
+            );
+
+        }
     
-        console.log(id)
         if (id) {
             whereCondition = eq(attachments.storageKey, id); // select single product by id
         }

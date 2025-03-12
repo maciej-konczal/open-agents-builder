@@ -5,6 +5,7 @@ import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { HourglassIcon, TimerIcon } from "lucide-react"
 import { Chunk } from "@/flows/models"
+import { ChatMessageMarkdown } from "../chat-message-markdown"
 
 // Props for the EndUserLog component
 interface EndUserLogProps {
@@ -35,21 +36,32 @@ export function EndUserLog({ chunks }: EndUserLogProps) {
 
         return (
           <div key={index} className="mb-2 p-2 border-b">
+            {chunk.type !== "message" && chunk.type !== "error" && (
             <div className="flex justify-between items-center">
-              <div className="text-xs">{`Step ${stepNumber}. ${description}`}</div>
-              <div className="text-xs text-gray-500 flex items-center">
-                {duration && (
-                  <div className="flex ml-2 text-gray-500">
-                    <TimerIcon className="w-4 h-4 mr-2 ml-2" /> ({duration})
-                  </div>
-                )}
-                {chunk.type !== "error" && chunk.type !== "finalResult" && index === chunks.length - 1 && (
-                  <div className="p-2 items-center justify-center">
-                    <HourglassIcon className="w-4 h-4" />
-                  </div>
-                )}
-              </div>
+                <div className="text-xs">{`Step ${stepNumber}. ${description}`}</div>
+                <div className="text-xs text-gray-500 flex items-center">
+                  {duration && (
+                    <div className="flex ml-2 text-gray-500">
+                      <TimerIcon className="w-4 h-4 mr-2 ml-2" /> ({duration})
+                    </div>
+                  )}
+                  {chunk.type !== "error" && chunk.type !== "finalResult" && index === chunks.length - 1 && (
+                    <div className="p-2 items-center justify-center">
+                      <HourglassIcon className="w-4 h-4" />
+                    </div>
+                  )}
+                </div>
             </div>
+      )}
+
+
+
+        {chunk.type === "message" && (
+              <div className="flex justify-between items-center">
+                <ChatMessageMarkdown>{chunk.message}</ChatMessageMarkdown>
+              </div>
+        )}      
+
           </div>
         )
       })}
