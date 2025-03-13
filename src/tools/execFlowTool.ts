@@ -462,6 +462,7 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
 
     // The only parameter is what the user/client passes (flow, outputMode, execMode, input).
     async execute(execRequest): Promise<any> {
+        execRequestSchema.parse(execRequest);
 //      try {
       return await doExecute(execRequest);
       // } catch (err) {
