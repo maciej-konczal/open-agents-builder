@@ -183,7 +183,7 @@ ${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent/${agent?.id}/exec
                   <ExecProvider>
                     <FlowsExecForm onVariablesChanged={(vars) => {
                         setApiCallVars(vars); 
-                    }} agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} />
+                    }} agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} databaseIdHash={dbContext?.databaseIdHash} />
                   </ExecProvider>
                 </AccordionContent>
               </AccordionItem>

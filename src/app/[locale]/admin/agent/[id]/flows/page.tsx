@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { onAgentSubmit } from '../general/page';
 import { AgentStatus } from '@/components/layout/agent-status';
-import React, { use, useEffect, useState } from 'react';
+import React, { use, useContext, useEffect, useState } from 'react';
 import { AgentDefinition, agentsValidators, flowsValidators, EditorStep, FlowInputVariable, inputValidators } from '@/flows/models';
 import FlowBuilder from '@/components/flows/flows-builder';
 import { AgentFlow } from '@/data/client/models';
@@ -24,12 +24,14 @@ import { ExecProvider } from '@/contexts/exec-context';
 import { Input } from '@/components/ui/input';
 import { FlowsDeleteDialog } from '@/components/flows/flows-delete-dialog';
 import DataLoader from '@/components/data-loader';
+import { DatabaseContext } from '@/contexts/db-context';
 
 export default function FlowsPage() {
 
   const { t } = useTranslation();
   const router = useRouter();
   const { current: agent, dirtyAgent, status, updateAgent } = useAgentContext();
+  const dbContext = useContext(DatabaseContext);
 
   const [editFlowDialogOpen, setEditFlowDialogOpen] = useState<boolean>(false);
   const [initialLoadDone, setInitialLoadDone] = useState<boolean>(false);
@@ -270,7 +272,7 @@ export default function FlowsPage() {
               <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Debugger')}</div></AccordionTrigger>
               <AccordionContent>
                 <ExecProvider>
-                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} />
+                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} databaseIdHash={dbContext?.databaseIdHash} />
                 </ExecProvider>
               </AccordionContent>
             </AccordionItem>
