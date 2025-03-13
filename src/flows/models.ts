@@ -13,6 +13,7 @@ export interface Chunk {
   name?: string
   timestamp?: Date
   input?: any
+  toolResults?: Array<any>;
   messages?: Array<{
     role: string
     content: Array<{ type: string; text: string }>
@@ -339,7 +340,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
         delete (rest.prompt);
 
         if(onDataChunk) onDataChunk({
-          type: "generationStart",
+          type: "generation",
           name,
           flowNodeId: id,
           timestamp: new Date(),          
@@ -375,7 +376,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
       // default flow
 
       if(onDataChunk) onDataChunk({
-        type: "generationStart",
+        type: "generation",
         name,
         flowNodeId: id,
         timestamp: new Date(),          

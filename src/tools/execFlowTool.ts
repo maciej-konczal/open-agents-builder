@@ -331,6 +331,26 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
         
 
         onStepFinish: async (result) => {
+        if (result.finishReason === 'tool-calls') {
+            // Output chunk
+            outputAndTrace({
+              type: "toolCalls",
+              flowNodeId,
+              name: `${subAgent.name} (${subAgent.model})`,
+              toolResults: result.toolResults
+            });
+          }
+
+          if (result.finishReason === 'error') {
+            outputAndTrace({
+              type: "error",
+              flowNodeId,
+              message: result.text,
+              toolResults: result.toolResults
+            });            
+          }
+
+
           // Update session usage stats
           const { usage } = result;
           let existingSession = await sessionRepo.findOne({ id: sessionId });
@@ -370,14 +390,6 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
               console.error("SaaS stats error:", e);
             }
           }
-
-          // Output chunk
-          outputAndTrace({
-            type: "stepFinish",
-            flowNodeId,
-            name: `${subAgent.name} (${subAgent.model})`,
-            messages: result.response.messages,
-          });
         },
         model: openai(subAgent.model, {}),
         name: subAgent.name,
