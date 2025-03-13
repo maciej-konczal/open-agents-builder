@@ -337,7 +337,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
           role: 'user',
           content: [{
             type: 'text',
-            text: `Here is the context: ${JSON.stringify(context)}`
+            text: `Here is the context: \`${JSON.stringify(context)}\``
           }]
         }] as CoreUserMessage[];
 

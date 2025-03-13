@@ -229,20 +229,20 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
         // Add raw user input data (if it makes sense in this tool)
         (newInput.content as Array<TextPart>).push({
           type: "text",
-          text: "User input: " + JSON.stringify(execRequest.input),
+          text: "User input: `" + JSON.stringify(execRequest.input) + "`",
         });
 
         // Add system context
         (newInput.content as Array<TextPart>).push({
           type: "text",
-          text: "Context: " + JSON.stringify({
+          text: "Context: `" + JSON.stringify({
             sessionId,
             currentDateTimeIso,
             currentLocalDateTime,
             currentTimezone,
             agentId,
             defaultLocale: masterAgent.locale,
-          }),
+          }) + "`",
         });
 
         // Check used variables for files/attachments
@@ -338,6 +338,7 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
             outputAndTrace({
               type: "toolCalls",
               flowNodeId,
+              flowAgentId: flowNodeId,
               name: `${subAgent.name} (${subAgent.model})`,
               toolResults: result.toolResults
             });

@@ -9,7 +9,7 @@ import { DatabaseContext } from "@/contexts/db-context";
 import { SaaSContext } from '@/contexts/saas-context';
 import JsonView from "@uiw/react-json-view";
 import { ChatMessageMarkdown } from "../chat-message-markdown";
-import { PlayIcon } from "lucide-react";
+import { Code2Icon, FileIcon, PlayIcon } from "lucide-react";
 import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 import DataLoader from "../data-loader";
 import { Card, CardContent } from "../ui/card";
@@ -223,16 +223,16 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
             flowResult || stackTraceChunks && stackTraceChunks.length > 0 ? (
                 <Accordion type="multiple" value={currentTabs} onValueChange={(value) => setCurrentTabs(value)}  className="w-full mt-4">
                     {flowResult && (
-                        <AccordionItem value={"result"}>
-                            <AccordionTrigger>{t('Result')}</AccordionTrigger>
+                        <AccordionItem value={"result"} className="mb-2 border border-gray-200 p-4 rounded-md">
+                            <AccordionTrigger className="flex align-left justify-left text-md font-bold"><div className="flex"><FileIcon className="w-6 h-6 mr-2" /> {t('Result')}</div></AccordionTrigger>
                             <AccordionContent>
                                 {(typeof flowResult === 'string') ? <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown> :
                                     <JsonView value={flowResult} />}
                             </AccordionContent>
                         </AccordionItem>
                     )}
-                    <AccordionItem value={"trace"}>
-                        <AccordionTrigger>{t('Trace')}</AccordionTrigger>
+                    <AccordionItem value={"trace"} className=" text-m border border-gray-200 p-4 rounded-md mt-4">
+                        <AccordionTrigger className="flex items-left justify-left font-bold"><div className="flex"><Code2Icon className="w-6 h-6 mr-2"/><span>{t('Trace')}</span></div></AccordionTrigger>
                         <AccordionContent>
                             <DebugLog chunks={stackTraceChunks} accumulatedTextGens={accumulatedAgentsText} />
                         </AccordionContent>
