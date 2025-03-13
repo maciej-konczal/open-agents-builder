@@ -10,6 +10,7 @@ import { HttpConfigurator } from './httpTool-configurator';
 import { AttachmentContentConfigurator } from './attachmentContentTool-configurator';
 import { ListAttachmentsConfigurator } from './listAttachmentsTool-configurator';
 import { UpdateResultToolConfigurator } from './updateResultTool-configurator';
+import { ExecFlowToolConfigurator } from './execFlowTool-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -60,5 +61,9 @@ export const toolConfigurators: Record<string, ToolConfiguratorDescriptor> = {
   updateResultTool: {
     displayName: 'Update Result',
     configurator: UpdateResultToolConfigurator
+  },
+  execFlowTool: {
+    displayName: 'Execute Flow',
+    configurator: ExecFlowToolConfigurator
   }
 }

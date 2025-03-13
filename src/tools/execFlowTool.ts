@@ -318,7 +318,9 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
         databaseIdHash,
         saasContext?.isSaasMode ? saasContext.saasContex?.storageKey : null,
         agentId,
-        sessionId
+        sessionId,
+        masterAgent,
+        saasContext
       );
 
       const flowNodeId = nanoid();
@@ -472,5 +474,5 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
     },
   });
 
-  return { tool: execFlowTool };
+  return { tool: execFlowTool, displayName: "Execute flow" };
 }

@@ -15,6 +15,10 @@ import { StorageSchemas } from '@/data/dto';
 import { list } from 'postcss';
 import { createListAttachmentsTool } from './listAttachmentsTool';
 import { createUpdateResultTool } from './updateResultTool';
+import { createExecFlowTool } from './execFlowTool';
+import ServerAgentRepository from '@/data/server/server-agent-repository';
+import { Agent } from '@/data/client/models';
+import { AuthorizedSaaSContext } from '@/lib/generic-api';
 
 
 export type ToolDescriptor = {
@@ -25,7 +29,8 @@ export type ToolDescriptor = {
 let availableTools:Record<string, ToolDescriptor> | null = null;
 
 export const toolRegistry = {
-  init: ({ databaseIdHash, storageKey, agentId, sessionId }: {agentId: string, sessionId: string, databaseIdHash: string, storageKey: string | undefined | null}): Record<string, ToolDescriptor> => {
+  init: ({ saasContext, databaseIdHash, storageKey, agentId, agent, sessionId }: { saasContext: AuthorizedSaaSContext, agentId: string, sessionId: string, agent?: Agent, databaseIdHash: string, storageKey: string | undefined | null}): Record<string, ToolDescriptor> => {
+
     if (availableTools !== null) return availableTools;
     availableTools = {
       sendEmail: createEmailTool({
@@ -40,7 +45,24 @@ export const toolRegistry = {
       attachmentContent: createAttachmentContentTool(databaseIdHash, storageKey, StorageSchemas.Default),
       listAttachments: createListAttachmentsTool(databaseIdHash, storageKey, StorageSchemas.Default),
       updateResultTool: createUpdateResultTool(databaseIdHash, storageKey),
-      httpTool: httpTool
+      httpTool: httpTool,
+    }
+
+    if (agent) {
+      availableTools = {
+        ...availableTools,
+          execFlowTool: createExecFlowTool({
+            agentId: agent.id ?? '',
+            masterAgent: agent, 
+            saasContext,
+            databaseIdHash,
+            sessionId,
+            currentDateTimeIso: new Date().toISOString(),
+            currentLocalDateTime: new Date().toLocaleString(),
+            currentTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+            streamingController: null          
+        }),
+      }
     }
 
     return availableTools;
