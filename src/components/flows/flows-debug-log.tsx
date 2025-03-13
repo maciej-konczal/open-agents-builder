@@ -24,12 +24,14 @@ import { DataLoaderIcon } from "../data-loader-icon"
 
 // Props for the DebugLog component
 interface DebugLogProps {
-  chunks: Chunk[]
+  chunks: Chunk[],
+  accumulatedTextGens: Record<string, string>
 }
 
-export function DebugLog({ chunks }: DebugLogProps) {
+export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const [openChunks, setOpenChunks] = React.useState<string[]>([])
   const { t } = useTranslation();
   
   // Auto-scroll to latest chunk whenever `chunks` change
@@ -54,8 +56,9 @@ export function DebugLog({ chunks }: DebugLogProps) {
         return (
           <Accordion
             key={index}
-            type="single"
-            collapsible
+            onValueChange={(values) => setOpenChunks(values)}
+            value={[...openChunks, `chunk-${index}`]}
+            type="multiple"
             className="mb-2"
           >
             <AccordionItem value={`chunk-${index}`}>
@@ -85,6 +88,10 @@ export function DebugLog({ chunks }: DebugLogProps) {
                     <div className={chunk.type === 'error' ? "text-red-500" : ''}>
                         <ChatMessageMarkdown>{chunk.message}</ChatMessageMarkdown>
                     </div>
+                  )}
+
+                  {accumulatedTextGens && chunk.flowNodeId && accumulatedTextGens[chunk.flowNodeId] && (
+                    <ChatMessageMarkdown>{accumulatedTextGens[chunk.flowNodeId]}</ChatMessageMarkdown>
                   )}
 
                   {/* If there's a result, show it */}

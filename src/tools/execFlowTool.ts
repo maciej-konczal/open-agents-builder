@@ -319,8 +319,17 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
         sessionId
       );
 
+      const flowNodeId = nanoid();
+
       // Build the flows-ai agent with "messagesSupportingAgent"
       compiledAgents[subAgent.name] = messagesSupportingAgent({
+
+        streaming: messagesSupportingAgent !== null,
+        onDataChunk: (chunk) => {
+          outputAndTrace(chunk);
+        },
+        
+
         onStepFinish: async (result) => {
           // Update session usage stats
           const { usage } = result;
@@ -365,12 +374,14 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
           // Output chunk
           outputAndTrace({
             type: "stepFinish",
+            flowNodeId,
             name: `${subAgent.name} (${subAgent.model})`,
             messages: result.response.messages,
           });
         },
         model: openai(subAgent.model, {}),
         name: subAgent.name,
+        id: flowNodeId,
         system: subAgent.system,
         messages: [],
         tools: {
@@ -387,7 +398,7 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
       onFlowStart: (flowContext) => {
         outputAndTrace({
           type: "flowStart",
-          name: flowContext.name,
+          name: flowContext.name, // name can contain some path parent/child info
           input: flowContext.input,
           timestamp: new Date(),          
         });

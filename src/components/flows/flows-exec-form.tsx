@@ -51,6 +51,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
 
 
     const [stackTraceChunks, setStackTraceChunks] = useState<Chunk[]>([]);
+    const [accumulatedAgentsText, setAccumulatedAgentsText] = useState<Record<string, string>>({});
 
 
     const getSessionHeaders = () => {
@@ -147,7 +148,15 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
 
                                                 for await (const chunk of stream) {
                                                     console.log("Received chunk:", chunk);
-                                                    setStackTraceChunks(prv => [...prv, chunk]);
+                                                    if (chunk['type'] !== 'textStream') {
+                                                        setStackTraceChunks(prv => [...prv, chunk]);
+                                                    } else {
+                                                        setAccumulatedAgentsText(prv => ({ ...prv, [chunk['flowNodeId']]: (prv[chunk['flowNodeId']] || '') + chunk['result'] }));
+                                                    }
+
+                                                    if (chunk['type'] === 'flowStart') {
+                                                         setAccumulatedAgentsText(prv => ({ ...prv, [chunk['flowNodeId']]: '' }));
+                                                    }
 
                                                     if (chunk['type'] === 'finalResult') {
                                                         setFlowResult(chunk['result']);
@@ -225,7 +234,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
                     <AccordionItem value={"trace"}>
                         <AccordionTrigger>{t('Trace')}</AccordionTrigger>
                         <AccordionContent>
-                            <DebugLog chunks={stackTraceChunks} />
+                            <DebugLog chunks={stackTraceChunks} accumulatedTextGens={accumulatedAgentsText} />
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>

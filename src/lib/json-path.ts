@@ -1,3 +1,5 @@
+import { nanoid } from "nanoid";
+
 /** 
  * Recursively traverses the given object (and its children via "input" and "item") 
  * updating each node's "name" property to reflect the path of agents from the root.
@@ -6,6 +8,10 @@ export function setRecursiveNames(obj: any, path: string[] = []): void {
     // Skip if not an object
     if (!obj || typeof obj !== 'object') {
       return;
+    }
+
+    if(!obj.id) {
+      obj.id = nanoid();
     }
   
     // If this node has an 'agent', extend our path
