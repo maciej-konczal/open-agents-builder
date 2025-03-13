@@ -240,7 +240,7 @@
   "id": "id",
   "displayName": "displayName",
   "prompt": "prompt",
-  "expectedResult": "expectedResult",
+  "expectedResult": "Oczekiwany rezultat",
   "safetyRules": "safetyRules",
   "status": "status",
   "locale": "locale",

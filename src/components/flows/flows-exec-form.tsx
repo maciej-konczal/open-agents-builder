@@ -208,7 +208,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
             flowResult || stackTraceChunks && stackTraceChunks.length > 0 ? (
                 <div>
                     {stackTraceChunks && stackTraceChunks.length > 0 && (
-                        <EndUserLog chunks={stackTraceChunks} />
+                        <EndUserLog chunks={stackTraceChunks} accumulatedTextGens={accumulatedAgentsText} />
                     )}
 
                     { flowResult && (   

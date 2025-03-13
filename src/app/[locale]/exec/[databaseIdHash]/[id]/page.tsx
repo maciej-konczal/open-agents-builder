@@ -36,13 +36,15 @@ export default function ExecPage({children,
 
     useEffect(() => {
       // TODO: add Exec context similar to chat context
-         execContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
-           console.error(e);
-           setGeneralError(t(getErrorMessage(e)));
-         }).then(() => {
-           setIsInitializing(false);
-         });
-    }, [params.id, params.databaseIdHash, params.locale]);
+        if (params.id && params.databaseIdHash) {
+          execContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
+            console.error(e);
+            setGeneralError(t(getErrorMessage(e)));
+          }).then(() => {
+            setIsInitializing(false);
+          });
+        }
+      }, [params.id, params.databaseIdHash, params.locale]);
 
     // useEffect(() => {
     //     if (execContext.agent){

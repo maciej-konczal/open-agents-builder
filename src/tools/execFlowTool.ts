@@ -155,7 +155,9 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
 
       // If we have a streaming controller and the outputMode is "stream", enqueue JSON chunk
       if (streamingController && execRequest.outputMode === "stream") {
-        const textChunk = replaceBase64Content(JSON.stringify(chunk));
+        let textChunk:string = replaceBase64Content(JSON.stringify(chunk));
+        textChunk = textChunk.replaceAll("\n","").replaceAll("\r", "") + "\n"
+
         streamingController.enqueue(encoder.encode(textChunk));
       }
     }
@@ -460,11 +462,11 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
 
     // The only parameter is what the user/client passes (flow, outputMode, execMode, input).
     async execute(execRequest): Promise<any> {
-      try {
-        return await doExecute(execRequest);
-      } catch (err) {
-        return { error: getErrorMessage(err) };
-      }
+//      try {
+      return await doExecute(execRequest);
+      // } catch (err) {
+      //   return { error: getErrorMessage(err) };
+      // }
     },
   });
 

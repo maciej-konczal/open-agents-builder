@@ -111,7 +111,7 @@ export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<st
       for (const requiredField of agentTypeDescriptor.requiredTabs){
         const valToCheck = updatedAgent.toForm()[requiredField];
         if(!valToCheck || (Array.isArray(valToCheck) && valToCheck.length === 0)) {
-          router.push(`/admin/agent/${updatedAgent.id}/${requiredField}`);
+            router.push(`/admin/agent/${updatedAgent.id}/${requiredField.replace(/[A-Z]/g, m => `-${m.toLowerCase()}`)}`);
           toast.error(t('Field ') + t(requiredField) + t(' is required'));
           agentContext.setStatus({
             id: requiredField + '-required',

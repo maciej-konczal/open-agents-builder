@@ -20,7 +20,7 @@ export function ChatMessageToolResponse( { args, result }: { args: any, result: 
     return (
         <Credenza >
             <CredenzaTrigger asChild>
-                <Button className="ml-auto right-20 mr-2" size={"sm"} variant="secondary">
+                <Button className="ml-auto right-20 m-2" size={"sm"} variant="secondary">
                     <CodeIcon className="w-4 h-4" />{t('Open details')}
                 </Button>
             </CredenzaTrigger>

@@ -191,6 +191,7 @@
   "Transform with AI": "Transform with AI",
   "Prompt is required": "Prompt is required",
   "Agent prompt": "Agent prompt",
+  "expectedResult": "Expected result",
   "Expected result is required": "Expected result is required",
   "Agent updated successfully": "Agent updated successfully",
   "Agent type": "Agent type",
