@@ -97,7 +97,7 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
                     </div>
                   )}
 
-                  {accumulatedTextGens && chunk['type'] === 'generation' && chunk.flowNodeId && accumulatedTextGens[chunk.flowNodeId] && (
+                  {accumulatedTextGens && chunk['type'] === 'generation' && chunk.flowNodeId  && (
                     accumulatedTextGens[chunk.flowNodeId] ?  (<ChatMessageMarkdown>{accumulatedTextGens[chunk.flowNodeId]}</ChatMessageMarkdown>) : (<div className="flex"><BrainIcon className="w-4 h-4 mr-2"/>{t('AI Thinking') + '...' }</div>)
                   )}
 
