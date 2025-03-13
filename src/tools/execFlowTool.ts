@@ -155,7 +155,9 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
 
       // If we have a streaming controller and the outputMode is "stream", enqueue JSON chunk
       if (streamingController && execRequest.outputMode === "stream") {
-        const textChunk = replaceBase64Content(JSON.stringify(chunk));
+        let textChunk:string = replaceBase64Content(JSON.stringify(chunk));
+        textChunk = textChunk.replaceAll("\n","").replaceAll("\r", "") + "\n"
+
         streamingController.enqueue(encoder.encode(textChunk));
       }
     }
@@ -227,20 +229,20 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
         // Add raw user input data (if it makes sense in this tool)
         (newInput.content as Array<TextPart>).push({
           type: "text",
-          text: "User input: " + JSON.stringify(execRequest.input),
+          text: "User input: `" + JSON.stringify(execRequest.input) + "`",
         });
 
         // Add system context
         (newInput.content as Array<TextPart>).push({
           type: "text",
-          text: "Context: " + JSON.stringify({
+          text: "Context: `" + JSON.stringify({
             sessionId,
             currentDateTimeIso,
             currentLocalDateTime,
             currentTimezone,
             agentId,
             defaultLocale: masterAgent.locale,
-          }),
+          }) + "`",
         });
 
         // Check used variables for files/attachments
@@ -316,7 +318,9 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
         databaseIdHash,
         saasContext?.isSaasMode ? saasContext.saasContex?.storageKey : null,
         agentId,
-        sessionId
+        sessionId,
+        masterAgent,
+        saasContext
       );
 
       const flowNodeId = nanoid();
@@ -336,6 +340,7 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
             outputAndTrace({
               type: "toolCalls",
               flowNodeId,
+              flowAgentId: flowNodeId,
               name: `${subAgent.name} (${subAgent.model})`,
               toolResults: result.toolResults
             });
@@ -460,13 +465,14 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
 
     // The only parameter is what the user/client passes (flow, outputMode, execMode, input).
     async execute(execRequest): Promise<any> {
-      try {
-        return await doExecute(execRequest);
-      } catch (err) {
-        return { error: getErrorMessage(err) };
-      }
+        execRequestSchema.parse(execRequest);
+//      try {
+      return await doExecute(execRequest);
+      // } catch (err) {
+      //   return { error: getErrorMessage(err) };
+      // }
     },
   });
 
-  return { tool: execFlowTool };
+  return { tool: execFlowTool, displayName: "Execute flow" };
 }

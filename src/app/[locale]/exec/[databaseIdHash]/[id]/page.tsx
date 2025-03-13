@@ -36,13 +36,15 @@ export default function ExecPage({children,
 
     useEffect(() => {
       // TODO: add Exec context similar to chat context
-         execContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
-           console.error(e);
-           setGeneralError(t(getErrorMessage(e)));
-         }).then(() => {
-           setIsInitializing(false);
-         });
-    }, [params.id, params.databaseIdHash, params.locale]);
+        if (params.id && params.databaseIdHash) {
+          execContext.init(params.id, params.databaseIdHash, params.locale, nanoid() /** generate session id */).catch((e) => {
+            console.error(e);
+            setGeneralError(t(getErrorMessage(e)));
+          }).then(() => {
+            setIsInitializing(false);
+          });
+        }
+      }, [params.id, params.databaseIdHash, params.locale]);
 
     // useEffect(() => {
     //     if (execContext.agent){
@@ -61,14 +63,12 @@ export default function ExecPage({children,
       ):(
         <div className="w-full max-w-2xl mx-auto">
           <div className="text-sm p-4 mb-4">
-            <ChatMessageMarkdown>
+            <ChatMessageMarkdown copyToCC={false}>
               {execContext.agent?.options?.welcomeMessage ?? ''}
             </ChatMessageMarkdown>
           </div>
           {execContext.agent && execContext.agent.flows && execContext.agent.flows.length > 0 && execContext.agent.inputs && execContext.agent.agents ? (
-            <ExecProvider>
-              <FlowsExecForm agent={execContext?.agent} agentFlow={execContext?.agent?.flows.find(f=>f.code === (searchParams.get('flow') ?? execContext?.agent?.defaultFlow) )?? execContext?.agent?.flows[0]} agents={execContext.agent?.agents} inputs={execContext.agent?.inputs} flows={execContext.agent?.flows} displayMode={ExecFormDisplayMode.EndUser} />
-            </ExecProvider>
+             <FlowsExecForm initializeExecContext={false} agent={execContext?.agent} agentFlow={execContext?.agent?.flows.find(f=>f.code === (searchParams.get('flow') ?? execContext?.agent?.defaultFlow) )?? execContext?.agent?.flows[0]} agents={execContext.agent?.agents} inputs={execContext.agent?.inputs} flows={execContext.agent?.flows} databaseIdHash={params.databaseIdHash} displayMode={ExecFormDisplayMode.EndUser} />
             ) : (
             <div className="text-center">
               <div className="flex justify-center m-4 text-red-400 text-2xl">{t('Error')}</div>

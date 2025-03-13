@@ -17,9 +17,10 @@ import { ChatMessageMarkdown } from "../chat-message-markdown"
 import { useTranslation } from "react-i18next"
 import { Chunk } from "@/flows/models"
 import Markdown from "react-markdown"
-import { HourglassIcon, TimerIcon } from "lucide-react"
+import { BrainCircuitIcon, BrainCogIcon, BrainIcon, CodeIcon, CogIcon, FileCogIcon, HashIcon, HourglassIcon, LightbulbIcon, StepForwardIcon, TextCursorIcon, TextCursorInputIcon, TextIcon, TimerIcon } from "lucide-react"
 import { DataLoaderIcon } from "../data-loader-icon"
 import { ChatMessageToolResponse } from "../chat-message-tool-response"
+import { DebugChatMessages } from "../debug-chat-messages"
 
 // Types for your chunk data. Adjust fields as needed.
 
@@ -41,7 +42,7 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
     setOpenChunks(prv=> [...prv, `chunk-${chunks.length-1}`])
-  }, [chunks, accumulatedTextGens])
+  }, [chunks])
 
   return (
     <div
@@ -55,6 +56,10 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
           ? `${chunk.name} (${chunk.type})`
           : chunk.type
 
+        let chunkIcon = (<LightbulbIcon className="w-4 h-4 mr-2 ml-2" />)
+        if (chunk.type === "generation") chunkIcon = (<TextCursorInputIcon className="w-4 h-4 mr-2 ml-2" />)
+        if (chunk.type === "toolCalls") chunkIcon = (<FileCogIcon className="w-4 h-4 mr-2 ml-2" />)
+
         return (
           <Accordion
             key={index}
@@ -66,7 +71,7 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
             <AccordionItem value={`chunk-${index}`}>
               <AccordionTrigger>
                 <div className="grid grid-cols-2 w-full">
-                  <div className="font-semibold items-left text-left justify-start">{index + 1}. {headerTitle}</div>
+                  <div className="items-center no-underline text-left justify-start font-normal flex">{chunkIcon} {index + 1}. <span className="font-normal dark:text-white p-2 bg-gray-500 rounded-md mr-2">{chunk.type}</span> <span className="font-bold">{chunk.name}</span></div>
                   <div className="ml-2 text-xs text-gray-500 flex items-center">{date}
                     {chunk.duration && (
                       <div className="flex ml-2 text-gray-500"><TimerIcon className="w-4 h-4 mr-2 ml-2" /> ({chunk.duration} s)</div>
@@ -83,7 +88,7 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
                 <div className="mt-2 space-y-2">
                   {/* If the chunk has messages, show them */}
                   {chunk.messages && chunk.messages.length > 0 && (
-                    <ChatMessages displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} messages={chunk.messages} />
+                    <DebugChatMessages displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} messages={chunk.messages} />
                   )}
 
                   {chunk.message && (
@@ -93,10 +98,10 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
                   )}
 
                   {accumulatedTextGens && chunk['type'] === 'generation' && chunk.flowNodeId && accumulatedTextGens[chunk.flowNodeId] && (
-                    <ChatMessageMarkdown>{accumulatedTextGens[chunk.flowNodeId]}</ChatMessageMarkdown>
+                    accumulatedTextGens[chunk.flowNodeId] ?  (<ChatMessageMarkdown>{accumulatedTextGens[chunk.flowNodeId]}</ChatMessageMarkdown>) : (<div className="flex"><BrainIcon className="w-4 h-4 mr-2"/>{t('AI Thinking') + '...' }</div>)
                   )}
 
-                  {chunk.type === 'toolCalls' && chunk.toolResults && (
+                  { chunk.toolResults && (
                     chunk.toolResults.map((c, i) => (
                       safeJsonParse(c.result, null) === null ? <ChatMessageMarkdown>{c.result}</ChatMessageMarkdown> :
                       <ChatMessageToolResponse args={c.args} result={safeJsonParse(c.result, null)} />
@@ -127,7 +132,7 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
                   {chunk.input && ((typeof chunk.input === 'string' && chunk.input !== "") && Object.values(chunk.input).length > 0) && (
                     <div>
                       <div className="font-semibold">{t('Input')}</div>
-                      {(typeof chunk.input === 'string') ? (safeJsonParse(chunk.input, null) === null ? <ChatMessageMarkdown>{chunk.input}</ChatMessageMarkdown> : <ChatMessages messages={[JSON.parse(chunk.input)]} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} displayTimestamps={false} />) :
+                      {(typeof chunk.input === 'string') ? (safeJsonParse(chunk.input, null) === null ? <ChatMessageMarkdown>{chunk.input}</ChatMessageMarkdown> : <DebugChatMessages messages={[JSON.parse(chunk.input)]} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} displayTimestamps={false} />) :
                         (chunk.input ? <JsonView value={safeJsonParse(chunk.input, {})} /> : null)}
 
                     </div>

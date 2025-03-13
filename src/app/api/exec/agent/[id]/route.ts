@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         const databaseIdHash = request.headers.get('Database-Id-Hash') || '';
         const repo = new ServerAgentRepository(databaseIdHash);
         const saasContext = await authorizeSaasToken(databaseIdHash);
-
+console.log('!!!',databaseIdHash, recordLocator)
         const agent = await repo.findOne(recordLocator);
         if (!agent) {
             return Response.json({ message: "Agent not found", status: 404 }, { status: 404 });

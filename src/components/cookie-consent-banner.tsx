@@ -36,7 +36,7 @@ export function CookieConsentBannerComponent() {
     <div className="fixed bottom-0 left-0 right-0 bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 md:flex md:items-center md:justify-between shadow-lg" role="alert" aria-live="polite">
       <div className="mb-4 md:mb-0 md:mr-4 flex-grow">
         <p className="text-sm light:text-gray-900 dark:text-gray-300 dark:text-gray-300">
-          {t('We use cookies to enhance your browsing experience and analyze our traffic. By clicking Accept, you consent to our use of cookies. Read more about our ')}<a href="/content/privacy" className="text-primary hover:underline">{t('Privacy Policy')}</a>.
+          {t('We use cookies to enhance your browsing experience and analyze our traffic. By clicking Accept, you consent to our use of cookies. Read more about our ')}<a href="/content/privacy" className="text-primary hover:underline text-blue-400">{t('Privacy Policy')}</a>.
         </p>
       </div>
       <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">

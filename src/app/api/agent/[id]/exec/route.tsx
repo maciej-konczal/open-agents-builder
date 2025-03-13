@@ -8,6 +8,7 @@ import { Agent } from "@/data/client/models";
 import { authorizeSaasContext } from "@/lib/generic-api";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { createExecFlowTool } from "@/tools/execFlowTool";
+import { ZodError } from "zod";
 
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
@@ -88,9 +89,13 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
                 toolCallId: nanoid(), 
             });
           } catch (err) {
+            console.error(err);
+
+            let errorChunk = errorFormat(err);
+
             controller.enqueue(
               new TextEncoder().encode(
-                JSON.stringify({ type: "error", message: getErrorMessage(err) })
+                JSON.stringify(errorChunk) + "\n"
               )
             );
           } finally {
@@ -119,8 +124,21 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
   } catch (error) {
     console.error(error);
-    return new Response(JSON.stringify({ message: getErrorMessage(error), status: 499 }), {
+    let errorChunk = errorFormat(error);
+    return new Response(JSON.stringify(errorChunk), {
       status: 499,
     });
   }
 }
+function errorFormat(err: unknown) {
+  let errorChunk = { type: "error", message: getErrorMessage(err) };
+
+  if (err instanceof ZodError) {
+    errorChunk = {
+      type: "error",
+      ...err
+    };
+  }
+  return errorChunk;
+}
+

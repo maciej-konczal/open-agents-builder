@@ -7,6 +7,7 @@ import { nanoid } from "nanoid"
 
 export interface Chunk {
   type: string
+  flowAgentId?: string;
   flowNodeId?: string;
   agent?: string;
   duration?: number;
@@ -323,8 +324,12 @@ export const inputValidators = ({ t, setError }) => {
  * Helper function to create a user-defined agent that can then be referneced in a flow.
  * Like `generateText` in Vercel AI SDK, but we're taking care of `prompt`.
  */
-export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name ="", id = nanoid(), onDataChunk = null, ...rest }: Parameters<typeof generateText>[0] & {  name: string, id: string, streaming: boolean, onDataChunk: (((data: Chunk) => void) | null) }): Agent {
+export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name = "", id = nanoid(), onDataChunk = null, ...rest }: Parameters<typeof generateText>[0] & { name: string, id: string, streaming: boolean, onDataChunk: (((data: Chunk) => void) | null) }): Agent {
   return async ({ input }, context) => {
+
+    const generationId = nanoid();
+    const generationStart = new Date().getTime();
+
     if (typeof input === 'string') {
       const objInput = safeJsonParse(input, null)
       if (objInput && objInput.role) // this is a workaround for the case when the input is a message
@@ -333,17 +338,18 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
           role: 'user',
           content: [{
             type: 'text',
-            text: `Here is the context: ${JSON.stringify(context)}`
+            text: `Here is the context: \`${JSON.stringify(context)}\``
           }]
         }] as CoreUserMessage[];
 
         delete (rest.prompt);
 
-        if(onDataChunk) onDataChunk({
+        if (onDataChunk) onDataChunk({
           type: "generation",
           name,
-          flowNodeId: id,
-          timestamp: new Date(),          
+          flowAgentId: id,
+          flowNodeId: id + '-' + generationId,
+          timestamp: new Date(),
         });
 
         if (!streaming) {
@@ -364,9 +370,19 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
           for await (const textPart of textStream) {
             response += textPart;
             if (onDataChunk) {
-              onDataChunk({ type: 'textStream', flowNodeId: id, result: textPart, timestamp: new Date() });
+              onDataChunk({ type: 'textStream', flowAgentId: id, flowNodeId: id + '-' + generationId, result: textPart, timestamp: new Date() });
             }
           }
+
+
+          if (onDataChunk) onDataChunk({
+            type: "generationEnd",
+            name,
+            flowAgentId: id,
+            duration: (new Date().getTime() - generationStart) / 1000,
+            flowNodeId: id + '-' + generationId,
+            timestamp: new Date(),
+          });
 
           return response;
 
@@ -375,11 +391,12 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
 
       // default flow
 
-      if(onDataChunk) onDataChunk({
+      if (onDataChunk) onDataChunk({
         type: "generation",
         name,
-        flowNodeId: id,
-        timestamp: new Date(),          
+        flowAgentId: id,
+        flowNodeId: id + '-' + generationId,
+        timestamp: new Date(),
       });
 
       if (!streaming) {
@@ -405,9 +422,22 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
         for await (const textPart of textStream) {
           response += textPart;
           if (onDataChunk) {
-            onDataChunk({ type: 'textStream', agentId: id, result: textPart, timestamp: new Date() });
+            onDataChunk({
+              type: 'textStream', flowAgentId: id,
+              flowNodeId: id + '-' + generationId, result: textPart, timestamp: new Date()
+            });
           }
         }
+
+        if (onDataChunk) onDataChunk({
+          type: "generationEnd",
+          name,
+          flowAgentId: id,
+          duration: (new Date().getTime() - generationStart) / 1000,
+          flowNodeId: id + '-' + generationId,
+          timestamp: new Date(),
+        });
+                
         return response;
       }
     }
