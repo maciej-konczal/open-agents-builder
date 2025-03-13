@@ -1,8 +1,29 @@
 import { AgentFlow } from "@/data/client/models"
-import { CoreMessage, CoreUserMessage, generateText } from "ai"
+import { CoreMessage, CoreUserMessage, generateText, streamText } from "ai"
 import { Agent, Flow } from "flows-ai"
 import s from 'dedent'
 import { safeJsonParse } from "@/lib/utils"
+import { nanoid } from "nanoid"
+
+export interface Chunk {
+  type: string
+  flowNodeId?: string;
+  agent?: string;
+  duration?: number;
+  name?: string
+  timestamp?: Date
+  input?: any
+  toolResults?: Array<any>;
+  messages?: Array<{
+    role: string
+    content: Array<{ type: string; text: string }>
+    id?: string
+  }>
+  result?: string | string[]
+  message?: string;
+  response?: string
+}
+
 
 // Agent structure
 export interface ToolSetting {
@@ -12,6 +33,7 @@ export interface ToolSetting {
 
 export interface AgentDefinition {
   name: string          // e.g. "npmAgent"
+  id?: string;        // optionnal unique agent id for tracing
   model: string         // e.g.. "gpt-4o"
   system: string        // prompt
   tools: ToolSetting[]  // name / options dictionary
@@ -82,6 +104,7 @@ export function convertToFlowDefinition(step: EditorStep): any {
     // ------------------------------------
     case 'step':
       return {
+        id: nanoid(),
         agent: step.agent, // np. "translationAgent"
         input: step.input, // np. "Translate something"
       }
@@ -91,6 +114,7 @@ export function convertToFlowDefinition(step: EditorStep): any {
     // ------------------------------------
     case 'sequence':
       return {
+        id: nanoid(),
         agent: 'sequenceAgent',
         input: step.steps.map((child) => convertToFlowDefinition(child)),
       }
@@ -100,6 +124,7 @@ export function convertToFlowDefinition(step: EditorStep): any {
     // ------------------------------------
     case 'parallel':
       return {
+        id: nanoid(),
         agent: 'parallelAgent',
         input: step.steps.map((child) => convertToFlowDefinition(child)),
       }
@@ -117,6 +142,7 @@ export function convertToFlowDefinition(step: EditorStep): any {
       const flows = step.branches.map((b) => convertToFlowDefinition(b.flow))
       const conds = step.branches.map((b) => b.when)
       return {
+        id: nanoid(),
         agent: 'oneOfAgent',
         input: flows,
         conditions: conds,
@@ -133,6 +159,7 @@ export function convertToFlowDefinition(step: EditorStep): any {
       //   input: FlowDefinition
       // }
       return {
+        id: nanoid(),
         agent: 'forEachAgent',
         item: step.item,
         input: convertToFlowDefinition(step.inputFlow),
@@ -149,6 +176,7 @@ export function convertToFlowDefinition(step: EditorStep): any {
       //   input: FlowDefinition
       // }
       return {
+        id: nanoid(),
         agent: 'optimizeAgent',
         criteria: step.criteria,
         max_iterations: step.max_iterations,
@@ -165,6 +193,7 @@ export function convertToFlowDefinition(step: EditorStep): any {
       //   input: [FlowDefinition, ...]
       // }
       return {
+        id: nanoid(),
         agent: 'bestOfAllAgent',
         criteria: step.criteria,
         input: step.steps.map((child) => convertToFlowDefinition(child)),
@@ -294,9 +323,8 @@ export const inputValidators = ({ t, setError }) => {
  * Helper function to create a user-defined agent that can then be referneced in a flow.
  * Like `generateText` in Vercel AI SDK, but we're taking care of `prompt`.
  */
-export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<typeof generateText>[0]): Agent {
+export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name ="", id = nanoid(), onDataChunk = null, ...rest }: Parameters<typeof generateText>[0] & {  name: string, id: string, streaming: boolean, onDataChunk: (((data: Chunk) => void) | null) }): Agent {
   return async ({ input }, context) => {
-    console.log(input)
     if (typeof input === 'string') {
       const objInput = safeJsonParse(input, null)
       if (objInput && objInput.role) // this is a workaround for the case when the input is a message
@@ -309,44 +337,80 @@ export function messagesSupportingAgent({ maxSteps = 10, ...rest }: Parameters<t
           }]
         }] as CoreUserMessage[];
 
-        delete (rest.prompt);        
+        delete (rest.prompt);
+
+        if(onDataChunk) onDataChunk({
+          type: "generation",
+          name,
+          flowNodeId: id,
+          timestamp: new Date(),          
+        });
+
+        if (!streaming) {
+          const response = await generateText({
+            ...rest,
+            maxSteps,
+            messages
+          })
+          return response.text
+        } else {
+          const { textStream } = streamText({
+            ...rest,
+            maxSteps,
+            messages
+          });
+
+          let response = '';
+          for await (const textPart of textStream) {
+            response += textPart;
+            if (onDataChunk) {
+              onDataChunk({ type: 'textStream', flowNodeId: id, result: textPart, timestamp: new Date() });
+            }
+          }
+
+          return response;
+
+        }
+      }
+
+      // default flow
+
+      if(onDataChunk) onDataChunk({
+        type: "generation",
+        name,
+        flowNodeId: id,
+        timestamp: new Date(),          
+      });
+
+      if (!streaming) {
         const response = await generateText({
           ...rest,
           maxSteps,
-          messages
+          prompt: s`
+              Here is the context: ${JSON.stringify(context)}
+              Here is the instruction: ${JSON.stringify(input)}
+            `,
         })
         return response.text
+      } else {
+        const { textStream } = await streamText({
+          ...rest,
+          maxSteps,
+          prompt: s`
+              Here is the context: ${JSON.stringify(context)}
+              Here is the instruction: ${JSON.stringify(input)}
+            `,
+        })
+        let response = '';
+        for await (const textPart of textStream) {
+          response += textPart;
+          if (onDataChunk) {
+            onDataChunk({ type: 'textStream', agentId: id, result: textPart, timestamp: new Date() });
+          }
+        }
+        return response;
       }
     }
-
-    // default flow
-    const response = await generateText({
-      ...rest,
-      maxSteps,
-      prompt: s`
-            Here is the context: ${JSON.stringify(context)}
-            Here is the instruction: ${JSON.stringify(input)}
-          `,
-    })
-    return response.text
-
   }
-}
 
-
-
-export interface Chunk {
-  type: string
-  duration?: number;
-  name?: string
-  timestamp?: Date
-  input?: any
-  messages?: Array<{
-    role: string
-    content: Array<{ type: string; text: string }>
-    id?: string
-  }>
-  result?: string | string[]
-  message?: string;
-  response?: string
 }

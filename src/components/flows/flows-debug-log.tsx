@@ -19,25 +19,29 @@ import { Chunk } from "@/flows/models"
 import Markdown from "react-markdown"
 import { HourglassIcon, TimerIcon } from "lucide-react"
 import { DataLoaderIcon } from "../data-loader-icon"
+import { ChatMessageToolResponse } from "../chat-message-tool-response"
 
 // Types for your chunk data. Adjust fields as needed.
 
 // Props for the DebugLog component
 interface DebugLogProps {
-  chunks: Chunk[]
+  chunks: Chunk[],
+  accumulatedTextGens: Record<string, string>
 }
 
-export function DebugLog({ chunks }: DebugLogProps) {
+export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
+  const [openChunks, setOpenChunks] = React.useState<string[]>([])
   const { t } = useTranslation();
-  
+
   // Auto-scroll to latest chunk whenever `chunks` change
   useEffect(() => {
     if (containerRef.current) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight
     }
-  }, [chunks])
+    setOpenChunks(prv=> [...prv, `chunk-${chunks.length-1}`])
+  }, [chunks, accumulatedTextGens])
 
   return (
     <div
@@ -54,21 +58,22 @@ export function DebugLog({ chunks }: DebugLogProps) {
         return (
           <Accordion
             key={index}
-            type="single"
-            collapsible
+            onValueChange={(values) => setOpenChunks(values)}
+            value={openChunks}
+            type="multiple"
             className="mb-2"
           >
             <AccordionItem value={`chunk-${index}`}>
               <AccordionTrigger>
                 <div className="grid grid-cols-2 w-full">
-                  <div className="font-semibold items-left text-left justify-start">{index+1}. {headerTitle}</div>
+                  <div className="font-semibold items-left text-left justify-start">{index + 1}. {headerTitle}</div>
                   <div className="ml-2 text-xs text-gray-500 flex items-center">{date}
-                  {chunk.duration && (
-                    <div className="flex ml-2 text-gray-500"><TimerIcon className="w-4 h-4 mr-2 ml-2"/> ({chunk.duration} s)</div>
-                  )}
-                  {chunk.type !== "error" && chunk.type !== "finalResult" && index == chunks.length-1 && (
-                    <div className="p-2 items-center justify-center"><HourglassIcon className="w-4 h-4 " /></div>
-                  )}
+                    {chunk.duration && (
+                      <div className="flex ml-2 text-gray-500"><TimerIcon className="w-4 h-4 mr-2 ml-2" /> ({chunk.duration} s)</div>
+                    )}
+                    {chunk.type !== "error" && chunk.type !== "finalResult" && index == chunks.length - 1 && (
+                      <div className="p-2 items-center justify-center"><HourglassIcon className="w-4 h-4 " /></div>
+                    )}
                   </div>
                 </div>
               </AccordionTrigger>
@@ -83,8 +88,21 @@ export function DebugLog({ chunks }: DebugLogProps) {
 
                   {chunk.message && (
                     <div className={chunk.type === 'error' ? "text-red-500" : ''}>
-                        <ChatMessageMarkdown>{chunk.message}</ChatMessageMarkdown>
+                      <ChatMessageMarkdown>{chunk.message}</ChatMessageMarkdown>
                     </div>
+                  )}
+
+                  {accumulatedTextGens && chunk['type'] === 'generation' && chunk.flowNodeId && accumulatedTextGens[chunk.flowNodeId] && (
+                    <ChatMessageMarkdown>{accumulatedTextGens[chunk.flowNodeId]}</ChatMessageMarkdown>
+                  )}
+
+                  {chunk.type === 'toolCalls' && chunk.toolResults && (
+                    chunk.toolResults.map((c, i) => (
+                      safeJsonParse(c.result, null) === null ? <ChatMessageMarkdown>{c.result}</ChatMessageMarkdown> :
+                      <ChatMessageToolResponse args={c.args} result={safeJsonParse(c.result, null)} />
+                    ))
+
+
                   )}
 
                   {/* If there's a result, show it */}
@@ -109,8 +127,8 @@ export function DebugLog({ chunks }: DebugLogProps) {
                   {chunk.input && ((typeof chunk.input === 'string' && chunk.input !== "") && Object.values(chunk.input).length > 0) && (
                     <div>
                       <div className="font-semibold">{t('Input')}</div>
-                      {(typeof chunk.input === 'string') ? (safeJsonParse(chunk.input, null) === null ? <ChatMessageMarkdown>{chunk.input}</ChatMessageMarkdown>: <ChatMessages messages={[JSON.parse(chunk.input)]} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} displayTimestamps={false} />) :
-                                (chunk.input ? <JsonView value={safeJsonParse(chunk.input, {})} /> : null)}
+                      {(typeof chunk.input === 'string') ? (safeJsonParse(chunk.input, null) === null ? <ChatMessageMarkdown>{chunk.input}</ChatMessageMarkdown> : <ChatMessages messages={[JSON.parse(chunk.input)]} displayToolResultsMode={DisplayToolResultsMode.AsTextMessage} displayTimestamps={false} />) :
+                        (chunk.input ? <JsonView value={safeJsonParse(chunk.input, {})} /> : null)}
 
                     </div>
                   )}
