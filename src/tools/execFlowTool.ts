@@ -375,6 +375,7 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
         messages: [],
         tools: {
           ...customTools,
+          // TODO: add execFlow tool
           // you could optionally expose traceToolInstance and updateResultToolInstance if needed
         },
       });
