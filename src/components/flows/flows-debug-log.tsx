@@ -58,7 +58,7 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
 
         let chunkIcon = (<LightbulbIcon className="w-4 h-4 mr-2 ml-2" />)
         if (chunk.type === "generation") chunkIcon = (<TextCursorInputIcon className="w-4 h-4 mr-2 ml-2" />)
-          if (chunk.type === "toolCalls") chunkIcon = (<FileCogIcon className="w-4 h-4 mr-2 ml-2" />)
+        if (chunk.type === "toolCalls") chunkIcon = (<FileCogIcon className="w-4 h-4 mr-2 ml-2" />)
 
         return (
           <Accordion

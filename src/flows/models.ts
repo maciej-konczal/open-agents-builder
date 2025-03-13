@@ -328,6 +328,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
   return async ({ input }, context) => {
 
     const generationId = nanoid();
+    const generationStart = new Date().getTime();
 
     if (typeof input === 'string') {
       const objInput = safeJsonParse(input, null)
@@ -373,6 +374,16 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
             }
           }
 
+
+          if (onDataChunk) onDataChunk({
+            type: "generationEnd",
+            name,
+            flowAgentId: id,
+            duration: (new Date().getTime() - generationStart) / 1000,
+            flowNodeId: id + '-' + generationId,
+            timestamp: new Date(),
+          });
+
           return response;
 
         }
@@ -417,6 +428,16 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
             });
           }
         }
+
+        if (onDataChunk) onDataChunk({
+          type: "generationEnd",
+          name,
+          flowAgentId: id,
+          duration: (new Date().getTime() - generationStart) / 1000,
+          flowNodeId: id + '-' + generationId,
+          timestamp: new Date(),
+        });
+                
         return response;
       }
     }

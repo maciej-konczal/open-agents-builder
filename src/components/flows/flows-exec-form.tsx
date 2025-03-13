@@ -151,7 +151,18 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
                                                 for await (const chunk of stream) {
                                                     console.log("Received chunk:", chunk);
                                                     if (chunk['type'] !== 'textStream') {
-                                                        setStackTraceChunks(prv => [...prv, chunk]);
+                                                        if (chunk['type'] !== 'generationEnd') {
+                                                            setStackTraceChunks(prv => [...prv, chunk]);
+                                                        } else {
+                                                            setStackTraceChunks(prv => { // update duration
+                                                                const updatedChunks = prv.map(c => 
+                                                                    c.flowNodeId === chunk.flowNodeId 
+                                                                        ? { ...c, duration: chunk.duration }
+                                                                        : c
+                                                                );
+                                                                return [...updatedChunks, chunk];
+                                                            });
+                                                        }
                                                     } else {
                                                         setAccumulatedAgentsText(prv => ({ ...prv, [chunk['flowNodeId']]: (prv[chunk['flowNodeId']] || '') + chunk['result'] }));
                                                     }

@@ -3,7 +3,7 @@
 import * as React from "react"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
-import { HourglassIcon, TimerIcon } from "lucide-react"
+import { BrainIcon, FileCogIcon, HourglassIcon, LightbulbIcon, TextCursorInputIcon, TimerIcon } from "lucide-react"
 import { Chunk } from "@/flows/models"
 import { ChatMessageMarkdown } from "../chat-message-markdown"
 import { safeJsonParse } from "@/lib/utils"
@@ -36,12 +36,15 @@ export function EndUserLog({ chunks, accumulatedTextGens }: EndUserLogProps) {
         const description = chunk.name || chunk.type
         const date = chunk.timestamp || t("No date")
         const duration = chunk.duration ? `${chunk.duration} s` : null
+        let chunkIcon = (<LightbulbIcon className="w-4 h-4 mr-2 ml-2" />)
+        if (chunk.type === "generation") chunkIcon = (<TextCursorInputIcon className="w-4 h-4 mr-2 ml-2" />)
+        if (chunk.type === "toolCalls") chunkIcon = (<FileCogIcon className="w-4 h-4 mr-2 ml-2" />)
 
         return (
           <div key={index} className="mb-2 p-2 border-b text-xs">
             {chunk.type !== "message" && chunk.type !== "error" && (
             <div className="flex justify-between items-center">
-                <div className="text-xs mb-2 font-bold">{`Step ${stepNumber}. ${description}`}</div>
+                <div className="text-xs mb-2 font-bold flex">{chunkIcon} {`Step ${stepNumber}. ${description}`}</div>
                 <div className="text-xs text-gray-500 flex items-center">
                   {duration && (
                     <div className="flex ml-2 text-gray-500">
@@ -58,7 +61,7 @@ export function EndUserLog({ chunks, accumulatedTextGens }: EndUserLogProps) {
       )}
 
         {accumulatedTextGens && chunk['type'] === 'generation' && chunk.flowNodeId && (
-          accumulatedTextGens[chunk.flowNodeId] ? (<ChatMessageMarkdown>{accumulatedTextGens[chunk.flowNodeId]}</ChatMessageMarkdown>) : (t('AI Thinking') + '...')
+          accumulatedTextGens[chunk.flowNodeId] ? (<ChatMessageMarkdown>{accumulatedTextGens[chunk.flowNodeId]}</ChatMessageMarkdown>) : (<div className="flex"><BrainIcon className="w-4 h-4 mr-2"/>{t('AI Thinking') + '...' }</div>)
         )}
 
         { chunk.toolResults && (
