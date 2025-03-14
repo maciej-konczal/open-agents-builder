@@ -230,7 +230,7 @@ export function FlowsExecForm({
             {executionInProgress && <DataLoaderIcon />}
             <Button
               className={executionInProgress ? "ml-2" : ""}
-              disabled={executionInProgress || children !== null}
+              disabled={executionInProgress || (children !== null && children !== undefined)}
               variant={"secondary"}
               size="sm"
               onClick={handleExecute}

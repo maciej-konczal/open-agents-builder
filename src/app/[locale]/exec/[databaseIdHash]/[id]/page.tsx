@@ -52,7 +52,7 @@ export default function ExecPage({children,
     //   }, [execContext.agent, execContext.initFormRequired, execContext.initFormDone]);
 
 
-    const authorizedExec = () => {
+    const authorizedExec = (agent, agentFlow) => {
       return (
 
         (execContext.initFormRequired && !execContext.initFormDone) ? (
@@ -67,8 +67,8 @@ export default function ExecPage({children,
               {execContext.agent?.options?.welcomeMessage ?? ''}
             </ChatMessageMarkdown>
           </div>
-          {execContext.agent && execContext.agent.flows && execContext.agent.flows.length > 0 && execContext.agent.inputs && execContext.agent.agents ? (
-             <FlowsExecForm initializeExecContext={false} agent={execContext?.agent} agentFlow={execContext?.agent?.flows.find(f=>f.code === (searchParams.get('flow') ?? execContext?.agent?.defaultFlow) )?? execContext?.agent?.flows[0]} agents={execContext.agent?.agents} inputs={execContext.agent?.inputs} flows={execContext.agent?.flows} databaseIdHash={params.databaseIdHash} displayMode={ExecFormDisplayMode.EndUser} />
+          {execContext.agent && execContext.agent.flows && execContext.agent.flows.length > 0  && execContext.agent.agents ? (
+             <FlowsExecForm initializeExecContext={false} agent={agent} agentFlow={agentFlow} agents={execContext.agent?.agents} inputs={agentFlow?.inputs} flows={execContext.agent?.flows} databaseIdHash={params.databaseIdHash} displayMode={ExecFormDisplayMode.EndUser} />
             ) : (
             <div className="text-center">
               <div className="flex justify-center m-4 text-red-400 text-2xl">{t('Error')}</div>
@@ -83,30 +83,37 @@ export default function ExecPage({children,
       <div>
         <AIConsentBannerComponent />
         <div className="pt-10">
-          {isInitializing ? (
+            {isInitializing ? (
             <div className="text-center">
               <div className="flex justify-center m-4"><DataLoader /></div>
               <div className="text-gray-500 text-center">{t("Initializing agent...")}</div>
             </div>
-          ) : (
-          generalError ? (
+            ) : generalError ? (
             <div className="text-center">
               <div className="flex justify-center m-4 text-red-400 text-2xl">{t('Error')}</div>
               <div className="text-red-500 text-center">{generalError}</div>
             </div>
-          ): (
-            execContext.agent?.published ? (
-              authorizedExec()
-          ) : (
-                <DatabaseContextProvider>
-                  <SaaSContextProvider>
-                    <AuthorizationGuard>
-                      {authorizedExec()}
-                    </AuthorizationGuard>
-                  </SaaSContextProvider>
-                </DatabaseContextProvider>
-          )
-        ))}
+            ) : (
+            (() => {
+              const selectedFlow =
+              execContext?.agent?.flows?.find(
+                (f) => f.code === (searchParams.get('flow') ?? execContext?.agent?.defaultFlow)
+              ) ?? execContext?.agent?.flows?.[0]
+              const content = authorizedExec(execContext.agent, selectedFlow)
+
+              return execContext.agent?.published ? (
+              content
+              ) : (
+              <DatabaseContextProvider>
+                <SaaSContextProvider>
+                <AuthorizationGuard>
+                  {content}
+                </AuthorizationGuard>
+                </SaaSContextProvider>
+              </DatabaseContextProvider>
+              )
+            })()
+            )}
         <FeedbackWidget />
         <CookieConsentBannerComponent />
         </div>
