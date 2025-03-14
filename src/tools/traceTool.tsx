@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { tool } from 'ai';
 import { ToolDescriptor } from './registry';
-import { Chunk } from '@/flows/models';
+import { FlowChunkEvent } from '@/flows/models';
 
 
-export function createTraceTool(databaseIdHash: string, traceLog: (chunk: Chunk) => void, storageKey: string | undefined | null): ToolDescriptor
+export function createTraceTool(databaseIdHash: string, traceLog: (chunk: FlowChunkEvent) => void, storageKey: string | undefined | null): ToolDescriptor
 {
     return {
     displayName: 'Interactively inform the user',
@@ -17,7 +17,7 @@ export function createTraceTool(databaseIdHash: string, traceLog: (chunk: Chunk)
             result: z.union([z.string(), z.array(z.string())]).optional().describe('Trace result - optional'),
             message: z.string().optional().describe('Trace message'),
         }),
-        execute: async (params: Chunk) => {
+        execute: async (params: FlowChunkEvent) => {
             try {
                 if(!params.timestamp) params.timestamp = new Date();
                 traceLog(params);

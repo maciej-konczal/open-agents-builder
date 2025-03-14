@@ -8,7 +8,7 @@ import { execute } from "flows-ai";
 
 import { Agent, AgentFlow } from "@/data/client/models";
 import { createDynamicZodSchemaForInputs, injectVariables, extractVariableNames, replaceVariablesInString, applyInputTransformation } from "@/flows/inputs";
-import { convertToFlowDefinition, Chunk, messagesSupportingAgent } from "@/flows/models";
+import { convertToFlowDefinition, FlowChunkEvent, messagesSupportingAgent } from "@/flows/models";
 import { processFiles, getMimeType, replaceBase64Content } from "@/lib/file-extractor";
 import { setRecursiveNames } from "@/lib/json-path";
 import { StorageService } from "@/lib/storage-service";
@@ -139,9 +139,9 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
 
     // Helper for streaming text chunks, if streamingController is not null.
     const encoder = new TextEncoder();
-    const stackTrace: Chunk[] = [];
+    const stackTrace: FlowChunkEvent[] = [];
 
-    function outputAndTrace(chunk: Chunk) {
+    function outputAndTrace(chunk: FlowChunkEvent) {
       // Attach a timestamp
       chunk.timestamp = new Date();
       // Save locally
@@ -164,7 +164,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
 
     const traceToolInstance = createTraceTool(
       databaseIdHash,
-      (chunk: Chunk) => {
+      (chunk: FlowChunkEvent) => {
         outputAndTrace(chunk);
       },
       saasContext?.isSaasMode ? saasContext.saasContex?.storageKey : null

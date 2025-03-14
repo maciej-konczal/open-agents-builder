@@ -5,24 +5,86 @@ import s from 'dedent'
 import { safeJsonParse } from "@/lib/utils"
 import { nanoid } from "nanoid"
 
-export interface Chunk {
-  type: string
-  flowAgentId?: string;
+export enum FlowChunkType {
+  FlowStart = "flowStart",
+  FlowFinish = "flowFinish",
+  Generation = "generation",
+  GenerationEnd = "generationEnd",
+  ToolCalls = "toolCalls",
+  TextStream = "textStream",
+  FinalResult = "finalResult",
+  Error = "error",
+  Message = "message",
+  UIComponent = "uiComponent", // np. customowy komponent React
+}
+
+// To, co przychodzi ze streama.
+// Mogą wystąpić dodatkowe pola, np. replaceFlowNodeId, deleteFlowNodeId itd.
+export interface FlowChunkEvent {
+  type: FlowChunkType;
   flowNodeId?: string;
-  agent?: string;
+  flowAgentId?: string;
   duration?: number;
-  name?: string
-  timestamp?: Date
-  input?: any
-  toolResults?: Array<any>;
-  messages?: Array<{
-    role: string
-    content: Array<{ type: string; text: string }>
-    id?: string
-  }>
-  result?: string | string[]
+  name?: string;
+  timestamp?: Date;
+
+  // ewentualna treść
+  result?: string | string[];
   message?: string;
-  response?: string
+  input?: any;
+
+  // Lista ewentualnych wyników z wywołania toola
+  toolResults?: Array<{
+    args?: any;
+    result?: string;
+  }>;
+
+  // Chat-like
+  messages?: Array<{
+    role: string;
+    content: Array<{ type: string; text: string }>;
+    id?: string;
+  }>;
+
+  // Jeżeli chcemy dodać/wyświetlić gotowy komponent React:
+  component?: string; // nazwa typu zarejestrowanego komponentu
+  componentProps?: any; // propsy do wstrzyknięcia
+
+  // Pola ułatwiające manipulację drzewem
+  replaceFlowNodeId?: string; // jeżeli jest, to ma zastąpić węzeł
+  deleteFlowNodeId?: string; // jeżeli jest, to ma usunąć węzeł
+}
+
+// Reprezentacja węzła w drzewie UI
+// Zawiera wszystko, co potrzeba do wyświetlenia.
+export interface FlowUITreeNode {
+  flowNodeId: string;
+  type: FlowChunkType;
+  name?: string;
+  duration?: number;
+  timestamp?: Date;
+
+  // Tekst narastający - np. do generacji
+  // (jeśli to "generation" i przychodzi "textStream", dopisujemy tutaj)
+  accumulatedText?: string;
+
+  // Różne pola do wyświetlenia - w zależności od typu
+  result?: string | string[];
+  message?: string;
+  input?: any;
+  toolResults?: Array<{
+    args?: any;
+    result?: string;
+  }>;
+  messages?: Array<{
+    role: string;
+    content: Array<{ type: string; text: string }>;
+    id?: string;
+  }>;
+
+  // Komponent i jego propsy
+  component?: string;
+  componentProps?: any;
 }
 
 
@@ -324,7 +386,7 @@ export const inputValidators = ({ t, setError }) => {
  * Helper function to create a user-defined agent that can then be referneced in a flow.
  * Like `generateText` in Vercel AI SDK, but we're taking care of `prompt`.
  */
-export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name = "", id = nanoid(), onDataChunk = null, ...rest }: Parameters<typeof generateText>[0] & { name: string, id: string, streaming: boolean, onDataChunk: (((data: Chunk) => void) | null) }): Agent {
+export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name = "", id = nanoid(), onDataChunk = null, ...rest }: Parameters<typeof generateText>[0] & { name: string, id: string, streaming: boolean, onDataChunk: (((data: FlowChunkEvent) => void) | null) }): Agent {
   return async ({ input }, context) => {
 
     const generationId = nanoid();
@@ -437,7 +499,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
           flowNodeId: id + '-' + generationId,
           timestamp: new Date(),
         });
-                
+
         return response;
       }
     }

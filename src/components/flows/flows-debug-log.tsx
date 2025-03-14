@@ -15,7 +15,7 @@ import JsonView from "@uiw/react-json-view"
 import { safeJsonParse } from "@/lib/utils"
 import { ChatMessageMarkdown } from "../chat-message-markdown"
 import { useTranslation } from "react-i18next"
-import { Chunk } from "@/flows/models"
+import { FlowChunkEvent } from "@/flows/models"
 import Markdown from "react-markdown"
 import { BrainCircuitIcon, BrainCogIcon, BrainIcon, CodeIcon, CogIcon, FileCogIcon, HashIcon, HourglassIcon, LightbulbIcon, StepForwardIcon, TextCursorIcon, TextCursorInputIcon, TextIcon, TimerIcon } from "lucide-react"
 import { DataLoaderIcon } from "../data-loader-icon"
@@ -26,7 +26,7 @@ import { DebugChatMessages } from "../debug-chat-messages"
 
 // Props for the DebugLog component
 interface DebugLogProps {
-  chunks: Chunk[],
+  chunks: FlowChunkEvent[],
   accumulatedTextGens: Record<string, string>
 }
 
@@ -84,7 +84,7 @@ export function DebugLog({ chunks, accumulatedTextGens }: DebugLogProps) {
               </AccordionTrigger>
 
               <AccordionContent>
-                {/* Chunk Details */}
+                {/* FlowChunkEvent Details */}
                 <div className="mt-2 space-y-2">
                   {/* If the chunk has messages, show them */}
                   {chunk.messages && chunk.messages.length > 0 && (

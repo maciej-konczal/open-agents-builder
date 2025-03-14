@@ -1,5 +1,5 @@
 import { Agent, AgentFlow } from "@/data/client/models";
-import { AgentDefinition, Chunk, convertToFlowDefinition, EditorStep, FlowInputVariable } from "@/flows/models";
+import { AgentDefinition, FlowChunkEvent, convertToFlowDefinition, EditorStep, FlowInputVariable } from "@/flows/models";
 import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -50,7 +50,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
     const [currentFlow, setCurrentFlow] = useState<AgentFlow | undefined>(agentFlow);
 
 
-    const [stackTraceChunks, setStackTraceChunks] = useState<Chunk[]>([]);
+    const [stackTraceChunks, setStackTraceChunks] = useState<FlowChunkEvent[]>([]);
     const [accumulatedAgentsText, setAccumulatedAgentsText] = useState<Record<string, string>>({});
 
 

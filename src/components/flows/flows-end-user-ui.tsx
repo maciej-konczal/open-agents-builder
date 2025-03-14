@@ -4,14 +4,14 @@ import * as React from "react"
 import { useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import { BrainIcon, FileCogIcon, HourglassIcon, LightbulbIcon, TextCursorInputIcon, TimerIcon } from "lucide-react"
-import { Chunk } from "@/flows/models"
+import { FlowChunkEvent } from "@/flows/models"
 import { ChatMessageMarkdown } from "../chat-message-markdown"
 import { safeJsonParse } from "@/lib/utils"
 import { ChatMessageToolResponse } from "../chat-message-tool-response"
 
 // Props for the EndUserLog component
 interface EndUserLogProps {
-  chunks: Chunk[],
+  chunks: FlowChunkEvent[],
   accumulatedTextGens: Record<string, string>
 }
 
