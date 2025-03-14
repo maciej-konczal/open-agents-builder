@@ -22,7 +22,7 @@ import {
   FlowUITreeNode,
 } from "@/flows/models";
 import { safeJsonParse } from "@/lib/utils";
-import { BrainIcon, FileCogIcon, HourglassIcon, TimerIcon } from "lucide-react";
+import { BrainIcon, FileCogIcon, FileWarningIcon, HourglassIcon, TextCursorIcon, TextCursorInputIcon, TimerIcon } from "lucide-react";
 import { ChatMessageToolResponse } from "../chat-message-tool-response";
 import { useTranslation } from "react-i18next";
 import { uiComponentsRegistry } from "./flows-components-registry";
@@ -158,6 +158,13 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
       if (node.type === FlowChunkType.ToolCalls) {
         icon = <FileCogIcon className="w-4 h-4 mr-2 ml-2" />;
       }
+      if (node.type === FlowChunkType.Generation) {
+        icon = <TextCursorInputIcon className="w-4 h-4 mr-2 ml-2" />;
+      }
+      if (node.type === FlowChunkType.Error) {
+        icon = <FileWarningIcon className="w-4 h-4 mr-2 ml-2" />;
+      }
+
 
       const date = node.timestamp ? node.timestamp.toString() : t("No date");
 

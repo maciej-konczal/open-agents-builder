@@ -10,7 +10,7 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { BrainIcon, FileCogIcon, HourglassIcon, TimerIcon } from "lucide-react";
+import { BrainIcon, FileCogIcon, FileWarningIcon, HourglassIcon, TextCursorIcon, TextCursorInputIcon, TimerIcon } from "lucide-react";
 import { ChatMessageMarkdown } from "../chat-message-markdown";
 import { safeJsonParse } from "@/lib/utils";
 import { ChatMessageToolResponse } from "../chat-message-tool-response";
@@ -184,6 +184,13 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
       if (node.type === FlowChunkType.ToolCalls) {
         icon = <FileCogIcon className="w-4 h-4 mr-2 ml-2" />;
       }
+      if (node.type === FlowChunkType.Generation) {
+        icon = <TextCursorInputIcon className="w-4 h-4 mr-2 ml-2" />;
+      }
+      if (node.type === FlowChunkType.Error) {
+        icon = <FileWarningIcon className="w-4 h-4 mr-2 ml-2" />;
+      }
+
 
       // Jeśli to jest customowy komponent
       if (node.component && uiComponentsRegistry[node.component]) {
@@ -283,13 +290,14 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
     }
 
     return (
-      <div
-        className="border rounded p-2 w-full overflow-y-auto text-sm mt-2"
-        style={{ maxHeight: "300px" }}
-        ref={containerRef}
-      >
-        {uiTree.map((node, idx) => renderNode(node, idx))}
-      </div>
-    );
+      uiTree.length > 0 ? (
+        <div
+          className="border rounded p-2 w-full text-sm mt-2"
+          ref={containerRef}
+        >
+          {uiTree.map((node, idx) => renderNode(node, idx))}
+        </div>
+      ) : (<></>)
+    )
   }
 );

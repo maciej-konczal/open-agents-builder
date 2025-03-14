@@ -219,7 +219,7 @@ export function FlowsExecForm({
             />
           </div>
           {execError && (
-            <div className="text-red-500 text-sm p-3">{execError}</div>
+            <div className="text-red-500 text-sm p-3"><ChatMessageMarkdown>{execError}</ChatMessageMarkdown></div>
           )}
           <div className="flex">
             {executionInProgress && <DataLoaderIcon />}
@@ -311,6 +311,7 @@ export function FlowsExecForm({
                         FlowChunkType.FlowStart,
                         FlowChunkType.Generation,
                         FlowChunkType.Error,
+                        FlowChunkType.Message,
                         FlowChunkType.FinalResult,
                         FlowChunkType.ToolCalls,
                         FlowChunkType.TextStream,

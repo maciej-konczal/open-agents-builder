@@ -27,6 +27,7 @@ export interface FlowChunkEvent {
   duration?: number;
   name?: string;
   timestamp?: Date;
+  issues?: any[];
 
   // ewentualna treść
   result?: string | string[];

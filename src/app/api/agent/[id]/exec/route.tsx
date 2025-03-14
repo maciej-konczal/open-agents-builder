@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    // TODO: add the continuation - passing the context to the flows
     // Basic checks
     const recordLocator = params.id; // The agent's ID from the URL
     const databaseIdHash = request.headers.get("Database-Id-Hash");
@@ -125,7 +126,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   } catch (error) {
     console.error(error);
     let errorChunk = errorFormat(error);
-    return new Response(JSON.stringify(errorChunk), {
+    return new Response(JSON.stringify(errorChunk) + "\n", {
       status: 499,
     });
   }
@@ -134,12 +135,25 @@ function errorFormat(err: unknown) {
   let errorChunk = { type: "error", message: getErrorMessage(err) };
 
   if (err instanceof ZodError) {
+    // Format each issue so it’s easier to read in one string
+    const formattedIssues = err.issues
+      .map((issue) => {
+        const path = issue.path.join(".");
+        const validation = issue.validation || issue.code; // Some ZodError issues won't have 'validation'
+        return `Path: **${path}**; Validation: **${validation}**; Message: **${issue.message}**`;
+      })
+      .join("\n\n"); // separate each issue with a blank line
+
     errorChunk = {
+      flowNodeId: nanoid(),
       ...err,
+      // Replace default `message` with a more nicely formatted version
+      message: formattedIssues,
       name: "error",
-      type: "error"
+      type: "error",
     };
   }
+
   return errorChunk;
 }
 
