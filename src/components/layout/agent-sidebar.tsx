@@ -38,13 +38,13 @@ const availableItems : {
     pattern: '/admin/agent/[id]/events',
     agentTypes: ['smart-assistant', 'survey-agent', 'commerce-agent']
   },  
-  { 
-    icon: VariableIcon,
-    label: 'Inputs',
-    href: '/admin/agent/[id]/inputs',
-    pattern: '/admin/agent/[id]/inputs',
-    agentTypes: ['flow']
-  },  
+  // {  // inputs are now defined per flow
+  //   icon: VariableIcon,
+  //   label: 'Inputs',
+  //   href: '/admin/agent/[id]/inputs',
+  //   pattern: '/admin/agent/[id]/inputs',
+  //   agentTypes: ['flow']
+  // },  
   { 
     icon: WorkflowIcon,
     label: 'Sub-agents',

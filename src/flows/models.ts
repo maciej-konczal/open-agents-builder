@@ -2,27 +2,92 @@ import { AgentFlow } from "@/data/client/models"
 import { CoreMessage, CoreUserMessage, generateText, streamText } from "ai"
 import { Agent, Flow } from "flows-ai"
 import s from 'dedent'
-import { safeJsonParse } from "@/lib/utils"
+import { getErrorMessage, safeJsonParse } from "@/lib/utils"
 import { nanoid } from "nanoid"
+import { error } from "console"
 
-export interface Chunk {
-  type: string
-  flowAgentId?: string;
+export enum FlowChunkType {
+  FlowStart = "flowStart",
+  FlowStepStart = "flowStepStart",
+  FlowFinish = "flowFinish",
+  Generation = "generation",
+  GenerationEnd = "generationEnd",
+  ToolCalls = "toolCalls",
+  TextStream = "textStream",
+  FinalResult = "finalResult",
+  Error = "error",
+  Message = "message",
+  UIComponent = "uiComponent", // np. customowy komponent React
+}
+
+// To, co przychodzi ze streama.
+// Mogą wystąpić dodatkowe pola, np. replaceFlowNodeId, deleteFlowNodeId itd.
+export interface FlowChunkEvent {
+  type: FlowChunkType;
   flowNodeId?: string;
-  agent?: string;
+  flowAgentId?: string;
   duration?: number;
-  name?: string
-  timestamp?: Date
-  input?: any
-  toolResults?: Array<any>;
-  messages?: Array<{
-    role: string
-    content: Array<{ type: string; text: string }>
-    id?: string
-  }>
-  result?: string | string[]
+  name?: string;
+  timestamp?: Date;
+  issues?: any[];
+
+  // ewentualna treść
+  result?: string | string[];
   message?: string;
-  response?: string
+  input?: any;
+
+  // Lista ewentualnych wyników z wywołania toola
+  toolResults?: Array<{
+    args?: any;
+    result?: string;
+  }>;
+
+  // Chat-like
+  messages?: Array<{
+    role: string;
+    content: Array<{ type: string; text: string }>;
+    id?: string;
+  }>;
+
+  // Jeżeli chcemy dodać/wyświetlić gotowy komponent React:
+  component?: string; // nazwa typu zarejestrowanego komponentu
+  componentProps?: any; // propsy do wstrzyknięcia
+
+  // Pola ułatwiające manipulację drzewem
+  replaceFlowNodeId?: string; // jeżeli jest, to ma zastąpić węzeł
+  deleteFlowNodeId?: string; // jeżeli jest, to ma usunąć węzeł
+}
+
+// Reprezentacja węzła w drzewie UI
+// Zawiera wszystko, co potrzeba do wyświetlenia.
+export interface FlowUITreeNode {
+  flowNodeId: string;
+  type: FlowChunkType;
+  name?: string;
+  duration?: number;
+  timestamp?: Date;
+
+  // Tekst narastający - np. do generacji
+  // (jeśli to "generation" i przychodzi "textStream", dopisujemy tutaj)
+  accumulatedText?: string;
+
+  // Różne pola do wyświetlenia - w zależności od typu
+  result?: string | string[];
+  message?: string;
+  input?: any;
+  toolResults?: Array<{
+    args?: any;
+    result?: string;
+  }>;
+  messages?: Array<{
+    role: string;
+    content: Array<{ type: string; text: string }>;
+    id?: string;
+  }>;
+
+  // Komponent i jego propsy
+  component?: string;
+  componentProps?: any;
 }
 
 
@@ -268,17 +333,17 @@ export const agentsValidators = ({ t, setError }) => {
 export const flowsValidators = ({ t, setError }) => {
   return {
     validate: {
-      inputs: (v) => {
+      flows: (v) => {
         let index = 0;
         for (const flow of (v as AgentFlow[])) {
           if (!flow.code) {
-            setError('inputs', {
+            setError('flows', {
               message: t('Please set the Codes of all flows')
             })
             return false;
           }
           if (!flow.name) {
-            setError('inputs', {
+            setError('flows', {
               message: t('Please set the Names of all flows')
             })
             return false;
@@ -292,12 +357,12 @@ export const flowsValidators = ({ t, setError }) => {
 }
 
 
-export const inputValidators = ({ t, setError }) => {
+export const inputValidators = ({ inputs, t, setError }) => {
   return {
     validate: {
       inputs: (v) => {
         let index = 0;
-        const variables = (v as FlowInputVariable[])
+        const variables = (inputs() as FlowInputVariable[])
         for (const input of variables) {
           if (!input.name) {
             setError('inputs', {
@@ -324,7 +389,7 @@ export const inputValidators = ({ t, setError }) => {
  * Helper function to create a user-defined agent that can then be referneced in a flow.
  * Like `generateText` in Vercel AI SDK, but we're taking care of `prompt`.
  */
-export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name = "", id = nanoid(), onDataChunk = null, ...rest }: Parameters<typeof generateText>[0] & { name: string, id: string, streaming: boolean, onDataChunk: (((data: Chunk) => void) | null) }): Agent {
+export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name = "", id = nanoid(), onDataChunk = null, ...rest }: Parameters<typeof generateText>[0] & { name: string, id: string, streaming: boolean, onDataChunk: (((data: FlowChunkEvent) => void) | null) }): Agent {
   return async ({ input }, context) => {
 
     const generationId = nanoid();
@@ -360,32 +425,15 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
           })
           return response.text
         } else {
-          const { textStream } = streamText({
+          let response = '';
+
+          const { fullStream } = streamText({
             ...rest,
             maxSteps,
             messages
           });
 
-          let response = '';
-          for await (const textPart of textStream) {
-            response += textPart;
-            if (onDataChunk) {
-              onDataChunk({ type: 'textStream', flowAgentId: id, flowNodeId: id + '-' + generationId, result: textPart, timestamp: new Date() });
-            }
-          }
-
-
-          if (onDataChunk) onDataChunk({
-            type: "generationEnd",
-            name,
-            flowAgentId: id,
-            duration: (new Date().getTime() - generationStart) / 1000,
-            flowNodeId: id + '-' + generationId,
-            timestamp: new Date(),
-          });
-
-          return response;
-
+          return await processStream(fullStream, onDataChunk, id, generationId, response, name, generationStart)
         }
       }
 
@@ -410,7 +458,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
         })
         return response.text
       } else {
-        const { textStream } = await streamText({
+        const { fullStream } = await streamText({
           ...rest,
           maxSteps,
           prompt: s`
@@ -419,28 +467,38 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
             `,
         })
         let response = '';
-        for await (const textPart of textStream) {
-          response += textPart;
-          if (onDataChunk) {
-            onDataChunk({
-              type: 'textStream', flowAgentId: id,
-              flowNodeId: id + '-' + generationId, result: textPart, timestamp: new Date()
-            });
-          }
-        }
-
-        if (onDataChunk) onDataChunk({
-          type: "generationEnd",
-          name,
-          flowAgentId: id,
-          duration: (new Date().getTime() - generationStart) / 1000,
-          flowNodeId: id + '-' + generationId,
-          timestamp: new Date(),
-        });
-                
-        return response;
+        return await processStream(fullStream, onDataChunk, id, generationId, response, name, generationStart)
       }
     }
   }
 
 }
+async function processStream(fullStream, onDataChunk: ((data: FlowChunkEvent) => void) | null, id: string, generationId: string, response: string, name: string, generationStart: number) {
+  for await (const streamChunk of fullStream) {
+    if (streamChunk.type === 'error') {
+      if (onDataChunk) {
+        onDataChunk({ type: 'error', flowAgentId: id, flowNodeId: id + '-' + generationId, message: getErrorMessage(streamChunk.error), timestamp: new Date() })
+      }
+      throw new Error(getErrorMessage(streamChunk.error))
+    }
+
+    if (streamChunk.type === 'text-delta') {
+      response += streamChunk.textDelta
+      if (onDataChunk) {
+        onDataChunk({ type: 'textStream', flowAgentId: id, flowNodeId: id + '-' + generationId, result: streamChunk.textDelta, timestamp: new Date() })
+      }
+    }
+  }
+
+
+  if (onDataChunk) onDataChunk({
+    type: "generationEnd",
+    name,
+    flowAgentId: id,
+    duration: (new Date().getTime() - generationStart) / 1000,
+    flowNodeId: id + '-' + generationId,
+    timestamp: new Date(),
+  })
+  return response
+}
+

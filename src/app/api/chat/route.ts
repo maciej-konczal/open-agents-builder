@@ -73,7 +73,7 @@ export function prepareAgentTools({
     }
 
     mappedTools[toolKey] = tool({
-      description: `${toolConfig.description} - ${toolDescriptor.tool.description}`,
+      description: `${toolConfig.description ? toolConfig.description + ' - ': ''}${toolDescriptor.tool.description}`,
       parameters: nonDefaultParameters,
       execute: async (params, options) => {
         if (toolDescriptor.tool.execute) {

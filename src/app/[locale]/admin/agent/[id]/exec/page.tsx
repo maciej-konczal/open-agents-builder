@@ -181,7 +181,7 @@ ${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent/${agent?.id}/exec
                 <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Run the flow')} {currentFlow && t(`[${currentFlow?.name}]`)}</div></AccordionTrigger>
                 <AccordionContent>
                   <ExecProvider>
-                    <FlowsExecForm onVariablesChanged={(vars) => {
+                    <FlowsExecForm initializeExecContext={true} onVariablesChanged={(vars) => {
                         setApiCallVars(vars); 
                     }} agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} databaseIdHash={dbContext?.databaseIdHash} />
                   </ExecProvider>

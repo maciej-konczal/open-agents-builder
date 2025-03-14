@@ -239,6 +239,7 @@ export type AgentFlow = {
     description: string;
     code: string;
     flow: EditorStep;
+    inputs: FlowInputVariable[] | null;
 }
 
 export class Agent {
@@ -260,7 +261,6 @@ export class Agent {
     extra?: any | null;
     flows?: AgentFlow[] | null;
     defaultFlow?: string | null;
-    inputs?: FlowInputVariable[] | null;
     agents?: AgentDefinition[] | null;
 
 
@@ -289,7 +289,6 @@ export class Agent {
 
         this.agents = typeof agentDTO.agents === 'string' ? JSON.parse(agentDTO.agents as string) : agentDTO.agents;
         this.flows = typeof agentDTO.flows === 'string' ? JSON.parse(agentDTO.flows as string) : agentDTO.flows;
-        this.inputs = typeof agentDTO.inputs === 'string' ? JSON.parse(agentDTO.inputs as string) : agentDTO.inputs;
         this.defaultFlow = agentDTO.defaultFlow;
     }
 
@@ -315,7 +314,6 @@ export class Agent {
             updatedAt: this.updatedAt,
             icon: this.icon,
             extra: JSON.stringify(this.extra),
-            inputs: JSON.stringify(this.inputs),
             flows: JSON.stringify(this.flows),
             agents: JSON.stringify(this.agents)
         };
@@ -342,7 +340,6 @@ export class Agent {
             tools: this?.tools || {},
             agents: this?.agents || [],
             flows: this?.flows || [],
-            inputs: this?.inputs || [],
             defaultFlow: this?.defaultFlow || ''
         };
         if (setValue !== null) {
@@ -371,7 +368,6 @@ export class Agent {
             events: data.events ?? agent?.events,
             agents: data.agents ?? agent?.agents,
             flows: data.flows ?? agent?.flows,
-            inputs: data.inputs ?? agent?.inputs,
             defaultFlow: data.defaultFlow ?? agent?.defaultFlow,
             tools: data.tools ?? agent?.tools,
             options: {

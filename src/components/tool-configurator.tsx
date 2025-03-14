@@ -1,9 +1,10 @@
 'use client';
 
 import React from 'react';
-import { toolConfigurators } from '@/tools/configurators'; // or wherever your registry is located
+import { toolConfiguratorsRepository } from '@/tools/configurators'; // or wherever your registry is located
 import { ToolConfiguration } from '@/data/client/models';
 import { useTranslation } from 'react-i18next';
+import { useAgentContext } from '@/contexts/agent-context';
 
 type ToolConfiguratorProps = {
   toolKey: string;
@@ -14,6 +15,12 @@ type ToolConfiguratorProps = {
 export function ToolConfigurator({ toolKey, configuration, onChange }: ToolConfiguratorProps) {
   // The registry object looks like: { sendEmail: {...}, currentDate: {...}, ... }
   // We'll get its keys for the select.
+
+
+  
+  const agentContext = useAgentContext();
+  
+  const toolConfigurators = toolConfiguratorsRepository.init({ agent: agentContext?.current ?? undefined });
   const registryKeys = Object.keys(toolConfigurators);
   const { t } = useTranslation();
 

@@ -1,7 +1,7 @@
 // route.ts
 import { NextRequest } from "next/server";
 import { nanoid } from "nanoid";
-import { getErrorMessage } from "@/lib/utils";
+import { formatZodError, getErrorMessage } from "@/lib/utils";
 
 import ServerAgentRepository from "@/data/server/server-agent-repository";
 import { Agent } from "@/data/client/models";
@@ -13,6 +13,7 @@ import { ZodError } from "zod";
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    // TODO: add the continuation - passing the context to the flows
     // Basic checks
     const recordLocator = params.id; // The agent's ID from the URL
     const databaseIdHash = request.headers.get("Database-Id-Hash");
@@ -45,6 +46,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
     const masterAgent = Agent.fromDTO(dto);
 
+
+
     // If agent is not published, require admin privileges
     if (!masterAgent.published) {
       try {
@@ -59,9 +62,22 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const outputMode = body.outputMode ?? "stream";
     const execMode = body.execMode ?? "sync";
 
+    const flowCode = body.flow ?? masterAgent.defaultFlow;
+
+    if (!flowCode) {
+      return new Response(JSON.stringify({ message: "Flow code is required" }), { status: 404 });
+    }
+
+    const agentFlow = masterAgent.flows?.find((f) => f.code === flowCode);
+    if (!agentFlow) {
+      return new Response(JSON.stringify({ message: "Flow not found" }), { status: 404 });
+    }
+
+
     // Base context (initially with streamingController = null)
     const baseContext = {
       masterAgent,
+      flow: agentFlow,
       databaseIdHash,
       saasContext,
       sessionId,
@@ -80,8 +96,10 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
             // Create the tool with a streaming controller
             const { tool: execFlowTool } = createExecFlowTool({
               ...baseContext,
+              flow: agentFlow,
               streamingController: controller,
             });
+            console.log('AAAA');
 
             // Execute the tool with the parsed body
             await execFlowTool.execute(body, {
@@ -91,7 +109,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           } catch (err) {
             console.error(err);
 
-            let errorChunk = errorFormat(err);
+            let errorChunk = formatZodError(err);
 
             controller.enqueue(
               new TextEncoder().encode(
@@ -124,21 +142,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
   } catch (error) {
     console.error(error);
-    let errorChunk = errorFormat(error);
-    return new Response(JSON.stringify(errorChunk), {
+    let errorChunk = formatZodError(error);
+    return new Response(JSON.stringify(errorChunk) + "\n", {
       status: 499,
     });
   }
 }
-function errorFormat(err: unknown) {
-  let errorChunk = { type: "error", message: getErrorMessage(err) };
-
-  if (err instanceof ZodError) {
-    errorChunk = {
-      type: "error",
-      ...err
-    };
-  }
-  return errorChunk;
-}
-
