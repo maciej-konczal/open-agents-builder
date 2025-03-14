@@ -15,7 +15,7 @@ interface EndUserLogProps {
   accumulatedTextGens: Record<string, string>
 }
 
-export function EndUserLog({ chunks, accumulatedTextGens }: EndUserLogProps) {
+export function EndUserUI({ chunks, accumulatedTextGens }: EndUserLogProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { t } = useTranslation()
 

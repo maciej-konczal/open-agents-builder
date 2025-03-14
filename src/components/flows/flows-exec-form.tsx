@@ -22,7 +22,7 @@ import { FlowInputValuesFiller } from "./flows-input-filler";
 import { Axios, AxiosError } from "axios";
 import { DebugLog } from "./flows-debug-log";
 import { set } from "date-fns";
-import { EndUserLog } from "./flows-end-user-log";
+import { EndUserUI } from "./flows-end-user-ui";
 
 export enum ExecFormDisplayMode {
     EndUser = 'enduser',
@@ -221,7 +221,7 @@ export function FlowsExecForm({ agent, agentFlow, agents, inputs, flows, display
                 flowResult || stackTraceChunks && stackTraceChunks.length > 0 ? (
                     <div>
                         {stackTraceChunks && stackTraceChunks.length > 0 && (
-                            <EndUserLog chunks={stackTraceChunks} accumulatedTextGens={accumulatedAgentsText} />
+                            <EndUserUI chunks={stackTraceChunks} accumulatedTextGens={accumulatedAgentsText} />
                         )}
 
                         {flowResult && (

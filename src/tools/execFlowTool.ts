@@ -23,7 +23,7 @@ import ServerAttachmentRepository from "@/data/server/server-attachment-reposito
 
 import { createTraceTool } from "@/tools/traceTool";
 import { createUpdateResultTool } from "@/tools/updateResultTool";
-import { toolRegistry } from "@/tools/registry";
+import { ToolDescriptor, toolRegistry } from "@/tools/registry";
 import { prepareAgentTools } from "@/app/api/chat/route";
 
 import { Session, ToolConfiguration } from "@/data/client/models";
@@ -56,7 +56,7 @@ export interface ExecFlowToolContext {
  * Creates a tool that executes a given AgentFlow with provided input data.
  * The dynamic zod schema for `input` is generated from `masterAgent.inputs`.
  */
-export function createExecFlowTool(context: ExecFlowToolContext) {
+export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor {
   const {
     masterAgent,
     databaseIdHash,
@@ -65,9 +65,10 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
     agentId,
     currentDateTimeIso,
     currentLocalDateTime,
-    currentTimezone,
-    streamingController,
+    currentTimezone
   } = context;
+
+  let { streamingController } = context;
 
   // Build a dynamic schema for the `input` field, based on the agent definition.
   const dynamicInputSchema = createDynamicZodSchemaForInputs({
@@ -124,14 +125,7 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
       };
     }
 
-    // For sync mode: either "stream" or "buffer"
-    if (execRequest.outputMode === "stream") {
-      // Return whatever runFlow returns, but it will chunk data if streamingController != null
-      return await runFlow(foundFlow, execRequest);
-    } else {
-      // "buffer"
-      return await runFlow(foundFlow, execRequest);
-    }
+    return await runFlow(foundFlow, execRequest);
   }
 
   /**
@@ -154,7 +148,7 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
       stackTrace.push(chunk);
 
       // If we have a streaming controller and the outputMode is "stream", enqueue JSON chunk
-      if (streamingController && execRequest.outputMode === "stream") {
+      if (streamingController) {
         let textChunk:string = replaceBase64Content(JSON.stringify(chunk));
         textChunk = textChunk.replaceAll("\n","").replaceAll("\r", "") + "\n"
 
@@ -313,14 +307,16 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
       }
 
       // Merge the dynamic set of tools
-      const customTools = await prepareAgentTools(
-        toolReg,
-        databaseIdHash,
-        saasContext?.isSaasMode ? saasContext.saasContex?.storageKey : null,
-        agentId,
-        sessionId,
-        masterAgent,
-        saasContext
+      const customTools = await prepareAgentTools({
+          tools: toolReg,
+          databaseIdHash,
+          storageKey: saasContext?.isSaasMode ? saasContext.saasContex?.storageKey : null,
+          agentId,
+          sessionId,
+          agent: masterAgent,
+          saasContext,
+          streamingController
+        }
       );
 
       const flowNodeId = nanoid();
@@ -458,6 +454,10 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
     return flowResult;
   }
 
+  const injectStreamingController = (controller: ReadableStreamDefaultController<any>) => {
+    streamingController = controller;
+  };
+
   // Create the AI tool object
   const execFlowTool = tool({
     description: "Executes a specified flow (AgentFlow) with provided input data.",
@@ -474,5 +474,5 @@ export function createExecFlowTool(context: ExecFlowToolContext) {
     },
   });
 
-  return { tool: execFlowTool, displayName: "Execute flow" };
+  return { tool: execFlowTool, displayName: "Execute flow", injectStreamingController };
 }
