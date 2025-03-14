@@ -51,7 +51,11 @@ export const httpTool = {
         ),
     }),
     execute: async ({ url, method, headers, body }) => {
-      return makeHttpRequest({ url, method, headers, body })
+      try {
+        return makeHttpRequest({ url, method, headers, body })
+      } catch (e) {
+        console.error(e);
+      }
     },
   })
 };

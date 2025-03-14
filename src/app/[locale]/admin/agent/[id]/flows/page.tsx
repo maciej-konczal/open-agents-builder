@@ -272,7 +272,7 @@ export default function FlowsPage() {
               <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Debugger')}</div></AccordionTrigger>
               <AccordionContent>
                 <ExecProvider>
-                  <FlowsExecForm agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} databaseIdHash={dbContext?.databaseIdHash} />
+                  <FlowsExecForm initializeExecContext={true} agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} databaseIdHash={dbContext?.databaseIdHash} />
                 </ExecProvider>
               </AccordionContent>
             </AccordionItem>

@@ -411,6 +411,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
       onFlowStart: (flowContext) => {
         outputAndTrace({
           type: "flowStart",
+          flowNodeId: nanoid(),
           name: flowContext.name, // name can contain some path parent/child info
           input: flowContext.input,
           timestamp: new Date(),          
@@ -424,6 +425,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
     // Final chunk with the result
     outputAndTrace({
       type: "finalResult",
+      flowNodeId: nanoid(),
       name: flow.name,
       result: flowResult,
     });

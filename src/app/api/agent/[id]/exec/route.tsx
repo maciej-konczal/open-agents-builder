@@ -135,8 +135,9 @@ function errorFormat(err: unknown) {
 
   if (err instanceof ZodError) {
     errorChunk = {
-      type: "error",
-      ...err
+      ...err,
+      name: "error",
+      type: "error"
     };
   }
   return errorChunk;
