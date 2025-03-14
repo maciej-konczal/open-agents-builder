@@ -252,10 +252,17 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
               {node.accumulatedText ? (
                 <ChatMessageMarkdown>{node.accumulatedText}</ChatMessageMarkdown>
               ) : (
-                <div className="flex">
+                (node.duration ? (<div>
+                <div className="flex text-center items-center justify-center text-red-500">
+                  <FileWarningIcon className="w-4 h-4 mr-2" />
+                  {t("Generation error")}...
+                </div>
+                </div>) : (
+                <div className="flex text-center items-center justify-center">
                   <BrainIcon className="w-4 h-4 mr-2" />
                   {t("AI Thinking")}...
                 </div>
+                ))
               )}
             </>
           )}

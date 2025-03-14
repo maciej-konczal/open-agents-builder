@@ -141,6 +141,11 @@ export function FlowsExecForm({
     setFlowResult(null);
     setExecutionInProgress(true);
 
+    if (displayMode === ExecFormDisplayMode.EndUser)
+        endUserUIRef.current?.clear(); 
+    else 
+        debugLogRef.current?.clear();    
+
     try {
       const apiClient = new AgentApiClient("", dbContext, saasContext);
 
@@ -264,7 +269,7 @@ export function FlowsExecForm({
                   // Możesz np. ponownie odpalić handleExecute() z innymi parametrami
                 }}
               />
-              {flowResult && (
+              {/* {flowResult && (
                 typeof flowResult === "string" ? (
                   <ChatMessageMarkdown>{flowResult}</ChatMessageMarkdown>
                 ) : (
@@ -272,7 +277,7 @@ export function FlowsExecForm({
                     {JSON.stringify(flowResult, null, 2)}
                   </pre>
                 )
-              )}
+              )} */}
             </div>
           )}
 

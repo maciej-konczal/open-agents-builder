@@ -13,7 +13,7 @@ import { processFiles, getMimeType, replaceBase64Content } from "@/lib/file-extr
 import { setRecursiveNames } from "@/lib/json-path";
 import { StorageService } from "@/lib/storage-service";
 import { validateTokenQuotas } from "@/lib/quotas";
-import { getErrorMessage, safeJsonParse } from "@/lib/utils";
+import { formatZodError, getErrorMessage, safeJsonParse } from "@/lib/utils";
 
 import ServerSessionRepository from "@/data/server/server-session-repository";
 import ServerAgentRepository from "@/data/server/server-agent-repository";
@@ -103,7 +103,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
         }
       }
     }
-
+    console.log('Executing flow', execRequest);
     // Find the specified flow
     const foundFlow = (masterAgent.flows ?? []).find((f) => f.code === execRequest.flow);
     if (!foundFlow) {
@@ -332,14 +332,28 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
 
         onStepFinish: async (result) => {
         if (result.finishReason === 'tool-calls') {
-            // Output chunk
+
+          const msg =  (result.response.messages && result.response.messages.length > 0) ? (Array.isArray(result.response.messages[0].content) ? result.response.messages[0].content.map(c=>c.text).join(' ') : result.response.messages[0].content) : "";
+          
+          if (result.toolResults.length === 0) {
             outputAndTrace({
-              type: "toolCalls",
+              type: "error",
               flowNodeId,
               flowAgentId: flowNodeId,
-              name: `${subAgent.name} (${subAgent.model})`,
-              toolResults: result.toolResults
+              name: 'error',
+              message: msg.trim() ? msg : 'AI cannot call any tool. Please check the tool input data.',
             });
+
+          } else {
+              // Output chunk
+              outputAndTrace({
+                type: "toolCalls",
+                flowNodeId,
+                flowAgentId: flowNodeId,
+                name: `${subAgent.name} (${subAgent.model})`,
+                toolResults: result.toolResults
+              });
+            }
           }
 
           if (result.finishReason === 'error') {
@@ -404,7 +418,6 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
         },
       });
     }
-
     // Execute the flow
     const flowResult = await execute(compiledFlow, {
       agents: compiledAgents,
@@ -467,12 +480,17 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
 
     // The only parameter is what the user/client passes (flow, outputMode, execMode, input).
     async execute(execRequest): Promise<any> {
+      try {
         execRequestSchema.parse(execRequest);
-//      try {
-      return await doExecute(execRequest);
-      // } catch (err) {
-      //   return { error: getErrorMessage(err) };
-      // }
+        return await doExecute(execRequest);
+      } catch (err) {
+        console.error(err);
+        if (err instanceof z.ZodError) {
+          throw new Error(formatZodError(err).message);
+        } else {
+          throw err;
+        }
+      }
     },
   });
 

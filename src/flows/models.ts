@@ -2,8 +2,9 @@ import { AgentFlow } from "@/data/client/models"
 import { CoreMessage, CoreUserMessage, generateText, streamText } from "ai"
 import { Agent, Flow } from "flows-ai"
 import s from 'dedent'
-import { safeJsonParse } from "@/lib/utils"
+import { getErrorMessage, safeJsonParse } from "@/lib/utils"
 import { nanoid } from "nanoid"
+import { error } from "console"
 
 export enum FlowChunkType {
   FlowStart = "flowStart",
@@ -423,32 +424,15 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
           })
           return response.text
         } else {
-          const { textStream } = streamText({
+          let response = '';
+
+          const { fullStream } = streamText({
             ...rest,
             maxSteps,
             messages
           });
 
-          let response = '';
-          for await (const textPart of textStream) {
-            response += textPart;
-            if (onDataChunk) {
-              onDataChunk({ type: 'textStream', flowAgentId: id, flowNodeId: id + '-' + generationId, result: textPart, timestamp: new Date() });
-            }
-          }
-
-
-          if (onDataChunk) onDataChunk({
-            type: "generationEnd",
-            name,
-            flowAgentId: id,
-            duration: (new Date().getTime() - generationStart) / 1000,
-            flowNodeId: id + '-' + generationId,
-            timestamp: new Date(),
-          });
-
-          return response;
-
+          return await processStream(fullStream, onDataChunk, id, generationId, response, name, generationStart)
         }
       }
 
@@ -473,7 +457,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
         })
         return response.text
       } else {
-        const { textStream } = await streamText({
+        const { fullStream } = await streamText({
           ...rest,
           maxSteps,
           prompt: s`
@@ -482,28 +466,38 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
             `,
         })
         let response = '';
-        for await (const textPart of textStream) {
-          response += textPart;
-          if (onDataChunk) {
-            onDataChunk({
-              type: 'textStream', flowAgentId: id,
-              flowNodeId: id + '-' + generationId, result: textPart, timestamp: new Date()
-            });
-          }
-        }
-
-        if (onDataChunk) onDataChunk({
-          type: "generationEnd",
-          name,
-          flowAgentId: id,
-          duration: (new Date().getTime() - generationStart) / 1000,
-          flowNodeId: id + '-' + generationId,
-          timestamp: new Date(),
-        });
-
-        return response;
+        return await processStream(fullStream, onDataChunk, id, generationId, response, name, generationStart)
       }
     }
   }
 
 }
+async function processStream(fullStream, onDataChunk: ((data: FlowChunkEvent) => void) | null, id: string, generationId: string, response: string, name: string, generationStart: number) {
+  for await (const streamChunk of fullStream) {
+    if (streamChunk.type === 'error') {
+      if (onDataChunk) {
+        onDataChunk({ type: 'error', flowAgentId: id, flowNodeId: id + '-' + generationId, message: getErrorMessage(streamChunk.error), timestamp: new Date() })
+      }
+      throw new Error(getErrorMessage(streamChunk.error))
+    }
+
+    if (streamChunk.type === 'text-delta') {
+      response += streamChunk.textDelta
+      if (onDataChunk) {
+        onDataChunk({ type: 'textStream', flowAgentId: id, flowNodeId: id + '-' + generationId, result: streamChunk.textDelta, timestamp: new Date() })
+      }
+    }
+  }
+
+
+  if (onDataChunk) onDataChunk({
+    type: "generationEnd",
+    name,
+    flowAgentId: id,
+    duration: (new Date().getTime() - generationStart) / 1000,
+    flowNodeId: id + '-' + generationId,
+    timestamp: new Date(),
+  })
+  return response
+}
+

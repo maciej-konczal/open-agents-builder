@@ -1,7 +1,7 @@
 // route.ts
 import { NextRequest } from "next/server";
 import { nanoid } from "nanoid";
-import { getErrorMessage } from "@/lib/utils";
+import { formatZodError, getErrorMessage } from "@/lib/utils";
 
 import ServerAgentRepository from "@/data/server/server-agent-repository";
 import { Agent } from "@/data/client/models";
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
           } catch (err) {
             console.error(err);
 
-            let errorChunk = errorFormat(err);
+            let errorChunk = formatZodError(err);
 
             controller.enqueue(
               new TextEncoder().encode(
@@ -125,35 +125,9 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
   } catch (error) {
     console.error(error);
-    let errorChunk = errorFormat(error);
+    let errorChunk = formatZodError(error);
     return new Response(JSON.stringify(errorChunk) + "\n", {
       status: 499,
     });
   }
 }
-function errorFormat(err: unknown) {
-  let errorChunk = { type: "error", message: getErrorMessage(err) };
-
-  if (err instanceof ZodError) {
-    // Format each issue so it’s easier to read in one string
-    const formattedIssues = err.issues
-      .map((issue) => {
-        const path = issue.path.join(".");
-        const validation = issue.validation || issue.code; // Some ZodError issues won't have 'validation'
-        return `Path: **${path}**; Validation: **${validation}**; Message: **${issue.message}**`;
-      })
-      .join("\n\n"); // separate each issue with a blank line
-
-    errorChunk = {
-      flowNodeId: nanoid(),
-      ...err,
-      // Replace default `message` with a more nicely formatted version
-      message: formattedIssues,
-      name: "error",
-      type: "error",
-    };
-  }
-
-  return errorChunk;
-}
-
