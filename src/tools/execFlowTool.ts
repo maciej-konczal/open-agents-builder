@@ -299,17 +299,20 @@ console.log(flow.code);
       name: "Executing flow " + flow.code,
     });
 
+    const toolNames: Record<string, string> = {};
 
     for (const subAgent of masterAgent.agents ?? []) {
       const toolReg: Record<string, ToolConfiguration> = {};
 
       // Prepare the subAgent's tools
       for (const ts of subAgent.tools) {
-        toolReg["tool-" + nanoid()] = {
+        const toolId = "tool-" + nanoid();
+        toolReg[toolId] = {
           description: "",
           tool: ts.name,
           options: ts.options,
         };
+        toolNames[toolId] = ts.name;
       }
 
       // Merge the dynamic set of tools
@@ -352,11 +355,21 @@ console.log(flow.code);
 
           } else {
               // Output chunk
+
+
+              let msg = '';
+              result.toolCalls.forEach((tc) => {  
+                const toolName = toolNames[tc.toolName];
+                msg += `**${toolName}** (\`${JSON.stringify(tc.args)}\`): ${tc.toolCallId}\n`;
+              }
+              );
+
               outputAndTrace({
                 type: "toolCalls",
-                flowNodeId,
+                flowNodeId: flowNodeId + '-' + nanoid(),
                 flowAgentId: flowNodeId,
                 name: `${subAgent.name} (${subAgent.model})`,
+                message: msg,
                 toolResults: result.toolResults
               });
             }
