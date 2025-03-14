@@ -35,10 +35,10 @@ interface Props {
   flows: AgentFlow[];
   initializeExecContext: boolean;
   agents: AgentDefinition[];
-  inputs: FlowInputVariable[];
   databaseIdHash: string;
   displayMode: ExecFormDisplayMode;
   onVariablesChanged?: (vars: Record<string, any> | string) => void;
+  children?: React.ReactNode;
 }
 
 export function FlowsExecForm({
@@ -47,10 +47,10 @@ export function FlowsExecForm({
   flows,
   initializeExecContext,
   agents,
-  inputs,
   databaseIdHash,
   displayMode,
   onVariablesChanged,
+  children
 }: Props) {
   const [sessionId, setSessionId] = useState<string>(nanoid());
   const [timeElapsed, setTimeElapsed] = useState<number>(0);
@@ -102,10 +102,10 @@ export function FlowsExecForm({
       "Current-Timezone": Intl.DateTimeFormat().resolvedOptions().timeZone,
     };
   }
+  //const flow = agentFlow; //flows.find((f) => f.code === agentFlow?.code);
 
   async function handleExecute() {
-    const flow = flows.find((f) => f.code === agentFlow?.code);
-    if (!flow) {
+    if (!agentFlow) {
       toast.error(t("Flow is not defined"));
       return;
     }
@@ -113,7 +113,7 @@ export function FlowsExecForm({
     setFlowResult(null);
     // Walidacja inputów
     const requiredFields =
-      agent?.inputs?.filter((input) => input.required).map((input) => input.name) ??
+    agentFlow?.inputs?.filter((input) => input.required).map((input) => input.name) ??
       [];
     if (requestParams && typeof requestParams === "object") {
       const missingFields = requiredFields.filter((field) => !requestParams[field]);
@@ -155,7 +155,7 @@ export function FlowsExecForm({
 
       const stream = await apiClient.execStream(
         agent?.id || "",
-        flow.code,
+        agentFlow.code,
         requestParams,
         "sync",
         getSessionHeaders()
@@ -214,7 +214,7 @@ export function FlowsExecForm({
         <div>
           <div className="mb-2">
             <FlowInputValuesFiller
-              variables={agent?.inputs ?? []}
+              variables={agentFlow?.inputs ?? []}
               onChange={(values) => {
                 setRequestParams(values);
                 if (onVariablesChanged) {
@@ -230,7 +230,7 @@ export function FlowsExecForm({
             {executionInProgress && <DataLoaderIcon />}
             <Button
               className={executionInProgress ? "ml-2" : ""}
-              disabled={executionInProgress}
+              disabled={executionInProgress || children !== null}
               variant={"secondary"}
               size="sm"
               onClick={handleExecute}
@@ -238,6 +238,9 @@ export function FlowsExecForm({
               <PlayIcon className="w-4 h-4" />
               {t("Execute")}
             </Button>
+
+            {children}
+
             <div className="ml-2 text-xs h-8 items-center flex">
               {t("Session Id: ")} {execContext.sessionId}
               {executionInProgress && (
@@ -314,10 +317,11 @@ export function FlowsExecForm({
                       ref={debugLogRef}
                       displayChunkTypes={[
                         FlowChunkType.FlowStart,
+                        FlowChunkType.FlowStepStart,
                         FlowChunkType.Generation,
                         FlowChunkType.Error,
                         FlowChunkType.Message,
-                        FlowChunkType.FinalResult,
+//                        FlowChunkType.FinalResult,
                         FlowChunkType.ToolCalls,
                         FlowChunkType.TextStream,
                         FlowChunkType.UIComponent,

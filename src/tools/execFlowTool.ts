@@ -1,6 +1,6 @@
 // createExecFlowTool.ts
 
-import { z } from "zod";
+import { z, ZodAny, ZodObject, ZodTypeAny, ZodUnion } from "zod";
 import { tool, ToolExecutionOptions } from "ai";
 
 import { openai } from "@ai-sdk/openai";
@@ -36,6 +36,7 @@ import { nanoid } from "nanoid";
  */
 export interface ExecFlowToolContext {
   masterAgent: Agent;
+  flow: AgentFlow;
   databaseIdHash: string;
   saasContext: any; // your SaaS context
   sessionId: string;
@@ -58,6 +59,7 @@ export interface ExecFlowToolContext {
  */
 export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor {
   const {
+    flow,
     masterAgent,
     databaseIdHash,
     saasContext,
@@ -70,14 +72,13 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
 
   let { streamingController } = context;
 
-  // Build a dynamic schema for the `input` field, based on the agent definition.
+console.log(flow.code);
   const dynamicInputSchema = createDynamicZodSchemaForInputs({
-    availableInputs: masterAgent.inputs ?? [],
+    availableInputs: flow.inputs ?? [],
   });
 
   // Main schema for execRequest
   const execRequestSchema = z.object({
-    flow: z.string(),
     outputMode: z.enum(["stream", "buffer"]).default("stream").optional(),
     execMode: z.enum(["sync", "async"]).default("sync").optional(),
     input: dynamicInputSchema,
@@ -103,18 +104,14 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
         }
       }
     }
-    console.log('Executing flow', execRequest);
-    // Find the specified flow
-    const foundFlow = (masterAgent.flows ?? []).find((f) => f.code === execRequest.flow);
-    if (!foundFlow) {
-      throw new Error(`Flow '${execRequest.flow}' does not exist in this agent definition.`);
-    }
+    console.log('Executing flow', flow.code, execRequest);
+    execRequestSchema.parse(execRequest); // vadlidae input for this specific flow
 
     // Handle execMode: async => run in background, return link to result
     if (execRequest.execMode === "async") {
       // Force outputMode = buffer, and run in the background
       setTimeout(() => {
-        runFlow(foundFlow, execRequest).catch((err) => {
+        runFlow(flow, execRequest).catch((err) => {
           console.error("Async flow error:", err);
         });
       }, 0);
@@ -125,7 +122,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
       };
     }
 
-    return await runFlow(foundFlow, execRequest);
+    return await runFlow(flow, execRequest);
   }
 
   /**
@@ -294,6 +291,15 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
     // Compile agents
     const compiledAgents: Record<string, any> = {};
 
+
+    outputAndTrace({
+      type: "flowStart",
+      flowNodeId: nanoid(),
+      message: "Params: `" + JSON.stringify(execRequest) + "`",
+      name: "Executing flow " + flow.code,
+    });
+
+
     for (const subAgent of masterAgent.agents ?? []) {
       const toolReg: Record<string, ToolConfiguration> = {};
 
@@ -423,7 +429,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
       agents: compiledAgents,
       onFlowStart: (flowContext) => {
         outputAndTrace({
-          type: "flowStart",
+          type: "flowStepStart",
           flowNodeId: nanoid(),
           name: flowContext.name, // name can contain some path parent/child info
           input: flowContext.input,
@@ -475,13 +481,12 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
 
   // Create the AI tool object
   const execFlowTool = tool({
-    description: "Executes a specified flow (AgentFlow) with provided input data.",
+    description: "Executes " + flow.code + " flow with provided input data.",
     parameters: execRequestSchema,
 
     // The only parameter is what the user/client passes (flow, outputMode, execMode, input).
     async execute(execRequest): Promise<any> {
       try {
-        execRequestSchema.parse(execRequest);
         return await doExecute(execRequest);
       } catch (err) {
         console.error(err);
@@ -494,5 +499,5 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
     },
   });
 
-  return { tool: execFlowTool, displayName: "Execute flow", injectStreamingController };
+  return { tool: execFlowTool, displayName: "Execute " + flow.code + " flow", injectStreamingController };
 }

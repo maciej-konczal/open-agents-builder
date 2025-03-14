@@ -8,6 +8,7 @@ import { error } from "console"
 
 export enum FlowChunkType {
   FlowStart = "flowStart",
+  FlowStepStart = "flowStepStart",
   FlowFinish = "flowFinish",
   Generation = "generation",
   GenerationEnd = "generationEnd",
@@ -332,17 +333,17 @@ export const agentsValidators = ({ t, setError }) => {
 export const flowsValidators = ({ t, setError }) => {
   return {
     validate: {
-      inputs: (v) => {
+      flows: (v) => {
         let index = 0;
         for (const flow of (v as AgentFlow[])) {
           if (!flow.code) {
-            setError('inputs', {
+            setError('flows', {
               message: t('Please set the Codes of all flows')
             })
             return false;
           }
           if (!flow.name) {
-            setError('inputs', {
+            setError('flows', {
               message: t('Please set the Names of all flows')
             })
             return false;
@@ -356,12 +357,12 @@ export const flowsValidators = ({ t, setError }) => {
 }
 
 
-export const inputValidators = ({ t, setError }) => {
+export const inputValidators = ({ inputs, t, setError }) => {
   return {
     validate: {
       inputs: (v) => {
         let index = 0;
-        const variables = (v as FlowInputVariable[])
+        const variables = (inputs() as FlowInputVariable[])
         for (const input of variables) {
           if (!input.name) {
             setError('inputs', {

@@ -25,6 +25,7 @@ import { Input } from '@/components/ui/input';
 import { FlowsDeleteDialog } from '@/components/flows/flows-delete-dialog';
 import DataLoader from '@/components/data-loader';
 import { DatabaseContext } from '@/contexts/db-context';
+import { is } from 'drizzle-orm';
 
 export default function FlowsPage() {
 
@@ -50,11 +51,11 @@ export default function FlowsPage() {
 
   const agents = watch('agents') ?? [];
   const defaultFlow = watch('defaultFlow') ?? '';
-  const inputs = watch('inputs') ?? [];
-
+  
   const flows = watch('flows') ?? [] as AgentFlow[];
   const [rootFlow, setRootFlow] = useState<EditorStep | undefined>(undefined);
   const [currentFlow, setCurrentFlow] = useState<AgentFlow | undefined>(undefined);
+  const [inputs, setInputs] = useState<FlowInputVariable[]>([]);
 
   const onFlowChanged = (value: EditorStep) => {
     if (rootFlow) {
@@ -67,21 +68,21 @@ export default function FlowsPage() {
   }
 
   register('defaultFlow')
-  register('inputs', inputValidators({ t, setError }));
+  register('inputs', inputValidators({ inputs: () => { return inputs; }, t, setError }));
   register('agents', agentsValidators({ t, setError }))
   register('flows', flowsValidators({ t, setError }))
 
   const onVariablesChanged = (value: FlowInputVariable[]) => {
-    setValue('inputs', value);
+    setInputs(value);
   }
 
 
   useEffect(() => {
     if (rootFlow && currentFlow) {
       setInitialLoadDone(true);
-      setValue('flows', flows.map(f => f.code === currentFlow.code ? { ...f, flow: rootFlow } : f));
+      setValue('flows', flows.map(f => f.code === currentFlow.code ? { ...f, flow: rootFlow, inputs } : f));
     }     
-  }, [rootFlow, currentFlow]);
+  }, [rootFlow, currentFlow, inputs]);
 
   useEffect(() => {
     const savedFlow = safeJsonParse(sessionStorage.getItem('currentFlow') ?? '', null);
@@ -92,13 +93,16 @@ export default function FlowsPage() {
         if (flow) {
           setRootFlow(flow.flow);
           setCurrentFlow(flow);
+          setInputs(flow.inputs ?? [])
         } else {
           setRootFlow(flows[0].flow);
           setCurrentFlow(flows[0]);
+          setInputs(flows[0].inputs ?? [])
         }
       } else {
         setRootFlow(flows[0].flow);
         setCurrentFlow(flows[0]);
+        setInputs(flows[0].inputs ?? [])
       }
     }
 
@@ -108,9 +112,10 @@ export default function FlowsPage() {
 
   useEffect(() => {
     if (currentFlow) {
+      currentFlow.inputs = inputs;
       sessionStorage.setItem('currentFlow', JSON.stringify(currentFlow));
     }
-  }, [currentFlow]);
+  }, [currentFlow, inputs]);
 
   const { onSubmit, isDirty } = onAgentSubmit(agent, watch, setValue, getValues, updateAgent, t, router, {});
 
@@ -130,6 +135,7 @@ export default function FlowsPage() {
             if (flow) {
               setRootFlow(flow.flow);
               setCurrentFlow(flow);
+              setInputs(flow.inputs);
             }
           }}>
             {flows.map((flow, index) => (
@@ -187,6 +193,7 @@ export default function FlowsPage() {
       
                     setRootFlow(newFlows[newFlows.length - 1].flow);
                     setCurrentFlow(newFlows[newFlows.length - 1]);
+                    setInputs(newFlows[newFlows.length - 1].inputs);
                   
                   setEditFlowDialogOpen(false);
                 } else {
@@ -226,6 +233,7 @@ export default function FlowsPage() {
         {currentFlow && (
           <FlowsDeleteDialog agentFlow={currentFlow} onDeleteFlow={(flow) => {
             setCurrentFlow(undefined);
+            setInputs([]);
             setRootFlow(undefined);
 
             const filteredFlows = flows.filter(f => f.code !== flow.code);
@@ -238,6 +246,7 @@ export default function FlowsPage() {
 
               setRootFlow(filteredFlows[filteredFlows.length - 1].flow);
               setCurrentFlow(filteredFlows[filteredFlows.length - 1]);
+              setInputs(filteredFlows[filteredFlows.length - 1].inputs);
             }
           }
 
@@ -259,7 +268,7 @@ export default function FlowsPage() {
                 <div className="flex"><VariableIcon className="mr-2"/> {t('Inputs')}</div>
               </AccordionTrigger>
               <AccordionContent>
-                <FlowInputVariablesEditor variables={inputs} onChange={onVariablesChanged} />
+                <FlowInputVariablesEditor variables={inputs ?? []} onChange={onVariablesChanged} />
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="agents"  className="rounded-lg border pl-2 pr-2 mb-2">
@@ -272,7 +281,16 @@ export default function FlowsPage() {
               <AccordionTrigger><div className="flex"><PlayIcon className="mr-2"/>{t('Debugger')}</div></AccordionTrigger>
               <AccordionContent>
                 <ExecProvider>
-                  <FlowsExecForm initializeExecContext={true} agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} databaseIdHash={dbContext?.databaseIdHash} />
+                  <FlowsExecForm initializeExecContext={true} agent={agent} agentFlow={currentFlow} agents={agents} inputs={inputs} flows={flows} displayMode={ExecFormDisplayMode.Admin} databaseIdHash={dbContext?.databaseIdHash}>
+                  {isDirty ? (
+                    <Button onClick={handleSubmit(onSubmit)}
+                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  >
+                    {t('Save')}
+                  </Button>
+
+                  ) : null}                    
+                  </FlowsExecForm>
                 </ExecProvider>
               </AccordionContent>
             </AccordionItem>

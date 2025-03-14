@@ -7,9 +7,10 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog'
 
-import { toolConfigurators } from '@/tools/configurators'
+import { toolConfiguratorsRepository } from '@/tools/configurators'
 import { useTranslation } from 'react-i18next'
 import { PlusIcon, TextIcon, TrashIcon, WorkflowIcon } from 'lucide-react'
+import { useAgentContext } from '@/contexts/agent-context'
 
 const availableOpenAIModels = [
   'gpt-4o', 
@@ -26,6 +27,9 @@ interface FlowAgentEditorProps {
 
 export function FlowAgentEditor({ agent, onChange, onDelete, agents }: FlowAgentEditorProps) {
 
+  const agentContext = useAgentContext();
+  const toolConfigurators = toolConfiguratorsRepository.init({ agent: agentContext?.current ?? undefined });
+    
   const { t } = useTranslation();
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -199,6 +203,9 @@ function ToolConfiguratorWrapper({
   toolOptions: any
   onChange: (opts: any) => void
 }) {
+  const agentContext = useAgentContext();
+  const toolConfigurators = toolConfiguratorsRepository.init({ agent: agentContext?.current ?? undefined });
+
   const configuratorDef = toolConfigurators[toolName]
   if (!configuratorDef) {
     return <div>Brak konfiguratora dla narzędzia: {toolName}</div>

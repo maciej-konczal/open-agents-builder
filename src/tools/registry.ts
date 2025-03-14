@@ -49,23 +49,27 @@ export const toolRegistry = {
       httpTool: httpTool,
     }
 
-    if (agent) {
-      availableTools = {
-        ...availableTools,
-          execFlowTool: createExecFlowTool({
-            agentId: agent.id ?? '',
-            masterAgent: agent, 
-            saasContext,
-            databaseIdHash,
-            sessionId,
-            currentDateTimeIso: new Date().toISOString(),
-            currentLocalDateTime: new Date().toLocaleString(),
-            currentTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            streamingController          
-        }),
-      }
-    }
+      if (agent) {
 
+        (agent.flows ?? []).forEach(flow => {
+            const flowTool = createExecFlowTool({
+              flow,
+              agentId: agent.id ?? '',
+              masterAgent: agent, 
+              saasContext,
+              databaseIdHash,
+              sessionId,
+              currentDateTimeIso: new Date().toISOString(),
+              currentLocalDateTime: new Date().toLocaleString(),
+              currentTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              streamingController          
+          })
+          availableTools = {
+            ...availableTools,
+            ['flowTool' + flow.code]: flowTool
+          }
+        });
+      }
     return availableTools;
   }
 }
