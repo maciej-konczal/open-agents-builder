@@ -23,13 +23,14 @@ import { AuthorizedSaaSContext } from '@/lib/generic-api';
 
 export type ToolDescriptor = {
   displayName: string;
-  tool: Tool
+  tool: Tool;
+  injectStreamingController?: (streamingController: ReadableStreamDefaultController<any>) => void;
 }
 
 let availableTools:Record<string, ToolDescriptor> | null = null;
 
 export const toolRegistry = {
-  init: ({ saasContext, databaseIdHash, storageKey, agentId, agent, sessionId }: { saasContext: AuthorizedSaaSContext, agentId: string, sessionId: string, agent?: Agent, databaseIdHash: string, storageKey: string | undefined | null}): Record<string, ToolDescriptor> => {
+  init: ({ saasContext, databaseIdHash, storageKey, agentId, agent, sessionId, streamingController }: { saasContext?: AuthorizedSaaSContext, agentId: string, sessionId: string, agent?: Agent, databaseIdHash: string, storageKey: string | undefined | null, streamingController?: ReadableStreamDefaultController<any> }): Record<string, ToolDescriptor> => {
 
     if (availableTools !== null) return availableTools;
     availableTools = {
@@ -60,7 +61,7 @@ export const toolRegistry = {
             currentDateTimeIso: new Date().toISOString(),
             currentLocalDateTime: new Date().toLocaleString(),
             currentTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            streamingController: null          
+            streamingController          
         }),
       }
     }

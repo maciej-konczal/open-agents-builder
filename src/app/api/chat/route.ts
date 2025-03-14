@@ -18,50 +18,73 @@ import { validateTokenQuotas } from '@/lib/quotas';
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
-export function prepareAgentTools(tools: Record<string, ToolConfiguration> | undefined, databaseIdHash: string, storageKey: string | undefined | null, agentId: string, sessionId: string, agent?: Agent, saasContext: AuthorizedSaaSContext): Record<string, Tool> {
+interface AgentToolsParams {
+  tools: Record<string, ToolConfiguration> | undefined;
+  databaseIdHash: string;
+  storageKey: string | undefined | null;
+  agentId: string;
+  sessionId: string;
+  agent?: Agent;
+  saasContext?: AuthorizedSaaSContext;
+  streamingController?: ReadableStreamDefaultController<any> | null;
+}
+
+export function prepareAgentTools({
+  tools,
+  databaseIdHash,
+  storageKey,
+  agentId,
+  sessionId,
+  agent,
+  saasContext,
+  streamingController
+}: AgentToolsParams): Record<string, Tool> {
   if (!tools) return {}
   const mappedTools: Record<string, Tool> = {};
+
   for(const toolKey in tools) {
     const toolConfig = tools[toolKey];
-    const toolDescriptor:ToolDescriptor = toolRegistry.init({ databaseIdHash, storageKey, agentId, sessionId, agent, saasContext })[toolConfig.tool];
+    const toolDescriptor:ToolDescriptor = toolRegistry.init({ 
+      databaseIdHash, 
+      storageKey, 
+      agentId, 
+      sessionId, 
+      agent, 
+      saasContext,
+      streamingController
+    })[toolConfig.tool];
+
     if (!toolDescriptor) {
       console.log(`Tool is not available ${toolConfig.tool}`);
       continue;
-    } else {
-
-      const paramsDefaults: Record<string, any> = {}
-      for(const preConfiguredOptionKey in toolConfig.options){
-        const preConfiguredOptionVal = toolConfig.options[preConfiguredOptionKey];
-        paramsDefaults[preConfiguredOptionKey] = preConfiguredOptionVal;
-      }
-      // TODO we somehow must remove the parameters with defaults from parameters otherwise LLM will try to guess it
-
-      let nonDefaultParameters = toolDescriptor.tool.parameters;
-      if (nonDefaultParameters instanceof ZodObject) {
-        const omitKeys: Record<string, true> = {}
-        for(const key in paramsDefaults){
-          omitKeys[key] = true;
-        }
-        nonDefaultParameters = nonDefaultParameters.omit(omitKeys);
-      }
-
-      mappedTools[toolKey] = tool({ // we are creating a wrapper tool of tool provided to fill the gaps wieh pre-configured parameters
-          description: `${toolConfig.description} - ${toolDescriptor.tool.description}`,
-          parameters: nonDefaultParameters,
-          execute: async (params, options) => {
-            if (toolDescriptor.tool.execute)
-              return toolDescriptor.tool.execute({ ...params, ...paramsDefaults}, options); // we override the params with defaults provided in the configuration
-            else {
-              throw new Error(`Tool executor has no execute method defined, tool: ${toolKey} - ${toolConfig.tool}`);
-            }
-          }
-        });
     }
+
+    const paramsDefaults: Record<string, any> = {}
+    for(const preConfiguredOptionKey in toolConfig.options){
+      paramsDefaults[preConfiguredOptionKey] = toolConfig.options[preConfiguredOptionKey];
+    }
+
+    let nonDefaultParameters = toolDescriptor.tool.parameters;
+    if (nonDefaultParameters instanceof ZodObject) {
+      const omitKeys: Record<string, true> = Object.fromEntries(
+        Object.keys(paramsDefaults).map(key => [key, true])
+      );
+      nonDefaultParameters = nonDefaultParameters.omit(omitKeys);
+    }
+
+    mappedTools[toolKey] = tool({
+      description: `${toolConfig.description} - ${toolDescriptor.tool.description}`,
+      parameters: nonDefaultParameters,
+      execute: async (params, options) => {
+        if (toolDescriptor.tool.execute) {
+          return toolDescriptor.tool.execute({ ...params, ...paramsDefaults}, options);
+        }
+        throw new Error(`Tool executor has no execute method defined, tool: ${toolKey} - ${toolConfig.tool}`);
+      }
+    });
   }
   return mappedTools;
-
 }
-
 
 export async function POST(req: NextRequest) {
   try {
@@ -154,7 +177,7 @@ export async function POST(req: NextRequest) {
 
       },
       tools: {
-        ...await prepareAgentTools(agent.tools, databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, agentId, sessionId, agent),
+        ...await prepareAgentTools({ tools: agent.tools, databaseIdHash, storageKey: saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null, agentId, sessionId, agent, saasContext }),
         saveResults: createUpdateResultTool(databaseIdHash, saasContext.isSaasMode ? saasContext.saasContex?.storageKey : null).tool
       },
       messages,
