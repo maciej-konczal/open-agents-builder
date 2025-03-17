@@ -86,8 +86,6 @@ export async function GET(request: NextRequest, response: NextResponse) {
                 if (existingTemplates.find(t => t.id === template['id'])) 
                     delete template.status; // do not update status for existing templates
                 template.published = `${template.published}`;// convert to boolean
-
-                console.log(template);
                 await templatesRepo.upsert({ id: template['id'] }, { ...template, locale }); // re-import templates to database
             }
         }

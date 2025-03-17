@@ -270,8 +270,8 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
 
               {node.toolResults &&
                 node.toolResults.map((c, i) => {
-                  const parsed = safeJsonParse(c.result || "", null);
-                  if (parsed === null) {
+                  const parsed = typeof c.result ==='string' ? safeJsonParse(c.result || "", null) : c.result;
+                  if (parsed === null && typeof c.result === 'string') {
                     return (
                       <ChatMessageMarkdown key={i}>
                         {c.result}

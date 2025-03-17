@@ -1,0 +1,111 @@
+{
+    "id": "pl_ukVEIg_71BRP1HML9DaBP",
+    "displayName": "Importuj i fakturuj zamówienia",
+    "published": false,
+    "options": {
+        "welcomeMessage": "Witamy w agencie **Importuj i fakturuj** zamówienia. Prześlij plik z danymi zamówienia lub wprowadź je ręcznie, a spróbujemy je zaimportować i wystawić fakturę. Można też wywołać tego agenta jako wygodny import przez API.",
+        "termsAndConditions": "",
+        "mustConfirmTerms": false,
+        "resultEmail": "",
+        "collectUserEmail": false,
+        "collectUserName": false
+    },
+    "prompt": "",
+    "expectedResult": "",
+    "safetyRules": "",
+    "events": {},
+    "tools": {},
+    "createdAt": "2025-03-17T11:28:06.198Z",
+    "updatedAt": "2025-03-17 13:02:48",
+    "locale": "pl",
+    "agentType": "flow",
+    "status": "active",
+    "icon": "orders.webp",
+    "extra": null,
+    "agents": [
+        {
+            "name": "Order agent",
+            "model": "gpt-4o",
+            "system": "Jesteś wykwalifikowanym agentem zamówień, który potrafi mapować zaimportowane pliki zamówień lub informacje tekstowe do istniejących produktów (jeśli istnieją) lub utworzyć wirtualne pozycje, aby zapisać zamówienie w bazie danych. Jeżeli jakieś informacje nie są podane, spróbuj je uzupełnić.",
+            "tools": [
+                {
+                    "name": "currentDate",
+                    "options": {}
+                },
+                {
+                    "name": "listProducts",
+                    "options": {}
+                },
+                {
+                    "name": "createOrderTool",
+                    "options": {
+                        "virtualProducts": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Invoice agent",
+            "model": "gpt-4o",
+            "system": "Jesteś agentem fakturującym – na podstawie szablonu faktury generujesz fakturę w oparciu o dane zamówienia.",
+            "tools": [
+                {
+                    "name": "listAttachments",
+                    "options": {}
+                },
+                {
+                    "name": "attachmentContent",
+                    "options": {}
+                }
+            ]
+        }
+    ],
+    "flows": [
+        {
+            "name": "Import order",
+            "code": "import",
+            "flow": {
+                "type": "sequence",
+                "steps": [
+                    {
+                        "type": "step",
+                        "agent": "Order agent",
+                        "input": "Spróbuj przeanalizować wejście @orderFile (jeśli jest dostępne) do formatu JSON. Jeśli to się nie powiedzie, użyj informacji z @seller, @buyer i @items do utworzenia zamówienia. Następnie skorzystaj z narzędzia, aby utworzyć zamówienie w bazie danych i zwróć zamówienie w formacie JSON."
+                    },
+                    {
+                        "type": "step",
+                        "agent": "Invoice agent",
+                        "input": "Na podstawie zamówienia wygenerowanego w poprzednim kroku weź szablon @Invoicedocumentdocx i wygeneruj dokument z fakturą."
+                    }
+                ]
+            },
+            "inputs": [
+                {
+                    "name": "orderFile",
+                    "description": "plik z zamówieniem - PDF, CSV, Excel, Word ...",
+                    "required": false,
+                    "type": "fileBase64"
+                },
+                {
+                    "name": "items",
+                    "description": "tekst zawierający zamówione pozycje",
+                    "required": false,
+                    "type": "longText"
+                },
+                {
+                    "name": "seller",
+                    "description": "informacje o sprzedawcy wraz z adresem",
+                    "required": false,
+                    "type": "shortText"
+                },
+                {
+                    "name": "buyer",
+                    "description": "informacje o kupującym",
+                    "required": false,
+                    "type": "shortText"
+                }
+            ]
+        }
+    ],
+    "defaultFlow": ""
+}

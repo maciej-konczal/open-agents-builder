@@ -1,0 +1,111 @@
+{
+    "id": "en_ukVEIg_71BRP1HML9DaBP",
+    "displayName": "Import and invoice orders",
+    "published": false,
+    "options": {
+        "welcomeMessage": "Welcome to the **Import and Invoice** orders agent. Upload a file with your order data or enter it manually, and we'll try to import it plus generate an invoice. You can call this agent as a convenient API import as well.",
+        "termsAndConditions": "",
+        "mustConfirmTerms": false,
+        "resultEmail": "",
+        "collectUserEmail": false,
+        "collectUserName": false
+    },
+    "prompt": "",
+    "expectedResult": "",
+    "safetyRules": "",
+    "events": {},
+    "tools": {},
+    "createdAt": "2025-03-17T11:28:06.198Z",
+    "updatedAt": "2025-03-17 13:02:48",
+    "locale": "en",
+    "agentType": "flow",
+    "status": "active",
+    "icon": "orders.webp",
+    "extra": null,
+    "agents": [
+        {
+            "name": "Order agent",
+            "model": "gpt-4o",
+            "system": "You are a skilled order agent who can map imported order files or text information to existing products  (if exists) or create virtual line items in order to save the order into database. If some information is not provided try to fake it.",
+            "tools": [
+                {
+                    "name": "currentDate",
+                    "options": {}
+                },
+                {
+                    "name": "listProducts",
+                    "options": {}
+                },
+                {
+                    "name": "createOrderTool",
+                    "options": {
+                        "virtualProducts": true
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Invoice agent",
+            "model": "gpt-4o",
+            "system": "You're invoice agent - based on the Invoice template document you're generating invoice based on the order data",
+            "tools": [
+                {
+                    "name": "listAttachments",
+                    "options": {}
+                },
+                {
+                    "name": "attachmentContent",
+                    "options": {}
+                }
+            ]
+        }
+    ],
+    "flows": [
+        {
+            "name": "Import order",
+            "code": "import",
+            "flow": {
+                "type": "sequence",
+                "steps": [
+                    {
+                        "type": "step",
+                        "agent": "Order agent",
+                        "input": "try to parse the input of @orderFile (if provided) to JSON \nif it's not possible use the @seller @buyer and @items information to create the order\nuse the tool to create the order in the database\nreturn the order in JSON format"
+                    },
+                    {
+                        "type": "step",
+                        "agent": "Invoice agent",
+                        "input": "based on the order generated in the previous step please take the @Invoicedocumentdocx template and generate the document with the invoice"
+                    }
+                ]
+            },
+            "inputs": [
+                {
+                    "name": "orderFile",
+                    "description": "order file - PDF, CSV, Excel, Word ...",
+                    "required": false,
+                    "type": "fileBase64"
+                },
+                {
+                    "name": "items",
+                    "description": "text including ordered items",
+                    "required": false,
+                    "type": "longText"
+                },
+                {
+                    "name": "seller",
+                    "description": "seller information including address",
+                    "required": false,
+                    "type": "shortText"
+                },
+                {
+                    "name": "buyer",
+                    "description": "buyer information",
+                    "required": false,
+                    "type": "shortText"
+                }
+            ]
+        }
+    ],
+    "defaultFlow": ""
+}
