@@ -171,7 +171,7 @@ console.log(flow.code);
     const variablesToInject: Record<string, string> = {};
     let filesToUpload: Record<string, string | string[]> = {};
 
-    for (const inputDef of masterAgent.inputs ?? []) {
+    for (const inputDef of flow.inputs ?? []) {
       if (inputDef.type !== "fileBase64") {
         variablesToInject[inputDef.name] = (execRequest.input as any)[inputDef.name];
       } else {
@@ -192,6 +192,7 @@ console.log(flow.code);
       inputObject: filesToUpload,
       pdfExtractText: false,
     });
+
 
     const attRepo = new ServerAttachmentRepository(
       databaseIdHash,
@@ -220,7 +221,7 @@ console.log(flow.code);
         // Add raw user input data (if it makes sense in this tool)
         (newInput.content as Array<TextPart>).push({
           type: "text",
-          text: "User input: `" + JSON.stringify(execRequest.input) + "`",
+          text: "User input: `" + JSON.stringify(variablesToInject) + "`",
         });
 
         // Add system context
@@ -237,7 +238,7 @@ console.log(flow.code);
         });
 
         // Check used variables for files/attachments
-        for (const v of (usedVars.length > 0 ? usedVars : (masterAgent.inputs ?? []).map(i => i.name))) {
+        for (const v of (usedVars.length > 0 ? usedVars : (flow.inputs ?? []).map(i => i.name))) {
           // If it's in filesToUpload
           if (filesToUpload[v]) {
             const fileMapper = (key: string, fileBase64: string) => {
@@ -281,6 +282,8 @@ console.log(flow.code);
             }
           }
         }
+
+        console.log(newInput);
 
         return JSON.stringify(newInput);
       }

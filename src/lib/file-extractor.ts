@@ -104,7 +104,6 @@ export function processFiles({
       continue;
     }
 
-console.log('!!!', mimeType)
     if(mimeType.startsWith('application/json')) {
       result[key] = Buffer.from(base64Str.split(',')[1], 'base64').toString('utf-8');
       continue;
