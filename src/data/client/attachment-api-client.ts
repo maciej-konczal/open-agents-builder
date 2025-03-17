@@ -77,5 +77,9 @@ export class AttachmentApiClient extends AdminApiClient {
         }
       ) as Promise<GetAttachmentPaginatedResponse>;
     }    
+
+    async export(): Promise<any> {
+      return this.getArrayBuffer('/api/attachment/export') as Promise<any>;
+    }    
     
   }

@@ -5,7 +5,7 @@ import { DatabaseContext } from "./db-context";
 import { SaaSContext } from "./saas-context";
 import { Attachment, DataLoadingStatus } from "@/data/client/models";
 import { AttachmentApiClient } from "@/data/client/attachment-api-client";
-import { AttachmentDTO, PaginatedQuery, PaginatedResult } from "@/data/dto";
+import { AttachmentDTO, PaginatedQuery, PaginatedResult, StorageSchemas } from "@/data/dto";
 import { getErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -17,6 +17,8 @@ type AttachmentContextType = {
 
   queryAttachments: (params: PaginatedQuery) => Promise<PaginatedResult<AttachmentDTO[]>>;
   deleteAttachment: (attachment: AttachmentDTO) => Promise<void>;
+
+  exportAttachments: () => Promise<void>;
 };
 
 const AttachmentContext = createContext<AttachmentContextType | undefined>(undefined);
@@ -37,29 +39,29 @@ export const AttachmentProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const queryAttachments = async (params: PaginatedQuery): Promise<PaginatedResult<AttachmentDTO[]>> => {
-        setLoaderStatus(DataLoadingStatus.Loading);
-        try {
-          const client = await setupApiClient();
-          const response = await client.query(params);
+    setLoaderStatus(DataLoadingStatus.Loading);
+    try {
+      const client = await setupApiClient();
+      const response = await client.query(params);
 
-          setLoaderStatus(DataLoadingStatus.Success);
+      setLoaderStatus(DataLoadingStatus.Success);
 
-          if (syncHandler) clearInterval(syncHandler);
-          syncHandler = setInterval(() => {
-              console.log('Refreshing SaaS data sync ...');
-              setRefreshDataSync(new Date().toISOString());
-          }, 1000 *  30); // refresh data every 30s
+      if (syncHandler) clearInterval(syncHandler);
+      syncHandler = setInterval(() => {
+        console.log('Refreshing SaaS data sync ...');
+        setRefreshDataSync(new Date().toISOString());
+      }, 1000 * 30); // refresh data every 30s
 
-          return {
-                ...response,
-                rows: response.rows.map((r: any) => Attachment.fromDTO(r))
-            }            
-          
-        } catch (error) {
-          console.error(error);
-          setLoaderStatus(DataLoadingStatus.Error);
-          throw error;
-        }
+      return {
+        ...response,
+        rows: response.rows.map((r: any) => Attachment.fromDTO(r))
+      }
+
+    } catch (error) {
+      console.error(error);
+      setLoaderStatus(DataLoadingStatus.Error);
+      throw error;
+    }
   };
 
   const deleteAttachment = async (attachment: AttachmentDTO) => {
@@ -79,11 +81,21 @@ export const AttachmentProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const exportAttachments = async () => {
+    const apiClient = new AttachmentApiClient('', StorageSchemas.Default, dbContext, saasContext);
+    const a = document.createElement('a');
+    const file = new Blob([await apiClient.export() ?? ''], { type: 'application/zip' });
+    a.href = URL.createObjectURL(file);
+    a.download = `attachments.zip`;
+    a.click();
+  }
+
   const value: AttachmentContextType = {
     loaderStatus,
     refreshDataSync,
     queryAttachments,
     deleteAttachment,
+    exportAttachments
   };
 
   return <AttachmentContext.Provider value={value}>{children}</AttachmentContext.Provider>;

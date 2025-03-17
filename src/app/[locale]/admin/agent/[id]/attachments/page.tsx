@@ -12,10 +12,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
 import InfiniteScroll from "@/components/infinite-scroll";
-import { CopyIcon, FileWarningIcon, HourglassIcon, Loader2, TrashIcon } from "lucide-react";
+import { CopyIcon, FileWarningIcon, HourglassIcon, Loader2, ShareIcon, TrashIcon } from "lucide-react";
 
 import { AttachmentDTO, PaginatedQuery, PaginatedResult } from "@/data/dto";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 
 import { useAttachmentContext } from "@/contexts/attachment-context";
 import { DatabaseContext } from "@/contexts/db-context";
@@ -28,6 +28,7 @@ import { useAgentContext } from "@/contexts/agent-context";
 import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { useCopyToClipboard } from "react-use";
 import { Textarea } from "@/components/ui/textarea";
+import JsonView from "@uiw/react-json-view";
 
 export default function FilesPage() {
     const router = useRouter();
@@ -39,6 +40,7 @@ export default function FilesPage() {
     
     const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
     const [previewContent, setPreviewContent] = useState<string>("");
+    const [attachment, setAttachment] = useState<Attachment | null>(null);
     const [, copy] = useCopyToClipboard();
 
     const [queryParams, setQueryParams] = useState<PaginatedQuery>({
@@ -146,6 +148,17 @@ export default function FilesPage() {
                 }}
             />
 
+        {attachmentsData.rows.length > 0 && (
+        <Button size="sm" variant="outline" onClick={() => {
+          try {
+            attachmentContext.exportAttachments();
+          } catch (e) {
+            console.error(e);
+            toast.error(t(getErrorMessage(e)));
+          }
+        }}><ShareIcon className='w-4 h-4' /> {t('Export attachments ...')}</Button>
+      )}
+
             <Input
                 placeholder={t("Search attachments...") || ""}
                 onChange={(e) =>
@@ -166,7 +179,11 @@ export default function FilesPage() {
                 <DialogContent className="p-4 max-w-3xl">
                 <h3 className="text-sm font-bold">{t('File content preview')}:</h3>
                 <div className="flex scrollbar overflow-y-auto h-96">
+                    {attachment?.mimeType === "application/json" ? (
+                        <JsonView value={safeJsonParse(previewContent, {})} />
+                        ) : (
                     <ChatMessageMarkdown>{previewContent}</ChatMessageMarkdown>
+                    )}
                 </div>
                 <DialogFooter>
                     <Button variant="ghost" size={"sm"} onClick={() => {
@@ -208,6 +225,7 @@ export default function FilesPage() {
                             )}
                             {attachment.content && (                 
                                 <div onClick={() => {
+                                    setAttachment(attachment);
                                     setPreviewContent(attachment.content);
                                     setPreviewDialogOpen(true);
                                 }}>

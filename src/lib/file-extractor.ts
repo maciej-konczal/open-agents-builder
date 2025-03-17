@@ -104,6 +104,12 @@ export function processFiles({
       continue;
     }
 
+console.log('!!!', mimeType)
+    if(mimeType.startsWith('application/json')) {
+      result[key] = Buffer.from(base64Str.split(',')[1], 'base64').toString('utf-8');
+      continue;
+    }    
+
     // 2) If PDF
     if (mimeType === 'application/pdf') {
       if (!pdfExtractText) {
@@ -121,12 +127,6 @@ export function processFiles({
         // Save array of images
         result[key] = images;
       } else {
-
-        if(mimeType.startsWith('application/json')) {
-          result[key] = Buffer.from(base64Str.split(',')[1], 'base64').toString('utf-8');
-          continue;
-        }
-
         // Extract text from PDF
         const tempDir = mkdtempSync(join(tmpdir(), 'markitdown-'));
         const inputFilename = join(tempDir, 'input.pdf');

@@ -71,7 +71,6 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
                         });
 
                         const extractedContent = processedFiles['fileContent'];
-                        console.log(processedFiles);
                         if (extractedContent) {
                             attRepo.upsert({
                                 id: savedAttachment.id
@@ -82,6 +81,12 @@ async function handlePUTRequest(inputJson: any, request: NextRequest, response: 
                             });
 
                         } else {
+                            attRepo.upsert({
+                                id: savedAttachment.id
+                            }, {
+                                ...savedAttachment,
+                                extra: JSON.stringify({ status: 'error', error: "Error extracting file content, no content returned." })
+                            });                            
                             console.error("Error extracting file content", savedAttachment.storageKey, savedAttachment.displayName);
                         }
                     } catch (e) {
