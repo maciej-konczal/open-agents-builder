@@ -28,7 +28,7 @@
             "tool": "sendEmail",
             "description": "skontaktuj się z nami w nagłych przypadkach",
             "options": {
-                "from": "no-reply@updates.agentdoodle.com",
+                "from": "no-reply@updates.openagentsbuilder.com",
                 "to": "urgent@catchthetornado.com"
             }
         }

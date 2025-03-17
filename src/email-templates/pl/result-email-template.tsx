@@ -58,8 +58,8 @@ import { max } from "moment";
             <CodeBlock theme={dracula} language={resultFormat.toLowerCase() === 'markdown' ? 'markdown' : 'json'} style={code} code={result ?? ''} />
           )}
         <Hr style={hr} />
-        <Link href="https://agentdoodle.com" style={reportLink}>
-          Open Agents Builder, dostarczony przez CatchTheTornado. Polityka prywatności i warunki: https://agentdoodle.com
+        <Link href="https://openagentsbuilder.com" style={reportLink}>
+          Open Agents Builder, dostarczony przez CatchTheTornado. Polityka prywatności i warunki: https://openagentsbuilder.com
         </Link>
       </Container>
       </Body>

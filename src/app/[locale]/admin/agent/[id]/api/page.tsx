@@ -108,7 +108,7 @@ export default function APIPage() {
 
           <h4 className="mb-4 mt-4 font-bold text-sm ">{t('Read API docs and check the examples')}</h4>
           <p className="mb-4">{t('Full API Docs and some app examples are avaialable on our Github page: ')}
-            <a className="text-blue-600 underline" href="https://github.com/CatchTheTornado/agent-doodle/tree/main/docs/api">{t('Go to the docs!')}</a>
+            <a className="text-blue-600 underline" href="https://github.com/CatchTheTornado/open-agents-builder/tree/main/docs/api">{t('Go to the docs!')}</a>
           </p>
 
             <h4 className="mb-4 mt-4 font-bold">{t('Authorization and listing the agents ')}</h4>

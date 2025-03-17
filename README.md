@@ -168,8 +168,8 @@ Automatically answer all the users questions + use the event based actions to re
 Open Agents Builder has literally no external dependencies. If you like to run it locally or **contribute** please just execute the following commands.
 
 ```bash
-git clone https://github.com/CatchTheTornado/agent-doodle
-cd agent-doodle
+git clone https://github.com/CatchTheTornado/open-agents-builder
+cd open-agents-builder
 ```
 
 Install required dependencies: `poppler` and `markitdown`:

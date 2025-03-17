@@ -19,7 +19,7 @@ export default function IntegrationsPage() {
       <Card>
         <CardContent className="p-4 text-sm">
           <p>{t('Integrations are Work in Progress. We will start adding CRM, eCommerce, ERP, PIM, Marketing Automation, CMS integrations shortly. Stay tuned. ')}</p>
-          <p className="mt-4"><a className="text-blue-600 underline" href="https://github.com/CatchTheTornado/agent-doodle">{t('Vist our Github')}</a>{t(' and check to contribute to the project if you need an integration quickly')}</p>
+          <p className="mt-4"><a className="text-blue-600 underline" href="https://github.com/CatchTheTornado/open-agents-builder">{t('Vist our Github')}</a>{t(' and check to contribute to the project if you need an integration quickly')}</p>
           <p className="mt-4">{t('Check our API interface for the current integration endpoints.')}</p>
 
         </CardContent>

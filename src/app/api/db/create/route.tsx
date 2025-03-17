@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
             } else {
                 if (saasContext.isSaasMode) {
     
-                    const appId = process.env.SAAS_APP_ID || 'agentdoodle';
+                    const appId = process.env.SAAS_APP_ID || 'openagentsbuilder';
                     const adminApiKey = process.env.SAAS_API_KEY;
     
                     // we need to register a new account in the SaaS platform
