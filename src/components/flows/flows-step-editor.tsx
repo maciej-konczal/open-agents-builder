@@ -58,8 +58,8 @@ export function FlowStepEditor({
             foundAttachments = result.rows.map((att: AttachmentDTO) => {
               return {
                 type: 'fileBase64',
-                name: att.symbolicNameIdentifier || att.storageKey,
-                code: att.symbolicNameIdentifier,
+                name: att.safeNameIdentifier || att.storageKey,
+                code: att.safeNameIdentifier,
                 required: false
               }
             });

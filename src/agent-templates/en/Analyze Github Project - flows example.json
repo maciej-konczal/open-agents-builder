@@ -1,0 +1,88 @@
+{
+    "id": "en_UdWJPUYh5W6sb9eXJgxH0",
+    "displayName": "Analyze Github Project",
+    "published": true,
+    "options": {
+        "welcomeMessage": "Welcome to **Analyze Github Project App**. Please provide us with your organization and project name and we'll quickly analyze your project condition!",
+        "termsAndConditions": "",
+        "mustConfirmTerms": false,
+        "resultEmail": "",
+        "collectUserEmail": false,
+        "collectUserName": false
+    },
+    "prompt": "",
+    "expectedResult": "",
+    "safetyRules": "",
+    "events": {},
+    "tools": {},
+    "createdAt": "2025-03-12T11:32:02.370Z",
+    "updatedAt": "2025-03-17 11:37:39",
+    "locale": "en",
+    "agentType": "flow",
+    "status": "active",
+    "icon": "github.webp",
+    "extra": null,
+    "agents": [
+        {
+            "name": "Github analyzer",
+            "model": "gpt-4o",
+            "system": "You're an agent specialized in analyzing Github projects",
+            "tools": [
+                {
+                    "name": "httpTool",
+                    "options": {}
+                },
+                {
+                    "name": "currentDate",
+                    "options": {}
+                }
+            ]
+        }
+    ],
+    "flows": [
+        {
+            "name": "Analyze Github Project",
+            "code": "analyzeGithubProject",
+            "flow": {
+                "type": "sequence",
+                "steps": [
+                    {
+                        "type": "parallel",
+                        "steps": [
+                            {
+                                "type": "step",
+                                "agent": "Github analyzer",
+                                "input": "Get the top 10 issues from https://api.github.com/repos/@organiationName/@projectName/issues. Return them as JSON."
+                            },
+                            {
+                                "type": "step",
+                                "agent": "Github analyzer",
+                                "input": "Get project info from https://api.github.coem/repos/@organiationName, @projectName."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "step",
+                        "agent": "Github analyzer",
+                        "input": "Create short report about the project:\n- figure out potential problems users are reporting,\n- figure out the contributors engagement,\n- figure out the project activity based on issue dates and commit dates\n- include stars chart history - using the following image URL: https://api.star-history.com/svg?repos=@organiationName/@projectName&type=Date\n\nSummarize into nice looking markdown report"
+                    }
+                ]
+            },
+            "inputs": [
+                {
+                    "name": "organiationName",
+                    "description": "Github organization name eg. CatchTheTornado",
+                    "required": true,
+                    "type": "shortText"
+                },
+                {
+                    "name": "projectName",
+                    "description": "Github project name eg. open-agents-builder",
+                    "required": true,
+                    "type": "shortText"
+                }
+            ]
+        }
+    ],
+    "defaultFlow": null
+}

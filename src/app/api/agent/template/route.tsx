@@ -8,6 +8,7 @@ import fs from 'fs/promises';
 import { createCache } from 'simple-in-memory-cache';
 import { detailedDiff } from "deep-object-diff";
 import { getErrorMessage } from "@/lib/utils";
+import { Agent } from "@/data/client/models";
 const { set, get } = createCache({ expiration: { minutes: 15 } });
 
 
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
                 const filePath = path.join(localePath, file);
                 try {
                     const content = await fs.readFile(filePath, 'utf-8');
-                    templates[locale].push(JSON.parse(content));
+                    templates[locale].push(new Agent(JSON.parse(content)).toDTO());
                 } catch (error) {
                     console.error(`Error reading or parsing file ${filePath}:`, error);
                 }
@@ -84,7 +85,7 @@ export async function GET(request: NextRequest, response: NextResponse) {
             for (const template of templates[locale]) {
                 if (existingTemplates.find(t => t.id === template['id'])) 
                     delete template.status; // do not update status for existing templates
-
+                template.published = `${template.published}`;// convert to boolean
                 await templatesRepo.upsert({ id: template['id'] }, { ...template, locale }); // re-import templates to database
             }
         }

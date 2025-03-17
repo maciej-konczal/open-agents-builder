@@ -55,7 +55,7 @@ export function OnboardingDialog() {
                 </DialogHeader>
                     <ScrollArea className="maxh-[60vh] pr-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                    {templateContext?.templates.filter(t=>t.icon).slice(-4).map((template, index) => (
+                    {templateContext?.templates.filter(t=>t.icon).slice(-6).map((template, index) => (
                         <Card key={index} className="hover:shadow-lg transition-shadow duration-300">
                             <CardContent className="p-4">
                                 <div className="flex items-center mb-3">

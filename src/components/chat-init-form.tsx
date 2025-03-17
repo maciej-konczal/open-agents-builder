@@ -18,7 +18,6 @@ import { ScrollArea } from "./ui/scroll-area";
 export function ChatInitForm({ displayName, welcomeMessage }: { displayName: string; welcomeMessage: string }) {
     const { register, handleSubmit, setValue, formState: { errors } } = useForm<ExecInitFormType>();
     const onSubmit: SubmitHandler<ExecInitFormType> = (data) => {
-        //console.log(data);
         chatContext.saveInitForm(data);
         const response = chatContext.setInitFormDone(true);
     }

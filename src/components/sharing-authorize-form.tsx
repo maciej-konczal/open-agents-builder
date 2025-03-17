@@ -44,8 +44,6 @@ export function SharingAuthorizeForm({
   const handleAuthorizeDatabase = handleSubmit(async (data) => {
     const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword + data.password);
     const decryptedEmail = await encryptionUtils.decrypt(eem);
-    console.log(eem, decryptedEmail, data.password)
-
     const result = await dbContext?.authorize({
       email: decryptedEmail,
       key: data.password,
