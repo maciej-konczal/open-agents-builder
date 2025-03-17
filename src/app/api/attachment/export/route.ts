@@ -31,9 +31,8 @@ export async function GET(request: NextRequest, response: NextResponse) {
         for (const result of allResults) {
 
             if (result.displayName && result.storageKey) {
-                const recordNiceName = filenamify(result.displayName, {replacement: '-'});
+                const recordNiceName = result.displayName; // it came from the attachment file name so now we store it back in the same file name
                 zip.file(recordNiceName, stg.readAttachment(result.storageKey as string)); // zip the file
-
 
                 const fileContent = result.content;
 

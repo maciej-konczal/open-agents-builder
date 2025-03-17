@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
 import InfiniteScroll from "@/components/infinite-scroll";
-import { CopyIcon, FileWarningIcon, HourglassIcon, Loader2, ShareIcon, TrashIcon } from "lucide-react";
+import { CopyIcon, FileWarningIcon, HourglassIcon, ImportIcon, Loader2, ShareIcon, TrashIcon } from "lucide-react";
 
 import { AttachmentDTO, PaginatedQuery, PaginatedResult } from "@/data/dto";
 import { getErrorMessage, safeJsonParse } from "@/lib/utils";
@@ -29,6 +29,7 @@ import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { useCopyToClipboard } from "react-use";
 import { Textarea } from "@/components/ui/textarea";
 import JsonView from "@uiw/react-json-view";
+import { useFilePicker } from "use-file-picker";
 
 export default function FilesPage() {
     const router = useRouter();
@@ -42,6 +43,17 @@ export default function FilesPage() {
     const [previewContent, setPreviewContent] = useState<string>("");
     const [attachment, setAttachment] = useState<Attachment | null>(null);
     const [, copy] = useCopyToClipboard();
+
+    const { openFilePicker, filesContent, loading } = useFilePicker({
+        accept: '.zip',
+        readAs: 'ArrayBuffer',
+        onFilesSuccessfullySelected: async () => {
+          filesContent.map(async (fileContent) => {
+            await attachmentContext.importAttachments(fileContent.content);
+            toast(t('Attachments imported successfully'));
+          });
+        }
+      });    
 
     const [queryParams, setQueryParams] = useState<PaginatedQuery>({
         limit: 6,
@@ -159,6 +171,11 @@ export default function FilesPage() {
         }}><ShareIcon className='w-4 h-4' /> {t('Export attachments ...')}</Button>
       )}
 
+        <Button size="sm" variant="outline" onClick={openFilePicker} disabled={loading}>
+          <ImportIcon className="w-4 h-4 mr-2" />
+          {t("Import attachments ...")}
+        </Button>      
+
             <Input
                 placeholder={t("Search attachments...") || ""}
                 onChange={(e) =>
@@ -235,10 +252,13 @@ export default function FilesPage() {
                                 </div>               
                             )}
                             <div className="flex justify-end mt-4">
-                                <Button variant={"default"} size="sm" className="mr-2">
-                                    <Link href={`/storage/attachment/${dbContext?.databaseIdHash}/${attachment.storageKey}`}>
-                                        {t("Download")}
-                                    </Link>
+                                <Button variant={"default"} size="sm" className="mr-2" onClick={() => {
+                                       const a = document.createElement('a');
+                                       a.href = `/storage/attachment/${dbContext?.databaseIdHash}/${attachment.storageKey}`;
+                                       a.download = attachment.displayName;
+                                       a.click(); 
+                                }}>
+                                   {t("Download")}
                                 </Button>
                                 
                                 <Button
