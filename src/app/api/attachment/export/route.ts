@@ -32,7 +32,6 @@ export async function GET(request: NextRequest, response: NextResponse) {
 
             if (result.displayName && result.storageKey) {
                 const recordNiceName = filenamify(result.displayName, {replacement: '-'});
-                indexMd += ` - <a href="${recordNiceName}.md">${result.displayName}}</a>\n\n`;
                 zip.file(recordNiceName, stg.readAttachment(result.storageKey as string)); // zip the file
 
 
@@ -42,6 +41,11 @@ export async function GET(request: NextRequest, response: NextResponse) {
                     const htmlContent = converter.makeHtml(fileContent);
                     zip.file(`${recordNiceName}.md`, fileContent);               
                     zip.file(`${recordNiceName}.html`, htmlContent);
+
+                    indexMd += ` - <a href="${recordNiceName}.md">${result.displayName}</a>\n\n`;
+
+                } else {
+                    indexMd += ` - <a href="${recordNiceName}">${result.displayName}</a>\n\n`;
                 }
             }
         }
