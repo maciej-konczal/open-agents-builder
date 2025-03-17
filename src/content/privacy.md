@@ -11,7 +11,7 @@ This privacy policy (this “Policy”) describes how **CT Tornado spółka z o.
 - **Authorized Users** (e.g., Client’s employees, contractors, or other personnel who access the Services under the Client’s account), and
 - **Site Visitors** (individuals who access or browse the Site without creating an account).
 
-This Policy does not address data collected directly from End Users in AI-powered surveys or chats that Clients create—those data flows are typically governed by separate arrangements or Data Processing Addendums (DPAs) [https://agentdoodle.com/content/data-processing](https://agentdoodle.com/content/data-processing).
+This Policy does not address data collected directly from End Users in AI-powered surveys or chats that Clients create—those data flows are typically governed by separate arrangements or Data Processing Addendums (DPAs) [https://openagentsbuilder.com/content/data-processing](https://openagentsbuilder.com/content/data-processing).
 
 We are committed to safeguarding your privacy in accordance with applicable data protection laws, including the General Data Protection Regulation (the “GDPR”) and California Consumer Privacy Act (the “CCPA”).
 

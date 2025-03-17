@@ -6,9 +6,9 @@
 
 Niniejsze warunki stanowią prawnie wiążącą umowę pomiędzy Tobą a **CT Tornado spółka z o.o.**, spółką zarejestrowaną i działającą zgodnie z prawem Rzeczypospolitej Polskiej, z siedzibą we Wrocławiu (adres: ul. Wyspa Słodowa 7, 50-266 Wrocław, Polska; rejestracja: Sąd Rejonowy dla Wrocławia-Fabrycznej we Wrocławiu, nr KRS: 873910; NIP UE: PL8982262377; kapitał zakładowy: 5.000,00 PLN; adres e-mail: info@catchthetornado.com; dalej „my”).
 
-Korzystając z Konta (zdefiniowanego w Sekcji 3.2 niniejszych warunków), korzystając z Usług (zdefiniowanych w Sekcji 2.1 niniejszych warunków) lub klikając przycisk akceptacji, potwierdzasz, że przeczytałeś(-aś), zrozumiałeś(-aś) i zgadzasz się przestrzegać niniejszych warunków, naszej [Polityki Prywatności](https://agentdoodle.com/content/privacy) oraz [Aneksu dot. przetwarzania danych](https://agentdoodle.com/content/data-processing).
+Korzystając z Konta (zdefiniowanego w Sekcji 3.2 niniejszych warunków), korzystając z Usług (zdefiniowanych w Sekcji 2.1 niniejszych warunków) lub klikając przycisk akceptacji, potwierdzasz, że przeczytałeś(-aś), zrozumiałeś(-aś) i zgadzasz się przestrzegać niniejszych warunków, naszej [Polityki Prywatności](https://openagentsbuilder.com/content/privacy) oraz [Aneksu dot. przetwarzania danych](https://openagentsbuilder.com/content/data-processing).
 
-Prosimy o uważne zapoznanie się z tymi dokumentami przed utworzeniem Konta lub rozpoczęciem korzystania z Usług. Kopię niniejszych warunków można pobrać pod adresem: <https://agentdoodle.com/content/terms>.
+Prosimy o uważne zapoznanie się z tymi dokumentami przed utworzeniem Konta lub rozpoczęciem korzystania z Usług. Kopię niniejszych warunków można pobrać pod adresem: <https://openagentsbuilder.com/content/terms>.
 
 Jeżeli nie zgadzasz się z którąkolwiek częścią niniejszych warunków lub z przywołanymi politykami i ustaleniami, musisz natychmiast zaprzestać korzystania z Usług.
 
@@ -20,7 +20,7 @@ Jeżeli nie zgadzasz się z którąkolwiek częścią niniejszych warunków lub 
 
 Nasza zastrzeżona platforma („Platforma”) umożliwia użytkownikom (takim jak Ty) tworzenie, dystrybucję i zarządzanie ankietami opartymi na sztucznej inteligencji, czatami interaktywnymi oraz wielofunkcyjnymi agentami AI. Dostęp do Platformy i interakcje z nią są ograniczone do wyznaczonych, zamkniętych grup oraz zatwierdzonych wcześniej osób („Użytkownicy końcowi”), np. wewnętrznych użytkowników organizacji, a nie do szerokiej publiczności.
 
-Platforma jest dostępna pod domeną [AgentDoodle.com](https://agentdoodle.com), w tym jej subdomenami (łącznie zwanymi „Serwisem”), i jest obsługiwana przez nas. Jeśli masz jakiekolwiek pytania dotyczące Serwisu, Usług — w tym Kont (oznaczających zindywidualizowany profil użytkownika stworzony przez Ciebie w Platformie, zabezpieczony unikatowymi danymi do logowania, umożliwiający Ci dostęp do Usług i zarządzanie nimi; każde zwane „Kontem”) — lub niniejszych warunków, możesz skontaktować się z nami za pomocą wskazanych w niniejszych warunkach adresów i numerów telefonów.
+Platforma jest dostępna pod domeną [openagentsbuilder.com](https://openagentsbuilder.com), w tym jej subdomenami (łącznie zwanymi „Serwisem”), i jest obsługiwana przez nas. Jeśli masz jakiekolwiek pytania dotyczące Serwisu, Usług — w tym Kont (oznaczających zindywidualizowany profil użytkownika stworzony przez Ciebie w Platformie, zabezpieczony unikatowymi danymi do logowania, umożliwiający Ci dostęp do Usług i zarządzanie nimi; każde zwane „Kontem”) — lub niniejszych warunków, możesz skontaktować się z nami za pomocą wskazanych w niniejszych warunkach adresów i numerów telefonów.
 
 Niniejsze warunki regulują korzystanie z naszych usług („Usługi”), na które składają się m.in.:
 
@@ -78,7 +78,7 @@ Jeżeli działasz w imieniu Podmiotu, to:
 - Masz obowiązek stworzyć Konto biznesowe, zapewniając dostęp w imieniu Podmiotu.
 - Odpowiadasz za zarządzanie Użytkownikami uprawnionymi oraz za zapewnienie przestrzegania niniejszych warunków.
 
-Tworząc Konto i korzystając z Usług, przyjmujesz do wiadomości, że przetwarzamy Twoje dane osobowe zgodnie z naszą [Polityką Prywatności](https://agentdoodle.com/content/privacy), w której opisano, w jaki sposób gromadzimy, wykorzystujemy i chronimy Twoje dane. Obejmuje to przetwarzanie danych:
+Tworząc Konto i korzystając z Usług, przyjmujesz do wiadomości, że przetwarzamy Twoje dane osobowe zgodnie z naszą [Polityką Prywatności](https://openagentsbuilder.com/content/privacy), w której opisano, w jaki sposób gromadzimy, wykorzystujemy i chronimy Twoje dane. Obejmuje to przetwarzanie danych:
 
 - Podanych podczas rejestracji i zarządzania Kontem, w tym danych logowania i kontaktowych.
 - Generowanych w trakcie korzystania z Usług, np. aktywności logowania i interakcji z Platformą.

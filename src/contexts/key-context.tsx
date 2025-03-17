@@ -79,8 +79,8 @@ export const KeyContextProvider: React.FC<PropsWithChildren> = ({ children }) =>
         const accessToken = await new SignJWT(tokenPayload)
         .setProtectedHeader({ alg })
         .setIssuedAt()
-        .setIssuer('urn:ctt:agent-doodle')
-        .setAudience('urn:ctt:agent-doodle')
+        .setIssuer('urn:ctt:open-agents-builder')
+        .setAudience('urn:ctt:open-agents-builder')
 //        .setExpirationTime('15m') // offline token - no expiration date
         .sign(new TextEncoder().encode(process.env.NEXT_PUBLIC_TOKEN_SECRET || 'Jeipho7ahchue4ahhohsoo3jahmui6Ap'))
 

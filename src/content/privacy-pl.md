@@ -11,7 +11,7 @@ Niniejsza polityka prywatności (dalej: „Polityka”) opisuje, w jaki sposób 
 - **Użytkowników Upoważnionych** (np. pracowników, kontrahentów lub innego personelu Klienta, który uzyskuje dostęp do Usług w ramach konta Klienta),
 - **Odwiedzających Stronę** (osób, które uzyskują dostęp do Strony lub ją przeglądają bez zakładania konta).
 
-Niniejsza Polityka nie odnosi się do danych zbieranych bezpośrednio od Użytkowników Końcowych w ankietach lub czatach opartych na AI, tworzonych przez Klientów — te przepływy danych są zazwyczaj regulowane w ramach odrębnych ustaleń lub **Data Processing Addendums (DPAs)** [https://agentdoodle.com/content/data-processing](https://agentdoodle.com/content/data-processing).
+Niniejsza Polityka nie odnosi się do danych zbieranych bezpośrednio od Użytkowników Końcowych w ankietach lub czatach opartych na AI, tworzonych przez Klientów — te przepływy danych są zazwyczaj regulowane w ramach odrębnych ustaleń lub **Data Processing Addendums (DPAs)** [https://openagentsbuilder.com/content/data-processing](https://openagentsbuilder.com/content/data-processing).
 
 Zobowiązujemy się chronić Twoją prywatność zgodnie z obowiązującymi przepisami dotyczącymi ochrony danych osobowych, w tym **Rozporządzeniem Ogólnym o Ochronie Danych (RODO/GDPR)** oraz **California Consumer Privacy Act (CCPA)**.
 
