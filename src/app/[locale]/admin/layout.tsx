@@ -43,10 +43,11 @@ export default async function GeneralAgentLayout({
                 <KeyContextProvider>
                   <StatsContextProvider>
                     <ProductProvider>
-                      <AgentProvider>
-                        <TemplateProvider>
-                          <OrderProvider>
-                            <AttachmentProvider>
+                      <AttachmentProvider>
+
+                        <AgentProvider>
+                          <TemplateProvider>
+                            <OrderProvider>
                               <div className={`hidden h-screen flex-col ${process.env.NEXT_PUBLIC_ENV === 'dev' ? '' : 'sm:flex xs:flex'} md:hidden text-sm p-4`}>
                                 <img src="/img/OAB-Logo-Small.svg" alt="Open Agents Builder" className="w-10 pb-4" />
                                 Mobile layout is not yet supported for the admin app. <br />Please do use tablet or desktop resolutions to acces the app. Sorry!
@@ -61,11 +62,12 @@ export default async function GeneralAgentLayout({
                                   {children}
                                 </div>
                               </div>
-                            </AttachmentProvider>
 
-                          </OrderProvider>
-                        </TemplateProvider>
-                      </AgentProvider>
+                            </OrderProvider>
+                          </TemplateProvider>
+                        </AgentProvider>
+                      </AttachmentProvider>
+
                     </ProductProvider>
                   </StatsContextProvider>
                 </KeyContextProvider>

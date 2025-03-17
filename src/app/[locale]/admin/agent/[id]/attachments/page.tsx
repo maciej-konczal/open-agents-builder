@@ -161,7 +161,7 @@ export default function FilesPage() {
             />
 
         {attachmentsData.rows.length > 0 && (
-        <Button size="sm" variant="outline" onClick={() => {
+        <Button className="mr-2" size="sm" variant="outline" onClick={() => {
           try {
             attachmentContext.exportAttachments();
           } catch (e) {

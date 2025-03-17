@@ -12,6 +12,7 @@ import { AuditContext } from './audit-context';
 import { DeleteResultResponse, ResultApiClient } from '@/data/client/result-api-client';
 import { DeleteSessionResponse, SessionApiClient } from '@/data/client/session-api-client';
 import { useProductContext } from './product-context';
+import { useAttachmentContext } from './attachment-context';
 
 export type AgentStatusType = {
     id: string;
@@ -68,6 +69,7 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
 
     const auditContext = useContext(AuditContext);
     const productContext = useProductContext();
+    const attContext = useAttachmentContext();
 
     const { t, i18n } = useTranslation();
 
@@ -152,6 +154,19 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                       }
                   
                 }
+                if(templateMeta['importAttachmentsFromUrl']) {
+                    try {
+                        const apiClient = new AdminApiClient('', dbContext, saasContext)
+                        toast.info('Downloading examples ...');
+                  
+                        const examplesArrayBuffer = await apiClient.getArrayBuffer(templateMeta['importAttachmentsFromUrl']);
+                        await attContext.importAttachments(examplesArrayBuffer as ArrayBuffer);
+                        toast.success(t('Example attachments imported successfully'));
+                      } catch (error) {
+                        toast.error(t('Error while downloading examples'));
+                      }
+                  
+                }                
             }
             return updatedAgent;
         } catch (e) {
