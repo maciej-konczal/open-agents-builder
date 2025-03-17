@@ -1,7 +1,7 @@
 import { AttachmentDTO, KeyACLDTO, KeyDTO, TermDTO, AgentDTO, SessionDTO, ResultDTO, CalendarEventDTO, ProductDTO, OrderDTO } from "@/data/dto";
 
 import PasswordValidator from 'password-validator';
-import { createPrice, getCurrentTS } from "@/lib/utils";
+import { createPrice, getCurrentTS, safeJsonParse } from "@/lib/utils";
 import { Message } from "ai";
 import moment from "moment";
 import { AgentDefinition, FlowInputVariable, EditorStep } from "@/flows/models";
@@ -42,7 +42,7 @@ export class Attachment {
     id?: number;
     assignedTo?: AttachmentAssigment[];
     displayName: string;
-    symbolicNameIdentifier?: string;
+    safeNameIdentifier?: string;
     description?: string;
     mimeType?: string;
     type?: string;
@@ -58,7 +58,7 @@ export class Attachment {
 
     constructor(attachmentDTO: AttachmentDTO | Attachment) {
         this.id = attachmentDTO.id;
-        this.symbolicNameIdentifier = attachmentDTO.symbolicNameIdentifier ?? '';
+        this.safeNameIdentifier = attachmentDTO.safeNameIdentifier ?? '';
         this.assignedTo = attachmentDTO.assignedTo ? (typeof attachmentDTO.assignedTo == 'string' ? JSON.parse(attachmentDTO.assignedTo) : attachmentDTO.assignedTo) : [];
         this.extra = attachmentDTO.extra ? (typeof attachmentDTO.extra == 'string' ? JSON.parse(attachmentDTO.extra) : attachmentDTO.extra) : [];
         this.description = attachmentDTO.description ? attachmentDTO.description : '';
@@ -82,7 +82,7 @@ export class Attachment {
         return {
             id: this.id,
             assignedTo: JSON.stringify(this.assignedTo),
-            symbolicNameIdentifier: this.symbolicNameIdentifier,
+            safeNameIdentifier: this.safeNameIdentifier,
             displayName: this.displayName,
             description: this.description,
             mimeType: this.mimeType,
@@ -267,7 +267,7 @@ export class Agent {
     constructor(agentDTO: AgentDTO | Agent) {
         this.id = agentDTO.id;
         this.displayName = agentDTO.displayName;
-        this.published = typeof agentDTO.published === 'string' ? JSON.parse(agentDTO.published ?? 'false') : agentDTO.published;
+        this.published = typeof agentDTO.published === 'string' ? safeJsonParse(agentDTO.published, false) : agentDTO.published;
         this.options = typeof agentDTO.options === 'string' ? JSON.parse(agentDTO.options as string) : agentDTO.options;
 
         this.prompt = agentDTO.prompt;

@@ -1,0 +1,88 @@
+{
+    "id": "pl_UdWJPUYh5W6sb9eXJgxH0",
+    "displayName": "Sprawdź projekt Github",
+    "published": true,
+    "options": {
+        "welcomeMessage": "Witamy w **Aplikacji do Analizy Projektu Github**. Podaj nazwę organizacji i projektu, a szybko przeanalizujemy kondycję Twojego projektu!",
+        "termsAndConditions": "",
+        "mustConfirmTerms": false,
+        "resultEmail": "",
+        "collectUserEmail": false,
+        "collectUserName": false
+    },
+    "prompt": "",
+    "expectedResult": "",
+    "safetyRules": "",
+    "events": {},
+    "tools": {},
+    "createdAt": "2025-03-12T11:32:02.370Z",
+    "updatedAt": "2025-03-17 11:37:39",
+    "locale": "pl",
+    "agentType": "flow",
+    "status": "active",
+    "icon": "github.webp",
+    "extra": null,
+    "agents": [
+        {
+            "name": "Github analyzer",
+            "model": "gpt-4o",
+            "system": "Jesteś agentem specjalizującym się w analizie projektów GitHub",
+            "tools": [
+                {
+                    "name": "httpTool",
+                    "options": {}
+                },
+                {
+                    "name": "currentDate",
+                    "options": {}
+                }
+            ]
+        }
+    ],
+    "flows": [
+        {
+            "name": "Analyze Github Project",
+            "code": "analyzeGithubProject",
+            "flow": {
+                "type": "sequence",
+                "steps": [
+                    {
+                        "type": "parallel",
+                        "steps": [
+                            {
+                                "type": "step",
+                                "agent": "Github analyzer",
+                                "input": "Pobierz 10 najważniejszych zgłoszeń z https://api.github.com/repos/@organiationName/@projectName/issues. Zwróć je w formie JSON."
+                            },
+                            {
+                                "type": "step",
+                                "agent": "Github analyzer",
+                                "input": "Pobierz informacje o projekcie z https://api.github.coem/repos/@organiationName, @projectName."
+                            }
+                        ]
+                    },
+                    {
+                        "type": "step",
+                        "agent": "Github analyzer",
+                        "input": "Sporządź krótki raport o projekcie:\n- zidentyfikuj potencjalne problemy zgłaszane przez użytkowników,\n- sprawdź zaangażowanie kontrybutorów,\n- przeanalizuj aktywność projektu na podstawie dat zgłoszeń i commitów,\n- dołącz wykres gwiazdek, korzystając z tego adresu URL do obrazu: https://api.star-history.com/svg?repos=@organiationName/@projectName&type=Date\n\nPodsumuj wszystko w zgrabnym raporcie w formacie markdown"
+                    }
+                ]
+            },
+            "inputs": [
+                {
+                    "name": "organiationName",
+                    "description": "Nazwa organizacji GitHub, np. CatchTheTornado",
+                    "required": true,
+                    "type": "shortText"
+                },
+                {
+                    "name": "projectName",
+                    "description": "Nazwa projektu GitHub, np. open-agents-builder",
+                    "required": true,
+                    "type": "shortText"
+                }
+            ]
+        }
+    ],
+    "defaultFlow": null
+}

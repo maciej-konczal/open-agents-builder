@@ -13,6 +13,7 @@ import { DeleteResultResponse, ResultApiClient } from '@/data/client/result-api-
 import { DeleteSessionResponse, SessionApiClient } from '@/data/client/session-api-client';
 import { useProductContext } from './product-context';
 import { useAttachmentContext } from './attachment-context';
+import { agent } from 'flows-ai';
 
 export type AgentStatusType = {
     id: string;
@@ -128,6 +129,8 @@ export const AgentProvider = ({ children }: { children: ReactNode }) => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 options: template.options,
+                agents: template.agents,
+                flows: template.flows,
                 status: AgentStatus.Active,
                 locale: i18n.language,
                 expectedResult: template.expectedResult,

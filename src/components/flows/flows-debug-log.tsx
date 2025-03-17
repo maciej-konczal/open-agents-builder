@@ -325,6 +325,9 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
           value={openChunks}
           onValueChange={(vals) => setOpenChunks(vals)}
         >
+          {uiTree.length === 0 && (
+            <div className="text-center p-4 flex"><HourglassIcon className="w-4 h-4 mr-2" />{t("Waiting for the first debug logs...")}</div>
+          )}
           {uiTree.map((node, idx) => renderNode(node, idx))}
         </Accordion>
       </div>

@@ -261,7 +261,7 @@ console.log(flow.code);
               fileMapper(v, filesToUpload[v] as string);
             }
           } else {
-            // Otherwise, maybe it's an attachment in DB (by symbolicNameIdentifier)
+            // Otherwise, maybe it's an attachment in DB (by safeNameIdentifier)
             if (!variablesToInject[v]) {
               const attachments = await attRepo.queryAll({
                 query: v,
@@ -271,7 +271,7 @@ console.log(flow.code);
               });
               if (attachments && attachments.rows.length > 0) {
                 const a1 = attachments.rows[0];
-                if (a1.symbolicNameIdentifier === v) {
+                if (a1.safeNameIdentifier === v) {
                   (newInput.content as Array<TextPart>).push({
                     type: "text",
                     text: `This is the content of @${v} file:${a1.content}`,
