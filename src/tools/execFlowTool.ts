@@ -72,7 +72,6 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
 
   let { streamingController } = context;
 
-console.log(flow.code);
   const dynamicInputSchema = createDynamicZodSchemaForInputs({
     availableInputs: flow.inputs ?? [],
   });
@@ -282,9 +281,6 @@ console.log(flow.code);
             }
           }
         }
-
-        console.log(newInput);
-
         return JSON.stringify(newInput);
       }
 
