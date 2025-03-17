@@ -159,7 +159,6 @@ export function createDynamicZodSchemaForInputs({
 }: {
   availableInputs: FlowInputVariable[];
 }) {
-  console.log(availableInputs);
   // if there are no input definitions – accept any value
   if (!availableInputs || availableInputs.length === 0) {
     return z.any().nullable().or(z.string());

@@ -124,9 +124,7 @@ export default class ServerProductRepository extends BaseRepository<ProductDTO> 
   async create(item: ProductDTO): Promise<ProductDTO> {
     const db = await this.db();
     const dbRecord = this.toDbRecord(item);
-    console.log(dbRecord);
     const inserted = await create(dbRecord, products, db);
-    console.log(inserted);
     return this.fromDbRecord(inserted);
   }
 

@@ -99,7 +99,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
               flow: agentFlow,
               streamingController: controller,
             });
-            console.log('AAAA');
 
             // Execute the tool with the parsed body
             await execFlowTool.execute(body, {
