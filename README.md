@@ -100,8 +100,8 @@ Here are some online examples of agents built with OAB. You can start modifying 
 <table>
     <tr>
         <td>
-            <a href="/public/img/template-assets/github.webp">
-                <img src="/public/img/template-assets/github.webp" alt="Screenshot" />
+            <a href="https://app.openagentsbuilder.com/exec/35f5c5b139a6b569d4649b788c1851831eb44d8e32b716b8411ec6431af8121d/a-HP_6t3HBDb5r3uNMNYU?flow=analyzeGithubProject">
+                <img  width="150" src="/public/img/template-assets/github.webp" alt="Screenshot" />
             </a>
         </td>
         <td><strong>Github Project analyzer</strong> 
@@ -110,8 +110,8 @@ Here are some online examples of agents built with OAB. You can start modifying 
     </tr>
     <tr>
         <td>
-            <a href="./public/img/template-assets/instashop.webp">
-                <img src="./public/img/template-assets/instashop.webp" alt="Screenshot" />
+            <a href="https://app.openagentsbuilder.com/chat/35f5c5b139a6b569d4649b788c1851831eb44d8e32b716b8411ec6431af8121d/NsGimXVM2n3BcT4MR0PbG">
+                <img width="150" src="/public/img/template-assets/instashop.webp" alt="Screenshot" />
             </a>
         </td>
         <td>
