@@ -2,22 +2,24 @@
 
 import React from "react";
 import { ChatMessageMarkdown } from "../chat-message-markdown";
+import { z } from "zod";
 
 /**
- * Przykładowe komponenty
+ * Example components
  */
-function MyCustomInput(props: {
+function UserTextInput(props: {
   label: string;
   defaultValue: string;
+  fieldName: string;
   onSendUserAction?: (data: any) => void;
 }) {
   const [value, setValue] = React.useState(props.defaultValue);
 
   const handleClick = () => {
-    // Wywołujemy callback przekazany od rodzica
-    // np. wysyłamy event, który w exec-form spowoduje ponowne wywołanie strumienia
+    // We call the callback passed from the parent
+    // e.g. we send an event that in exec-form triggers the stream to be called again
     if (props.onSendUserAction) {
-      props.onSendUserAction({ inputValue: value });
+      props.onSendUserAction({ [props.fieldName]: value });
     }
   };
 
@@ -27,6 +29,7 @@ function MyCustomInput(props: {
       <input
         className="border p-1 text-sm w-full"
         value={value}
+        name={props.fieldName}
         onChange={(e) => setValue(e.target.value)}
       />
       <button
@@ -39,7 +42,7 @@ function MyCustomInput(props: {
   );
 }
 
-function SimpleTextDisplay(props: { text: string }) {
+function TextDisplay(props: { text: string }) {
   return (
     <div className="p-2 border rounded mt-2">
       <ChatMessageMarkdown>{props.text}</ChatMessageMarkdown>
@@ -47,14 +50,26 @@ function SimpleTextDisplay(props: { text: string }) {
   );
 }
 
-/**
- * Rejestr komponentów do dynamicznego renderowania.
- */
 export const uiComponentsRegistry: Record<
   string,
-  React.ComponentType<any>
+  { displayName: string, component: React.ComponentType<any>, props: z.ZodType<any, any> }
 > = {
-  myCustomInput: MyCustomInput,
-  simpleTextDisplay: SimpleTextDisplay,
-  // ... tu dodawaj kolejne typy komponentów
+  textInput: {
+    displayName: 'Text Input',
+    component: UserTextInput,
+    props: z.object({
+      label: z.string(),
+      fieldName: z.string(),
+      defaultValue: z.string()
+    })
+  },
+  textDisplay: {
+    displayName: 'Text Display',
+    component: TextDisplay,
+    props: z.object({
+      text: z.string()
+    })
+  }
 };
+
+

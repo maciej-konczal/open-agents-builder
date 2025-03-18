@@ -19,6 +19,11 @@ import { createExecFlowTool } from './execFlowTool';
 import ServerAgentRepository from '@/data/server/server-agent-repository';
 import { Agent } from '@/data/client/models';
 import { AuthorizedSaaSContext } from '@/lib/generic-api';
+import { createTraceTool } from './traceTool';
+import { FlowChunkEvent } from '@/flows/models';
+import { replaceBase64Content } from '@/lib/file-extractor';
+import { createAvailableUIComponentsTool, getAvailableUIComponents } from './availableUIComponentsTool';
+import { createRenderComponentTool } from './renderComponentTool';
 
 
 export type ToolDescriptor = {
@@ -27,12 +32,28 @@ export type ToolDescriptor = {
   injectStreamingController?: (streamingController: ReadableStreamDefaultController<any>) => void;
 }
 
-let availableTools:Record<string, ToolDescriptor> | null = null;
+let availableTools: Record<string, ToolDescriptor> | null = null;
 
 export const toolRegistry = {
   init: ({ saasContext, databaseIdHash, storageKey, agentId, agent, sessionId, streamingController }: { saasContext?: AuthorizedSaaSContext, agentId: string, sessionId: string, agent?: Agent, databaseIdHash: string, storageKey: string | undefined | null, streamingController?: ReadableStreamDefaultController<any> }): Record<string, ToolDescriptor> => {
 
-    if (availableTools !== null) return availableTools;
+    const streamToOutput =
+      (chunk: FlowChunkEvent) => {
+        // Attach a timestamp
+        chunk.timestamp = new Date();
+        const encoder = new TextEncoder();
+
+        // If we have a streaming controller and the outputMode is "stream", enqueue JSON chunk
+        if (streamingController) {
+          let textChunk: string = replaceBase64Content(JSON.stringify(chunk));
+          textChunk = textChunk.replaceAll("\n", "").replaceAll("\r", "") + "\n"
+
+          streamingController.enqueue(encoder.encode(textChunk));
+        }
+      }
+
+
+    //if (availableTools !== null) return availableTools; // causes problem with the old streaming controlelr
     availableTools = {
       sendEmail: createEmailTool({
         apiKey: checkApiKey('Resend.com API key', 'RESEND_API_KEY', process.env.RESEND_API_KEY || ''),
@@ -49,27 +70,49 @@ export const toolRegistry = {
       httpTool: httpTool,
     }
 
-      if (agent) {
+    if (agent) {
+      (agent.flows ?? []).forEach(flow => {
+        const flowTool = createExecFlowTool({
+          flow,
+          agentId: agent.id ?? '',
+          masterAgent: agent,
+          saasContext,
+          databaseIdHash,
+          sessionId,
+          currentDateTimeIso: new Date().toISOString(),
+          currentLocalDateTime: new Date().toLocaleString(),
+          currentTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+          streamingController
+        })
+        availableTools = {
+          ...availableTools,
+          ['flowTool' + flow.code]: flowTool
+        }
+      });
+    }
 
-        (agent.flows ?? []).forEach(flow => {
-            const flowTool = createExecFlowTool({
-              flow,
-              agentId: agent.id ?? '',
-              masterAgent: agent, 
-              saasContext,
-              databaseIdHash,
-              sessionId,
-              currentDateTimeIso: new Date().toISOString(),
-              currentLocalDateTime: new Date().toLocaleString(),
-              currentTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-              streamingController          
-          })
-          availableTools = {
-            ...availableTools,
-            ['flowTool' + flow.code]: flowTool
-          }
-        });
+    if (streamingController && agent?.agentType === 'flow') {
+
+      const availComponentToolInstance = createAvailableUIComponentsTool(databaseIdHash);
+      availableTools = {
+        ...availableTools,
+        availableUIComponents: availComponentToolInstance,
+        traceOutputTool: createTraceTool(databaseIdHash, streamToOutput, saasContext?.isSaasMode ? saasContext.saasContex?.storageKey : null)
       }
+
+      const availComponents = getAvailableUIComponents();
+
+      for (const component of availComponents) {
+        availableTools = {
+          ...availableTools,
+          ['renderUI' + component.name + 'Tool']: createRenderComponentTool(databaseIdHash, component.name, streamToOutput, component.props)
+        }
+      }
+
+
+
+    }
     return availableTools;
   }
+
 }

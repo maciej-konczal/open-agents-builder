@@ -8,7 +8,7 @@ import { execute } from "flows-ai";
 
 import { Agent, AgentFlow } from "@/data/client/models";
 import { createDynamicZodSchemaForInputs, injectVariables, extractVariableNames, replaceVariablesInString, applyInputTransformation } from "@/flows/inputs";
-import { convertToFlowDefinition, FlowChunkEvent, messagesSupportingAgent } from "@/flows/models";
+import { convertToFlowDefinition, FlowChunkEvent, FlowChunkType, messagesSupportingAgent } from "@/flows/models";
 import { processFiles, getMimeType, replaceBase64Content } from "@/lib/file-extractor";
 import { setRecursiveNames } from "@/lib/json-path";
 import { StorageService } from "@/lib/storage-service";
@@ -81,6 +81,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
     outputMode: z.enum(["stream", "buffer"]).default("stream").optional(),
     execMode: z.enum(["sync", "async"]).default("sync").optional(),
     input: dynamicInputSchema,
+    uiState: z.any().optional(),
   });
 
   /**
@@ -104,6 +105,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
       }
     }
     console.log('Executing flow', flow.code, execRequest);
+    console.log(execRequest.uiState);
     execRequestSchema.parse(execRequest); // vadlidae input for this specific flow
 
     // Handle execMode: async => run in background, return link to result
@@ -217,24 +219,32 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
           ],
         };
 
-        // Add raw user input data (if it makes sense in this tool)
-        (newInput.content as Array<TextPart>).push({
-          type: "text",
-          text: "User input: `" + JSON.stringify(variablesToInject) + "`",
-        });
-
+        if (execRequest.uiState) {
         // Add system context
-        (newInput.content as Array<TextPart>).push({
-          type: "text",
-          text: "Context: `" + JSON.stringify({
-            sessionId,
-            currentDateTimeIso,
-            currentLocalDateTime,
-            currentTimezone,
-            agentId,
-            defaultLocale: masterAgent.locale,
-          }) + "`",
-        });
+          (newInput.content as Array<TextPart>).push({
+            type: "text",
+            text: "Current UI state: `" + JSON.stringify(execRequest.uiState) + "`",
+          });
+          } 
+
+          // Add raw user input data (if it makes sense in this tool)
+          (newInput.content as Array<TextPart>).push({
+            type: "text",
+            text: "User input: `" + JSON.stringify(variablesToInject) + "`",
+          });
+
+          // Add system context
+          (newInput.content as Array<TextPart>).push({
+            type: "text",
+            text: "Context: `" + JSON.stringify({
+              sessionId,
+              currentDateTimeIso,
+              currentLocalDateTime,
+              currentTimezone,
+              agentId,
+              defaultLocale: masterAgent.locale,
+            }) + "`",
+          });
 
         // Check used variables for files/attachments
         for (const v of (usedVars.length > 0 ? usedVars : (flow.inputs ?? []).map(i => i.name))) {
@@ -359,7 +369,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
               let msg = '';
               result.toolCalls.forEach((tc) => {  
                 const toolName = toolNames[tc.toolName];
-                msg += `**${toolName}** (\`${JSON.stringify(tc.args)}\`): ${tc.toolCallId}\n`;
+                msg += `**${toolName}** (\`${JSON.stringify(tc.args)}\`): ${tc.toolCallId}\r\n`;
               }
               );
 

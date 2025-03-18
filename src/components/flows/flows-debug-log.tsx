@@ -22,7 +22,7 @@ import {
   FlowUITreeNode,
 } from "@/flows/models";
 import { safeJsonParse } from "@/lib/utils";
-import { BrainIcon, FileCogIcon, FileWarningIcon, HourglassIcon, TextCursorIcon, TextCursorInputIcon, TimerIcon } from "lucide-react";
+import { BrainIcon, FileCogIcon, FileWarningIcon, HourglassIcon, TextCursorInputIcon, TimerIcon } from "lucide-react";
 import { ChatMessageToolResponse } from "../chat-message-tool-response";
 import { useTranslation } from "react-i18next";
 import { uiComponentsRegistry } from "./flows-components-registry";
@@ -101,7 +101,6 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
 
             newTree[idx] = existing;
           } else {
-            // create
             const newNode: FlowUITreeNode = {
               flowNodeId: chunk.flowNodeId,
               type: chunk.type,
@@ -134,7 +133,8 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
 
     useEffect(() => {
       if (containerRef.current) {
-        //containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        // Optionally scroll if needed
+        containerRef.current.scrollTop = containerRef.current.scrollHeight;
       }
       if (uiTree.length > 0) {
         setOpenChunks((prev) => [...prev, `chunk-${uiTree.length - 1}`]);
@@ -145,6 +145,13 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
       handleChunk,
       clear
     }));
+
+    const uiComponentNodes = uiTree.filter(
+      (node) => node.type === FlowChunkType.UIComponent
+    );
+    const traceNodes = uiTree.filter(
+      (node) => node.type !== FlowChunkType.UIComponent
+    );
 
     function renderNode(node: FlowUITreeNode, index: number) {
       if (
@@ -165,11 +172,10 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
         icon = <FileWarningIcon className="w-4 h-4 mr-2 ml-2" />;
       }
 
-
       const date = node.timestamp ? node.timestamp.toString() : t("No date");
 
       if (node.component && uiComponentsRegistry[node.component]) {
-        const Component = uiComponentsRegistry[node.component];
+        const Component = uiComponentsRegistry[node.component].component;
         return (
           <AccordionItem
             value={`chunk-${index}`}
@@ -193,7 +199,7 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
                       {node.duration} s)
                     </div>
                   )}
-                  {index === uiTree.length - 1 &&
+                  {index === traceNodes.length - 1 &&
                     node.type !== FlowChunkType.Error &&
                     node.type !== FlowChunkType.FinalResult && (
                       <div className="p-2 items-center justify-center">
@@ -235,7 +241,7 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
                     <TimerIcon className="w-4 h-4 mr-2 ml-2" />({node.duration} s)
                   </div>
                 )}
-                {index === uiTree.length - 1 &&
+                {index === traceNodes.length - 1 &&
                   node.type !== FlowChunkType.Error &&
                   node.type !== FlowChunkType.FinalResult && (
                     <div className="p-2 items-center justify-center">
@@ -295,7 +301,7 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
                 </ChatMessageMarkdown>
               )}
 
-              {node.input && typeof node.input === "string" && (
+              {node.input && typeof node.input === "string" && node.input !== "" && (
                 <div>
                   <div className="font-semibold">{t("Input")}</div>
                   {safeJsonParse(node.input, null) === null ? (
@@ -303,7 +309,6 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
                   ) : (
                     <DebugChatMessages
                       messages={[JSON.parse(node.input)]}
-                      displayToolResultsMode={DisplayToolResultsMode.AsTextMessage}
                       displayTimestamps={false}
                     />
                   )}
@@ -316,20 +321,42 @@ export const FlowsDebugLog = forwardRef<DebugLogHandle, DebugLogProps>(
     }
 
     return (
-      <div
-        className="border rounded p-2 w-full h-96 overflow-y-auto text-sm"
-        ref={containerRef}
-      >
-        <Accordion
-          type="multiple"
-          value={openChunks}
-          onValueChange={(vals) => setOpenChunks(vals)}
+      <div className="flex w-full h-96">
+        {/* Left column (trace) */}
+        <div
+          className={`border rounded p-2 ${uiComponentNodes.length > 0 ? "w-2/3" : "w-full"} h-96 overflow-y-auto text-sm`}
         >
-          {uiTree.length === 0 && (
-            <div className="text-center p-4 flex"><HourglassIcon className="w-4 h-4 mr-2" />{t("Waiting for the first debug logs...")}</div>
-          )}
-          {uiTree.map((node, idx) => renderNode(node, idx))}
-        </Accordion>
+          <Accordion
+            type="multiple"
+            value={openChunks}
+            onValueChange={(vals) => setOpenChunks(vals)}
+          >
+            {traceNodes.length === 0 && (
+              <div className="text-center p-4 flex"><HourglassIcon className="w-4 h-4 mr-2" />{t("Waiting for the first debug logs...")}</div>
+            )}
+            {traceNodes.map((node, idx) => renderNode(node, idx))}
+          </Accordion>
+        </div>
+        {/* Right column (uiComponent nodes) */}
+        {uiComponentNodes.length > 0 && (
+          <div           ref={containerRef}
+          className="border-l p-2 w-1/3 h-96 overflow-y-auto text-sm">
+            {uiComponentNodes.map((node, i) => {
+              if (node.component && uiComponentsRegistry[node.component]) {
+                const Component = uiComponentsRegistry[node.component].component;
+                return (
+                  <div key={i} className="mb-4">
+                    <Component
+                      {...node.componentProps}
+                      onSendUserAction={props.onSendUserAction}
+                    />
+                  </div>
+                );
+              }
+              return null;
+            })}
+          </div>
+        )}
       </div>
     );
   }

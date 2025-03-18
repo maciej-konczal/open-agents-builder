@@ -4,11 +4,15 @@ import { AgentDTO, AgentDTOEncSettings, PaginatedQuery, PaginatedResult, ResultD
 import { DatabaseContextType } from "@/contexts/db-context";
 import { urlParamsForQuery } from "./base-api-client";
 import axios from "axios";
+import { FlowChunkEvent } from "@/flows/models";
 
 export type GetResultResponse = PaginatedResult<ResultDTO[]>;
 export type GetSessionResponse = PaginatedResult<SessionDTO[]>;
 export type GetAgentsResponse = AgentDTO[];
 export type PutAgentRequest = AgentDTO;
+
+let abortController: AbortController;
+
 
 export type PutAgentResponseSuccess = {
   message: string;
@@ -67,12 +71,16 @@ export class AgentApiClient extends AdminApiClient {
   async *execStream(
     agentId: string,
     flowId: string,
+    uiState: any,
     input: any,
     execMode: string,
     headers: Record<string, string>
   ): AsyncGenerator<any, void, unknown> {
-    const requestBody = JSON.stringify({ flow: flowId, input, execMode, outputMode: "stream" });
+    // Abort any previous connection
+    if (abortController) abortController.abort();
+    abortController = new AbortController();
 
+    const requestBody = JSON.stringify({ flow: flowId, input, execMode, outputMode: "stream", uiState });
     if (!headers) headers = {};
     this.setAuthHeader('', headers);
 
@@ -83,6 +91,7 @@ export class AgentApiClient extends AdminApiClient {
         ...headers,
       },
       body: requestBody,
+      signal: abortController.signal
     });
 
     if (!response.body) {
@@ -96,20 +105,11 @@ export class AgentApiClient extends AdminApiClient {
     while (true) {
       const { value, done } = await reader.read();
       if (done) break;
-
-      // Accumulate the raw text
       buffer += decoder.decode(value, { stream: true });
-
-      // Split out all the full lines we have so far
       const lines = buffer.split(/\r?\n/);
-
-      // The last item in lines[] might be a partial line, so keep it in buffer
       buffer = lines.pop()!;
-
-      // Parse each complete line as JSON
       for (const line of lines) {
-        if (!line.trim()) continue; // Skip empty lines
-
+        if (!line.trim()) continue;
         try {
           yield JSON.parse(line);
         } catch (err) {
@@ -118,7 +118,6 @@ export class AgentApiClient extends AdminApiClient {
       }
     }
 
-    // If there's a final line with no trailing newline
     if (buffer.trim()) {
       try {
         yield JSON.parse(buffer);
@@ -128,6 +127,3 @@ export class AgentApiClient extends AdminApiClient {
     }
   }
 }
-    
-
-
