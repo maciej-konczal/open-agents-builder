@@ -12,6 +12,9 @@ import { ListAttachmentsConfigurator } from './listAttachmentsTool-configurator'
 import { UpdateResultToolConfigurator } from './updateResultTool-configurator';
 import { ExecFlowToolConfigurator } from './execFlowTool-configurator';
 import { Agent } from '@/data/client/models';
+import { TraceToolConfigurator } from './traceTool-configurator';
+import { RenderComponentToolConfigurator } from './renderComponentTool-configurator';
+import { getAvailableUIComponents } from './availableUIComponentsTool';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -68,18 +71,46 @@ export const toolConfiguratorsRepository = {
       },
     }
 
-      if (agent) {
-
-        (agent.flows ?? []).forEach(flow => {
-          configurators = {
-            ...configurators,
-            ['flowTool' + flow.code]: {
-              displayName: 'Execute ' + flow.name + ' flow',
-              configurator: ExecFlowToolConfigurator
-            }
-          }
-        });
+    if (agent && agent.agentType === 'flow') {
+      configurators = {
+        ...configurators,
+        traceOutputTool: {
+          displayName: 'Trace Output',
+          configurator: TraceToolConfigurator
+        },
+        availableUIComponents: {
+          displayName: 'Available UI Components',
+          configurator: TraceToolConfigurator
+        },
       }
+
+      const availComponents = getAvailableUIComponents();
+
+      for (const component of availComponents) {
+        configurators = {
+          ...configurators,
+          ['renderUI' + component.name + 'Tool']: {
+            displayName: 'Render ' + component.displayName + ' component',
+            configurator: RenderComponentToolConfigurator
+          }
+        }
+      }
+    }
+
+    if (agent) {
+
+      (agent.flows ?? []).forEach(flow => {
+        configurators = {
+          ...configurators,
+          ['flowTool' + flow.code]: {
+            displayName: 'Execute ' + flow.name + ' flow',
+            configurator: ExecFlowToolConfigurator
+          }
+        }
+      });
+    }
+
+
 
     return configurators;
   }

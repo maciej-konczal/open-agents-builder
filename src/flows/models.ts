@@ -363,22 +363,24 @@ export const inputValidators = ({ inputs, t, setError }) => {
       inputs: (v) => {
         let index = 0;
         const variables = (inputs() as FlowInputVariable[])
-        for (const input of variables) {
-          if (!input.name) {
-            setError('inputs', {
-              message: t('Please set the Symbols of all variables')
-            })
-            return false;
+        if (variables) {
+          for (const input of variables) {
+            if (!input.name) {
+              setError('inputs', {
+                message: t('Please set the Symbols of all variables')
+              })
+              return false;
+            }
+            if (variables.filter(vv => vv.name == input.name).length > 1) {
+              setError('inputs', {
+                message: t('The input names must be unique')
+              })
+              return false;
+            }
+            index++;
           }
-          if (variables.filter(vv => vv.name == input.name).length > 1) {
-            setError('inputs', {
-              message: t('The input names must be unique')
-            })
-            return false;
-          }
-          index++;
+          return true;
         }
-        return true;
       }
     }
   }
@@ -412,6 +414,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
         if (onDataChunk) onDataChunk({
           type: "generation",
           name,
+//          input: JSON.stringify(messages),
           flowAgentId: id,
           flowNodeId: id + '-' + generationId,
           timestamp: new Date(),
@@ -442,6 +445,7 @@ export function messagesSupportingAgent({ maxSteps = 10, streaming = false, name
       if (onDataChunk) onDataChunk({
         type: "generation",
         name,
+//        input: JSON.stringify(input),
         flowAgentId: id,
         flowNodeId: id + '-' + generationId,
         timestamp: new Date(),
@@ -498,6 +502,7 @@ async function processStream(fullStream, onDataChunk: ((data: FlowChunkEvent) =>
     duration: (new Date().getTime() - generationStart) / 1000,
     flowNodeId: id + '-' + generationId,
     timestamp: new Date(),
+    result: response
   })
   return response
 }

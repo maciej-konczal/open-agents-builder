@@ -1,6 +1,6 @@
 // flows-end-user-ui.tsx
 
-"use client"
+"use client";
 
 import React, {
   forwardRef,
@@ -10,7 +10,15 @@ import React, {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { BrainIcon, FileCogIcon, FileWarningIcon, HourglassIcon, TextCursorIcon, TextCursorInputIcon, TimerIcon } from "lucide-react";
+import {
+  BrainIcon,
+  FileCogIcon,
+  FileWarningIcon,
+  HourglassIcon,
+  TextCursorInputIcon,
+  TimerIcon,
+} from "lucide-react";
+
 import { ChatMessageMarkdown } from "../chat-message-markdown";
 import { safeJsonParse } from "@/lib/utils";
 import { ChatMessageToolResponse } from "../chat-message-tool-response";
@@ -22,70 +30,63 @@ import {
 import { uiComponentsRegistry } from "./flows-components-registry";
 
 interface EndUserUIProps {
-  // Jakie typy chunków chcemy pokazywać w tym UI
+  /** Which chunk types should be displayed in the left column? (Optional) */
   displayChunkTypes?: FlowChunkType[];
 
-  // Callback do akcji wysyłanej przez komponenty (np. MyCustomInput)
+  /** Called by any UI component in the right column that needs to send user actions. */
   onSendUserAction?: (data: any) => void;
 }
 
-/** 
- * Typ interfejsu, który jest „obsługiwany” przez ref z rodzica.
- * Pozwala nam wywołać w rodzicu: endUserUIRef.current?.handleChunk(chunk).
- */
 export type EndUserUIHandle = {
   clear: () => void;
   handleChunk: (chunk: FlowChunkEvent) => void;
 };
 
-/**
- * Komponent EndUserUI z forwardRef + useImperativeHandle
- */
 export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
   function FlowsEndUserUI(props, ref) {
-    const containerRef = useRef<HTMLDivElement>(null);
     const { t } = useTranslation();
+    const containerRef = useRef<HTMLDivElement>(null);
 
     const [uiTree, setUiTree] = useState<FlowUITreeNode[]>([]);
 
+    /** Clears the entire UI. */
     function clear() {
       setUiTree([]);
     }
 
     /**
-     * Funkcja obsługująca przychodzący chunk i aktualizująca stan uiTree.
+     * Handles incoming chunks and updates the uiTree accordingly.
      */
     function handleChunk(chunk: FlowChunkEvent) {
-      setUiTree((prevTree) => {
-        let newTree = [...prevTree];
+      setUiTree((prev) => {
+        let newTree = [...prev];
 
-        // Obsługa deleteFlowNodeId
+        // If we need to delete a node
         if (chunk.deleteFlowNodeId) {
           newTree = newTree.filter(
             (node) => node.flowNodeId !== chunk.deleteFlowNodeId
           );
         }
-
-        // Obsługa replaceFlowNodeId
+        // If we need to replace an existing node
         if (chunk.replaceFlowNodeId && chunk.flowNodeId) {
-          // usuwamy stary węzeł
           newTree = newTree.filter(
             (node) => node.flowNodeId !== chunk.replaceFlowNodeId
           );
         }
 
-        // Dodawanie/aktualizowanie węzła
+        // If chunk.flowNodeId is set, we either create or update a node
         if (chunk.flowNodeId) {
           const existingIndex = newTree.findIndex(
             (n) => n.flowNodeId === chunk.flowNodeId
           );
           if (existingIndex >= 0) {
-            // aktualizujemy istniejący węzeł
+            // Update existing node
             const node = { ...newTree[existingIndex] };
             node.name = chunk.name ?? node.name;
             node.timestamp = chunk.timestamp ?? node.timestamp;
             node.duration = chunk.duration ?? node.duration;
 
+            // Merge chunk details depending on chunk type
             switch (chunk.type) {
               case FlowChunkType.TextStream:
                 if (node.type === FlowChunkType.Generation) {
@@ -110,14 +111,13 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
                 }
                 break;
               default:
-                // finalResult, message, itp.
+                // finalResult, message, or other chunk
                 if (chunk.message) node.message = chunk.message;
                 if (chunk.result) node.result = chunk.result;
                 if (chunk.toolResults) node.toolResults = chunk.toolResults;
                 if (chunk.messages) node.messages = chunk.messages;
             }
 
-            // Uaktualniamy propsy komponentu, jeśli jest
             if (chunk.componentProps) {
               node.componentProps = {
                 ...node.componentProps,
@@ -127,7 +127,7 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
 
             newTree[existingIndex] = node;
           } else {
-            // tworzymy nowy węzeł
+            // Create a new node
             const newNode: FlowUITreeNode = {
               flowNodeId: chunk.flowNodeId,
               type: chunk.type,
@@ -143,6 +143,7 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
               componentProps: chunk.componentProps,
             };
 
+            // If we are receiving a generation or text-stream type
             if (chunk.type === FlowChunkType.Generation) {
               newNode.accumulatedText = "";
             } else if (chunk.type === FlowChunkType.TextStream) {
@@ -158,26 +159,27 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
       });
     }
 
-    // Wywołujemy auto-scroll przy każdej zmianie stanu
+    // Auto-scroll whenever uiTree changes
     useEffect(() => {
       if (containerRef.current) {
         containerRef.current.scrollTop = containerRef.current.scrollHeight;
       }
     }, [uiTree]);
 
-    // Umożliwiamy rodzicowi wywoływanie handleChunk
+    // Expose handleChunk & clear to the parent
     useImperativeHandle(ref, () => ({
       handleChunk,
-      clear
+      clear,
     }));
 
-    // Render pojedynczego węzła
+    /** Render a single node for the left column. (Non-UIComponent types) */
     function renderNode(node: FlowUITreeNode, index: number) {
+      // If user only wants certain chunk types displayed, skip if not included
       if (
         props.displayChunkTypes &&
         !props.displayChunkTypes.includes(node.type)
       ) {
-        return null; // pomijamy węzeł, jeśli nie jest w displayChunkTypes
+        return null;
       }
 
       let icon = <BrainIcon className="w-4 h-4 mr-2 ml-2" />;
@@ -191,39 +193,6 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
         icon = <FileWarningIcon className="w-4 h-4 mr-2 ml-2" />;
       }
 
-
-      // Jeśli to jest customowy komponent
-      if (node.component && uiComponentsRegistry[node.component]) {
-        const Component = uiComponentsRegistry[node.component];
-        return (
-          <div key={node.flowNodeId} className="mb-2 p-2 border-b text-xs">
-            <div className="flex justify-between items-center">
-              <div className="text-xs mb-2 font-bold flex">
-                {icon} {t("Step")} {index + 1}. {node.name || node.type}
-              </div>
-              <div className="text-xs text-gray-500 flex items-center">
-                {node.duration && (
-                  <div className="flex ml-2 text-gray-500">
-                    <TimerIcon className="w-4 h-4 mr-2 ml-2" /> ({node.duration} s)
-                  </div>
-                )}
-                {index === uiTree.length - 1 && (
-                  <div className="p-2 items-center justify-center">
-                    <HourglassIcon className="w-4 h-4" />
-                  </div>
-                )}
-              </div>
-            </div>
-            {/* RENDERUJEMY CUSTOMOWY KOMPONENT */}
-            <Component
-              {...node.componentProps}
-              onSendUserAction={props.onSendUserAction}
-            />
-          </div>
-        );
-      }
-
-      // Inaczej – standardowa obsługa typu (generation, toolCalls itd.)
       return (
         <div key={node.flowNodeId} className="mb-2 p-2 border-b text-xs">
           <div className="flex justify-between items-center">
@@ -233,9 +202,11 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
             <div className="text-xs text-gray-500 flex items-center">
               {node.duration && (
                 <div className="flex ml-2 text-gray-500">
-                  <TimerIcon className="w-4 h-4 mr-2 ml-2" /> ({node.duration} s)
+                  <TimerIcon className="w-4 h-4 mr-2 ml-2" />
+                  ({node.duration} s)
                 </div>
               )}
+              {/** Show hourglass if it's the last node and not finished */}
               {index === uiTree.length - 1 &&
                 node.type !== FlowChunkType.Error &&
                 node.type !== FlowChunkType.FinalResult && (
@@ -246,31 +217,31 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
             </div>
           </div>
 
-          {/* Accumulated text dla "generation" */}
+          {/* If it's a generation node, show the streaming text (accumulatedText) */}
           {node.type === FlowChunkType.Generation && (
             <>
               {node.accumulatedText ? (
                 <ChatMessageMarkdown>{node.accumulatedText}</ChatMessageMarkdown>
               ) : (
-                (node.duration ? (<div>
-                <div className="flex text-center items-center justify-center text-red-500">
-                  <FileWarningIcon className="w-4 h-4 mr-2" />
-                  {t("Generation error")}...
-                </div>
-                </div>) : (
-                <div className="flex text-center items-center justify-center">
-                  <BrainIcon className="w-4 h-4 mr-2" />
-                  {t("AI Thinking")}...
-                </div>
-                ))
+                node.duration ? (
+                  <div className="flex items-center justify-center text-red-500">
+                    <FileWarningIcon className="w-4 h-4 mr-2" />
+                    {t("Generation error")}...
+                  </div>
+                ) : (
+                  <div className="flex text-center items-center justify-center">
+                    <BrainIcon className="w-4 h-4 mr-2" />
+                    {t("AI Thinking")}...
+                  </div>
+                )
               )}
             </>
           )}
 
-          {/* toolResults */}
+          {/* Show any tool results if present */}
           {node.toolResults &&
             node.toolResults.map((c, i) => {
-              const parsed = safeJsonParse(c.result || "", null);
+              const parsed = typeof c.result ==='string' ? safeJsonParse(c.result || "", null) : c.result;
               if (parsed === null) {
                 return (
                   <ChatMessageMarkdown key={i}>{c.result}</ChatMessageMarkdown>
@@ -281,12 +252,12 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
               );
             })}
 
-          {/* Wiadomość (jeśli jest) */}
+          {/* Show message if there is one (errors or normal messages) */}
           {node.message && node.type !== FlowChunkType.Generation && (
             <ChatMessageMarkdown>{node.message}</ChatMessageMarkdown>
           )}
 
-          {/* result */}
+          {/* Show final result if present */}
           {node.result && node.type !== FlowChunkType.Generation && (
             <ChatMessageMarkdown>
               {Array.isArray(node.result) ? node.result.join("\n") : node.result}
@@ -296,15 +267,63 @@ export const FlowsEndUserUI = forwardRef<EndUserUIHandle, EndUserUIProps>(
       );
     }
 
+    // Separate all chunks into UI components vs. normal trace
+    const uiComponentNodes = uiTree.filter(
+      (node) => node.type === FlowChunkType.UIComponent
+    );
+    const normalNodes = uiTree.filter(
+      (node) => node.type !== FlowChunkType.UIComponent
+    );
+
+    // If there's nothing at all, render empty
+    if (uiTree.length === 0) {
+      return null;
+    }
+
     return (
-      uiTree.length > 0 ? (
+      <div className="flex w-full">
+        {/* Left column: normal chunk display */}
         <div
-          className="border rounded p-2 w-full text-sm mt-2"
           ref={containerRef}
+          className={`border rounded p-2 ${
+            uiComponentNodes.length > 0 ? "w-2/3" : "w-full"
+          } text-sm mt-2`}
         >
-          {uiTree.map((node, idx) => renderNode(node, idx))}
+          {normalNodes.map((node, idx) => renderNode(node, idx))}
         </div>
-      ) : (<></>)
-    )
+
+        {/* Right column: UI components (if any FlowChunkType.UIComponent appear) */}
+        {uiComponentNodes.length > 0 && (
+          <div className="border-l p-2 w-1/3 max-h-96 overflow-y-auto text-sm mt-2">
+            {uiComponentNodes.map((node, i) => {
+              // If there's a known component in the registry, render it
+              if (node.component && uiComponentsRegistry[node.component]) {
+                const Component = uiComponentsRegistry[node.component].component;
+                return (
+                  <div key={node.flowNodeId} className="mb-4">
+                    <Component
+                      {...node.componentProps}
+                      onSendUserAction={props.onSendUserAction}
+                    />
+                  </div>
+                );
+              }
+              // Otherwise, if the chunk is UIComponent but not recognized...
+              return (
+                <div
+                  key={node.flowNodeId}
+                  className="mb-2 p-2 border rounded bg-gray-50 text-xs"
+                >
+                  {t("Unknown UI component type")}:
+                  <pre className="mt-1">
+                    {JSON.stringify(node.component, null, 2)}
+                  </pre>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+  );
   }
 );

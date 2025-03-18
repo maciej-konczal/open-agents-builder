@@ -2,7 +2,7 @@
 
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { Agent, AgentFlow } from "@/data/client/models";
-import { AgentDefinition, FlowInputVariable } from "@/flows/models";
+import { AgentDefinition, FlowChunkEvent, FlowInputVariable } from "@/flows/models";
 import { Button } from "../ui/button";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -23,6 +23,7 @@ import { Code2Icon, FileIcon, PlayIcon } from "lucide-react";
 import { FlowsEndUserUI, EndUserUIHandle } from "./flows-end-user-ui";
 import { FlowsDebugLog, DebugLogHandle } from "./flows-debug-log";
 import { FlowChunkType } from "@/flows/models";
+import { set } from "date-fns";
 
 export enum ExecFormDisplayMode {
   EndUser = "enduser",
@@ -75,7 +76,9 @@ export function FlowsExecForm({
   const debugLogRef = useRef<DebugLogHandle>(null);
 
 
-  const [currentTabs, setCurrentTabs] = useState<string[]>([]);
+  const [currentTabs, setCurrentTabs] = useState<string[]>([]);  
+  const [flowUiState, setFlowUiState] = useState<Record<string, any>>();
+
 
   useEffect(() => {
     if (initializeExecContext) {
@@ -104,7 +107,7 @@ export function FlowsExecForm({
   }
   //const flow = agentFlow; //flows.find((f) => f.code === agentFlow?.code);
 
-  async function handleExecute() {
+  async function handleExecute(newFlowUiState: Record<string, any> | null = null) {
     if (!agentFlow) {
       toast.error(t("Flow is not defined"));
       return;
@@ -141,10 +144,14 @@ export function FlowsExecForm({
     setFlowResult(null);
     setExecutionInProgress(true);
 
-    if (displayMode === ExecFormDisplayMode.EndUser)
-        endUserUIRef.current?.clear(); 
-    else 
-        debugLogRef.current?.clear();    
+    if(!newFlowUiState ) setFlowUiState({});
+
+    if (newFlowUiState === null) {
+        if (displayMode === ExecFormDisplayMode.EndUser)
+            endUserUIRef.current?.clear(); 
+        else 
+            debugLogRef.current?.clear();    
+    }
 
     try {
       const apiClient = new AgentApiClient("", dbContext, saasContext);
@@ -153,9 +160,12 @@ export function FlowsExecForm({
         setTimeElapsed((prv) => prv + 1);
       }, 1000);
 
+      console.log(flowUiState)
+
       const stream = await apiClient.execStream(
         agent?.id || "",
         agentFlow.code,
+        newFlowUiState ??  {},
         requestParams,
         "sync",
         getSessionHeaders()
@@ -164,6 +174,17 @@ export function FlowsExecForm({
       setCurrentTabs(['result', 'trace']);
 
       for await (const chunk of stream) {
+
+
+        if([FlowChunkType.UIComponent].includes(chunk.type)) {
+            setFlowUiState(prevState => {
+                return {
+                    ...prevState,
+                    [chunk.component]: chunk.componentProps                        
+                }});
+        }
+
+
         // Przekazujemy chunk do EndUserUI i DebugLog
         if (displayMode === ExecFormDisplayMode.EndUser)
             endUserUIRef.current?.handleChunk(chunk); 
@@ -233,7 +254,7 @@ export function FlowsExecForm({
               disabled={executionInProgress || (children !== null && children !== undefined)}
               variant={"secondary"}
               size="sm"
-              onClick={handleExecute}
+              onClick={(e) => handleExecute (null)}
             >
               <PlayIcon className="w-4 h-4" />
               {t("Execute")}
@@ -269,7 +290,9 @@ export function FlowsExecForm({
                 ]}
                 onSendUserAction={(data) => {
                   console.log("EndUserUI user action:", data);
-                  // Możesz np. ponownie odpalić handleExecute() z innymi parametrami
+                  const newState = {...flowUiState, ...data};
+                  setFlowUiState(newState);
+                  handleExecute(newState);
                 }}
               />
               {/* {flowResult && (
@@ -327,7 +350,10 @@ export function FlowsExecForm({
                         FlowChunkType.UIComponent,
                       ]}
                       onSendUserAction={(data) => {
-                        console.log("DebugLog user action:", data);
+                        console.log("EndUserUI user action:", data);
+                        const newState = {...flowUiState, ...data};
+                        setFlowUiState(newState);
+                        handleExecute(newState);
                       }}
                     />
                   </AccordionContent>
