@@ -100,20 +100,20 @@ export function createUpdateResultTool(databaseIdHash: string, storageKey: strin
               storedResult.content = result;
               storedResult.format = format;      
               await sessionsRepo.upsert({ id: sessionId }, { ...existingSessionDTO, finalizedAt: new Date().toISOString() });
-              await resultRepo.upsert({ sessionId }, storedResult);
+              const savedResult = await resultRepo.upsert({ sessionId }, storedResult);
 
               const saasContext = await authorizeSaasToken(databaseIdHash); // authorize SaaS context
 
               if (!existingResult) {
                   auditLog({
                       eventName: 'createResult',
-                      diff: JSON.stringify(storedResult),
+                      diff: JSON.stringify(savedResult),
                       recordLocator: JSON.stringify({ sessionId: existingSessionDTO.id })
                   }, null, {
                     databaseIdHash
                   }, saasContext);
               } else {
-                  const changes = existingResult ?  detailedDiff(existingResult, storedResult as ResultDTO) : {};
+                  const changes = existingResult ?  detailedDiff(existingResult, savedResult as ResultDTO) : {};
                   auditLog({
                     eventName: 'updateResult',
                     diff: JSON.stringify(changes),
