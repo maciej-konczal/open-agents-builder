@@ -52,25 +52,25 @@
                             {
                                 "type": "step",
                                 "agent": "Github analyzer",
-                                "input": "Get the top 10 issues from https://api.github.com/repos/@organiationName/@projectName/issues. Return them as JSON."
+                                "input": "Get the top 10 issues from https://api.github.com/repos/@organizationName/@projectName/issues. Return them as JSON."
                             },
                             {
                                 "type": "step",
                                 "agent": "Github analyzer",
-                                "input": "Get project info from https://api.github.coem/repos/@organiationName, @projectName."
+                                "input": "Get project info from https://api.github.coem/repos/@organizationName, @projectName."
                             }
                         ]
                     },
                     {
                         "type": "step",
                         "agent": "Github analyzer",
-                        "input": "Create short report about the project:\n- figure out potential problems users are reporting,\n- figure out the contributors engagement,\n- figure out the project activity based on issue dates and commit dates\n- include stars chart history - using the following image URL: https://api.star-history.com/svg?repos=@organiationName/@projectName&type=Date\n\nSummarize into nice looking markdown report"
+                        "input": "Create short report about the project:\n- figure out potential problems users are reporting,\n- figure out the contributors engagement,\n- figure out the project activity based on issue dates and commit dates\n- include stars chart history - using the following image URL: https://api.star-history.com/svg?repos=@organizationName/@projectName&type=Date\n\nSummarize into nice looking markdown report"
                     }
                 ]
             },
             "inputs": [
                 {
-                    "name": "organiationName",
+                    "name": "organizationName",
                     "description": "Github organization name eg. CatchTheTornado",
                     "required": true,
                     "type": "shortText"

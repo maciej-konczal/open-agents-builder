@@ -52,25 +52,25 @@
                             {
                                 "type": "step",
                                 "agent": "Github analyzer",
-                                "input": "Pobierz 10 najważniejszych zgłoszeń z https://api.github.com/repos/@organiationName/@projectName/issues. Zwróć je w formie JSON."
+                                "input": "Pobierz 10 najważniejszych zgłoszeń z https://api.github.com/repos/@organizationName/@projectName/issues. Zwróć je w formie JSON."
                             },
                             {
                                 "type": "step",
                                 "agent": "Github analyzer",
-                                "input": "Pobierz informacje o projekcie z https://api.github.coem/repos/@organiationName, @projectName."
+                                "input": "Pobierz informacje o projekcie z https://api.github.coem/repos/@organizationName, @projectName."
                             }
                         ]
                     },
                     {
                         "type": "step",
                         "agent": "Github analyzer",
-                        "input": "Sporządź krótki raport o projekcie:\n- zidentyfikuj potencjalne problemy zgłaszane przez użytkowników,\n- sprawdź zaangażowanie kontrybutorów,\n- przeanalizuj aktywność projektu na podstawie dat zgłoszeń i commitów,\n- dołącz wykres gwiazdek, korzystając z tego adresu URL do obrazu: https://api.star-history.com/svg?repos=@organiationName/@projectName&type=Date\n\nPodsumuj wszystko w zgrabnym raporcie w formacie markdown"
+                        "input": "Sporządź krótki raport o projekcie:\n- zidentyfikuj potencjalne problemy zgłaszane przez użytkowników,\n- sprawdź zaangażowanie kontrybutorów,\n- przeanalizuj aktywność projektu na podstawie dat zgłoszeń i commitów,\n- dołącz wykres gwiazdek, korzystając z tego adresu URL do obrazu: https://api.star-history.com/svg?repos=@organizationName/@projectName&type=Date\n\nPodsumuj wszystko w zgrabnym raporcie w formacie markdown"
                     }
                 ]
             },
             "inputs": [
                 {
-                    "name": "organiationName",
+                    "name": "organizationName",
                     "description": "Nazwa organizacji GitHub, np. CatchTheTornado",
                     "required": true,
                     "type": "shortText"
