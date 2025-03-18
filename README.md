@@ -111,7 +111,7 @@ Here are some online examples of agents built with OAB. You can start modifying 
     <tr>
         <td>
             <a href="https://app.openagentsbuilder.com/chat/35f5c5b139a6b569d4649b788c1851831eb44d8e32b716b8411ec6431af8121d/NsGimXVM2n3BcT4MR0PbG">
-                <img width="150" src="/public/img/template-assets/instashop.webp" alt="Screenshot" />
+                <img width="150" src="/public/img/onboarding-icons/instashop.webp" alt="Screenshot" />
             </a>
         </td>
         <td>
