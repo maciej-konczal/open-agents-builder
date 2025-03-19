@@ -150,6 +150,18 @@ It can literally replace dozen other SaaS tools like:
 - Feedback forms,
 - NPS software.
 
+
+## Video Demo
+
+<div>
+    <a href="https://www.loom.com/share/267cb3ac88aa430983983daf2f6b1fdf">
+      <p>Building AI Agents Made Easy 🤖 - Watch Video</p>
+    </a>
+    <a href="https://www.loom.com/share/267cb3ac88aa430983983daf2f6b1fdf">
+      <img style="max-width:300px;" src="https://cdn.loom.com/sessions/thumbnails/267cb3ac88aa430983983daf2f6b1fdf-f96286df0e058072-full-play.gif">
+    </a>
+  </div>
+
 ## Admin panel features
 
 - **Multi language** support more than 54 languages instantly!
