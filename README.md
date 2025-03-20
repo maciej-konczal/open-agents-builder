@@ -150,6 +150,9 @@ It can literally replace dozen other SaaS tools like:
 - Feedback forms,
 - NPS software.
 
+## Documentation
+
+Please go to [Documentation Page](https://docs.openagentsbuilder.com/) for reading more on technical concepts, architecture and API reference.
 
 ## Video Demo
 
@@ -229,7 +232,7 @@ Install required dependencies: `poppler` and `markitdown`:
 
 ```bash
 pip install markitdown
-pip install poppler
+pip install poppler-utils
 ```
 or - install `pipx` using `brew install pipx` (on Mac) or `apt-get install pipx` (on Debian) for managing your defualt Python 3 env automatically, and run:
 
@@ -247,7 +250,22 @@ cp .env.defaults .env.local
 
 Edit the `.env.local` file:
 
-```
+```bash
+LLM_PROVIDER=openai
+LLM_MODEL=gpt-4o
+
+# OpenAI API key
+OPENAI_API_KEY=
+
+# Resend.com API key
+RESEND_API_KEY=
+
+# absoulte app url starting with http://
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+APP_URL=http://localhost:3000
+PORT=3000 # 3002 is prod app port
+NEXT_PUBLIC_EMAIL_FROM=no-reply@.... # accordingly to your Resend.com settings
+NEXT_PUBLIC_ENV=dev
 ```
 
 Run the app!
