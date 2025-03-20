@@ -28,12 +28,12 @@ export default function APIPage() {
   const [, copy] = useCopyToClipboard();
   const [addKeyDialogOpen, setAddKeyDialogOpen] = React.useState(false);
 
-  const snippet0 = apiKey ? `export OPEN_AGENT_BUILDER_API_KEY=${apiKey}` : `export OPEN_AGENT_BUILDER_API_KEY=ad_key_****`;
-  const snippet1 = `curl -X GET -H "Authorization: Bearer ${apiKey ? apiKey : '${OPEN_AGENT_BUILDER_API_KEY}'}" \\
+  const snippet0 = apiKey ? `export OPEN_AGENTS_BUILDER_API_KEY=${apiKey}` : `export OPEN_AGENTS_BUILDER_API_KEY=ad_key_****`;
+  const snippet1 = `curl -X GET -H "Authorization: Bearer ${apiKey ? apiKey : '${OPEN_AGENTS_BUILDER_API_KEY}'}" \\
   -H "database-id-hash: ${dbContext?.databaseIdHash ?? ''}" \\
   ${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent`;
 
-  const snippet2 = `curl -X GET -H "Authorization: Bearer ${apiKey ? apiKey : '${OPEN_AGENT_BUILDER_API_KEY}'}" \\
+  const snippet2 = `curl -X GET -H "Authorization: Bearer ${apiKey ? apiKey : '${OPEN_AGENTS_BUILDER_API_KEY}'}" \\
   -H "database-id-hash: ${dbContext?.databaseIdHash ?? ''}" \\
   ${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent/\${AGENTID}/result`;
 

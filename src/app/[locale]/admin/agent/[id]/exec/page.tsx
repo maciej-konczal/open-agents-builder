@@ -75,7 +75,7 @@ export default function ExecPage() {
       }
       setSnippiet1(`
 curl -X POST \
-${!agent?.published ? `-H "Authorization: Bearer \${OPEN_AGENT_BUILDER_API_KEY}"` : ``} \
+${!agent?.published ? `-H "Authorization: Bearer \${OPEN_AGENTS_BUILDER_API_KEY}"` : ``} \
 -H "database-id-hash: ${dbContext?.databaseIdHash ?? ''}" \
 -H "Content-Type: application/json" \
 -d '${typeof apiCallVars === "string" ? inputObj : JSON.stringify(inputObj)}' \
