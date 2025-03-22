@@ -154,6 +154,32 @@ It can literally replace dozen other SaaS tools like:
 
 Please go to [Documentation Page](https://docs.openagentsbuilder.com/) for reading more on technical concepts, architecture and API reference.
 
+## API Client
+
+We provide an API client to interact with Open Agents Builder. You can find it on [GitHub](https://github.com/CatchTheTornado/open-agents-builder-client). Additionally, there is an example project demonstrating how to use the API client available [here](https://github.com/CatchTheTornado/open-agents-builder-example).
+
+To use the API client, you can install it via npm:
+
+```bash
+npm install open-agents-builder-client zod
+```
+
+Here is a basic example of how to use the API client:
+
+```javascript
+import { OpenAgentsBuilderClient } from "open-agents-builder-client";
+
+const client = new OpenAgentsBuilderClient({
+    baseUrl: "https://app.openagentsbuilder.com",  // optional, defaults to this if omitted
+    databaseIdHash: process.env.DATABASE_ID_HASH ?? '',  // optional, defaults to this if omitted
+    apiKey: process.env.OPEN_AGENTS_BUILDER_API_KEY ?? ''  // required
+});
+
+client.agent.listAgents().then((response) => {
+    console.log(response);
+});
+```
+
 ## Video Demo
 
 <div>
