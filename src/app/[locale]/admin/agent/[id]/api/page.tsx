@@ -1,5 +1,7 @@
 'use client'
 import { Button } from '@/components/ui/button';
+import Link from "next/link";
+
 import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/navigation';
 import React, { useContext, useEffect } from 'react';
@@ -7,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { KeyContext } from '@/contexts/key-context';
 import { NoRecordsAlert } from '@/components/shared/no-records-alert';
 import { DataLoadingStatus, KeyType } from '@/data/client/models';
-import { CopyIcon, PlusIcon } from 'lucide-react';
+import { CopyIcon, PlusIcon, BookIcon } from 'lucide-react';
 import { Dialog, DialogContent, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useCopyToClipboard } from 'react-use';
@@ -27,6 +29,8 @@ export default function APIPage() {
   const [apiKey, setApiKey] = React.useState<string>('');
   const [, copy] = useCopyToClipboard();
   const [addKeyDialogOpen, setAddKeyDialogOpen] = React.useState(false);
+
+  const snippet3 = dbContext?.databaseIdHash ? `export DATABASE_ID_HASH=${dbContext?.databaseIdHash}` : ``;
 
   const snippet0 = apiKey ? `export OPEN_AGENTS_BUILDER_API_KEY=${apiKey}` : `export OPEN_AGENTS_BUILDER_API_KEY=ad_key_****`;
   const snippet1 = `curl -X GET -H "Authorization: Bearer ${apiKey ? apiKey : '${OPEN_AGENTS_BUILDER_API_KEY}'}" \\
@@ -99,6 +103,23 @@ export default function APIPage() {
           ))}
         </CardContent>
       </Card>
+
+      <Card>
+        <CardContent className="p-4 text-sm">
+          <p>
+            {t('Your unique Database ID Hash is: ')}<strong>{dbContext?.databaseIdHash}</strong>
+            <Button size={"sm"} variant={"ghost"} onClick={() => {
+              copy(dbContext?.databaseIdHash);
+              toast.success(t('Database ID Hash has been copied to clipboard'));
+            }}><CopyIcon className="w-4 h-4 mr-2" /></Button>
+          </p>
+          <SyntaxHighlighter language="bash" wrapLines={true}>
+  {snippet3}
+</SyntaxHighlighter>
+
+        </CardContent>
+      </Card>
+
       {keysContext.keys.filter(k=>(k.extra !== null && k.extra.type === KeyType.API)).length > 0 && (
         <Card>
           <CardContent className="p-4 text-sm">
@@ -107,8 +128,10 @@ export default function APIPage() {
             <p>{t("That's great now you have API access to Open Agents Builder! Let's go start building!")}</p>
 
           <h4 className="mb-4 mt-4 font-bold text-sm ">{t('Read API docs and check the examples')}</h4>
-          <p className="mb-4">{t('Full API Docs and some app examples are avaialable on our Github page: ')}
-            <a className="text-blue-600 underline" href="https://github.com/CatchTheTornado/open-agents-builder/tree/main/docs/api">{t('Go to the docs!')}</a>
+          <p className="mb-4 items-center flex">{t('Full API Docs and some app examples are avaialable on our Github page: ')}
+            <Button className="ml-4 flex p-2">
+              <Link className="flex" href="https://docs.openagentsbuilder.com"><BookIcon className="w-4 h-4"/> {t('Go to the docs!')}</Link>
+            </Button>
           </p>
 
             <h4 className="mb-4 mt-4 font-bold">{t('Authorization and listing the agents ')}</h4>
