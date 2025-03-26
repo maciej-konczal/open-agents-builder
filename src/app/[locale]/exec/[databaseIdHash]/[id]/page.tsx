@@ -80,7 +80,7 @@ export default function ExecPage({children,
     }
 
     return (
-      <div>
+      <div className="h-screen w- justify-center items-center flex">
         <AIConsentBannerComponent />
         <div className="pt-10">
             {isInitializing ? (

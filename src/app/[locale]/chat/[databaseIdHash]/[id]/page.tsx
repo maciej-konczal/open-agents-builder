@@ -93,7 +93,7 @@ export default function ChatPage({children,
 
 
       return (
-      <div>
+      <div className="h-screen w- justify-center items-center flex">
         <AIConsentBannerComponent />
         <div className="pt-10">
           {isInitializing ? (

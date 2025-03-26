@@ -2,8 +2,11 @@
 
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
+import { FSLoader } from '@/components/fs-loader';
 import { ExecProvider } from '@/contexts/exec-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
+import React from 'react';
+import { useEffect } from 'react';
 
 const i18nNamespaces = ['translation'];
 
@@ -15,9 +18,17 @@ export default async function GeneraChatlLayout({
   children: React.ReactNode;
   params: { locale: string };
 }) {
-  const { resources } =  await initTranslations(params.locale, i18nNamespaces);
+  const [isInitializing, setIsInitializing] = React.useState(true);
+  const [resources, setResources] = React.useState<any>(null);
 
-  return (
+  useEffect(() => {
+    initTranslations(params.locale, i18nNamespaces).then(({ resources }) => {
+      setResources(resources);
+      setIsInitializing(false);
+    });
+    }, [params.locale, i18nNamespaces]);
+    return (
+    isInitializing && !resources ? <FSLoader /> :
     <SaaSContextProvider>
       <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
           {children}
