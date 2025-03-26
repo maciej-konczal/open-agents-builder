@@ -21,7 +21,9 @@
     "agentType": "flow",
     "status": "active",
     "icon": "orders.webp",
-    "extra": null,
+    "extra": {
+        "importAttachmentsFromUrl": "/template-assets/example-attachments.zip"
+    },
     "agents": [
         {
             "name": "Order agent",
