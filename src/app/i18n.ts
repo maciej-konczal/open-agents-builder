@@ -33,6 +33,7 @@ export default async function initTranslations(
     });
 
     return {
+        isInitializing: i18nInstance.isInitializing,
         i18n: i18nInstance,
         resources: i18nInstance.services.resourceStore.data,
         t: i18nInstance.t,
