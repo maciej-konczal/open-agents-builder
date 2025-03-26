@@ -80,11 +80,11 @@ export default function ExecPage({children,
     }
 
     return (
-      <div className="h-screen w- justify-center items-center flex">
+      <div>
         <AIConsentBannerComponent />
         <div className="pt-10">
             {isInitializing ? (
-            <div className="text-center">
+            <div className="text-center h-screen justify-center items-center flex">
               <div className="flex justify-center m-4"><DataLoader /></div>
               <div className="text-gray-500 text-center">{t("Initializing agent...")}</div>
             </div>

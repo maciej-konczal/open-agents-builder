@@ -304,7 +304,7 @@ export function createExecFlowTool(context: ExecFlowToolContext): ToolDescriptor
     outputAndTrace({
       type: "flowStart",
       flowNodeId: nanoid(),
-      message: "Params: `" + JSON.stringify(execRequest) + "`",
+      message: "Params: `" + JSON.stringify(variablesToInject) + "` plus base64 files: `" + JSON.stringify(Object.keys(filesToUpload)) + "`",
       name: "Executing flow " + flow.code,
     });
 
