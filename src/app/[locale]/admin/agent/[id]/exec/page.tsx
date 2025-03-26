@@ -222,6 +222,7 @@ ${process.env.NEXT_PUBLIC_APP_URL ?? ''}/api/agent/${agent?.id}/exec
 }}><CopyIcon className="w-4 h-4 mr-2" />{t('Copy snippet')}</Button>
 
 
+<p className="text-sm mt-2">{t('For more details, please go to ')} <a className="underline text-blue-300" href="https://docs.openagentsbuilder.com/api/20-executing-flow/">{t('API Documentation page')}</a></p>
               </AccordionContent>
             </AccordionItem>            
           </Accordion>
