@@ -236,6 +236,10 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
     }
 
     const disableKeepLoggedIn = () => {
+        if (typeof sessionStorage !== 'undefined') {
+            sessionStorage.removeItem('key');
+            sessionStorage.removeItem('email');
+        }
         if(typeof localStorage !== 'undefined') {
             localStorage.setItem('keepLoggedIn', 'false');
             localStorage.removeItem('key');
@@ -294,12 +298,21 @@ export const DatabaseContextProvider: React.FC<PropsWithChildren> = ({ children 
                 setRefreshToken((authResponse as AuthorizeDbResponse).data.refreshToken);
                 setAuthStatus(DatabaseAuthStatus.Authorized);
 
+                const kliEncryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword);
+                const kliKey = await kliEncryptionUtils.encrypt(authorizeRequest.key);
+                const kliEmail = await kliEncryptionUtils.encrypt(authorizeRequest.email)
+
+                if (typeof sessionStorage !== 'undefined') {
+                    sessionStorage.setItem('key', kliKey);
+                    sessionStorage.setItem('email', kliEmail);
+
+                }
+
                 if(typeof localStorage !== 'undefined') {
                     localStorage.setItem('keepLoggedIn', (authorizeRequest.keepLoggedIn ? 'true' : 'false'));
                     if (authorizeRequest.keepLoggedIn) {
-                        const encryptionUtils = new EncryptionUtils(keepLoggedInKeyPassword);
-                        localStorage.setItem('key', await encryptionUtils.encrypt(authorizeRequest.key));
-                        localStorage.setItem('email', await encryptionUtils.encrypt(authorizeRequest.email));
+                        localStorage.setItem('key', kliKey);
+                        localStorage.setItem('email', kliEmail);
                     }
                 }
 
