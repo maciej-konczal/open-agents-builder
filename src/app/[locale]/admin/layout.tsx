@@ -3,6 +3,7 @@
 import initTranslations from '@/app/i18n';
 import TranslationProvider from '@/app/translation-provider';
 import AuthorizationGuard from '@/components/authorization-guard';
+import { FSLoader } from '@/components/fs-loader';
 import { AgentHeader } from '@/components/layout/agent-header';
 import { AgentSidebar } from '@/components/layout/agent-sidebar';
 import { Header } from '@/components/layout/header';
@@ -20,20 +21,30 @@ import { SaaSContextProvider } from '@/contexts/saas-context';
 import { StatsContextProvider } from '@/contexts/stats-context';
 import { TemplateProvider } from '@/contexts/template-context';
 import { Attachment } from '@/data/client/models';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const i18nNamespaces = ['translation'];
 
 // eslint-disable-next-line @next/next/no-async-client-component
-export default async function GeneralAgentLayout({
+export default function GeneralAgentLayout({
   children,
   params,
 }: {
   children: React.ReactNode;
   params: { id: string, locale: string, databaseIdHash: string };
 }) {
-  const { resources } = await initTranslations(params.locale, i18nNamespaces);
-  return (
+  const [isInitializing, setIsInitializing] = React.useState(true);
+  const [resources, setResources] = React.useState<any>(null);
+
+  useEffect(() => {
+    initTranslations(params.locale, i18nNamespaces).then(({ resources }) => {
+      setResources(resources);
+      setIsInitializing(false);
+    });
+    }, [params.locale, i18nNamespaces]);
+    return (
+    isInitializing && !resources ? <FSLoader /> :
     <TranslationProvider locale={params.locale} resources={resources} namespaces={i18nNamespaces}>
       <DatabaseContextProvider>
         <SaaSContextProvider>
