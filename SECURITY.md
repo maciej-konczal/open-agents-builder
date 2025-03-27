@@ -6,7 +6,7 @@ We're supporting the following versions of Open Agents Builder with ongoing secu
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 1.x     | :white_check_mark: |
+| 0.3.x     | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
