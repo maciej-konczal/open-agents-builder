@@ -318,4 +318,4 @@ Open Agents Builder is released under [MIT](LICENSE) license.
 
 If you like the idea behind Open Agents Builder and want to become a contributor - do not hesitate and check our [list of the active issues](https://github.com/CatchTheTornado/open-agents-builder/issues) or contact [us on Discord](https://discord.gg/xUgwAHvTSq)
 
-Read more in [CONTRIBUTING.md]()
+Read more in [CONTRIBUTING.md](CONTRIBUTING.md)
