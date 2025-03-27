@@ -6,9 +6,9 @@
 
 These terms form a legally binding agreement between you and **CT Tornado spółka z o.o.**, a company duly incorporated and existing under the laws of the Republic of Poland, with its principal place of business in Wroclaw (address: ul. Wyspa Słodowa 7, 50-266 Wroclaw, Poland; registration: District Court for Wroclaw-Fabryczna in Wroclaw, KRS/company no.: 873910; EU VAT no.: PL8982262377; share capital: PLN 5,000.00; email address: info@catchthetornado.com; “we”).
 
-By creating an Account (as defined in Section 3.2 of these terms), using the Services (as defined in Section 2.1 of these terms), or clicking to accept these terms, you confirm that you have read, understood, and agreed to be bound by these terms, our [Privacy Policy](https://openagentsbuilder.com/content/privacy), and our [Data Processing Addendum](https://openagentsbuilder.com/content/data-processing).
+By creating an Account (as defined in Section 3.2 of these terms), using the Services (as defined in Section 2.1 of these terms), or clicking to accept these terms, you confirm that you have read, understood, and agreed to be bound by these terms, our [Privacy Policy](https://app.openagentsbuilder.com/content/privacy), and our [Data Processing Addendum](https://app.openagentsbuilder.com/content/data-processing).
 
-Please read them carefully before creating an Account or using the Services. You can access and download a copy of these terms at [https://openagentsbuilder.com/content/terms](https://openagentsbuilder.com/content/terms).
+Please read them carefully before creating an Account or using the Services. You can access and download a copy of these terms at [https://app.openagentsbuilder.com/content/terms](https://app.openagentsbuilder.com/content/terms).
 
 If you do not agree to any part of these terms or the referenced policies and arrangements, you must stop using the Services immediately.
 
@@ -78,7 +78,7 @@ If you are acting on behalf of an Entity, you:
 - Must create a business Account, allowing access under the Entity’s name.
 - Are responsible for managing Authorized Users and ensuring compliance with these terms.
 
-By creating an Account and using the Services, you acknowledge that we will process your personal data in accordance with our [Privacy Policy](https://openagentsbuilder.com/content/privacy), which details how we collect, use, and protect your data. This includes processing data:
+By creating an Account and using the Services, you acknowledge that we will process your personal data in accordance with our [Privacy Policy](https://app.openagentsbuilder.com/content/privacy), which details how we collect, use, and protect your data. This includes processing data:
 
 - Provided during Account registration and management, including user credentials and contact details.
 - Generated through your use of the Services, such as login activity and interactions with the Platform.

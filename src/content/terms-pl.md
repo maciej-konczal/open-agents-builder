@@ -6,9 +6,9 @@
 
 Niniejsze warunki stanowią prawnie wiążącą umowę pomiędzy Tobą a **CT Tornado spółka z o.o.**, spółką zarejestrowaną i działającą zgodnie z prawem Rzeczypospolitej Polskiej, z siedzibą we Wrocławiu (adres: ul. Wyspa Słodowa 7, 50-266 Wrocław, Polska; rejestracja: Sąd Rejonowy dla Wrocławia-Fabrycznej we Wrocławiu, nr KRS: 873910; NIP UE: PL8982262377; kapitał zakładowy: 5.000,00 PLN; adres e-mail: info@catchthetornado.com; dalej „my”).
 
-Korzystając z Konta (zdefiniowanego w Sekcji 3.2 niniejszych warunków), korzystając z Usług (zdefiniowanych w Sekcji 2.1 niniejszych warunków) lub klikając przycisk akceptacji, potwierdzasz, że przeczytałeś(-aś), zrozumiałeś(-aś) i zgadzasz się przestrzegać niniejszych warunków, naszej [Polityki Prywatności](https://openagentsbuilder.com/content/privacy) oraz [Aneksu dot. przetwarzania danych](https://openagentsbuilder.com/content/data-processing).
+Korzystając z Konta (zdefiniowanego w Sekcji 3.2 niniejszych warunków), korzystając z Usług (zdefiniowanych w Sekcji 2.1 niniejszych warunków) lub klikając przycisk akceptacji, potwierdzasz, że przeczytałeś(-aś), zrozumiałeś(-aś) i zgadzasz się przestrzegać niniejszych warunków, naszej [Polityki Prywatności](https://app.openagentsbuilder.com/content/privacy) oraz [Aneksu dot. przetwarzania danych](https://app.openagentsbuilder.com/content/data-processing).
 
-Prosimy o uważne zapoznanie się z tymi dokumentami przed utworzeniem Konta lub rozpoczęciem korzystania z Usług. Kopię niniejszych warunków można pobrać pod adresem: <https://openagentsbuilder.com/content/terms>.
+Prosimy o uważne zapoznanie się z tymi dokumentami przed utworzeniem Konta lub rozpoczęciem korzystania z Usług. Kopię niniejszych warunków można pobrać pod adresem: <https://app.openagentsbuilder.com/content/terms>.
 
 Jeżeli nie zgadzasz się z którąkolwiek częścią niniejszych warunków lub z przywołanymi politykami i ustaleniami, musisz natychmiast zaprzestać korzystania z Usług.
 
@@ -78,7 +78,7 @@ Jeżeli działasz w imieniu Podmiotu, to:
 - Masz obowiązek stworzyć Konto biznesowe, zapewniając dostęp w imieniu Podmiotu.
 - Odpowiadasz za zarządzanie Użytkownikami uprawnionymi oraz za zapewnienie przestrzegania niniejszych warunków.
 
-Tworząc Konto i korzystając z Usług, przyjmujesz do wiadomości, że przetwarzamy Twoje dane osobowe zgodnie z naszą [Polityką Prywatności](https://openagentsbuilder.com/content/privacy), w której opisano, w jaki sposób gromadzimy, wykorzystujemy i chronimy Twoje dane. Obejmuje to przetwarzanie danych:
+Tworząc Konto i korzystając z Usług, przyjmujesz do wiadomości, że przetwarzamy Twoje dane osobowe zgodnie z naszą [Polityką Prywatności](https://app.openagentsbuilder.com/content/privacy), w której opisano, w jaki sposób gromadzimy, wykorzystujemy i chronimy Twoje dane. Obejmuje to przetwarzanie danych:
 
 - Podanych podczas rejestracji i zarządzania Kontem, w tym danych logowania i kontaktowych.
 - Generowanych w trakcie korzystania z Usług, np. aktywności logowania i interakcji z Platformą.
