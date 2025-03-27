@@ -802,5 +802,9 @@
   "That's great now you have API access to Open Agents Builder! Let's go start building!": "Świetnie, teraz masz dostęp do API Open Agents Builder! Zacznijmy tworzyć!",
   "Order deleted": "Zamówienie usunięte",
   "Not found": "Nie znaleziono",
-  "Flow not found": "Nie znaleziono przepływu"
+  "Flow not found": "Nie znaleziono przepływu",
+  "For more details, please go to ": "Po więcej informacji otwórz ",
+  "API Documentation page": "dokumentację API",
+  "Your unique Database ID Hash is: ": "Twój Database ID Hash to: ",
+  "Database ID Hash has been copied to clipboard": "Database ID Hash został skopiowany do schowka!"
 }
