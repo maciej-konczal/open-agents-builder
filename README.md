@@ -6,11 +6,11 @@
 Open Agents Builder is an Enterprise Grade AI Agents development platform:
 
 - 💾 Design effective multi-agent workflows based on composable building blocks: `oneOf`, `parallel`, `sequence`, `evaluator`, `forEach`. [Read more at Anthropic blog...](https://www.anthropic.com/engineering/building-effective-agents)
-- 🕸️ Publish the flows as API,
-- 📆 All business features like: **Order Managemnt (OMS), Product Information (PIM), CPQ, Customers, Bookings/Calendar, Custom Entitie**s - all included within UI,
-- 👩🏽‍💻 Use Open Agents Builder as an **App Backend** - full API support for any type of entities managable in the backend,
-- 🔧 Use Vercel AI tools  to integrate 3rd party systems and give the AI business services (like `createOrderTool`, `createCalendarEventTool`, `listProductsTool`, vector DB support - **all basic tools are included***)
-- 🛠️ Enterprise features like **audit logs, permissions, sharing, data encryption** are all included
+- 🕸️ Publish the flows as API. [Read more on Flows API](https://docs.openagentsbuilder.com/api/20-executing-flow/),
+- 📆 All business features like: **Order Managemnt (OMS), Product Information (PIM), CPQ, Customers, Bookings/Calendar, Custom Entitie**s - all included within UI. [Check the features included...](https://docs.openagentsbuilder.com/guides/3-batteries-included/),
+- 👩🏽‍💻 Use Open Agents Builder as an **App Backend** - full API support for any type of entities managable in the backend. [Read more on the architecture and concepts...](https://docs.openagentsbuilder.com/guides/2-concepts/),
+- 🔧 Use Vercel AI tools  to integrate 3rd party systems and give the AI business services (like `createOrderTool`, `createCalendarEventTool`, `listProductsTool`, vector DB support - **all basic tools are included***). [Read on how to build your own custom tools...](https://docs.openagentsbuilder.com/extensibility/20-new-tool-integration/)
+- 🛠️ Enterprise features like **audit logs, permissions, sharing, data encryption** are all included. [Read more on our Battteries included approach...](https://docs.openagentsbuilder.com/guides/3-batteries-included/)
 - 👩‍💼 **Customer facing apps** support - by the interactive Chat interface - included,
 - **API keys management, permissions, statistics** - all the features enterprises like - included.
 
@@ -20,6 +20,7 @@ Open Agents Builder is an Enterprise Grade AI Agents development platform:
 ## Making the **Enterprise** Hackers and Business users worlds met.
 
 ### Hackers?
+
 Design the flows visually and then integrate it via API with your existing apps or generate the TypeScript code for [flows-ai](https://github.com/callstackincubator/flows-ai)
 
 
@@ -154,6 +155,10 @@ It can literally replace dozen other SaaS tools like:
 
 Please go to [Documentation Page](https://docs.openagentsbuilder.com/) for reading more on technical concepts, architecture and API reference.
 
+## Join us on Discord
+
+If you have any questions or ideas feel free to join the talk! Join the Community on [Discord Server](https://discord.gg/xUgwAHvTSq).
+
 ## API Client
 
 We provide an API client to interact with Open Agents Builder. You can find it on [GitHub](https://github.com/CatchTheTornado/open-agents-builder-client). Additionally, there is an example project demonstrating how to use the API client available [here](https://github.com/CatchTheTornado/open-agents-builder-example).
@@ -208,6 +213,8 @@ client.agent.listAgents().then((response) => {
 - **Security constrains** - Set the safety net around the agents (of which they should never ask, remove PII etc)
 - **Tools** - extensible tools framework so the agent can send e-mails, Slack messages, export data to systems like CRM etc.
 - **Templates** - including ready-made templates like CRM app, pre-visit inquiry etc.
+
+Read on how to [extend Open Agents Builder](https://docs.openagentsbuilder.com/extensibility/10-new-entity-admin/)
 
 ## Use Cases 
 
@@ -306,3 +313,9 @@ That's it! Now you can get open your browser and navigate to: https://localhost:
 ## License
 
 Open Agents Builder is released under [MIT](LICENSE) license.
+
+## Contributing
+
+If you like the idea behind Open Agents Builder and want to become a contributor - do not hesitate and check our [list of the active issues](https://github.com/CatchTheTornado/open-agents-builder/issues) or contact [us on Discord](https://discord.gg/xUgwAHvTSq)
+
+Read more in [CONTRIBUTING.md]()
