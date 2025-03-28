@@ -25,8 +25,6 @@ import { AttachmentUploader } from '@/components/attachment-uploader';
 import { DatabaseContext } from '@/contexts/db-context';
 import { SaaSContext } from '@/contexts/saas-context';
 import ZoomableImage from '@/components/zoomable-image';
-import { get } from 'http';
-
 
 export function onAgentSubmit(agent: Agent | null, watch: UseFormWatch<Record<string, any>>, setValue: UseFormSetValue<Record<string, any>>, getValues: UseFormGetValues<Record<string, any>>, updateAgent: (agent: Agent, setAsCurrent: boolean) => Promise<Agent>, t: TFunction<"translation", undefined>, router: AppRouterInstance, editors: Record<string, React.RefObject<MDXEditorMethods>>) {
   // eslint-disable-next-line
