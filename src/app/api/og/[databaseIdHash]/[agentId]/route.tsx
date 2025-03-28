@@ -37,8 +37,9 @@ export async function GET(request: Request, { params }: { params: { databaseIdHa
 
     if (agtDTO) {
       const agt = Agent.fromDTO(agtDTO);
-      console.log(agt?.icon);
-
+      if (process.env.NODE_ENV !== 'production') {
+        console.log(agt?.icon);
+      }
       return new ImageResponse(
         (
           <div
