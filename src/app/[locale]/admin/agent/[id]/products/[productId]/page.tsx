@@ -163,7 +163,7 @@ export default function ProductFormPage() {
     }
   }
 
-  // Funkcja mapująca ProductDTO -> ProductFormData
+  // Function mapping ProductDTO -> ProductFormData
   function mapDtoToFormData(loadedDto: any, mapImages: boolean = true): ProductFormData {
     const taxRatePercent = (loadedDto.taxRate || 0) * 100;
     if (mapImages) {
@@ -181,7 +181,7 @@ export default function ProductFormPage() {
       attributes: (loadedDto.attributes || []).map((a: any) => ({
         attrName: a.name,
         attrType: a.type,
-        // scalamy values -> jednego stringa
+        // merging values into a single string
         attrValues: a.values ? a.values.join(",") : "",
       })),
       tags: (loadedDto.tags || []).join(", "),
@@ -196,21 +196,21 @@ export default function ProductFormPage() {
     };
   }
 
-  // 4) Obsługa atrybutów (useFieldArray)
+  // 4) Handling attributes (useFieldArray)
   const {
     fields: attributeFields,
     append: appendAttribute,
     remove: removeAttribute,
   } = useFieldArray({ control, name: "attributes" });
 
-  // 5) Obsługa wariantów (useFieldArray)
+  // 5) Handling variants (useFieldArray)
   const {
     fields: variantFields,
     append: appendVariant,
     remove: removeVariant,
   } = useFieldArray({ control, name: "variants" });
 
-  // 5a) Generowanie wariantów z atrybutów typu select
+  // 5a) Generating variants from select-type attributes
   function generateVariantsFromAttributes() {
     const rawAttrs = watch("attributes");
     type SelectAttr = { attrName: string; values: string[] };
@@ -245,7 +245,7 @@ export default function ProductFormPage() {
     });
   }
 
-  // Iloczyn kartezjański
+  // Cartesian product
   function buildVariantCombinations(
     selectAttrs: { attrName: string; values: string[] }[],
     index = 0,
@@ -268,7 +268,7 @@ export default function ProductFormPage() {
     return result;
   }
 
-  // 6) Dwustronne przeliczanie ceny głównej
+  // 6) Bidirectional main price calculation
   const mainPrice = watch("price");
   const mainPriceInclTax = watch("priceInclTax");
   const mainTaxRate = watch("taxRate");
@@ -281,7 +281,7 @@ export default function ProductFormPage() {
     lastChangedMainField.current = "priceInclTax";
   };
 
-  // Reakcja: kiedy mainPrice się zmienia
+  // Reaction: when mainPrice changes
   useEffect(() => {
     if (lastChangedMainField.current === "price") {
       const dec = mainTaxRate / 100;
@@ -290,7 +290,7 @@ export default function ProductFormPage() {
     }
   }, [mainPrice, mainTaxRate, setValue]);
 
-  // Reakcja: kiedy mainPriceInclTax się zmienia
+  // Reaction: when mainPriceInclTax changes
   useEffect(() => {
     if (lastChangedMainField.current === "priceInclTax") {
       const dec = mainTaxRate / 100;
@@ -312,7 +312,6 @@ export default function ProductFormPage() {
         if (!defaultImageUrl) {
           setDefaultImageUrl(`${process.env.NEXT_PUBLIC_APP_URL}/storage/product/${dbContext?.databaseIdHash}/${f.dto?.storageKey}`);
         }
-        // Dodajemy do images
         setImages((prev) => [
           ...prev,
             {
@@ -395,7 +394,7 @@ export default function ProductFormPage() {
     const decimalTaxRate = formData.taxRate / 100;
 
     return Product.fromForm({
-      // Jeżeli edycja => params.productId
+      // If editing => params.productId
       id: (params?.productId && params.productId !== "new") ? params.productId : nanoid(),
 
       sku: formData.sku,
@@ -668,11 +667,11 @@ export default function ProductFormPage() {
                   step="0.01"
                   {...register("price", { valueAsNumber: true })}
                   onKeyDown={(e) => {
-                    // user zmienia price => zapamiętujemy w lastChangedMainField
+                    // user changes price => remember it in lastChangedMainField
                     lastChangedMainField.current = "price";
                   }}
                   onMouseDown={() => {
-                    // user zmienia price => zapamiętujemy w lastChangedMainField
+                    // user changes price => remember it in lastChangedMainField
                     lastChangedMainField.current = "price";
                   }}
                 />

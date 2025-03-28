@@ -3,10 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import i18nConfig from '@/app/i18nConfig';
 import { headers } from "next/headers";
-import { agent } from "flows-ai";
-import { AgentApiClient } from "@/data/client/agent-api-client";
 import { ExecApiClient } from "@/data/client/exec-api-client";
 import { Agent } from "@/data/client/models";
 
@@ -31,7 +28,8 @@ export async function generateMetadata(
   // read route params
   const { id } = await params
  
-  // fetch data
+  // generate automatically the OG tags for /exec and /chat urls - that are shared by the users.
+  // TODO: move this logic down into layout tree to not have it layout centric as it is now
  
   const requestHeaders = headers();
   const requestPath = requestHeaders.get('X-Path');
@@ -60,7 +58,7 @@ export async function generateMetadata(
             title: agt.options?.ogTitle ?? agt.displayName,
             description: agt.options?.ogDescription ?? agt.options?.welcomeMessage ?? defaultMetadata.description,
             openGraph: {
-              images: agt.icon ? [agt.icon] : [],
+              images: agt.icon ? [agt.icon] : [`${process.env.NEXT_PUBLIC_APP_URL}/api/og/${databaseIdHash}/${agentId}`],
             },
           }
 
