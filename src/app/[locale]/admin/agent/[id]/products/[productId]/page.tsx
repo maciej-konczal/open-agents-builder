@@ -32,15 +32,15 @@ import DataLoader from "@/components/data-loader";
 
 
 // ----------------------------------------------------
-// 1) Schemat walidacji Zod
+// 1) Zod validation schema
 // ----------------------------------------------------
 
 const attributeFormSchema = z.object({
   attrName: z.string().nonempty("Attribute name is required"),
   attrType: z.enum(["text", "select"]),
   attrValues: z.string().optional(), 
-  // Uwaga: to jest surowe pole inputu; w bazie, jeśli "select", zrobimy tablicę
-  //        jeśli "text", zapiszemy jedną pozycję w values
+  // Note: this is a raw input field; in the database, if "select", we will create an array
+  //       if "text", we will save a single entry in values
 });
 
 const variantAttributeSchema = z.object({
@@ -77,7 +77,7 @@ const productFormSchema = z.object({
 type ProductFormData = z.infer<typeof productFormSchema>;
 
 // ----------------------------------------------------
-// 2) Waluty
+// 2) Currencies
 // ----------------------------------------------------
 const FAVOURITE_CURRENCIES = ["EUR", "USD", "PLN", "GBP", "CHF"];
 const ALL_CURRENCIES = [
@@ -105,12 +105,12 @@ export default function ProductFormPage() {
   const agentContext = useAgentContext();
   const router = useRouter();
 
-  // Domyślne stawki i waluty
+  // Default tax rates and currencies
   const defaultTaxRate = i18n.language === "pl" ? 23 : 0;
   const defaultCurrency = i18n.language === "pl" ? "PLN" : "USD";
 
 
-  // 3a) Inicjalizacja formularza (Zod, domyślne wartości)
+  // 3a) Form initialization (Zod, default values)
   const methods = useForm<ProductFormData>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {

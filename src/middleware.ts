@@ -27,6 +27,7 @@ export async function middleware(request: NextRequest) {
 
         }
     } else {
+        request.headers.set('X-Path', request.nextUrl.pathname);
         return i18nRouter(request, i18nConfig);
     }
 
