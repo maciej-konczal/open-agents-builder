@@ -164,7 +164,7 @@ export default function FilesPage() {
                     />
 
                 <div className="text-xs p-2">
-                {t('Supported file types: images, text files, ZIP archives, PDFs, Word documents, Excel spreadsheets, PowerPoint presentations. When uploading documents including text (PDF, Office, text, CSV, ZIP archives...) - files will converted to Markdown and available in the Flows and for other AI tools. ')}
+                {t('Supported file types: images, text files, ZIP archives, PDFs, Word documents, Excel spreadsheets, PowerPoint presentations. When uploading documents including text (PDF, Office, text, CSV, ZIP archives...) - files will be converted to Markdown and available in the Flows and for other AI tools. ')}
                 </div>
             </div>
 
