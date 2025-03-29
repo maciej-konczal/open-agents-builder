@@ -1,11 +1,8 @@
-import type { Metadata, ResolvingMetadata } from "next";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-import { headers } from "next/headers";
-import { ExecApiClient } from "@/data/client/exec-api-client";
-import { Agent } from "@/data/client/models";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -13,68 +10,6 @@ export const defaultMetadata: Metadata = {
    title: "Open Agents Builder",
    description: "Build an interactive AI agent from a single prompt; send it as a link; process results; ideal for interactive bookings, pre-visit chats, polls, and many more"
 };
-
-
-type Props = {
-  params: Promise<{ id: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}
- 
-
-export async function generateMetadata(
-  { params, searchParams }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  // read route params
-  const { id } = await params
- 
-  // generate automatically the OG tags for /exec and /chat urls - that are shared by the users.
-  // TODO: move this logic down into layout tree to not have it layout centric as it is now
- 
-  const requestHeaders = headers();
-  const requestPath = requestHeaders.get('X-Path');
-
-  if (requestPath) {
-    const pathPatterns = [
-      /^\/chat\/([a-f0-9]{64})\/([A-Za-z0-9_-]+)$/,
-      /^\/exec\/([a-f0-9]{64})\/([A-Za-z0-9_-]+)$/
-    ];
-
-    const match = pathPatterns
-      .map(pattern => requestPath.match(pattern))
-      .find(result => result !== null);
-
-
-    if (match) {
-      const [_, databaseIdHash, agentId] = match;
-      
-      if (databaseIdHash && agentId) {
-        try {
-          const client = new ExecApiClient(databaseIdHash, process.env.NEXT_PUBLIC_APP_URL);
-          const agt = Agent.fromDTO((await client.agent(agentId)).data)
-
-
-          return {
-            title: agt.options?.ogTitle ?? agt.displayName,
-            description: agt.options?.ogDescription ?? agt.options?.welcomeMessage ?? defaultMetadata.description,
-            openGraph: {
-              images: agt.icon ? [agt.icon] : [`${process.env.NEXT_PUBLIC_APP_URL}/api/og/${databaseIdHash}/${agentId}`],
-            },
-          }
-
-        } catch (error) {
-          console.error(error);
-        }
-        
-      }
-    } 
-  }
-
-
-  return defaultMetadata;
-  
-}
-
 
 
 export default function RootLayout({
