@@ -20,7 +20,7 @@ const defaultImage = new ImageResponse(
       }}
     >
       <img style={{ margin: '5px', width: '100px' }} src="https://app.openagentsbuilder.com/img/OAB-Logo-Small.svg" />
-      Wellcome to Open Agents Builder agent!
+      Welcome to Open Agents Builder agent!
     </div>
   ),
   {
