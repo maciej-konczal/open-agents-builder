@@ -69,7 +69,7 @@ export class ShortMemoryApiClient extends AdminApiClient {
     return this.request<ShortMemoryListResponse>(
       url,
       "GET",
-      { ecnryptedFields: [] },
+      { encryptedFields: [] },
       undefined,
       undefined,
       undefined,
@@ -84,7 +84,7 @@ export class ShortMemoryApiClient extends AdminApiClient {
     const response = await this.request<string>(
       `/api/short-memory/${filename}`,
       "GET",
-      { ecnryptedFields: [] },
+      { encryptedFields: [] },
       undefined,
       undefined,
       undefined,
@@ -120,7 +120,7 @@ export class ShortMemoryApiClient extends AdminApiClient {
     return this.request<ShortMemoryRecordsResponse>(
       url,
       "GET",
-      { ecnryptedFields: [] },
+      { encryptedFields: [] },
       undefined,
       undefined,
       undefined,
@@ -135,7 +135,7 @@ export class ShortMemoryApiClient extends AdminApiClient {
     return this.request<{ message: string; status: number }>(
       `/api/short-memory/${filename}`,
       "DELETE",
-      { ecnryptedFields: [] },
+      { encryptedFields: [] },
       undefined,
       undefined,
       undefined,
