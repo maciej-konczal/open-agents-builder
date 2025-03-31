@@ -15,6 +15,7 @@ import { Agent } from '@/data/client/models';
 import { TraceToolConfigurator } from './traceTool-configurator';
 import { RenderComponentToolConfigurator } from './renderComponentTool-configurator';
 import { getAvailableUIComponents } from './availableUIComponentsTool';
+import { ContextVectorStoreConfigurator } from './contextVectorSaveTool-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -69,6 +70,14 @@ export const toolConfiguratorsRepository = {
         displayName: 'Update Result',
         configurator: UpdateResultToolConfigurator
       },
+      contextVectorSaveTool: {
+        displayName: 'Short term memory save',
+        configurator: ContextVectorStoreConfigurator
+      },
+      contextVectorSearchTool: {
+        displayName: 'Short term memory search',
+        configurator: ContextVectorStoreConfigurator
+      }
     }
 
     if (agent && agent.agentType === 'flow') {

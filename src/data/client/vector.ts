@@ -1,3 +1,5 @@
+import { StorageService } from "@/lib/storage-service";
+
 export type EmbeddingResult = {
     content: string;
     embedding: number[];
@@ -67,3 +69,75 @@ export const createInMemoryVectorStore = () => {
       entries,
     }
   }
+
+  
+  /**
+   * Creates a disk-based vector store that uses StorageService for:
+   *   - concurrency (lock/unlock)
+   *   - reading/writing JSON
+   *   - partitioning (via file name)
+   * and enforces a size limit on the JSON file.
+   */
+  export const createDiskBackedVectorStore = (
+    databaseIdHash: string,
+    schema: string,
+    agentId: string,
+    shardName?: string,
+    maxFileSizeMB: number = 10
+  ) => {
+    // 1. Construct a storage service
+    const storageService = new StorageService(databaseIdHash, schema);
+  
+    // 2. Build the file name: agentId + optional shardName
+    const fileName = shardName ? `${agentId}-${shardName}.json` : `${agentId}.json`;
+  
+    /**
+     * set: Write or overwrite an embedding result for the given id.
+     * Uses lock -> read -> update -> write -> unlock pattern.
+     */
+    const set = async (id: string, value: EmbeddingResult): Promise<void> => {
+      // Acquire lock
+      await storageService.acquireLock(fileName);
+  
+      try {
+        // Read the existing JSON data
+        const data = storageService.readPlainJSONAttachment<Record<string, EmbeddingResult>>(fileName);
+  
+        // Update or insert the value
+        data[id] = value;
+  
+        // Write back to disk with size check
+        storageService.writePlainJSONAttachment(fileName, data, maxFileSizeMB);
+      } finally {
+        // Release lock
+        storageService.releaseLock(fileName);
+      }
+    };
+  
+    /**
+     * entries: Returns all [key, EmbeddingResult] pairs from the JSON store.
+     * Also lock-based for concurrency safety.
+     */
+    const entries = async (): Promise<[string, EmbeddingResult][]> => {
+      // Acquire lock
+      await storageService.acquireLock(fileName);
+  
+      try {
+        if (!storageService.fileExists(fileName)) {
+          // No data yet
+          return [];
+        }
+        const data = storageService.readPlainJSONAttachment<Record<string, EmbeddingResult>>(fileName);
+        return Object.entries(data);
+      } finally {
+        // Release lock
+        storageService.releaseLock(fileName);
+      }
+    };
+  
+    return {
+      set,
+      entries,
+    };
+  };
+  

@@ -73,8 +73,6 @@ export const toolRegistry = {
       listAttachments: createListAttachmentsTool(databaseIdHash, storageKey, StorageSchemas.Default),
       updateResultTool: createUpdateResultTool(databaseIdHash, storageKey),
       httpTool: httpTool,
-      memoryContextSave: createContextVectorSaveTool(inMemoryStore, embeddingFunction), // default config
-      memoryContextSearch: createContextVectorSearchTool(inMemoryStore, embeddingFunction) // default config
     }
 
     if (agent) {
@@ -96,6 +94,12 @@ export const toolRegistry = {
           ['flowTool' + flow.code]: flowTool
         }
       });
+
+      availableTools = {
+        ...availableTools,
+        contextVectorSaveTool: createContextVectorSaveTool(databaseIdHash, sessionId, storageKey, agent, embeddingFunction),
+        contextVectorSearchTool: createContextVectorSearchTool(databaseIdHash, sessionId, storageKey, agent, embeddingFunction)
+      }
     }
 
     if (streamingController && agent?.agentType === 'flow') {
