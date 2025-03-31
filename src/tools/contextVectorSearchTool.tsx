@@ -51,13 +51,7 @@ export function createContextVectorSearchTool(
             })
             .sort((a, b) => b.similarity - a.similarity)
             .slice(0, topK);
-
-          return results
-            .map(entry => dedent`
-            ID: ${entry.id}
-            Content: ${entry.content}
-            Metadata: ${JSON.stringify(entry.metadata)}
-          `).join("\n");
+          return results;
 
         } catch (err) {
           console.error(err)
