@@ -24,6 +24,9 @@ import { FlowChunkEvent } from '@/flows/models';
 import { replaceBase64Content } from '@/lib/file-extractor';
 import { createAvailableUIComponentsTool, getAvailableUIComponents } from './availableUIComponentsTool';
 import { createRenderComponentTool } from './renderComponentTool';
+import { createContextVectorSaveTool } from './contextVectorSaveTool';
+import { createInMemoryVectorStore, openAIEmbeddings } from '@/data/client/vector';
+import { createContextVectorSearchTool } from './contextVectorSearchTool';
 
 
 export type ToolDescriptor = {
@@ -52,6 +55,8 @@ export const toolRegistry = {
         }
       }
 
+      const inMemoryStore = createInMemoryVectorStore();
+      const embeddingFunction = openAIEmbeddings();
 
     //if (availableTools !== null) return availableTools; // causes problem with the old streaming controlelr
     availableTools = {
@@ -68,6 +73,8 @@ export const toolRegistry = {
       listAttachments: createListAttachmentsTool(databaseIdHash, storageKey, StorageSchemas.Default),
       updateResultTool: createUpdateResultTool(databaseIdHash, storageKey),
       httpTool: httpTool,
+      memoryContextSave: createContextVectorSaveTool(inMemoryStore, embeddingFunction), // default config
+      memoryContextSearch: createContextVectorSearchTool(inMemoryStore, embeddingFunction) // default config
     }
 
     if (agent) {
