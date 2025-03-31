@@ -336,6 +336,7 @@ const productImageSchema = z.object({
 
 export enum StorageSchemas  {
   Commerce = "commerce",
+  VectorStore = "vector-store",
   Default = ""
 }
 
