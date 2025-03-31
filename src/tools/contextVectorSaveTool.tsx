@@ -19,7 +19,7 @@ export function createContextVectorSaveTool(
     tool: tool({
       description: "Save a document and its metadata to the short term memory context vector store.",
       parameters: z.object({
-        id: z.string().describe("Unique identifier for the document. When not provided wil be generated").optional(),
+        id: z.string().describe("Unique identifier for the document. When not provided will be generated").optional(),
         content: z.string().describe("Content of the document"),
         metadata: z.string().describe("Additional metadata for the document"),
         shardName: z.string().optional().describe("Data Shard to search in - can be default for default shard"),
