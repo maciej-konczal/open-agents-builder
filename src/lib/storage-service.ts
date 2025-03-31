@@ -187,7 +187,7 @@ export class StorageService {
     // Optional search
     if (query) {
       const q = query.toLowerCase();
-      allFiles = allFiles.filter((name) => name.toLowerCase().includes(q));
+      allFiles = allFiles.filter((name) => name.toLowerCase().includes(q)); // TODO add vector search by the file content
     }
 
     const total = allFiles.length;

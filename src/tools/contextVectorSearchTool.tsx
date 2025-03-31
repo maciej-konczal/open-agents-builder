@@ -25,7 +25,7 @@ export function createContextVectorSearchTool(
   return {
     displayName: "Search documents in vector store",
     tool: tool({
-      description: "Search for documents in the vector store using semantic similarity.",
+      description: "Search for documents in the short term memory vector store using semantic similarity.",
       parameters: z.object({
         query: z.string().describe("Search query"),
         shardName: z.string().optional().describe("Data Shard to search in - can be default for default shard"),

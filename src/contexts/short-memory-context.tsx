@@ -1,24 +1,20 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { toast } from "sonner";
+import { ShortMemoryApiClient, ShortMemoryQueryParams, ShortMemoryListResponse } from "@/data/client/short-memory-api-client";
+import { DatabaseContext } from "./db-context";
+import { SaaSContext } from "./saas-context";
 import { DataLoadingStatus } from "@/data/client/models";
 import { getErrorMessage } from "@/lib/utils";
+import { toast } from "sonner";
+import { StorageSchemas } from "@/data/dto";
 
-/** Query params for short-memory listing. */
-export type ShortMemoryQueryParams = {
-  limit: number;
-  offset: number;
-  query?: string;
-};
-
-/** Response shape from /api/short-memory/query */
-export type ShortMemoryListResponse = {
-  files: string[];
-  limit: number;
-  offset: number;
-  hasMore: boolean;
-  total: number;
+/**
+ * Basic response shape for deletion
+ */
+type DeleteFileResponse = {
+  message: string;
+  status: number;
 };
 
 type ShortMemoryContextType = {
@@ -28,30 +24,43 @@ type ShortMemoryContextType = {
   deleteFile: (fileName: string) => Promise<void>;
 };
 
+/**
+ * We create a dedicated context for short memory data,
+ * used by the Admin Page to list, read, and delete short-memory .json files.
+ */
 const ShortMemoryContext = createContext<ShortMemoryContextType | undefined>(undefined);
 
 export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
+  const dbContext = useContext(DatabaseContext);
+  const saasContext = useContext(SaaSContext);
+
   const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
 
   /**
-   * Query the list of ShortMemory JSON files (paginated & optional search).
+   * Initialize the API client with relevant schema.
+   */
+  const setupApiClient = (): ShortMemoryApiClient => {
+    // If you have a real baseUrl or storageSchema, pass them here
+    const storageSchema = StorageSchemas.VectorStore;
+    return new ShortMemoryApiClient(
+      "", // baseUrl: If your AdminApiClient is relative, keep it empty
+      storageSchema,
+      dbContext,
+      saasContext,
+      {
+        useEncryption: false
+      }
+    );
+  };
+
+  /**
+   * Lists short-memory files from the server.
    */
   const queryFiles = async (params: ShortMemoryQueryParams): Promise<ShortMemoryListResponse> => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
-      const queryString = new URLSearchParams({
-        limit: String(params.limit),
-        offset: String(params.offset),
-      });
-      if (params.query) {
-        queryString.append("query", params.query);
-      }
-
-      const resp = await fetch(`/api/short-memory/query?${queryString.toString()}`);
-      if (!resp.ok) {
-        throw new Error(`Server error: ${resp.statusText}`);
-      }
-      const data = (await resp.json()) as ShortMemoryListResponse;
+      const apiClient = setupApiClient();
+      const data = await apiClient.query(params);
       setLoaderStatus(DataLoadingStatus.Success);
       return data;
     } catch (error) {
@@ -62,18 +71,15 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
   };
 
   /**
-   * Fetch the file content by filename.
+   * Gets file content as a string from the server.
    */
   const getFileContent = async (fileName: string): Promise<string> => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
-      const resp = await fetch(`/api/short-memory/${fileName}`, { method: "GET" });
-      if (!resp.ok) {
-        throw new Error(`Server error: ${resp.statusText}`);
-      }
-      const text = await resp.text();
+      const apiClient = setupApiClient();
+      const content = await apiClient.getFileContent(fileName);
       setLoaderStatus(DataLoadingStatus.Success);
-      return text;
+      return content;
     } catch (error) {
       setLoaderStatus(DataLoadingStatus.Error);
       toast.error(getErrorMessage(error));
@@ -82,17 +88,19 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
   };
 
   /**
-   * Delete a file from the ShortMemory directory.
+   * Delete a file from the short-memory directory.
    */
   const deleteFile = async (fileName: string): Promise<void> => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
-      const resp = await fetch(`/api/short-memory/${fileName}`, { method: "DELETE" });
-      const data = await resp.json();
-      if (!resp.ok) {
-        throw new Error(data?.message || "Server error");
+      const apiClient = setupApiClient();
+      const resp = await apiClient.deleteFile(fileName);
+      if (resp.status !== 200) {
+        toast.error(resp.message);
+        throw new Error(resp.message);
       }
       setLoaderStatus(DataLoadingStatus.Success);
+      toast.success("File deleted");
     } catch (error) {
       setLoaderStatus(DataLoadingStatus.Error);
       toast.error(getErrorMessage(error));
@@ -104,7 +112,7 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
     loaderStatus,
     queryFiles,
     getFileContent,
-    deleteFile,
+    deleteFile
   };
 
   return (

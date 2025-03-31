@@ -9,14 +9,21 @@ import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader2, TrashIcon } from "lucide-react";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import { ChatMessageMarkdown } from "@/components/chat-message-markdown";
 import InfiniteScroll from "@/components/infinite-scroll";
 import JsonView from "@uiw/react-json-view";
 import { useCopyToClipboard } from "react-use";
 
-import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 import { useShortMemoryContext } from "@/contexts/short-memory-context";
+import { ChatMessageMarkdown } from "@/components/chat-message-markdown";
+import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 
+/**
+ * Admin page for ShortMemory. Allows:
+ * - Searching
+ * - Infinite scroll
+ * - Viewing content in a dialog
+ * - Deleting files
+ */
 export default function ShortMemoryFilesPage() {
   const { t } = useTranslation();
   const shortMemoryContext = useShortMemoryContext();
@@ -31,15 +38,13 @@ export default function ShortMemoryFilesPage() {
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
-  // File detail dialog
+  // Dialog states
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [selectedFileName, setSelectedFileName] = useState("");
   const [selectedFileContent, setSelectedFileContent] = useState<any | null>(null);
   const [, copyToClipboard] = useCopyToClipboard();
 
-  /**
-   * Trigger a search whenever `query` changes, with a small debounce.
-   */
+  // Debounce search input
   useEffect(() => {
     if (debounceTimer) clearTimeout(debounceTimer);
     const timerId = setTimeout(() => {
@@ -51,7 +56,7 @@ export default function ShortMemoryFilesPage() {
   }, [query]);
 
   /**
-   * Load files from the server. If `reset` is true, we reset the offset to 0.
+   * Loads files from short-memory. If `reset` is true, offset is reset to 0.
    */
   const loadFiles = async (reset?: boolean) => {
     if (isLoading) return;
@@ -59,20 +64,20 @@ export default function ShortMemoryFilesPage() {
 
     try {
       const nextOffset = reset ? 0 : offset;
-      const response = await shortMemoryContext.queryFiles({
+      const resp = await shortMemoryContext.queryFiles({
         limit,
         offset: nextOffset,
         query,
       });
 
       if (reset) {
-        setFiles(response.files);
+        setFiles(resp.files);
       } else {
-        setFiles((prev) => [...prev, ...response.files]);
+        setFiles((prev) => [...prev, ...resp.files]);
       }
 
       setOffset(nextOffset + limit);
-      setHasMore(response.hasMore);
+      setHasMore(resp.hasMore);
     } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
@@ -81,7 +86,7 @@ export default function ShortMemoryFilesPage() {
   };
 
   /**
-   * For infinite scroll usage
+   * Load more for infinite scrolling.
    */
   const loadMore = async () => {
     if (isLoading || !hasMore) return;
@@ -89,15 +94,15 @@ export default function ShortMemoryFilesPage() {
   };
 
   /**
-   * Show file content in a dialog. We parse as JSON if possible.
+   * Show file details in a dialog. We parse JSON if possible.
    */
   const handleShowDetails = async (fileName: string) => {
     try {
       const text = await shortMemoryContext.getFileContent(fileName);
       setSelectedFileName(fileName);
 
-      const parsed = safeJsonParse(text, null);
-      setSelectedFileContent(parsed ?? text);
+      const asJson = safeJsonParse(text, null);
+      setSelectedFileContent(asJson ?? text);
 
       setPreviewDialogOpen(true);
     } catch (error) {
@@ -109,12 +114,10 @@ export default function ShortMemoryFilesPage() {
    * Delete a file from the server.
    */
   const handleDelete = async (fileName: string) => {
-    if (!confirm(t("Are you sure you want to delete this file?") || "")) {
-      return;
-    }
+    if (!confirm(t("Are you sure you want to delete this file?") || "")) return;
+
     try {
       await shortMemoryContext.deleteFile(fileName);
-      toast.success(t("File deleted"));
       setFiles((prev) => prev.filter((f) => f !== fileName));
     } catch (error) {
       toast.error(getErrorMessage(error));
@@ -124,7 +127,7 @@ export default function ShortMemoryFilesPage() {
   return (
     <div className="space-y-6">
       <Input
-        placeholder={t("Search short-memory files...") || ""}
+        placeholder={t("Search short-memory stores - by file name only...") || ""}
         onChange={(e) => setQuery(e.target.value)}
         value={query}
       />
@@ -135,7 +138,7 @@ export default function ShortMemoryFilesPage() {
         </NoRecordsAlert>
       )}
 
-      {/* Details Dialog */}
+      {/* Preview Dialog */}
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
         <DialogContent className="p-4 max-w-3xl">
           <h3 className="text-sm font-bold mb-2">
@@ -169,32 +172,28 @@ export default function ShortMemoryFilesPage() {
             >
               {t("Copy")}
             </Button>
-            <Button onClick={() => setPreviewDialogOpen(false)}>{t("Close")}</Button>
+            <Button onClick={() => setPreviewDialogOpen(false)}>
+              {t("Close")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Files Grid */}
+      {/* File Cards */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {files.map((file) => (
           <Card key={file}>
             <CardHeader>
-              <CardTitle className="text-sm truncate">{file}</CardTitle>
+              <CardTitle className="text-sm truncate">{t('Vector Store')}</CardTitle>
             </CardHeader>
             <CardContent>
+              <div className="text-sm truncate">{t('ID')}: {file}</div>
               <div className="flex justify-end gap-2">
-                <Button
-                  variant="default"
-                  size="sm"
-                  onClick={() => handleShowDetails(file)}
-                >
+              
+                <Button variant="default" size="sm" onClick={() => handleShowDetails(file)}>
                   {t("Details")}
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDelete(file)}
-                >
+                <Button variant="outline" size="sm" onClick={() => handleDelete(file)}>
                   <TrashIcon className="w-4 h-4" />
                 </Button>
               </div>

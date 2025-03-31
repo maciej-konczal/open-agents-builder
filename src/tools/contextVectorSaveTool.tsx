@@ -4,6 +4,7 @@ import { VectorStore, GenerateEmbeddings, EmbeddingResult, createDiskBackedVecto
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
 import { getErrorMessage } from "@/lib/utils";
+import { nanoid } from "nanoid";
 
 export function createContextVectorSaveTool(
   databaseIdHash: string,
@@ -14,11 +15,11 @@ export function createContextVectorSaveTool(
   vectorStore: VectorStore | null = null
 ): ToolDescriptor {
   return {
-    displayName: "Save document to current context vector store",
+    displayName: "Save document to short term memory context vector store",
     tool: tool({
-      description: "Save a document and its metadata to the current context vector store.",
+      description: "Save a document and its metadata to the short term memory context vector store.",
       parameters: z.object({
-        id: z.string().describe("Unique identifier for the document"),
+        id: z.string().describe("Unique identifier for the document. When not provided wil be generated").optional(),
         content: z.string().describe("Content of the document"),
         metadata: z.string().describe("Additional metadata for the document"),
         shardName: z.string().optional().describe("Data Shard to search in - can be default for default shard"),
@@ -26,6 +27,7 @@ export function createContextVectorSaveTool(
       }),
       execute: async ({ id, content, metadata, shardName, sessionOnly }) => {
         try {
+          if (!id) id = nanoid();
           console.log(id, content, metadata, shardName, sessionOnly);
           const embedding = await generateEmbeddings(content);
 
