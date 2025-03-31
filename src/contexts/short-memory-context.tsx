@@ -1,7 +1,14 @@
+// File: src/contexts/short-memory-context.tsx
+
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { ShortMemoryApiClient, ShortMemoryQueryParams, ShortMemoryListResponse } from "@/data/client/short-memory-api-client";
+import {
+  ShortMemoryApiClient,
+  ShortMemoryQueryParams,
+  ShortMemoryListResponse,
+  ShortMemoryRecordsResponse,
+} from "@/data/client/short-memory-api-client";
 import { DatabaseContext } from "./db-context";
 import { SaaSContext } from "./saas-context";
 import { DataLoadingStatus } from "@/data/client/models";
@@ -9,25 +16,23 @@ import { getErrorMessage } from "@/lib/utils";
 import { toast } from "sonner";
 import { StorageSchemas } from "@/data/dto";
 
-/**
- * Basic response shape for deletion
- */
-type DeleteFileResponse = {
-  message: string;
-  status: number;
-};
-
 type ShortMemoryContextType = {
   loaderStatus: DataLoadingStatus;
+
+  // Existing methods
   queryFiles: (params: ShortMemoryQueryParams) => Promise<ShortMemoryListResponse>;
   getFileContent: (fileName: string) => Promise<string>;
   deleteFile: (fileName: string) => Promise<void>;
+
+  // New method to get partial records or vector search results from a single file
+  listRecords: (fileName: string, opts: {
+    limit: number;
+    offset: number;
+    embeddingSearch?: string;
+    topK?: number;
+  }) => Promise<ShortMemoryRecordsResponse>;
 };
 
-/**
- * We create a dedicated context for short memory data,
- * used by the Admin Page to list, read, and delete short-memory .json files.
- */
 const ShortMemoryContext = createContext<ShortMemoryContextType | undefined>(undefined);
 
 export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
@@ -37,25 +42,19 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
   const [loaderStatus, setLoaderStatus] = useState<DataLoadingStatus>(DataLoadingStatus.Idle);
 
   /**
-   * Initialize the API client with relevant schema.
+   * Initialize the API client with relevant schema, etc.
    */
   const setupApiClient = (): ShortMemoryApiClient => {
-    // If you have a real baseUrl or storageSchema, pass them here
     const storageSchema = StorageSchemas.VectorStore;
     return new ShortMemoryApiClient(
-      "", // baseUrl: If your AdminApiClient is relative, keep it empty
+      "", // baseUrl (if relative, keep empty)
       storageSchema,
       dbContext,
       saasContext,
-      {
-        useEncryption: false
-      }
+      { useEncryption: false }
     );
   };
 
-  /**
-   * Lists short-memory files from the server.
-   */
   const queryFiles = async (params: ShortMemoryQueryParams): Promise<ShortMemoryListResponse> => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
@@ -70,9 +69,6 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  /**
-   * Gets file content as a string from the server.
-   */
   const getFileContent = async (fileName: string): Promise<string> => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
@@ -87,9 +83,6 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  /**
-   * Delete a file from the short-memory directory.
-   */
   const deleteFile = async (fileName: string): Promise<void> => {
     setLoaderStatus(DataLoadingStatus.Loading);
     try {
@@ -108,11 +101,32 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /**
+   * New method: list (or vector-search) a single file’s records with server pagination.
+   */
+  const listRecords = async (
+    fileName: string,
+    opts: { limit: number; offset: number; embeddingSearch?: string; topK?: number }
+  ): Promise<ShortMemoryRecordsResponse> => {
+    setLoaderStatus(DataLoadingStatus.Loading);
+    try {
+      const apiClient = setupApiClient();
+      const resp = await apiClient.listRecords(fileName, opts);
+      setLoaderStatus(DataLoadingStatus.Success);
+      return resp;
+    } catch (error) {
+      setLoaderStatus(DataLoadingStatus.Error);
+      toast.error(getErrorMessage(error));
+      throw error;
+    }
+  };
+
   const value: ShortMemoryContextType = {
     loaderStatus,
     queryFiles,
     getFileContent,
-    deleteFile
+    deleteFile,
+    listRecords,
   };
 
   return (
