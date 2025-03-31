@@ -1,7 +1,7 @@
 import { z } from "zod";
 import dedent from "dedent";
 import { ToolDescriptor } from "./registry";
-import { VectorStore, GenerateEmbeddings, EmbeddingResult, createDiskBackedVectorStore } from "@/data/client/vector";
+import { VectorStore, GenerateEmbeddings, EmbeddingResult, createDiskBackedVectorStore, cosineSimilarity } from "@/data/client/vector";
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
 import { vector } from "drizzle-orm/pg-core";
