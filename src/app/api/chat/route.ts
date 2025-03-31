@@ -71,7 +71,6 @@ export function prepareAgentTools({
       );
       nonDefaultParameters = nonDefaultParameters.omit(omitKeys);
     }
-console.log(toolConfig.tool, paramsDefaults)
     mappedTools[toolKey] = tool({
       description: `${toolConfig.description ? toolConfig.description + ' - ': ''}${toolDescriptor.tool.description}`,
       parameters: nonDefaultParameters,
