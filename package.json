@@ -6,8 +6,8 @@
    "src/packages/*"
   ],
   "scripts": {
-    "dev": "yarn workspace @oab/vector-store build && next dev",
-    "build": "yarn workspace @oab/vector-store build && next build",
+    "dev": "yarn workspace oab-vector-store build && next dev",
+    "build": "yarn workspace oab-vector-store build && next build",
     "start": "next start",
     "lint": "next lint",
     "generate": "drizzle-kit generate",
@@ -140,8 +140,7 @@
     "uuid": "^10.0.0",
     "vaul": "^0.9.1",
     "zod": "^3.23.8",
-    "zod-to-json-schema": "^3.24.4",
-    "@oab/vector-store": "file:src/packages/vector-store"
+    "zod-to-json-schema": "^3.24.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.22.0",

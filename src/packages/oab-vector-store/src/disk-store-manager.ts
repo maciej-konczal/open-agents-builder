@@ -14,71 +14,48 @@ interface StoreIndex {
   };
 }
 
-// Global lock map to handle concurrent access across instances
-const lockMap = new Map<string, { acquiredAt: number, timeout: NodeJS.Timeout }>();
-
 export class DiskVectorStoreManager implements VectorStoreManager {
   private baseDir: string;
   private indexPath: string;
-  private readonly lockTimeout: number = 500; // 500ms timeout
+  private lockPath: string;
 
   constructor(config: { baseDir: string }) {
     this.baseDir = config.baseDir;
     this.indexPath = path.join(this.baseDir, 'index.json');
+    this.lockPath = path.join(this.baseDir, 'index.lock');
     
-    // Ensure base directory exists
+    // Ensure the base directory exists
     if (!fs.existsSync(this.baseDir)) {
       fs.mkdirSync(this.baseDir, { recursive: true });
     }
   }
 
   private async acquireLock(): Promise<void> {
-    const startTime = Date.now();
-    console.debug('[DiskVectorStoreManager] Attempting to acquire lock');
-    
     while (true) {
-      const existingLock = lockMap.get(this.indexPath);
-      
-      if (!existingLock) {
-        // No lock exists, create one
-        const timeout = setTimeout(() => {
-          console.warn('[DiskVectorStoreManager] Lock timeout triggered');
-          this.releaseLock().catch(console.error);
-        }, this.lockTimeout);
-        
-        lockMap.set(this.indexPath, { acquiredAt: Date.now(), timeout });
-        console.debug(`[DiskVectorStoreManager] Lock acquired at ${Date.now()}`);
+      try {
+        await fs.promises.writeFile(this.lockPath, '', { flag: 'wx' });
         return;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
+          throw error;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
-      // Check if the existing lock has expired
-      if (Date.now() - existingLock.acquiredAt > this.lockTimeout) {
-        console.warn('[DiskVectorStoreManager] Found expired lock, cleaning up');
-        await this.releaseLock();
-        continue;
-      }
-      
-      // Check if we've exceeded our own timeout
-      if (Date.now() - startTime > this.lockTimeout) {
-        throw new Error('Failed to acquire lock: timeout exceeded');
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 50));
     }
   }
 
   private async releaseLock(): Promise<void> {
-    const lock = lockMap.get(this.indexPath);
-    if (lock) {
-      clearTimeout(lock.timeout);
-      lockMap.delete(this.indexPath);
-      console.debug(`[DiskVectorStoreManager] Lock released after ${Date.now() - lock.acquiredAt}ms`);
+    try {
+      await fs.promises.unlink(this.lockPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
     }
   }
 
   private async ensureIndexFile(): Promise<void> {
     if (!fs.existsSync(this.indexPath)) {
-      console.debug('[DiskVectorStoreManager] Creating new index file');
       const initialIndex: StoreIndex = {};
       await fs.promises.writeFile(this.indexPath, JSON.stringify(initialIndex, null, 2));
     }
@@ -89,8 +66,7 @@ export class DiskVectorStoreManager implements VectorStoreManager {
       await this.ensureIndexFile();
       const content = await fs.promises.readFile(this.indexPath, 'utf-8');
       return JSON.parse(content);
-    } catch (error) {
-      console.error('[DiskVectorStoreManager] Error reading index:', error);
+    } catch {
       return {};
     }
   }
@@ -132,8 +108,8 @@ export class DiskVectorStoreManager implements VectorStoreManager {
   }
 
   async getStore(partitionKey: string, storeName: string): Promise<VectorStore | null> {
-    await this.acquireLock();
     try {
+      await this.acquireLock();
       const index = await this.readIndex();
       const metadata = index[storeName];
 
@@ -157,8 +133,8 @@ export class DiskVectorStoreManager implements VectorStoreManager {
   }
 
   async deleteStore(partitionKey: string, storeName: string): Promise<void> {
-    await this.acquireLock();
     try {
+      await this.acquireLock();
       const index = await this.readIndex();
       
       if (index[storeName]) {
@@ -176,11 +152,8 @@ export class DiskVectorStoreManager implements VectorStoreManager {
   }
 
   async listStores(partitionKey: string, params?: PaginationParams): Promise<PaginatedResult<VectorStoreMetadata>> {
-    console.debug('[DiskVectorStoreManager] Starting listStores operation');
     try {
       await this.acquireLock();
-      console.debug('[DiskVectorStoreManager] Lock acquired for listStores');
-      
       const index = await this.readIndex();
       const stores = Object.entries(index).map(([storeName, metadata]) => ({
         ...metadata,
@@ -191,28 +164,19 @@ export class DiskVectorStoreManager implements VectorStoreManager {
       const offset = params?.offset || 0;
       const limit = params?.limit || 10;
 
-      const result = {
+      return {
         items: stores.slice(offset, offset + limit),
         total: stores.length,
         hasMore: offset + limit < stores.length
       };
-
-      console.debug('[DiskVectorStoreManager] ListStores operation completed successfully');
-      return result;
-    } catch (error) {
-      console.error('[DiskVectorStoreManager] Error in listStores:', error);
-      throw error;
     } finally {
-      console.debug('[DiskVectorStoreManager] Releasing lock in listStores');
-      await this.releaseLock().catch(error => {
-        console.error('[DiskVectorStoreManager] Error releasing lock in listStores:', error);
-      });
+      await this.releaseLock();
     }
   }
 
   async searchStores(partitionKey: string, query: string, topK: number = 5): Promise<VectorStoreMetadata[]> {
-    await this.acquireLock();
     try {
+      await this.acquireLock();
       const index = await this.readIndex();
       const stores = Object.entries(index).map(([storeName, metadata]) => ({
         ...metadata,
@@ -230,8 +194,8 @@ export class DiskVectorStoreManager implements VectorStoreManager {
   }
 
   async updateStoreMetadata(partitionKey: string, storeName: string, metadata: Partial<VectorStoreMetadata>): Promise<void> {
-    await this.acquireLock();
     try {
+      await this.acquireLock();
       const index = await this.readIndex();
       if (!index[storeName]) {
         throw new Error(`Store ${storeName} not found`);

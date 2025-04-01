@@ -1,9 +1,9 @@
 // File: src/app/api/memory/[filename]/records/route.tsx
 
 import { NextRequest, NextResponse } from "next/server";
-import { createDiskVectorStoreManager, createOpenAIEmbeddings } from "@oab/vector-store";
+import { createDiskVectorStoreManager, createOpenAIEmbeddings } from "oab-vector-store";
 import path from 'path';
-import { VectorStoreEntry, VectorStore } from "@oab/vector-store";
+import { VectorStoreEntry, VectorStore } from "oab-vector-store";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 
 async function getOrCreateStore(databaseIdHash: string, storeName: string): Promise<VectorStore> {

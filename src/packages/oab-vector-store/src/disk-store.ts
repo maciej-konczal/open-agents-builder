@@ -19,6 +19,12 @@ export class DiskVectorStore implements VectorStore {
     // Store files directly in the memory-store directory
     this.filePath = path.join(config.baseDir, `${config.storeName}.json`);
     this.lockPath = path.join(config.baseDir, `${config.storeName}.lock`);
+    
+    // Ensure the directory exists
+    const dir = path.dirname(this.filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
   }
 
   private async acquireLock(): Promise<void> {

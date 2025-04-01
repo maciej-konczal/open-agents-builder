@@ -1,4 +1,4 @@
-# @oab/vector-store
+# oab-vector-store
 
 A lightweight, flexible vector store implementation with support for both in-memory and disk-based storage. This package provides a simple interface for storing and retrieving vector embeddings with metadata.
 
@@ -15,7 +15,7 @@ A lightweight, flexible vector store implementation with support for both in-mem
 ## Installation
 
 ```bash
-npm install @oab/vector-store
+npm install oab-vector-store
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ import {
   createDiskVectorStore, 
   createInMemoryVectorStore,
   createOpenAIEmbeddings 
-} from '@oab/vector-store';
+} from 'oab-vector-store';
 
 // Create an OpenAI embeddings provider
 const generateEmbeddings = createOpenAIEmbeddings({

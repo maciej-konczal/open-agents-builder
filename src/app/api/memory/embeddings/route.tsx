@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createOpenAIEmbeddings } from "@oab/vector-store";
+import { createOpenAIEmbeddings } from "oab-vector-store";
 
 export async function POST(request: NextRequest) {
   try {

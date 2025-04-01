@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { createDiskVectorStoreManager } from "@oab/vector-store";
+import { createDiskVectorStoreManager } from "oab-vector-store";
 import path from "path";
 import fs from "fs";
 

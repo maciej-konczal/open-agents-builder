@@ -1,10 +1,20 @@
 {
-  "name": "@oab/vector-store",
+  "name": "oab-vector-store",
   "private": true, 
   "version": "0.1.0",
   "description": "A lightweight, flexible vector store implementation with support for both in-memory and disk-based storage",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "source": "./src/index.ts"
+    }
+  },
   "scripts": {
     "build": "rm -rf dist && tsc",
     "test": "jest",

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ToolDescriptor } from "./registry";
-import { createDiskVectorStore, createOpenAIEmbeddings, VectorStore, VectorStoreEntry } from "@oab/vector-store";
+import { createDiskVectorStore, createOpenAIEmbeddings, VectorStore, VectorStoreEntry } from "oab-vector-store";
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
 import { getErrorMessage } from "@/lib/utils";
