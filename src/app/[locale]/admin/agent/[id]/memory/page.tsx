@@ -73,6 +73,14 @@ export default function MemoryFilesPage() {
   const [records, setRecords] = useState<PreviewRecord[]>([]);
   const [recordsTotal, setRecordsTotal] = useState(0);
 
+  // Effect to reload files when dialog closes
+  useEffect(() => {
+    if (!previewDialogOpen && selectedFileName) {
+      // Reload the files to get updated counts
+      loadFiles(true);
+    }
+  }, [previewDialogOpen]);
+
   // Basic pagination or topK for the records preview
   const [recordOffset, setRecordOffset] = useState(0);
   const recordPageSize = 5;
