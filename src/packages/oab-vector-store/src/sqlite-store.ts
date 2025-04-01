@@ -178,7 +178,7 @@ export class SQLiteVectorStore implements VectorStore {
       'UPDATE metadata SET value = ? WHERE key = ?'
     ).run(now, 'lastAccessed');
 
-    const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.rowid WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Uint8Array }) | undefined;
+    const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Uint8Array }) | undefined;
     if (!row) return null;
 
     // Convert Uint8Array back to Float32Array
@@ -200,7 +200,7 @@ export class SQLiteVectorStore implements VectorStore {
       const entry = this.db.prepare('SELECT vector_id FROM entries WHERE id = ?').get(id) as { vector_id: number } | undefined;
       if (entry) {
         // Delete from vector index
-        this.db.prepare('DELETE FROM vector_index WHERE rowid = ?').run(entry.vector_id);
+        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vector_id);
       }
 
       // Delete from entries table
@@ -234,8 +234,8 @@ export class SQLiteVectorStore implements VectorStore {
 
   async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
     const query = params
-      ? 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.rowid LIMIT ? OFFSET ?'
-      : 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.rowid';
+      ? 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id LIMIT ? OFFSET ?'
+      : 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id';
     
     const queryParams = params ? [params.limit, params.offset] : [];
     const rows = this.db.prepare(query).all(...queryParams) as (DatabaseRow & { embedding: Uint8Array })[];
@@ -273,7 +273,7 @@ export class SQLiteVectorStore implements VectorStore {
         v.embedding,
         v.distance
       FROM entries e
-      JOIN vector_index v ON e.vector_id = v.rowid
+      JOIN vector_index v ON e.vector_id = v.id
       WHERE v.embedding MATCH ? AND k = ?
       ORDER BY distance ASC`
     ).all(queryEmbeddingBuffer, topK) as (DatabaseRow & { embedding: Uint8Array; distance: number })[];
