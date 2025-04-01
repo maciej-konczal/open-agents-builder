@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { createDiskVectorStore, createOpenAIEmbeddings } from "@oab/vector-store";
+import { createDiskVectorStoreManager } from "@oab/vector-store";
+import path from "path";
 
 /**
  * GET /api/short-memory/[filename]
@@ -18,19 +19,25 @@ export async function GET(
     await authorizeSaasContext(request);
     await authorizeStorageSchema(request);
 
-    // Create vector store instance
-    const generateEmbeddings = createOpenAIEmbeddings();
-    const vectorStore = createDiskVectorStore({
-      storeName: params.filename,
-      partitionKey: requestContext.databaseIdHash,
-      maxFileSizeMB: 10
-    }, generateEmbeddings);
+    // Create store manager instance
+    const storeManager = createDiskVectorStoreManager({
+      baseDir: path.resolve(process.cwd(), 'data')
+    });
+
+    // Get the store
+    const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
+    if (!store) {
+      return NextResponse.json(
+        { message: "Store not found", status: 404 },
+        { status: 404 }
+      );
+    }
 
     // Get all entries
-    const entries = await vectorStore.entries();
-    return NextResponse.json(entries);
+    const { items } = await store.entries();
+    return NextResponse.json(items);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching store:', error);
     return NextResponse.json(
       { message: getErrorMessage(error), status: 500 },
       { status: 500 }
@@ -52,20 +59,17 @@ export async function DELETE(
     await authorizeSaasContext(request);
     await authorizeStorageSchema(request);
 
-    // Create vector store instance
-    const generateEmbeddings = createOpenAIEmbeddings();
-    const vectorStore = createDiskVectorStore({
-      storeName: params.filename,
-      partitionKey: requestContext.databaseIdHash,
-      maxFileSizeMB: 10
-    }, generateEmbeddings);
+    // Create store manager instance
+    const storeManager = createDiskVectorStoreManager({
+      baseDir: path.resolve(process.cwd(), 'data')
+    });
 
-    // Clear all entries
-    await vectorStore.clear();
+    // Delete the store
+    await storeManager.deleteStore(requestContext.databaseIdHash, params.filename);
 
-    return NextResponse.json({ message: "File deleted successfully" });
+    return NextResponse.json({ message: "Store deleted successfully" });
   } catch (error) {
-    console.error(error);
+    console.error('Error deleting store:', error);
     return NextResponse.json(
       { message: getErrorMessage(error), status: 500 },
       { status: 500 }

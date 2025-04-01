@@ -1,4 +1,4 @@
-import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult } from './types';
+import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult, VectorStoreMetadata } from './types';
 import { generateEntryId, getCurrentTimestamp } from './utils';
 
 export class InMemoryVectorStore implements VectorStore {
@@ -70,6 +70,17 @@ export class InMemoryVectorStore implements VectorStore {
 
   getConfig(): VectorStoreConfig {
     return this.config;
+  }
+
+  async getMetadata(): Promise<VectorStoreMetadata> {
+    return {
+      name: this.config.storeName,
+      partitionKey: this.config.partitionKey,
+      itemCount: this.store.size,
+      createdAt: getCurrentTimestamp(),
+      updatedAt: getCurrentTimestamp(),
+      lastAccessed: getCurrentTimestamp()
+    };
   }
 
   async clear(): Promise<void> {

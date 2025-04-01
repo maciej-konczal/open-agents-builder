@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult } from './types';
+import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult, VectorStoreMetadata } from './types';
 import { generateEntryId, getCurrentTimestamp } from './utils';
 
 export class DiskVectorStore implements VectorStore {
@@ -151,6 +151,24 @@ export class DiskVectorStore implements VectorStore {
 
   getConfig(): VectorStoreConfig {
     return this.config;
+  }
+
+  async getMetadata(): Promise<VectorStoreMetadata> {
+    await this.acquireLock();
+    try {
+      const data = await this.readData();
+      const itemCount = Object.keys(data).length;
+      return {
+        name: this.config.storeName,
+        partitionKey: this.config.partitionKey,
+        itemCount,
+        createdAt: getCurrentTimestamp(), // This should be stored in the index
+        updatedAt: getCurrentTimestamp(), // This should be stored in the index
+        lastAccessed: getCurrentTimestamp()
+      };
+    } finally {
+      this.releaseLock();
+    }
   }
 
   async clear(): Promise<void> {

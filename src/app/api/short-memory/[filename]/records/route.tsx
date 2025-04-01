@@ -1,9 +1,9 @@
 // File: src/app/api/short-memory/[filename]/records/route.tsx
 
 import { NextRequest, NextResponse } from "next/server";
-import { createDiskVectorStore } from "@oab/vector-store";
-import { createOpenAIEmbeddings } from "@oab/vector-store";
+import { createDiskVectorStoreManager } from "@oab/vector-store";
 import path from 'path';
+import { VectorStoreEntry } from "@oab/vector-store";
 
 /**
  * GET /api/short-memory/[filename]/records
@@ -25,24 +25,26 @@ export async function GET(
     const embeddingSearch = searchParams.get('embeddingSearch');
     const topK = parseInt(searchParams.get('topK') || '5');
 
-    const generateEmbeddings = createOpenAIEmbeddings({ apiKey: process.env.OPENAI_API_KEY });
-
-    const vectorStore = createDiskVectorStore({
-      partitionKey: 'short-memory',
-      storeName: params.filename,
-      maxFileSizeMB: 10,
-      baseDir: path.resolve(process.cwd(), 'data'),
-      generateEmbeddings
+    const storeManager = createDiskVectorStoreManager({
+      baseDir: path.resolve(process.cwd(), 'data')
     });
 
+    const store = await storeManager.getStore('short-memory', params.filename);
+    if (!store) {
+      return NextResponse.json(
+        { error: 'Store not found' },
+        { status: 404 }
+      );
+    }
+
     if (embeddingSearch) {
-      const results = await vectorStore.search(embeddingSearch, topK);
+      const results = await store.search(embeddingSearch, topK);
       return NextResponse.json({ results });
     }
 
-    const { items, total, hasMore } = await vectorStore.entries({ limit, offset });
+    const { items, total, hasMore } = await store.entries({ limit, offset });
     return NextResponse.json({
-      items: items.map(entry => ({
+      items: items.map((entry: VectorStoreEntry) => ({
         id: entry.id,
         metadata: entry.metadata,
         content: entry.content,

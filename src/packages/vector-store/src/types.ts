@@ -16,6 +16,20 @@ export const vectorStoreEntrySchema = z.object({
 export type VectorStoreEntry = z.infer<typeof vectorStoreEntrySchema>;
 
 /**
+ * Vector store metadata
+ */
+export const vectorStoreMetadataSchema = z.object({
+  name: z.string(),
+  partitionKey: z.string(),
+  itemCount: z.number(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  lastAccessed: z.string().optional(),
+});
+
+export type VectorStoreMetadata = z.infer<typeof vectorStoreMetadataSchema>;
+
+/**
  * Vector store configuration
  */
 export const vectorStoreConfigSchema = z.object({
@@ -46,13 +60,31 @@ export interface VectorStore {
   
   // Store management
   getConfig: () => VectorStoreConfig;
+  getMetadata: () => Promise<VectorStoreMetadata>;
   clear: () => Promise<void>;
+}
+
+/**
+ * Vector store manager interface for managing multiple stores
+ */
+export interface VectorStoreManager {
+  // Store management
+  createStore: (config: VectorStoreConfig) => Promise<VectorStore>;
+  deleteStore: (partitionKey: string, storeName: string) => Promise<void>;
+  getStore: (partitionKey: string, storeName: string) => Promise<VectorStore | null>;
+  listStores: (partitionKey: string, params?: PaginationParams) => Promise<PaginatedResult<VectorStoreMetadata>>;
+  searchStores: (partitionKey: string, query: string, topK?: number) => Promise<VectorStoreMetadata[]>;
 }
 
 /**
  * Factory function type for creating vector stores
  */
 export type VectorStoreFactory = (config: VectorStoreConfig) => VectorStore;
+
+/**
+ * Factory function type for creating vector store managers
+ */
+export type VectorStoreManagerFactory = (config: { baseDir: string }) => VectorStoreManager;
 
 /**
  * Embedding generation function type
