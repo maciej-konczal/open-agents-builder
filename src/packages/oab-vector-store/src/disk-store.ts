@@ -166,34 +166,30 @@ export class DiskVectorStore implements VectorStore {
 
     const results = entries.map(entry => ({
       entry,
-      similarity: this.cosineSimilarity(queryEmbedding, entry.embedding)
+      distance: this.euclideanDistance(queryEmbedding, entry.embedding)
     }));
 
     return results
-      .sort((a, b) => b.similarity - a.similarity)
+      .sort((a, b) => a.distance - b.distance)
       .slice(0, topK)
       .map(result => ({
         ...result.entry,
-        similarity: result.similarity
+        similarity: result.distance
       }));
   }
 
-  private cosineSimilarity(a: number[], b: number[]): number {
+  private euclideanDistance(a: number[], b: number[]): number {
     if (a.length !== b.length) {
       throw new Error('Vectors must have the same length');
     }
 
-    let dotProduct = 0;
-    let normA = 0;
-    let normB = 0;
-
+    let sum = 0;
     for (let i = 0; i < a.length; i++) {
-      dotProduct += a[i] * b[i];
-      normA += a[i] * a[i];
-      normB += b[i] * b[i];
+      const diff = a[i] - b[i];
+      sum += diff * diff;
     }
 
-    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
+    return Math.sqrt(sum);
   }
 
   async upsert(entry: VectorStoreEntry): Promise<void> {

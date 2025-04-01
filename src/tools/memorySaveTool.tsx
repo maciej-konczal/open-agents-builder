@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { ToolDescriptor } from "./registry";
-import { createDiskVectorStore, createOpenAIEmbeddings, VectorStore, VectorStoreEntry } from "oab-vector-store";
+import { createVectorStore, createOpenAIEmbeddings, VectorStore, VectorStoreEntry } from "oab-vector-store";
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
-import { getErrorMessage } from "@/lib/utils";
+import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 import { nanoid } from "nanoid";
 import path from "path";
 
@@ -34,7 +34,7 @@ export function createMemorySaveTool(
               apiKey: process.env.OPENAI_API_KEY
             });
 
-            vectorStore = createDiskVectorStore({
+            vectorStore = createVectorStore({
               storeName: storeName || 'default',
               partitionKey: databaseIdHash,
               maxFileSizeMB: 10,
@@ -47,7 +47,7 @@ export function createMemorySaveTool(
           const entry: VectorStoreEntry = {
             id,
             content,
-            metadata: JSON.parse(metadata),
+            metadata: safeJsonParse(metadata, {}),
             embedding: await vectorStore.getConfig().generateEmbeddings(content)
           };
 

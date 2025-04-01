@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { ToolDescriptor } from "./registry";
-import { createDiskVectorStore, createOpenAIEmbeddings, VectorStore } from "oab-vector-store";
+import { createVectorStore, createOpenAIEmbeddings, VectorStore } from "oab-vector-store";
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
 import { getErrorMessage } from "@/lib/utils";
@@ -30,7 +30,7 @@ export function createMemorySearchTool(
               apiKey: process.env.OPENAI_API_KEY
             });
 
-            vectorStore = createDiskVectorStore({
+            vectorStore = createVectorStore({
               storeName: storeName || 'default',
               partitionKey: databaseIdHash,
               maxFileSizeMB: 10,
