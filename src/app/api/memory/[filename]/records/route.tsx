@@ -65,8 +65,10 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = parseInt(searchParams.get('offset') || '0');
     const embeddingSearch = searchParams.get('embeddingSearch');
-    const topK = parseInt(searchParams.get('topK') || '5');
-
+    let topK = parseInt(searchParams.get('topK') || '5');
+    if (isNaN(topK)) {
+      topK = 5; // Default value if topK is not a valid number
+    }
     const store = await getOrCreateStore(requestContext.databaseIdHash, params.filename);
 
     if (embeddingSearch) {
