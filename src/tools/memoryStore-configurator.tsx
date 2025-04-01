@@ -85,24 +85,6 @@ export function MemoryStoreConfigurator({
     }
   };
 
-  const handleDeleteStore = async (name: string) => {
-    if (!name) return;
-    
-    setIsDeleting(true);
-    try {
-      await memoryContext.deleteFile(name);
-      await loadStores();
-      
-      // If the deleted store was selected, clear the selection
-      if (name === storeName) {
-        handleStoreNameChange('');
-      }
-    } catch (error) {
-      toast.error(getErrorMessage(error));
-    } finally {
-      setIsDeleting(false);
-    }
-  };
 
   return (
     <div className="space-y-4">
@@ -167,20 +149,6 @@ export function MemoryStoreConfigurator({
           </div>
         )}
 
-        {/* Delete Store Button */}
-        {storeName && (
-          <div className="mt-2">
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={() => handleDeleteStore(storeName)}
-              disabled={isDeleting}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              {t('Delete Store')}
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
