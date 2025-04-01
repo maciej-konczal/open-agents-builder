@@ -18,6 +18,7 @@ export class DiskVectorStoreManager implements VectorStoreManager {
   private baseDir: string;
   private indexPath: string;
   private indexLockPath: string;
+  private readonly lockTimeout: number = 5000; // 5 seconds timeout
 
   constructor(config: { baseDir: string }) {
     this.baseDir = config.baseDir;
@@ -26,6 +27,13 @@ export class DiskVectorStoreManager implements VectorStoreManager {
   }
 
   private async acquireLock(): Promise<void> {
+    const startTime = Date.now();
+    
+    // Ensure the directory exists
+    if (!fs.existsSync(this.baseDir)) {
+      await fs.promises.mkdir(this.baseDir, { recursive: true });
+    }
+    
     while (true) {
       try {
         await fs.promises.writeFile(this.indexLockPath, '', { flag: 'wx' });
@@ -34,6 +42,18 @@ export class DiskVectorStoreManager implements VectorStoreManager {
         if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
           throw error;
         }
+        
+        // Check if we've exceeded the timeout
+        if (Date.now() - startTime > this.lockTimeout) {
+          // Try to remove a potentially stale lock
+          try {
+            await fs.promises.unlink(this.indexLockPath);
+          } catch (_unlinkError) {
+            // Ignore errors when trying to remove stale lock
+          }
+          throw new Error('Failed to acquire lock: timeout exceeded');
+        }
+        
         await new Promise(resolve => setTimeout(resolve, 100));
       }
     }
@@ -159,8 +179,9 @@ export class DiskVectorStoreManager implements VectorStoreManager {
     await this.acquireLock();
     try {
       const index = await this.readIndex();
-      const stores = Object.entries(index).map(([name, metadata]) => ({
+      const stores = Object.entries(index).map(([storeName, metadata]) => ({
         ...metadata,
+        name: storeName,
         partitionKey
       }));
 
@@ -181,8 +202,9 @@ export class DiskVectorStoreManager implements VectorStoreManager {
     await this.acquireLock();
     try {
       const index = await this.readIndex();
-      const stores = Object.entries(index).map(([name, metadata]) => ({
+      const stores = Object.entries(index).map(([storeName, metadata]) => ({
         ...metadata,
+        name: storeName,
         partitionKey
       }));
 

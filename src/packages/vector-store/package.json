@@ -1,14 +1,15 @@
 {
   "name": "@oab/vector-store",
+  "private": true, 
   "version": "0.1.0",
   "description": "A lightweight, flexible vector store implementation with support for both in-memory and disk-based storage",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "rm -rf dist && tsc",
     "test": "jest",
     "lint": "eslint src --ext .ts",
-    "clean": "rimraf dist",
+    "clean": "rm -rf dist",
     "prebuild": "npm run clean"
   },
   "keywords": [
