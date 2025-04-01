@@ -4,8 +4,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { createDiskVectorStoreManager } from "@oab/vector-store";
 import path from "path";
+import fs from "fs";
+
+interface StoreMetadata {
+  createdAt: string;
+  updatedAt: string;
+  itemCount: number;
+}
+
+interface StoreIndex {
+  [storeName: string]: StoreMetadata;
+}
 
 /**
  * GET /api/short-memory/query
@@ -24,39 +34,39 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(url.searchParams.get("offset") ?? "0", 10);
     const query = url.searchParams.get("query") ?? "";
 
-    // Create store manager instance
-    const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data')
-    });
-
-    // List stores for this database
-    let items, total, hasMore;
-    if (query) {
-      // If there's a search query, use searchStores
-      const searchResults = await storeManager.searchStores(requestContext.databaseIdHash, query);
-      items = searchResults;
-      total = searchResults.length;
-      hasMore = false;
-    } else {
-      // Otherwise use paginated listStores
-      const result = await storeManager.listStores(requestContext.databaseIdHash, { limit, offset });
-      items = result.items;
-      total = result.total;
-      hasMore = result.hasMore;
+    // Read the index.json file
+    const indexPath = path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-index.json');
+    let index: StoreIndex = {};
+    
+    if (fs.existsSync(indexPath)) {
+      const indexContent = fs.readFileSync(indexPath, 'utf-8');
+      index = JSON.parse(indexContent);
     }
 
-    // Map to the expected response format with more metadata
-    const files = items.map(store => ({
-      file: store.name,
-      displayName: store.name.replace(/\.json$/, ''), // Remove .json extension for display
-      itemCount: store.itemCount,
-      createdAt: store.createdAt,
-      updatedAt: store.updatedAt,
-      lastAccessed: store.lastAccessed
+    // Convert index to files array
+    let files = Object.entries(index).map(([storeName, metadata]) => ({
+      file: `${storeName}.json`,
+      displayName: storeName,
+      itemCount: metadata.itemCount,
+      createdAt: metadata.createdAt,
+      updatedAt: metadata.updatedAt
     }));
 
+    // Apply search filter if query is provided
+    if (query) {
+      const q = query.toLowerCase();
+      files = files.filter(file => 
+        file.displayName.toLowerCase().includes(q)
+      );
+    }
+
+    // Apply pagination
+    const total = files.length;
+    const hasMore = offset + limit < total;
+    const paginatedFiles = files.slice(offset, offset + limit);
+
     return NextResponse.json({
-      files,
+      files: paginatedFiles,
       limit,
       offset,
       hasMore,

@@ -42,6 +42,9 @@ type ShortMemoryContextType = {
     metadata: Record<string, unknown>;
     embedding: number[];
   }) => Promise<void>;
+
+  // New method to generate embeddings
+  generateEmbeddings: (content: string) => Promise<number[]>;
 };
 
 const ShortMemoryContext = createContext<ShortMemoryContextType | undefined>(undefined);
@@ -174,6 +177,23 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /**
+   * Generate embeddings for content
+   */
+  const generateEmbeddings = async (content: string): Promise<number[]> => {
+    setLoaderStatus(DataLoadingStatus.Loading);
+    try {
+      const apiClient = setupApiClient();
+      const embedding = await apiClient.generateEmbeddings(content);
+      setLoaderStatus(DataLoadingStatus.Success);
+      return embedding;
+    } catch (error) {
+      setLoaderStatus(DataLoadingStatus.Error);
+      toast.error(getErrorMessage(error));
+      throw error;
+    }
+  };
+
   const value: ShortMemoryContextType = {
     loaderStatus,
     queryFiles,
@@ -182,6 +202,7 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
     listRecords,
     createStore,
     saveRecord,
+    generateEmbeddings,
   };
 
   return (

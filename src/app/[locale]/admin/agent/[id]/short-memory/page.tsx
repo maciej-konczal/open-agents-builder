@@ -11,7 +11,6 @@ import { Loader2, TrashIcon, Plus } from "lucide-react";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
 import { useShortMemoryContext } from "@/contexts/short-memory-context";
 import { getErrorMessage } from "@/lib/utils";
-import { createOpenAIEmbeddings } from "@oab/vector-store";
 import { nanoid } from "nanoid";
 
 // For table display
@@ -107,7 +106,7 @@ export default function ShortMemoryFilesPage() {
     return () => {
       if (debounceTimer) clearTimeout(debounceTimer);
     };
-  }, [query, debounceTimer]);
+  }, [query]);
 
   /**
    * Load the list of short-memory files.
@@ -181,7 +180,7 @@ export default function ShortMemoryFilesPage() {
     if (!confirm(t("Are you sure you want to delete this file?") || "")) return;
     try {
       await shortMemoryContext.deleteFile(fileName);
-      setFiles((prev) => prev.filter((f) => f.file !== fileName));
+      await loadFiles(true);
     } catch (error) {
       toast.error(getErrorMessage(error));
     }
@@ -279,18 +278,17 @@ export default function ShortMemoryFilesPage() {
 
     setIsSaving(true);
     try {
-      const generateEmbeddings = createOpenAIEmbeddings({
-        apiKey: process.env.OPENAI_API_KEY
-      });
-
       const metadata = JSON.parse(recordFormData.metadata);
       const id = editingRecord?.id || nanoid();
+
+      // Generate embeddings using the context method
+      const embedding = await shortMemoryContext.generateEmbeddings(recordFormData.content);
 
       const entry = {
         id,
         content: recordFormData.content,
         metadata,
-        embedding: await generateEmbeddings(recordFormData.content)
+        embedding
       };
 
       // Save using the short-memory context
@@ -305,8 +303,16 @@ export default function ShortMemoryFilesPage() {
       setRecordFormData({ content: "", metadata: "{}" });
       
       toast.success(t("Record saved successfully"));
-    } catch (error) {
-      toast.error(getErrorMessage(error));
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      // Handle specific error cases
+      if (errorMessage.includes("Store not found")) {
+        toast.error(t("Store not found. Please try refreshing the page."));
+      } else if (errorMessage.includes("Missing required fields")) {
+        toast.error(t("Please fill in all required fields."));
+      } else {
+        toast.error(getErrorMessage(error));
+      }
     } finally {
       setIsSaving(false);
     }
@@ -338,23 +344,19 @@ export default function ShortMemoryFilesPage() {
 
   // ---------- RENDER ----------
   return (
-    <div className="container mx-auto py-10">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">{t("Short-term Memory Files")}</h1>
-        <div className="flex items-center gap-4">
-          <div className="w-64">
-            <Input
-              type="search"
-              placeholder={t("Search files...") || ""}
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </div>
-          <Button onClick={() => setCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            {t("Create Store")}
-          </Button>
-        </div>
+    <div className="container mx-auto pt-1.5 pb-10">
+      <div className="space-y-4">
+        <Button variant="outline" onClick={() => setCreateDialogOpen(true)} className="text-xs">
+          <Plus className="h-4 w-4 mr-2" />
+          {t("Create Store")}
+        </Button>
+        <Input
+          type="search"
+          placeholder={t("Search files...") || ""}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full"
+        />
       </div>
 
       {/* Create Store Dialog */}
@@ -398,7 +400,7 @@ export default function ShortMemoryFilesPage() {
           {t("Try adjusting your search or create a new file.")}
         </NoRecordsAlert>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           {files.map((file) => (
             <Card key={file.file} className="flex flex-col">
               <CardHeader>
@@ -526,7 +528,7 @@ export default function ShortMemoryFilesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {records.map((r) => (
+                  {records?.map((r) => (
                     <tr key={r.id} className="border-b">
                       <td className="p-2 align-top w-24 font-bold">{r.id}</td>
                       <td className="p-2 align-top">

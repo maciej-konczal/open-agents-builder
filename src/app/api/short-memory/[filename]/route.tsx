@@ -4,42 +4,51 @@ import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api"
 import { getErrorMessage } from "@/lib/utils";
 import { createDiskVectorStoreManager } from "@oab/vector-store";
 import path from "path";
+import fs from "fs";
+
+interface StoreMetadata {
+  createdAt: string;
+  updatedAt: string;
+  itemCount: number;
+}
+
+interface StoreIndex {
+  [databaseIdHash: string]: {
+    [storeName: string]: StoreMetadata;
+  };
+}
 
 /**
  * GET /api/short-memory/[filename]
- * Get the full content of a short-memory file
+ * Returns the raw file content of a short-memory JSON file.
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: { filename: string } }
 ) {
   try {
-    // Authorization checks
     const requestContext = await authorizeRequestContext(request);
     await authorizeSaasContext(request);
     await authorizeStorageSchema(request);
 
-    // Create store manager instance
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data')
+      baseDir: path.resolve(process.cwd(), 'data', 'short-memory-store')
     });
 
-    // Get the store
     const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
     if (!store) {
       return NextResponse.json(
-        { message: "Store not found", status: 404 },
+        { error: 'Store not found' },
         { status: 404 }
       );
     }
 
-    // Get all entries
     const { items } = await store.entries();
     return NextResponse.json(items);
-  } catch (error) {
-    console.error('Error fetching store:', error);
+  } catch (err) {
+    console.error('Error fetching store:', err);
     return NextResponse.json(
-      { message: getErrorMessage(error), status: 500 },
+      { error: getErrorMessage(err) },
       { status: 500 }
     );
   }
@@ -47,31 +56,58 @@ export async function GET(
 
 /**
  * DELETE /api/short-memory/[filename]
- * Delete a short-memory file
+ * Deletes a short-memory JSON file.
  */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { filename: string } }
 ) {
   try {
-    // Authorization checks
     const requestContext = await authorizeRequestContext(request);
     await authorizeSaasContext(request);
     await authorizeStorageSchema(request);
 
-    // Create store manager instance
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data')
+      baseDir: path.resolve(process.cwd(), 'data', 'short-memory-store')
     });
+
+    // Check if store exists before attempting to delete
+    const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
+    if (!store) {
+      return NextResponse.json(
+        { error: 'Store not found' },
+        { status: 404 }
+      );
+    }
 
     // Delete the store
     await storeManager.deleteStore(requestContext.databaseIdHash, params.filename);
 
-    return NextResponse.json({ message: "Store deleted successfully" });
-  } catch (error) {
-    console.error('Error deleting store:', error);
+    // Update the index.json file
+    const indexPath = path.resolve(process.cwd(), 'data', 'short-memory-stores-index.json');
+    if (fs.existsSync(indexPath)) {
+      const indexContent = fs.readFileSync(indexPath, 'utf-8');
+      const index: StoreIndex = JSON.parse(indexContent);
+
+      // Remove the store from the index if it exists
+      if (index[requestContext.databaseIdHash]?.[params.filename]) {
+        delete index[requestContext.databaseIdHash][params.filename];
+
+        // If this was the last store for this database, remove the database entry too
+        if (Object.keys(index[requestContext.databaseIdHash]).length === 0) {
+          delete index[requestContext.databaseIdHash];
+        }
+
+        // Write the updated index back to disk
+        fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
+      }
+    }
+
+    return NextResponse.json({ message: 'Store deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting store:', err);
     return NextResponse.json(
-      { message: getErrorMessage(error), status: 500 },
+      { error: getErrorMessage(err) },
       { status: 500 }
     );
   }

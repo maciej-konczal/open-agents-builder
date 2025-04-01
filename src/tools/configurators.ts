@@ -15,11 +15,12 @@ import { Agent } from '@/data/client/models';
 import { TraceToolConfigurator } from './traceTool-configurator';
 import { RenderComponentToolConfigurator } from './renderComponentTool-configurator';
 import { getAvailableUIComponents } from './availableUIComponentsTool';
-import { ContextVectorStoreConfigurator } from './contextVectorSaveTool-configurator';
+import { ContextVectorStoreConfigurator } from './shortMemorySaveTool-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
-  configurator: React.ComponentType<any>;
+  configurator: React.ComponentType<{ options: any; onChange: (options: any) => void }>;
+  defaultOptions?: Record<string, unknown>;
 }
 
 export const toolConfiguratorsRepository = {
@@ -77,6 +78,22 @@ export const toolConfiguratorsRepository = {
       contextVectorSearchTool: {
         displayName: 'Short term memory search',
         configurator: ContextVectorStoreConfigurator
+      },
+      shortMemorySaveTool: {
+        displayName: "Save document to short-term memory store",
+        configurator: ContextVectorStoreConfigurator,
+        defaultOptions: {
+          storeName: "default",
+          sessionOnly: false
+        }
+      },
+      shortMemorySearchTool: {
+        displayName: "Search in short-term memory store",
+        configurator: ContextVectorStoreConfigurator,
+        defaultOptions: {
+          storeName: "default",
+          sessionOnly: false
+        }
       }
     }
 

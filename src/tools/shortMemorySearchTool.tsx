@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { ToolDescriptor } from "./registry";
-import { createDiskVectorStore, createOpenAIEmbeddings, VectorStore } from "@oab/vector-store";
+import { createDiskVectorStore, createOpenAIEmbeddings, VectorStore, VectorStoreEntry } from "@oab/vector-store";
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
 import { getErrorMessage } from "@/lib/utils";
 import path from "path";
 
-export function createContextVectorSearchTool(
+export function createShortMemorySearchTool(
   databaseIdHash: string,
   sessionId: string,
   storageKey: string | null | undefined,
@@ -14,19 +14,17 @@ export function createContextVectorSearchTool(
   vectorStore: VectorStore | null = null
 ): ToolDescriptor {
   return {
-    displayName: "Search documents in vector store",
+    displayName: "Search in short-term memory store",
     tool: tool({
-      description: "Search for documents in the short term memory vector store using semantic similarity.",
+      description: "Search for documents in the short-term memory store based on a query.",
       parameters: z.object({
         query: z.string().describe("Search query"),
-        shardName: z.string().optional().describe("Name of the store to search in - if not provided will use 'default'"),
+        storeName: z.string().optional().describe("Name of the store to search in - if not provided will use 'default'"),
         sessionOnly: z.boolean().optional().default(false).describe("Whether to search only in the current session"),
-        topK: z.number().int().positive().default(5).describe("Number of top results to return"),
+        limit: z.number().optional().default(5).describe("Maximum number of results to return")
       }),
-      execute: async ({ query, shardName, sessionOnly, topK }) => {
+      execute: async ({ query, storeName, sessionOnly, limit }) => {
         try {
-          console.log(query, shardName, sessionOnly, topK);
-
           // Create vector store if not provided
           if (!vectorStore) {
             const generateEmbeddings = createOpenAIEmbeddings({
@@ -34,20 +32,18 @@ export function createContextVectorSearchTool(
             });
 
             vectorStore = createDiskVectorStore({
-              storeName: shardName || 'default',
+              storeName: storeName || 'default',
               partitionKey: databaseIdHash,
               maxFileSizeMB: 10,
-              baseDir: path.resolve(process.cwd(), 'data'),
+              baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'short-memory-store'),
               generateEmbeddings
             });
           }
 
-          const results = await vectorStore.search(query, topK);
-          return results;
-
+          const results = await vectorStore.search(query, limit);
+          return JSON.stringify(results);
         } catch (err) {
-          console.error(err)
-          return `Error searching document: ${getErrorMessage(err)}`;
+          return `Error searching documents: ${getErrorMessage(err)}`;
         }
       },
     }),

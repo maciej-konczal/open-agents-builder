@@ -13,14 +13,13 @@ export class DiskVectorStore implements VectorStore {
     this.config = config;
     this.generateEmbeddings = config.generateEmbeddings;
     
-    // Create base directory structure using the configured baseDir
-    const baseDir = path.join(config.baseDir, config.partitionKey, 'vector-store');
-    if (!fs.existsSync(baseDir)) {
-      fs.mkdirSync(baseDir, { recursive: true });
+    // Create base directory if it doesn't exist
+    if (!fs.existsSync(config.baseDir)) {
+      fs.mkdirSync(config.baseDir, { recursive: true });
     }
 
-    // Set up file paths
-    this.storePath = path.join(baseDir, `${config.storeName}.json`);
+    // Set up file paths directly in the base directory
+    this.storePath = path.join(config.baseDir, `${config.storeName}.json`);
     this.lockPath = `${this.storePath}.lock`;
   }
 

@@ -3,7 +3,6 @@ import { currentDateTool } from './currentDateTool';
 import { Tool } from 'ai';
 import { createEmailTool } from './sendEmailTool';
 import { checkApiKey } from '@/lib/utils';
-import { create } from 'domain';
 import { createCalendarScheduleTool } from './calendarScheduleTool';
 import { createCalendarListTool } from './calendarListTool';
 import { dayNameTool } from './dayNameTool';
@@ -12,11 +11,9 @@ import { createListProductsTool } from './listProductsTool';
 import { httpTool } from './httpTool';
 import { createAttachmentContentTool } from './attachmentContentTool';
 import { StorageSchemas } from '@/data/dto';
-import { list } from 'postcss';
 import { createListAttachmentsTool } from './listAttachmentsTool';
 import { createUpdateResultTool } from './updateResultTool';
 import { createExecFlowTool } from './execFlowTool';
-import ServerAgentRepository from '@/data/server/server-agent-repository';
 import { Agent } from '@/data/client/models';
 import { AuthorizedSaaSContext } from '@/lib/generic-api';
 import { createTraceTool } from './traceTool';
@@ -24,22 +21,30 @@ import { FlowChunkEvent } from '@/flows/models';
 import { replaceBase64Content } from '@/lib/file-extractor';
 import { createAvailableUIComponentsTool, getAvailableUIComponents } from './availableUIComponentsTool';
 import { createRenderComponentTool } from './renderComponentTool';
-import { createContextVectorSaveTool } from './contextVectorSaveTool';
-import { createInMemoryVectorStore, openAIEmbeddings } from '@/data/client/vector';
-import { createContextVectorSearchTool } from './contextVectorSearchTool';
-
+import { createShortMemorySaveTool } from './shortMemorySaveTool';
+import { createOpenAIEmbeddings } from '@oab/vector-store';
+import { createShortMemorySearchTool } from './shortMemorySearchTool';
+import { createDiskVectorStore } from '@oab/vector-store';
+import path from 'path';
 
 export type ToolDescriptor = {
   displayName: string;
   tool: Tool;
-  injectStreamingController?: (streamingController: ReadableStreamDefaultController<any>) => void;
+  injectStreamingController?: (streamingController: ReadableStreamDefaultController<unknown>) => void;
 }
 
 let availableTools: Record<string, ToolDescriptor> | null = null;
 
 export const toolRegistry = {
-  init: ({ saasContext, databaseIdHash, storageKey, agentId, agent, sessionId, streamingController }: { saasContext?: AuthorizedSaaSContext, agentId: string, sessionId: string, agent?: Agent, databaseIdHash: string, storageKey: string | undefined | null, streamingController?: ReadableStreamDefaultController<any> }): Record<string, ToolDescriptor> => {
-
+  init: ({ saasContext, databaseIdHash, storageKey, agentId, agent, sessionId, streamingController }: { 
+    saasContext?: AuthorizedSaaSContext, 
+    agentId: string, 
+    sessionId: string, 
+    agent?: Agent, 
+    databaseIdHash: string, 
+    storageKey: string | undefined | null, 
+    streamingController?: ReadableStreamDefaultController<unknown> 
+  }): Record<string, ToolDescriptor> => {
     const streamToOutput =
       (chunk: FlowChunkEvent) => {
         // Attach a timestamp
@@ -54,9 +59,6 @@ export const toolRegistry = {
           streamingController.enqueue(encoder.encode(textChunk));
         }
       }
-
-      const inMemoryStore = createInMemoryVectorStore();
-      const embeddingFunction = openAIEmbeddings();
 
     //if (availableTools !== null) return availableTools; // causes problem with the old streaming controlelr
     availableTools = {
@@ -87,7 +89,7 @@ export const toolRegistry = {
           currentDateTimeIso: new Date().toISOString(),
           currentLocalDateTime: new Date().toLocaleString(),
           currentTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-          streamingController
+          streamingController: streamingController ?? null
         })
         availableTools = {
           ...availableTools,
@@ -95,15 +97,26 @@ export const toolRegistry = {
         }
       });
 
+      const generateEmbeddings = createOpenAIEmbeddings({
+        apiKey: process.env.OPENAI_API_KEY
+      });
+
+      const vectorStore = createDiskVectorStore({
+        storeName: 'default',
+        partitionKey: databaseIdHash,
+        maxFileSizeMB: 10,
+        baseDir: path.resolve(process.cwd(), 'data', 'short-memory-store'),
+        generateEmbeddings
+      });
+
       availableTools = {
         ...availableTools,
-        contextVectorSaveTool: createContextVectorSaveTool(databaseIdHash, sessionId, storageKey, agent, embeddingFunction),
-        contextVectorSearchTool: createContextVectorSearchTool(databaseIdHash, sessionId, storageKey, agent, embeddingFunction)
+        shortMemorySaveTool: createShortMemorySaveTool(databaseIdHash, sessionId, storageKey, agent, vectorStore),
+        shortMemorySearchTool: createShortMemorySearchTool(databaseIdHash, sessionId, storageKey, agent, vectorStore),
       }
     }
 
     if (streamingController && agent?.agentType === 'flow') {
-
       const availComponentToolInstance = createAvailableUIComponentsTool(databaseIdHash);
       availableTools = {
         ...availableTools,
@@ -119,11 +132,7 @@ export const toolRegistry = {
           ['renderUI' + component.name + 'Tool']: createRenderComponentTool(databaseIdHash, component.name, streamToOutput, component.props)
         }
       }
-
-
-
     }
     return availableTools;
   }
-
 }

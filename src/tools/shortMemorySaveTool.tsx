@@ -7,7 +7,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { nanoid } from "nanoid";
 import path from "path";
 
-export function createContextVectorSaveTool(
+export function createShortMemorySaveTool(
   databaseIdHash: string,
   sessionId: string,
   storageKey: string | null | undefined,
@@ -15,20 +15,20 @@ export function createContextVectorSaveTool(
   vectorStore: VectorStore | null = null
 ): ToolDescriptor {
   return {
-    displayName: "Save document to short term memory context vector store",
+    displayName: "Save document to short-term memory store",
     tool: tool({
-      description: "Save a document and its metadata to the short term memory context vector store.",
+      description: "Save a document and its metadata to the short-term memory store.",
       parameters: z.object({
         id: z.string().describe("Unique identifier for the document. When not provided will be generated").optional(),
         content: z.string().describe("Content of the document"),
         metadata: z.string().describe("Additional metadata for the document"),
-        shardName: z.string().optional().describe("Name of the store to save in - if not provided will use 'default'"),
+        storeName: z.string().optional().describe("Name of the store to save in - if not provided will use 'default'"),
         sessionOnly: z.boolean().optional().default(false).describe("Whether to search only in the current session")        
       }),
-      execute: async ({ id, content, metadata, shardName, sessionOnly }) => {
+      execute: async ({ id, content, metadata, storeName, sessionOnly }) => {
         try {
           if (!id) id = nanoid();
-          console.log(id, content, metadata, shardName, sessionOnly);
+          console.log(id, content, metadata, storeName, sessionOnly);
 
           // Create vector store if not provided
           if (!vectorStore) {
@@ -37,10 +37,10 @@ export function createContextVectorSaveTool(
             });
 
             vectorStore = createDiskVectorStore({
-              storeName: shardName || 'default',
+              storeName: storeName || 'default',
               partitionKey: databaseIdHash,
               maxFileSizeMB: 10,
-              baseDir: path.resolve(process.cwd(), 'data'),
+              baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'short-memory-store'),
               generateEmbeddings
             });
           }

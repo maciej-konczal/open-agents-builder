@@ -191,4 +191,20 @@ export class ShortMemoryApiClient extends AdminApiClient {
       headers
     );
   }
+
+  /**
+   * Generate embeddings for content using OpenAI
+   */
+  async generateEmbeddings(content: string): Promise<number[]> {
+    const response = await this.request<{ embedding: number[] }>(
+      `/api/short-memory/embeddings`,
+      "POST",
+      { encryptedFields: [] },
+      { content },
+      undefined,
+      undefined,
+      { "Storage-Schema": this.storageSchema }
+    );
+    return response.embedding;
+  }
 }
