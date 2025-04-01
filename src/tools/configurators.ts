@@ -15,7 +15,7 @@ import { Agent } from '@/data/client/models';
 import { TraceToolConfigurator } from './traceTool-configurator';
 import { RenderComponentToolConfigurator } from './renderComponentTool-configurator';
 import { getAvailableUIComponents } from './availableUIComponentsTool';
-import { MemoryStoreConfigurator } from './memoryStoreConfigurator';
+import { MemoryStoreConfigurator } from './memoryStore-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -71,29 +71,15 @@ export const toolConfiguratorsRepository = {
         displayName: 'Update Result',
         configurator: UpdateResultToolConfigurator
       },
-      contextVectorSaveTool: {
-        displayName: 'Memory save',
-        configurator: MemoryStoreConfigurator,
-        defaultOptions: {
-          storeName: "default"
-        }
-      },
-      contextVectorSearchTool: {
-        displayName: 'Memory search',
-        configurator: MemoryStoreConfigurator,
-        defaultOptions: {
-          storeName: "default"
-        }
-      },
       memorySaveTool: {
-        displayName: "Save document to memory store",
+        displayName: "Memory/vector save",
         configurator: MemoryStoreConfigurator,
         defaultOptions: {
           storeName: "default"
         }
       },
       memorySearchTool: {
-        displayName: "Search in memory store",
+        displayName: "Memory/vector search",
         configurator: MemoryStoreConfigurator,
         defaultOptions: {
           storeName: "default"

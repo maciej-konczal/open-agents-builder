@@ -48,9 +48,9 @@ export function MemoryStoreConfigurator({
 
   const loadStores = async () => {
     try {
-      await memoryContext.loadFiles();
-      if (memoryContext.files) {
-        const storeNames = memoryContext.files.files.map(file => file.displayName || file.file.replace(/\.json$/, ''));
+      const response = await memoryContext.queryFiles({});
+      if (response) {
+        const storeNames = response.files.map(file => file.displayName || file.file.replace(/\.json$/, ''));
         setStores(storeNames);
       }
     } catch (error) {
@@ -85,16 +85,16 @@ export function MemoryStoreConfigurator({
     }
   };
 
-  const handleDeleteStore = async (storeName: string) => {
-    if (!storeName) return;
+  const handleDeleteStore = async (name: string) => {
+    if (!name) return;
     
     setIsDeleting(true);
     try {
-      await memoryContext.deleteFile(storeName);
+      await memoryContext.deleteFile(name);
       await loadStores();
       
       // If the deleted store was selected, clear the selection
-      if (storeName === storeName) {
+      if (name === storeName) {
         handleStoreNameChange('');
       }
     } catch (error) {
