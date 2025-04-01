@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Loader2, TrashIcon } from "lucide-react";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
-import InfiniteScroll from "@/components/infinite-scroll";
 import { useShortMemoryContext } from "@/contexts/short-memory-context";
 import { getErrorMessage } from "@/lib/utils";
 
@@ -17,15 +16,25 @@ import { getErrorMessage } from "@/lib/utils";
 type PreviewRecord = {
   id: string;
   content: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   embeddingPreview?: number[];
   similarity?: number;
 };
 
+// For file listing
+type ShortMemoryFile = {
+  file: string;
+  displayName: string;
+  itemCount?: number;
+  createdAt: string;
+  updatedAt: string;
+  lastAccessed?: string;
+};
+
 /**
  * Extended Admin page for ShortMemory:
- * 1. Lists files with item counts.
- * 2. Clicking "Details" opens a dialog that shows records in a table (paginated or vector search).
+ * 1. Lists files with item counts and metadata.
+ * 2. Clicking "View Records" opens a dialog that shows records in a table (paginated or vector search).
  * 3. Shows a loader/spinner when records are being fetched.
  * 4. Hitting 'Enter' in the vector search input triggers the search automatically.
  */
@@ -41,9 +50,8 @@ export default function ShortMemoryFilesPage() {
   const [limit] = useState(6);
   const [offset, setOffset] = useState(0);
 
-  // The array of { file, itemCount? }
-  const [files, setFiles] = useState<{ file: string; itemCount?: number }[]>([]);
-  const [total, setTotal] = useState(0);
+  // The array of files with metadata
+  const [files, setFiles] = useState<ShortMemoryFile[]>([]);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -74,8 +82,10 @@ export default function ShortMemoryFilesPage() {
       loadFiles(true);
     }, 400);
     setDebounceTimer(timerId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+    };
+  }, [query, debounceTimer]);
 
   /**
    * Load the list of short-memory files.
@@ -92,14 +102,22 @@ export default function ShortMemoryFilesPage() {
         query,
       });
 
+      const formattedFiles = resp.files.map(file => ({
+        file: file.file,
+        displayName: file.displayName || file.file.replace(/\.json$/, ''),
+        itemCount: file.itemCount,
+        createdAt: file.createdAt,
+        updatedAt: file.updatedAt,
+        lastAccessed: file.lastAccessed
+      }));
+
       if (reset) {
-        setFiles(resp.files);
+        setFiles(formattedFiles);
       } else {
-        setFiles((prev) => [...prev, ...resp.files]);
+        setFiles(prev => [...prev, ...formattedFiles]);
       }
-      setTotal(resp.total);
       setOffset(nextOffset + limit);
-      setHasMore(nextOffset + limit < resp.total);
+      setHasMore(resp.hasMore);
     } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
@@ -108,12 +126,12 @@ export default function ShortMemoryFilesPage() {
   }
 
   /**
-   * Infinite scroll "load more" for files.
+   * Load more files when scrolling
    */
-  async function loadMore() {
+  const loadMore = async () => {
     if (isLoading || !hasMore) return;
     await loadFiles(false);
-  }
+  };
 
   /**
    * Show the preview dialog for a specific file.
@@ -209,59 +227,87 @@ export default function ShortMemoryFilesPage() {
 
   // ---------- RENDER ----------
   return (
-    <div className="space-y-6">
-      {/* Main search for files */}
-      <Input
-        placeholder={t("Search short-memory stores - by file name only...") || ""}
-        onChange={(e) => setQuery(e.target.value)}
-        value={query}
-      />
-
-      {files.length === 0 && !isLoading && (
-        <NoRecordsAlert title={t("No short-memory files found")}>
-          {t("Try adjusting your search.")}
-        </NoRecordsAlert>
-      )}
-
-      {/* Grid of short-memory files */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {files.map((entry) => (
-          <Card key={entry.file}>
-            <CardHeader>
-              <CardTitle className="text-sm truncate">
-                {t("Vector Store")}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-sm truncate">
-                {t("ID")}: {entry.file}
-              </div>
-              {typeof entry.itemCount === "number" && (
-                <div className="text-xs mt-1">
-                  {t("Items")}: {entry.itemCount}
-                </div>
-              )}
-              <div className="flex justify-end gap-2 mt-2">
-                <Button variant="default" size="sm" onClick={() => handleShowDetails(entry.file)}>
-                  {t("Details")}
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => handleDelete(entry.file)}>
-                  <TrashIcon className="w-4 h-4" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">{t("Short-term Memory Files")}</h1>
+        <div className="w-1/3">
+          <Input
+            type="search"
+            placeholder={t("Search files...") || ""}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
       </div>
 
-      {/* Infinite scroll for main files list */}
-      <InfiniteScroll hasMore={hasMore} isLoading={isLoading} next={loadMore} threshold={1}>
-        {hasMore && (
-          <div className="flex justify-center">
-            <Loader2 className="my-4 h-8 w-8 animate-spin" />
-          </div>
-        )}
-      </InfiniteScroll>
+      {files.length === 0 && !isLoading ? (
+        <NoRecordsAlert 
+          title={t("No files found")}
+        >
+          {t("Try adjusting your search or create a new file.")}
+        </NoRecordsAlert>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {files.map((file) => (
+            <Card key={file.file} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="flex justify-between items-start">
+                  <div>
+                    <h3 className="text-lg font-semibold">{file.displayName}</h3>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {file.itemCount !== undefined
+                        ? t("{{count}} records", { count: file.itemCount })
+                        : t("Unknown count")}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(file.file)}
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-1">
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>
+                    {t("Created")}: {new Date(file.createdAt).toLocaleString()}
+                  </p>
+                  <p>
+                    {t("Updated")}: {new Date(file.updatedAt).toLocaleString()}
+                  </p>
+                  {file.lastAccessed && (
+                    <p>
+                      {t("Last accessed")}: {new Date(file.lastAccessed).toLocaleString()}
+                    </p>
+                  )}
+                </div>
+                <div className="mt-4">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() => handleShowDetails(file.file)}
+                  >
+                    {t("View Records")}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+          {hasMore && (
+            <div className="flex justify-center col-span-full">
+              <Button variant="ghost" onClick={loadMore} disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  t("Load More")
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Dialog: Show records from a single file in a table with pagination / vector search */}
       {previewDialogOpen && (

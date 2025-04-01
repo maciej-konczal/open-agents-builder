@@ -22,7 +22,7 @@ export function createContextVectorSaveTool(
         id: z.string().describe("Unique identifier for the document. When not provided will be generated").optional(),
         content: z.string().describe("Content of the document"),
         metadata: z.string().describe("Additional metadata for the document"),
-        shardName: z.string().optional().describe("Data Shard to search in - can be default for default shard"),
+        shardName: z.string().optional().describe("Name of the store to save in - if not provided will use 'default'"),
         sessionOnly: z.boolean().optional().default(false).describe("Whether to search only in the current session")        
       }),
       execute: async ({ id, content, metadata, shardName, sessionOnly }) => {
@@ -37,7 +37,7 @@ export function createContextVectorSaveTool(
             });
 
             vectorStore = createDiskVectorStore({
-              storeName: storageKey || 'default',
+              storeName: shardName || 'default',
               partitionKey: databaseIdHash,
               maxFileSizeMB: 10,
               baseDir: path.resolve(process.cwd(), 'data'),

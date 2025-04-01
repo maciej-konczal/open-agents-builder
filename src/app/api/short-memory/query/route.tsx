@@ -45,10 +45,14 @@ export async function GET(request: NextRequest) {
       hasMore = result.hasMore;
     }
 
-    // Map to the expected response format
+    // Map to the expected response format with more metadata
     const files = items.map(store => ({
       file: store.name,
-      itemCount: store.itemCount
+      displayName: store.name.replace(/\.json$/, ''), // Remove .json extension for display
+      itemCount: store.itemCount,
+      createdAt: store.createdAt,
+      updatedAt: store.updatedAt,
+      lastAccessed: store.lastAccessed
     }));
 
     return NextResponse.json({

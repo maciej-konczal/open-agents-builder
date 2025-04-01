@@ -6,7 +6,11 @@ import { SaaSContextType } from "@/contexts/saas-context";
 
 export type ShortMemoryFileEntry = {
   file: string;       // The file name
+  displayName?: string; // Display name for the store
   itemCount?: number; // Number of records if it's valid JSON
+  createdAt: string;  // When the store was created
+  updatedAt: string;  // When the store was last updated
+  lastAccessed?: string; // When the store was last accessed
 };
 
 export type ShortMemoryListResponse = {
@@ -25,7 +29,7 @@ export type ShortMemoryQueryParams = {
 
 export interface ShortMemoryRecordRow {
   id: string;
-  metadata: any;
+  metadata: Record<string, unknown>;
   content: string;
   embeddingPreview?: number[];
   similarity?: number; // Only present if vector search is used
@@ -66,7 +70,7 @@ export class ShortMemoryApiClient extends AdminApiClient {
     }
     const url = `/api/short-memory/query?` + searchParams.toString();
 
-    return this.request<ShortMemoryListResponse>(
+    const response = await this.request<ShortMemoryListResponse>(
       url,
       "GET",
       { encryptedFields: [] },
@@ -74,7 +78,8 @@ export class ShortMemoryApiClient extends AdminApiClient {
       undefined,
       undefined,
       { "Storage-Schema": this.storageSchema }
-    ) as Promise<ShortMemoryListResponse>;
+    );
+    return response as ShortMemoryListResponse;
   }
 
   /**
@@ -88,10 +93,9 @@ export class ShortMemoryApiClient extends AdminApiClient {
       undefined,
       undefined,
       undefined,
-      { "Storage-Schema": this.storageSchema },
-      "text"
+      { "Storage-Schema": this.storageSchema }
     );
-    return response;
+    return response as string;
   }
 
   /**
@@ -117,7 +121,7 @@ export class ShortMemoryApiClient extends AdminApiClient {
     }
 
     const url = `/api/short-memory/${filename}/records?` + params.toString();
-    return this.request<ShortMemoryRecordsResponse>(
+    const response = await this.request<ShortMemoryRecordsResponse>(
       url,
       "GET",
       { encryptedFields: [] },
@@ -125,14 +129,15 @@ export class ShortMemoryApiClient extends AdminApiClient {
       undefined,
       undefined,
       { "Storage-Schema": this.storageSchema }
-    ) as Promise<ShortMemoryRecordsResponse>;
+    );
+    return response as ShortMemoryRecordsResponse;
   }
 
   /**
    * Delete the specified short-memory file from the server.
    */
   async deleteFile(filename: string): Promise<{ message: string; status: number }> {
-    return this.request<{ message: string; status: number }>(
+    const response = await this.request<{ message: string; status: number }>(
       `/api/short-memory/${filename}`,
       "DELETE",
       { encryptedFields: [] },
@@ -141,5 +146,6 @@ export class ShortMemoryApiClient extends AdminApiClient {
       undefined,
       { "Storage-Schema": this.storageSchema }
     );
+    return response as { message: string; status: number };
   }
 }

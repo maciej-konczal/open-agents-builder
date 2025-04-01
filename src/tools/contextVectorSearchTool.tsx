@@ -19,7 +19,7 @@ export function createContextVectorSearchTool(
       description: "Search for documents in the short term memory vector store using semantic similarity.",
       parameters: z.object({
         query: z.string().describe("Search query"),
-        shardName: z.string().optional().describe("Data Shard to search in - can be default for default shard"),
+        shardName: z.string().optional().describe("Name of the store to search in - if not provided will use 'default'"),
         sessionOnly: z.boolean().optional().default(false).describe("Whether to search only in the current session"),
         topK: z.number().int().positive().default(5).describe("Number of top results to return"),
       }),
@@ -34,7 +34,7 @@ export function createContextVectorSearchTool(
             });
 
             vectorStore = createDiskVectorStore({
-              storeName: storageKey || 'default',
+              storeName: shardName || 'default',
               partitionKey: databaseIdHash,
               maxFileSizeMB: 10,
               baseDir: path.resolve(process.cwd(), 'data'),
