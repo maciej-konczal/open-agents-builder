@@ -17,21 +17,26 @@ export type VectorStoreEntry = z.infer<typeof vectorStoreEntrySchema>;
 /**
  * Vector store configuration
  */
-export interface VectorStoreConfig {
-  storeName: string;
-  maxFileSizeMB?: number;
-  partitionKey?: string; // e.g. agentId, userId etc.
-}
+export const vectorStoreConfigSchema = z.object({
+  storeName: z.string(),
+  partitionKey: z.string(),
+  maxFileSizeMB: z.number().optional(),
+  generateEmbeddings: z.function()
+    .args(z.string())
+    .returns(z.promise(z.array(z.number())))
+});
+
+export type VectorStoreConfig = z.infer<typeof vectorStoreConfigSchema>;
 
 /**
  * Core vector store interface that all implementations must follow
  */
 export interface VectorStore {
   // Core CRUD operations
-  set: (id: string, entry: Omit<VectorStoreEntry, 'id'>) => Promise<void>;
+  set: (id: string, entry: VectorStoreEntry) => Promise<void>;
   get: (id: string) => Promise<VectorStoreEntry | null>;
   delete: (id: string) => Promise<void>;
-  upsert: (id: string, entry: Omit<VectorStoreEntry, 'id'>) => Promise<void>;
+  upsert: (entry: VectorStoreEntry) => Promise<void>;
   
   // Query operations
   entries: () => Promise<VectorStoreEntry[]>;

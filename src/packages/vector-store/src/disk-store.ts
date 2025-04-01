@@ -1,32 +1,27 @@
 import fs from 'fs';
 import path from 'path';
-import { VectorStore, VectorStoreConfig, VectorStoreEntry } from './types';
-import { getCurrentTimestamp, sortBySimilarity } from './utils';
-import { GenerateEmbeddings } from './types';
-
-interface DiskStoreData {
-  config: VectorStoreConfig;
-  entries: Record<string, VectorStoreEntry>;
-}
+import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings } from './types';
+import { generateEntryId, getCurrentTimestamp } from './utils';
 
 export class DiskVectorStore implements VectorStore {
+  private storePath: string;
+  private lockPath: string;
   private config: VectorStoreConfig;
   private generateEmbeddings: GenerateEmbeddings;
-  private filePath: string;
-  private lockFilePath: string;
 
   constructor(config: VectorStoreConfig, generateEmbeddings: GenerateEmbeddings) {
     this.config = config;
     this.generateEmbeddings = generateEmbeddings;
     
-    // Create base directory if it doesn't exist
-    const baseDir = path.join(process.cwd(), 'data', config.partitionKey || 'default', 'vector-store');
+    // Create base directory structure
+    const baseDir = path.resolve(process.cwd(), 'data', config.partitionKey, 'vector-store');
     if (!fs.existsSync(baseDir)) {
       fs.mkdirSync(baseDir, { recursive: true });
     }
 
-    this.filePath = path.join(baseDir, `${config.storeName}.json`);
-    this.lockFilePath = `${this.filePath}.lock`;
+    // Set up file paths
+    this.storePath = path.join(baseDir, `${config.storeName}.json`);
+    this.lockPath = `${this.storePath}.lock`;
   }
 
   private async acquireLock(): Promise<void> {
@@ -34,103 +29,103 @@ export class DiskVectorStore implements VectorStore {
     const maxAttempts = 50;
     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-    while (fs.existsSync(this.lockFilePath)) {
+    while (fs.existsSync(this.lockPath)) {
       attempts++;
       if (attempts > maxAttempts) {
-        throw new Error(`Could not acquire lock for "${this.filePath}" after ${maxAttempts} attempts`);
+        throw new Error(`Could not acquire lock after ${maxAttempts} attempts`);
       }
       await delay(100);
     }
 
-    fs.writeFileSync(this.lockFilePath, '');
+    fs.writeFileSync(this.lockPath, '');
   }
 
   private releaseLock(): void {
-    if (fs.existsSync(this.lockFilePath)) {
-      fs.unlinkSync(this.lockFilePath);
+    if (fs.existsSync(this.lockPath)) {
+      fs.unlinkSync(this.lockPath);
     }
   }
 
-  private async readData(): Promise<DiskStoreData> {
-    try {
-      if (!fs.existsSync(this.filePath)) {
-        return {
-          config: this.config,
-          entries: {}
-        };
-      }
-      const raw = fs.readFileSync(this.filePath, 'utf8');
-      return JSON.parse(raw) as DiskStoreData;
-    } catch (error) {
-      // If file is invalid, return empty store
-      return {
-        config: this.config,
-        entries: {}
-      };
+  private async readData(): Promise<Record<string, VectorStoreEntry>> {
+    if (!fs.existsSync(this.storePath)) {
+      return {};
     }
+    const raw = fs.readFileSync(this.storePath, 'utf8');
+    return JSON.parse(raw);
   }
 
-  private async writeData(data: DiskStoreData): Promise<void> {
+  private async writeData(data: Record<string, VectorStoreEntry>): Promise<void> {
+    const jsonString = JSON.stringify(data);
+    const size = Buffer.byteLength(jsonString, 'utf8');
+
+    if (size > (this.config.maxFileSizeMB || 10) * 1024 * 1024) {
+      throw new Error(`File size limit of ${this.config.maxFileSizeMB || 10}MB exceeded`);
+    }
+
+    fs.writeFileSync(this.storePath, jsonString, 'utf8');
+  }
+
+  async set(id: string, entry: VectorStoreEntry): Promise<void> {
     await this.acquireLock();
     try {
-      const jsonString = JSON.stringify(data);
-      const size = Buffer.byteLength(jsonString, 'utf8');
-      const maxSize = (this.config.maxFileSizeMB || 10) * 1024 * 1024;
-
-      if (size > maxSize) {
-        throw new Error(`File size limit of ${this.config.maxFileSizeMB}MB exceeded for ${this.filePath}`);
-      }
-
-      fs.writeFileSync(this.filePath, jsonString, 'utf8');
+      const data = await this.readData();
+      data[id] = {
+        ...entry,
+        updatedAt: getCurrentTimestamp()
+      };
+      await this.writeData(data);
     } finally {
       this.releaseLock();
     }
   }
 
-  async set(id: string, entry: Omit<VectorStoreEntry, 'id'>): Promise<void> {
-    const data = await this.readData();
-    data.entries[id] = {
-      ...entry,
-      id,
-      createdAt: entry.createdAt || getCurrentTimestamp(),
-      updatedAt: getCurrentTimestamp()
-    };
-    await this.writeData(data);
-  }
-
   async get(id: string): Promise<VectorStoreEntry | null> {
-    const data = await this.readData();
-    return data.entries[id] || null;
-  }
-
-  async delete(id: string): Promise<void> {
-    const data = await this.readData();
-    delete data.entries[id];
-    await this.writeData(data);
-  }
-
-  async upsert(id: string, entry: Omit<VectorStoreEntry, 'id'>): Promise<void> {
-    const existing = await this.get(id);
-    if (existing) {
-      await this.set(id, {
-        ...entry,
-        createdAt: existing.createdAt,
-        updatedAt: getCurrentTimestamp()
-      });
-    } else {
-      await this.set(id, entry);
+    await this.acquireLock();
+    try {
+      const data = await this.readData();
+      return data[id] || null;
+    } finally {
+      this.releaseLock();
     }
   }
 
-  async entries(): Promise<VectorStoreEntry[]> {
-    const data = await this.readData();
-    return Object.values(data.entries);
+  async delete(id: string): Promise<void> {
+    await this.acquireLock();
+    try {
+      const data = await this.readData();
+      delete data[id];
+      await this.writeData(data);
+    } finally {
+      this.releaseLock();
+    }
   }
 
-  async search(query: string, topK?: number): Promise<VectorStoreEntry[]> {
+  async upsert(entry: VectorStoreEntry): Promise<void> {
+    const id = entry.id || generateEntryId();
+    await this.set(id, entry);
+  }
+
+  async entries(): Promise<VectorStoreEntry[]> {
+    await this.acquireLock();
+    try {
+      const data = await this.readData();
+      return Object.values(data);
+    } finally {
+      this.releaseLock();
+    }
+  }
+
+  async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
     const queryEmbedding = await this.generateEmbeddings(query);
-    const allEntries = await this.entries();
-    return sortBySimilarity(allEntries, queryEmbedding, topK);
+    const entries = await this.entries();
+    
+    return entries
+      .map(entry => ({
+        ...entry,
+        similarity: this.cosineSimilarity(queryEmbedding, entry.embedding)
+      }))
+      .sort((a, b) => (b.similarity || 0) - (a.similarity || 0))
+      .slice(0, topK);
   }
 
   getConfig(): VectorStoreConfig {
@@ -138,15 +133,25 @@ export class DiskVectorStore implements VectorStore {
   }
 
   async clear(): Promise<void> {
-    const data = await this.readData();
-    data.entries = {};
-    await this.writeData(data);
+    await this.acquireLock();
+    try {
+      await this.writeData({});
+    } finally {
+      this.releaseLock();
+    }
+  }
+
+  private cosineSimilarity(vecA: number[], vecB: number[]): number {
+    const dotProduct = vecA.reduce((sum, a, i) => sum + a * vecB[i], 0);
+    const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a ** 2, 0));
+    const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b ** 2, 0));
+    return dotProduct / (magnitudeA * magnitudeB);
   }
 }
 
-export const createDiskVectorStore = (
+export function createDiskVectorStore(
   config: VectorStoreConfig,
   generateEmbeddings: GenerateEmbeddings
-): VectorStore => {
+): VectorStore {
   return new DiskVectorStore(config, generateEmbeddings);
-}; 
+} 
