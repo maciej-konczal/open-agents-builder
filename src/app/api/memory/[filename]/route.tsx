@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { createDiskVectorStoreManager } from "oab-vector-store";
-import path from "path";
+import { createVectorStoreManager } from "oab-vector-store";
+import { getDataDir } from "@/utils/paths";
 
 /**
  * GET /api/memory/[filename]
@@ -18,8 +18,9 @@ export async function GET(
     await authorizeSaasContext(request);
     await authorizeStorageSchema(request);
 
-    const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
+    const dataDir = getDataDir(requestContext.databaseIdHash);
+    const storeManager = createVectorStoreManager({
+      baseDir: dataDir
     });
 
     const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
@@ -54,8 +55,9 @@ export async function DELETE(
     await authorizeSaasContext(request);
     await authorizeStorageSchema(request);
 
-    const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
+    const dataDir = getDataDir(requestContext.databaseIdHash);
+    const storeManager = createVectorStoreManager({
+      baseDir: dataDir
     });
 
     // Check if store exists first

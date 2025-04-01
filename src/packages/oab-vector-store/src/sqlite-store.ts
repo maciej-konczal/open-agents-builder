@@ -1,5 +1,7 @@
 import path from 'path';
-import { Database } from 'sqlite3';
+import Database from 'better-sqlite3';
+import type { Database as DatabaseType } from 'better-sqlite3';
+import * as sqliteVec from 'sqlite-vec';
 import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult, VectorStoreMetadata } from './types';
 import { generateEntryId, getCurrentTimestamp } from './utils';
 
@@ -22,7 +24,7 @@ interface CountRow {
 }
 
 export class SQLiteVectorStore implements VectorStore {
-  private db: Database;
+  private db: DatabaseType;
   private storeName: string;
   private generateEmbeddings: GenerateEmbeddings;
   private partitionKey: string;
@@ -41,325 +43,174 @@ export class SQLiteVectorStore implements VectorStore {
     
     // Initialize SQLite database
     this.db = new Database(this.dbPath);
+    sqliteVec.load(this.db);
     this.initializeDatabase();
   }
 
   private initializeDatabase(): void {
     // Create tables if they don't exist
-    this.db.serialize(() => {
-      // Load the sqlite-vec extension
-      this.db.run('SELECT load_extension("sqlite-vec")');
+    this.db.prepare(`
+      CREATE VIRTUAL TABLE IF NOT EXISTS vector_index USING vec0(
+        embedding float[1536]
+      )
+    `).run();
 
-      // Create virtual table for vector search
-      this.db.run(`
-        CREATE VIRTUAL TABLE IF NOT EXISTS vector_index USING vec0(
-          embedding float[1536]
-        )
-      `);
+    this.db.prepare(`
+      CREATE TABLE IF NOT EXISTS entries (
+        id TEXT PRIMARY KEY,
+        content TEXT NOT NULL,
+        metadata TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL
+      )
+    `).run();
 
-      // Create entries table
-      this.db.run(`
-        CREATE TABLE IF NOT EXISTS entries (
-          id TEXT PRIMARY KEY,
-          content TEXT NOT NULL,
-          metadata TEXT NOT NULL,
-          createdAt TEXT NOT NULL,
-          updatedAt TEXT NOT NULL
-        )
-      `);
+    this.db.prepare(`
+      CREATE TABLE IF NOT EXISTS metadata (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL
+      )
+    `).run();
 
-      // Create metadata table
-      this.db.run(`
-        CREATE TABLE IF NOT EXISTS metadata (
-          key TEXT PRIMARY KEY,
-          value TEXT NOT NULL
-        )
-      `);
-
-      // Initialize metadata if not exists
-      this.db.get('SELECT * FROM metadata WHERE key = ?', ['itemCount'], (err: Error | null, row: MetadataRow | undefined) => {
-        if (!row) {
-          this.db.run(
-            'INSERT INTO metadata (key, value) VALUES (?, ?)',
-            ['itemCount', '0']
-          );
-        }
-      });
-    });
+    // Initialize metadata if not exists
+    const row = this.db.prepare('SELECT * FROM metadata WHERE key = ?').get('itemCount') as MetadataRow | undefined;
+    if (!row) {
+      this.db.prepare('INSERT INTO metadata (key, value) VALUES (?, ?)').run('itemCount', '0');
+    }
   }
 
   async set(id: string, entry: VectorStoreEntry): Promise<void> {
     const now = getCurrentTimestamp();
     const metadataBlob = Buffer.from(JSON.stringify(entry.metadata));
 
-    return new Promise((resolve, reject) => {
-      this.db.serialize(() => {
-        // Begin transaction
-        this.db.run('BEGIN TRANSACTION');
+    // Begin transaction
+    const transaction = this.db.transaction(() => {
+      // Insert into entries table
+      this.db.prepare(
+        `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt)
+         VALUES (?, ?, ?, ?, ?)`
+      ).run(id, entry.content, metadataBlob, now, now);
 
-        // Insert into entries table
-        this.db.run(
-          `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt)
-           VALUES (?, ?, ?, ?, ?)`,
-          [id, entry.content, metadataBlob, now, now],
-          (err: Error | null) => {
-            if (err) {
-              this.db.run('ROLLBACK');
-              reject(err);
-              return;
-            }
+      // Insert into vector index
+      const embeddingJson = JSON.stringify(entry.embedding);
+      this.db.prepare(
+        `INSERT OR REPLACE INTO vector_index (rowid, embedding)
+         VALUES (?, ?)`
+      ).run(id, embeddingJson);
 
-            // Insert into vector index
-            const embeddingJson = JSON.stringify(entry.embedding);
-            this.db.run(
-              `INSERT OR REPLACE INTO vector_index (rowid, embedding)
-               VALUES (?, ?)`,
-              [id, embeddingJson],
-              (err: Error | null) => {
-                if (err) {
-                  this.db.run('ROLLBACK');
-                  reject(err);
-                  return;
-                }
-
-                // Update item count
-                this.db.run(
-                  'UPDATE metadata SET value = (SELECT COUNT(*) FROM entries) WHERE key = ?',
-                  ['itemCount'],
-                  (err: Error | null) => {
-                    if (err) {
-                      this.db.run('ROLLBACK');
-                      reject(err);
-                      return;
-                    }
-
-                    // Commit transaction
-                    this.db.run('COMMIT', (err: Error | null) => {
-                      if (err) reject(err);
-                      else resolve();
-                    });
-                  }
-                );
-              }
-            );
-          }
-        );
-      });
+      // Update item count
+      this.db.prepare(
+        'UPDATE metadata SET value = (SELECT COUNT(*) FROM entries) WHERE key = ?'
+      ).run('itemCount');
     });
+
+    transaction();
   }
 
   async get(id: string): Promise<VectorStoreEntry | null> {
-    return new Promise((resolve, reject) => {
-      this.db.get(
-        'SELECT * FROM entries WHERE id = ?',
-        [id],
-        (err: Error | null, row: DatabaseRow | undefined) => {
-          if (err) reject(err);
-          else if (!row) resolve(null);
-          else {
-            // Get embedding from vector index
-            this.db.get(
-              'SELECT embedding FROM vector_index WHERE rowid = ?',
-              [id],
-              (err: Error | null, vecRow: { embedding: Buffer } | undefined) => {
-                if (err) reject(err);
-                else if (!vecRow) reject(new Error('Embedding not found'));
-                else {
-                  resolve({
-                    id: row.id,
-                    content: row.content,
-                    embedding: JSON.parse(vecRow.embedding.toString()),
-                    metadata: JSON.parse(row.metadata.toString()),
-                    createdAt: row.createdAt,
-                    updatedAt: row.updatedAt
-                  });
-                }
-              }
-            );
-          }
-        }
-      );
-    });
+    const row = this.db.prepare('SELECT * FROM entries WHERE id = ?').get(id) as DatabaseRow | undefined;
+    if (!row) return null;
+
+    const vecRow = this.db.prepare('SELECT embedding FROM vector_index WHERE rowid = ?').get(id) as { embedding: Buffer } | undefined;
+    if (!vecRow) throw new Error('Embedding not found');
+
+    return {
+      id: row.id,
+      content: row.content,
+      embedding: JSON.parse(vecRow.embedding.toString()),
+      metadata: JSON.parse(row.metadata.toString()),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt
+    };
   }
 
   async delete(id: string): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.db.serialize(() => {
-        // Begin transaction
-        this.db.run('BEGIN TRANSACTION');
+    const transaction = this.db.transaction(() => {
+      // Delete from entries table
+      this.db.prepare('DELETE FROM entries WHERE id = ?').run(id);
 
-        // Delete from entries table
-        this.db.run('DELETE FROM entries WHERE id = ?', [id], (err: Error | null) => {
-          if (err) {
-            this.db.run('ROLLBACK');
-            reject(err);
-            return;
-          }
+      // Delete from vector index
+      this.db.prepare('DELETE FROM vector_index WHERE rowid = ?').run(id);
 
-          // Delete from vector index
-          this.db.run('DELETE FROM vector_index WHERE rowid = ?', [id], (err: Error | null) => {
-            if (err) {
-              this.db.run('ROLLBACK');
-              reject(err);
-              return;
-            }
-
-            // Update item count
-            this.db.run(
-              'UPDATE metadata SET value = (SELECT COUNT(*) FROM entries) WHERE key = ?',
-              ['itemCount'],
-              (err: Error | null) => {
-                if (err) {
-                  this.db.run('ROLLBACK');
-                  reject(err);
-                  return;
-                }
-
-                // Commit transaction
-                this.db.run('COMMIT', (err: Error | null) => {
-                  if (err) reject(err);
-                  else resolve();
-                });
-              }
-            );
-          });
-        });
-      });
+      // Update item count
+      this.db.prepare(
+        'UPDATE metadata SET value = (SELECT COUNT(*) FROM entries) WHERE key = ?'
+      ).run('itemCount');
     });
+
+    transaction();
   }
 
   async clear(): Promise<void> {
-    return new Promise((resolve, reject) => {
-      this.db.serialize(() => {
-        // Begin transaction
-        this.db.run('BEGIN TRANSACTION');
+    const transaction = this.db.transaction(() => {
+      // Delete from entries table
+      this.db.prepare('DELETE FROM entries').run();
 
-        // Delete from entries table
-        this.db.run('DELETE FROM entries', (err: Error | null) => {
-          if (err) {
-            this.db.run('ROLLBACK');
-            reject(err);
-            return;
-          }
+      // Delete from vector index
+      this.db.prepare('DELETE FROM vector_index').run();
 
-          // Delete from vector index
-          this.db.run('DELETE FROM vector_index', (err: Error | null) => {
-            if (err) {
-              this.db.run('ROLLBACK');
-              reject(err);
-              return;
-            }
-
-            // Update item count
-            this.db.run(
-              'UPDATE metadata SET value = ? WHERE key = ?',
-              ['0', 'itemCount'],
-              (err: Error | null) => {
-                if (err) {
-                  this.db.run('ROLLBACK');
-                  reject(err);
-                  return;
-                }
-
-                // Commit transaction
-                this.db.run('COMMIT', (err: Error | null) => {
-                  if (err) reject(err);
-                  else resolve();
-                });
-              }
-            );
-          });
-        });
-      });
+      // Update item count
+      this.db.prepare(
+        'UPDATE metadata SET value = ? WHERE key = ?'
+      ).run('0', 'itemCount');
     });
+
+    transaction();
   }
 
   async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
-    return new Promise((resolve, reject) => {
-      const query = params
-        ? 'SELECT * FROM entries LIMIT ? OFFSET ?'
-        : 'SELECT * FROM entries';
-      
-      const queryParams = params ? [params.limit, params.offset] : [];
+    const query = params
+      ? 'SELECT * FROM entries LIMIT ? OFFSET ?'
+      : 'SELECT * FROM entries';
+    
+    const queryParams = params ? [params.limit, params.offset] : [];
+    const rows = this.db.prepare(query).all(...queryParams) as DatabaseRow[];
 
-      this.db.all(query, queryParams, (err: Error | null, rows: DatabaseRow[]) => {
-        if (err) reject(err);
-        else {
-          const items = rows.map(row => ({
-            id: row.id,
-            content: row.content,
-            metadata: JSON.parse(row.metadata.toString()),
-            createdAt: row.createdAt,
-            updatedAt: row.updatedAt
-          }));
+    const items = await Promise.all(rows.map(async row => {
+      const vecRow = this.db.prepare('SELECT embedding FROM vector_index WHERE rowid = ?').get(row.id) as { embedding: Buffer };
+      return {
+        id: row.id,
+        content: row.content,
+        embedding: JSON.parse(vecRow.embedding.toString()),
+        metadata: JSON.parse(row.metadata.toString()),
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt
+      };
+    }));
 
-          // Get embeddings for all entries
-          Promise.all(items.map(item => 
-            new Promise<VectorStoreEntry>((resolve, reject) => {
-              this.db.get(
-                'SELECT embedding FROM vector_index WHERE rowid = ?',
-                [item.id],
-                (err: Error | null, vecRow: { embedding: Buffer } | undefined) => {
-                  if (err) reject(err);
-                  else if (!vecRow) reject(new Error(`Embedding not found for id ${item.id}`));
-                  else {
-                    resolve({
-                      ...item,
-                      embedding: JSON.parse(vecRow.embedding.toString())
-                    });
-                  }
-                }
-              );
-            })
-          )).then(itemsWithEmbeddings => {
-            this.db.get('SELECT COUNT(*) as count FROM entries', (err: Error | null, row: CountRow | undefined) => {
-              if (err) reject(err);
-              else if (!row) reject(new Error('Failed to get count'));
-              else {
-                resolve({
-                  items: itemsWithEmbeddings,
-                  total: row.count,
-                  hasMore: params ? params.offset + params.limit < row.count : false
-                });
-              }
-            });
-          }).catch(reject);
-        }
-      });
-    });
+    const count = this.db.prepare('SELECT COUNT(*) as count FROM entries').get() as CountRow;
+
+    return {
+      items,
+      total: count.count,
+      hasMore: params ? params.offset + params.limit < count.count : false
+    };
   }
 
   async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
     const queryEmbedding = await this.generateEmbeddings(query);
     const queryEmbeddingJson = JSON.stringify(queryEmbedding);
 
-    return new Promise((resolve, reject) => {
-      this.db.all(
-        `SELECT 
-          e.*,
-          v.distance
-        FROM entries e
-        JOIN vector_index v ON e.id = v.rowid
-        WHERE v.embedding MATCH ?
-        ORDER BY v.distance
-        LIMIT ?`,
-        [queryEmbeddingJson, topK],
-        (err: Error | null, rows: (DatabaseRow & { distance: number })[]) => {
-          if (err) reject(err);
-          else {
-            resolve(rows.map(row => ({
-              id: row.id,
-              content: row.content,
-              embedding: JSON.parse(row.embedding.toString()),
-              metadata: JSON.parse(row.metadata.toString()),
-              createdAt: row.createdAt,
-              updatedAt: row.updatedAt,
-              similarity: 1 - row.distance // Convert distance to similarity
-            })));
-          }
-        }
-      );
-    });
+    const rows = this.db.prepare(
+      `SELECT 
+        e.*,
+        v.distance
+      FROM entries e
+      JOIN vector_index v ON e.id = v.rowid
+      WHERE v.embedding MATCH ?
+      ORDER BY v.distance
+      LIMIT ?`
+    ).all(queryEmbeddingJson, topK) as (DatabaseRow & { distance: number })[];
+
+    return rows.map(row => ({
+      id: row.id,
+      content: row.content,
+      embedding: JSON.parse(row.embedding.toString()),
+      metadata: JSON.parse(row.metadata.toString()),
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+      similarity: 1 - row.distance // Convert distance to similarity
+    }));
   }
 
   async upsert(entry: VectorStoreEntry): Promise<void> {
@@ -377,22 +228,17 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async getMetadata(): Promise<VectorStoreMetadata> {
-    return new Promise((resolve, reject) => {
-      this.db.get('SELECT value FROM metadata WHERE key = ?', ['itemCount'], (err: Error | null, row: MetadataRow | undefined) => {
-        if (err) reject(err);
-        else if (!row) reject(new Error('Failed to get metadata'));
-        else {
-          resolve({
-            name: this.storeName,
-            partitionKey: this.partitionKey,
-            itemCount: parseInt(row.value),
-            createdAt: getCurrentTimestamp(),
-            updatedAt: getCurrentTimestamp(),
-            lastAccessed: getCurrentTimestamp()
-          });
-        }
-      });
-    });
+    const row = this.db.prepare('SELECT value FROM metadata WHERE key = ?').get('itemCount') as MetadataRow;
+    if (!row) throw new Error('Failed to get metadata');
+
+    return {
+      name: this.storeName,
+      partitionKey: this.partitionKey,
+      itemCount: parseInt(row.value),
+      createdAt: getCurrentTimestamp(),
+      updatedAt: getCurrentTimestamp(),
+      lastAccessed: getCurrentTimestamp()
+    };
   }
 }
 

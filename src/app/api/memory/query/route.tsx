@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { createDiskVectorStoreManager, VectorStoreMetadata } from "oab-vector-store";
-import path from "path";
+import { createVectorStoreManager, VectorStoreMetadata } from "oab-vector-store";
+import { getDataDir } from "@/utils/paths";
 
 /**
  * GET /api/memory/query
@@ -24,9 +24,9 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(url.searchParams.get("offset") ?? "0", 10);
     const query = url.searchParams.get("query") ?? "";
 
-    // Create store manager instance
-    const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
+    const dataDir = getDataDir(requestContext.databaseIdHash);
+    const storeManager = createVectorStoreManager({
+      baseDir: dataDir
     });
 
     // Get stores with metadata from the store manager

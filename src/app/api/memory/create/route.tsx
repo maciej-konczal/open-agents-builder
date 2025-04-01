@@ -2,8 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { createDiskVectorStoreManager } from "oab-vector-store";
+import { createVectorStoreManager } from "oab-vector-store";
 import path from "path";
+import { getCurrentTimestamp } from "@/utils/date";
+import { getDataDir } from "@/utils/paths";
 
 /**
  * Validates a store name to ensure it only contains valid filesystem characters
@@ -84,9 +86,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create store manager instance
-    const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
+    const dataDir = getDataDir(requestContext.databaseIdHash);
+    const storeManager = createVectorStoreManager({
+      baseDir: dataDir
     });
 
     // Check if store already exists
@@ -102,7 +104,7 @@ export async function POST(request: NextRequest) {
     await storeManager.createStore({
       storeName,
       partitionKey: requestContext.databaseIdHash,
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store'),
+      baseDir: getDataDir(requestContext.databaseIdHash),
       generateEmbeddings: async () => [], // This will be set when actually using the store
     });
 

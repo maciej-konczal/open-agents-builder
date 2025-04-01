@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { createDiskVectorStoreManager } from "oab-vector-store";
-import path from "path";
+import { createVectorStoreManager } from "oab-vector-store";
+import { getDataDir } from "@/utils/paths";
 
 /**
  * DELETE /api/memory/[filename]/records/[recordId]
@@ -18,11 +18,11 @@ export async function DELETE(
     await authorizeSaasContext(request);
     await authorizeStorageSchema(request);
 
-    const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
+    const dataDir = getDataDir(requestContext.databaseIdHash);
+    const storeManager = createVectorStoreManager({
+      baseDir: dataDir
     });
 
-    // Get the store
     const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
     if (!store) {
       return NextResponse.json(
@@ -31,9 +31,7 @@ export async function DELETE(
       );
     }
 
-    // Delete the record
     await store.delete(params.recordId);
-
     return NextResponse.json({ message: 'Record deleted successfully' });
   } catch (err) {
     console.error('Error deleting record:', err);

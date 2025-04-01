@@ -1,14 +1,17 @@
 // File: src/app/api/memory/[filename]/records/route.tsx
 
 import { NextRequest, NextResponse } from "next/server";
-import { createDiskVectorStoreManager, createOpenAIEmbeddings, createDiskVectorStore } from "oab-vector-store";
+import { authorizeRequestContext } from "@/lib/authorization-api";
+import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
+import { getErrorMessage } from "@/lib/utils";
+import { createVectorStoreManager, createOpenAIEmbeddings, createDiskVectorStore } from "oab-vector-store";
+import { getDataDir } from "@/utils/paths";
 import path from 'path';
 import { VectorStoreEntry, VectorStore } from "oab-vector-store";
-import { authorizeRequestContext } from "@/lib/authorization-api";
 
 async function getOrCreateStore(databaseIdHash: string, storeName: string): Promise<VectorStore> {
-  const storeManager = createDiskVectorStoreManager({
-    baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store')
+  const storeManager = createVectorStoreManager({
+    baseDir: getDataDir(databaseIdHash)
   });
 
   const generateEmbeddings = createOpenAIEmbeddings({
@@ -21,7 +24,7 @@ async function getOrCreateStore(databaseIdHash: string, storeName: string): Prom
     return await storeManager.createStore({
       storeName,
       partitionKey: databaseIdHash,
-      baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
+      baseDir: getDataDir(databaseIdHash),
       generateEmbeddings
     });
   } else {
@@ -29,7 +32,7 @@ async function getOrCreateStore(databaseIdHash: string, storeName: string): Prom
     return createDiskVectorStore({
       storeName,
       partitionKey: databaseIdHash,
-      baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
+      baseDir: getDataDir(databaseIdHash),
       generateEmbeddings
     });
   }
@@ -50,6 +53,14 @@ export async function GET(
 ) {
   try {
     const requestContext = await authorizeRequestContext(request);
+    await authorizeSaasContext(request);
+    await authorizeStorageSchema(request);
+
+    const dataDir = getDataDir(requestContext.databaseIdHash);
+    const storeManager = createVectorStoreManager({
+      baseDir: dataDir
+    });
+
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = parseInt(searchParams.get('offset') || '0');
@@ -110,6 +121,14 @@ export async function POST(
 ) {
   try {
     const requestContext = await authorizeRequestContext(request);
+    await authorizeSaasContext(request);
+    await authorizeStorageSchema(request);
+
+    const dataDir = getDataDir(requestContext.databaseIdHash);
+    const storeManager = createVectorStoreManager({
+      baseDir: dataDir
+    });
+
     const record = await request.json();
     const { id, content, metadata: recordMetadata, embedding } = record;
 
@@ -119,10 +138,6 @@ export async function POST(
         { status: 400 }
       );
     }
-
-    const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
-    });
 
     const store = await getOrCreateStore(requestContext.databaseIdHash, params.filename);
 
