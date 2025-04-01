@@ -14,94 +14,94 @@ interface StoreIndex {
   };
 }
 
+// Global lock map to handle concurrent access across instances
+const lockMap = new Map<string, { acquiredAt: number, timeout: NodeJS.Timeout }>();
+
 export class DiskVectorStoreManager implements VectorStoreManager {
   private baseDir: string;
   private indexPath: string;
-  private indexLockPath: string;
-  private readonly lockTimeout: number = 5000; // 5 seconds timeout
+  private readonly lockTimeout: number = 500; // 500ms timeout
 
   constructor(config: { baseDir: string }) {
     this.baseDir = config.baseDir;
     this.indexPath = path.join(this.baseDir, 'index.json');
-    this.indexLockPath = path.join(this.baseDir, 'index.lock');
+    
+    // Ensure base directory exists
+    if (!fs.existsSync(this.baseDir)) {
+      fs.mkdirSync(this.baseDir, { recursive: true });
+    }
   }
 
   private async acquireLock(): Promise<void> {
     const startTime = Date.now();
-    
-    // Ensure the directory exists
-    if (!fs.existsSync(this.baseDir)) {
-      await fs.promises.mkdir(this.baseDir, { recursive: true });
-    }
+    console.debug('[DiskVectorStoreManager] Attempting to acquire lock');
     
     while (true) {
-      try {
-        await fs.promises.writeFile(this.indexLockPath, '', { flag: 'wx' });
+      const existingLock = lockMap.get(this.indexPath);
+      
+      if (!existingLock) {
+        // No lock exists, create one
+        const timeout = setTimeout(() => {
+          console.warn('[DiskVectorStoreManager] Lock timeout triggered');
+          this.releaseLock().catch(console.error);
+        }, this.lockTimeout);
+        
+        lockMap.set(this.indexPath, { acquiredAt: Date.now(), timeout });
+        console.debug(`[DiskVectorStoreManager] Lock acquired at ${Date.now()}`);
         return;
-      } catch (error) {
-        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
-          throw error;
-        }
-        
-        // Check if we've exceeded the timeout
-        if (Date.now() - startTime > this.lockTimeout) {
-          // Try to remove a potentially stale lock
-          try {
-            await fs.promises.unlink(this.indexLockPath);
-          } catch (_unlinkError) {
-            // Ignore errors when trying to remove stale lock
-          }
-          throw new Error('Failed to acquire lock: timeout exceeded');
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 100));
       }
+      
+      // Check if the existing lock has expired
+      if (Date.now() - existingLock.acquiredAt > this.lockTimeout) {
+        console.warn('[DiskVectorStoreManager] Found expired lock, cleaning up');
+        await this.releaseLock();
+        continue;
+      }
+      
+      // Check if we've exceeded our own timeout
+      if (Date.now() - startTime > this.lockTimeout) {
+        throw new Error('Failed to acquire lock: timeout exceeded');
+      }
+      
+      await new Promise(resolve => setTimeout(resolve, 50));
     }
   }
 
   private async releaseLock(): Promise<void> {
-    try {
-      await fs.promises.unlink(this.indexLockPath);
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-        throw error;
-      }
+    const lock = lockMap.get(this.indexPath);
+    if (lock) {
+      clearTimeout(lock.timeout);
+      lockMap.delete(this.indexPath);
+      console.debug(`[DiskVectorStoreManager] Lock released after ${Date.now() - lock.acquiredAt}ms`);
     }
   }
 
   private async ensureIndexFile(): Promise<void> {
-    if (!fs.existsSync(this.baseDir)) {
-      fs.mkdirSync(this.baseDir, { recursive: true });
-    }
     if (!fs.existsSync(this.indexPath)) {
+      console.debug('[DiskVectorStoreManager] Creating new index file');
       const initialIndex: StoreIndex = {};
-      fs.writeFileSync(this.indexPath, JSON.stringify(initialIndex, null, 2));
+      await fs.promises.writeFile(this.indexPath, JSON.stringify(initialIndex, null, 2));
     }
   }
 
   private async readIndex(): Promise<StoreIndex> {
-    await this.acquireLock();
     try {
       await this.ensureIndexFile();
       const content = await fs.promises.readFile(this.indexPath, 'utf-8');
       return JSON.parse(content);
-    } finally {
-      await this.releaseLock();
+    } catch (error) {
+      console.error('[DiskVectorStoreManager] Error reading index:', error);
+      return {};
     }
   }
 
   private async writeIndex(index: StoreIndex): Promise<void> {
-    await this.acquireLock();
-    try {
-      await fs.promises.writeFile(this.indexPath, JSON.stringify(index, null, 2));
-    } finally {
-      await this.releaseLock();
-    }
+    await fs.promises.writeFile(this.indexPath, JSON.stringify(index, null, 2));
   }
 
   async createStore(config: VectorStoreConfig): Promise<VectorStore> {
-    await this.acquireLock();
     try {
+      await this.acquireLock();
       const index = await this.readIndex();
       const storeName = config.storeName;
 
@@ -176,8 +176,11 @@ export class DiskVectorStoreManager implements VectorStoreManager {
   }
 
   async listStores(partitionKey: string, params?: PaginationParams): Promise<PaginatedResult<VectorStoreMetadata>> {
-    await this.acquireLock();
+    console.debug('[DiskVectorStoreManager] Starting listStores operation');
     try {
+      await this.acquireLock();
+      console.debug('[DiskVectorStoreManager] Lock acquired for listStores');
+      
       const index = await this.readIndex();
       const stores = Object.entries(index).map(([storeName, metadata]) => ({
         ...metadata,
@@ -188,13 +191,22 @@ export class DiskVectorStoreManager implements VectorStoreManager {
       const offset = params?.offset || 0;
       const limit = params?.limit || 10;
 
-      return {
+      const result = {
         items: stores.slice(offset, offset + limit),
         total: stores.length,
         hasMore: offset + limit < stores.length
       };
+
+      console.debug('[DiskVectorStoreManager] ListStores operation completed successfully');
+      return result;
+    } catch (error) {
+      console.error('[DiskVectorStoreManager] Error in listStores:', error);
+      throw error;
     } finally {
-      await this.releaseLock();
+      console.debug('[DiskVectorStoreManager] Releasing lock in listStores');
+      await this.releaseLock().catch(error => {
+        console.error('[DiskVectorStoreManager] Error releasing lock in listStores:', error);
+      });
     }
   }
 
