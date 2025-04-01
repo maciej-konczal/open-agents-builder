@@ -75,12 +75,6 @@ export class SQLiteVectorStore implements VectorStore {
     try {
       // Create tables if they don't exist
       this.db.prepare(`
-        CREATE VIRTUAL TABLE IF NOT EXISTS vector_index USING vec0(
-          embedding FLOAT[1024]
-        )
-      `).run();
-
-      this.db.prepare(`
         CREATE TABLE IF NOT EXISTS entries (
           id TEXT PRIMARY KEY,
           content TEXT NOT NULL,
@@ -113,6 +107,14 @@ export class SQLiteVectorStore implements VectorStore {
 
       // Create index on vector_id
       this.db.prepare('CREATE INDEX IF NOT EXISTS idx_vector_id ON entries(vector_id)').run();
+
+      // Create vector index virtual table last
+      this.db.prepare(`
+        CREATE VIRTUAL TABLE IF NOT EXISTS vector_index USING vec0(
+          id integer primary key autoincrement,
+          embedding float[1536]
+        )
+      `).run();
     } catch (err) {
       throw new Error(`Failed to initialize database tables: ${err}`);
     }
@@ -135,12 +137,14 @@ export class SQLiteVectorStore implements VectorStore {
            VALUES (?, ?, ?, ?, ?, ?)`
         ).run(id, entry.content, metadataBlob, now, now, vectorId);
 
+        // Convert embedding to Float32Array and then to Uint8Array
+        const embeddingArray = new Float32Array(entry.embedding);
+        const embeddingBuffer = new Uint8Array(embeddingArray.buffer);
+
         // Insert into vector index using the integer vector_id
-        const embeddingJson = JSON.stringify(entry.embedding);
         this.db.prepare(
-          `INSERT OR REPLACE INTO vector_index (rowid, embedding)
-           VALUES (?, ?)`
-        ).run(vectorId, embeddingJson);
+          `INSERT INTO vector_index(embedding) VALUES (?)`
+        ).run(embeddingBuffer);
 
         // Update metadata
         this.db.prepare(
@@ -174,13 +178,16 @@ export class SQLiteVectorStore implements VectorStore {
       'UPDATE metadata SET value = ? WHERE key = ?'
     ).run(now, 'lastAccessed');
 
-    const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.rowid WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Buffer }) | undefined;
+    const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.rowid WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Uint8Array }) | undefined;
     if (!row) return null;
+
+    // Convert Uint8Array back to Float32Array
+    const embeddingArray = new Float32Array(row.embedding.buffer);
 
     return {
       id: row.id,
       content: row.content,
-      embedding: JSON.parse(row.embedding.toString()),
+      embedding: Array.from(embeddingArray),
       metadata: JSON.parse(row.metadata.toString()),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt
@@ -231,16 +238,20 @@ export class SQLiteVectorStore implements VectorStore {
       : 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.rowid';
     
     const queryParams = params ? [params.limit, params.offset] : [];
-    const rows = this.db.prepare(query).all(...queryParams) as (DatabaseRow & { embedding: Buffer })[];
+    const rows = this.db.prepare(query).all(...queryParams) as (DatabaseRow & { embedding: Uint8Array })[];
 
-    const items = rows.map(row => ({
-      id: row.id,
-      content: row.content,
-      embedding: JSON.parse(row.embedding.toString()),
-      metadata: JSON.parse(row.metadata.toString()),
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt
-    }));
+    const items = rows.map(row => {
+      // Convert Uint8Array back to Float32Array
+      const embeddingArray = new Float32Array(row.embedding.buffer);
+      return {
+        id: row.id,
+        content: row.content,
+        embedding: Array.from(embeddingArray),
+        metadata: JSON.parse(row.metadata.toString()),
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt
+      };
+    });
 
     const count = this.db.prepare('SELECT COUNT(*) as count FROM entries').get() as CountRow;
 
@@ -253,7 +264,8 @@ export class SQLiteVectorStore implements VectorStore {
 
   async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
     const queryEmbedding = await this.generateEmbeddings(query);
-    const queryEmbeddingJson = JSON.stringify(queryEmbedding);
+    const queryEmbeddingArray = new Float32Array(queryEmbedding);
+    const queryEmbeddingBuffer = new Uint8Array(queryEmbeddingArray.buffer);
 
     const rows = this.db.prepare(
       `SELECT 
@@ -262,20 +274,23 @@ export class SQLiteVectorStore implements VectorStore {
         v.distance
       FROM entries e
       JOIN vector_index v ON e.vector_id = v.rowid
-      WHERE v.embedding MATCH ?
-      ORDER BY distance ASC
-      LIMIT ?`
-    ).all(queryEmbeddingJson, topK) as (DatabaseRow & { embedding: Buffer; distance: number })[];
+      WHERE v.embedding MATCH ? AND k = ?
+      ORDER BY distance ASC`
+    ).all(queryEmbeddingBuffer, topK) as (DatabaseRow & { embedding: Uint8Array; distance: number })[];
 
-    return rows.map(row => ({
-      id: row.id,
-      content: row.content,
-      embedding: JSON.parse(row.embedding.toString()),
-      metadata: JSON.parse(row.metadata.toString()),
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      similarity: row.distance
-    }));
+    return rows.map(row => {
+      // Convert Uint8Array back to Float32Array
+      const embeddingArray = new Float32Array(row.embedding.buffer);
+      return {
+        id: row.id,
+        content: row.content,
+        embedding: Array.from(embeddingArray),
+        metadata: JSON.parse(row.metadata.toString()),
+        createdAt: row.createdAt,
+        updatedAt: row.updatedAt,
+        similarity: row.distance
+      };
+    });
   }
 
   async getMetadata(): Promise<VectorStoreMetadata> {
