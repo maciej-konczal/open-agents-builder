@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const query = url.searchParams.get("query") ?? "";
 
     // Read the index.json file
-    const indexPath = path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-index.json');
+    const indexPath = path.resolve(process.cwd(), 'data', 'short-memory-store', 'index.json');
     let index: StoreIndex = {};
     
     if (fs.existsSync(indexPath)) {
@@ -43,8 +43,11 @@ export async function GET(request: NextRequest) {
       index = JSON.parse(indexContent);
     }
 
+    // Get stores for this database from the index
+    const databaseStores = index[requestContext.databaseIdHash] || {};
+
     // Convert index to files array
-    let files = Object.entries(index).map(([storeName, metadata]) => ({
+    let files = Object.entries(databaseStores).map(([storeName, metadata]) => ({
       file: `${storeName}.json`,
       displayName: storeName,
       itemCount: metadata.itemCount,

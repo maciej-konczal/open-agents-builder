@@ -13,7 +13,9 @@ interface StoreMetadata {
 }
 
 interface StoreIndex {
-  [storeName: string]: StoreMetadata;
+  [databaseIdHash: string]: {
+    [storeName: string]: StoreMetadata;
+  };
 }
 
 /**
@@ -113,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update the index.json file
-    const indexPath = path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-index.json');
+    const indexPath = path.resolve(process.cwd(), 'data', 'short-memory-store', 'index.json');
     
     // Ensure the directory exists
     const dir = path.dirname(indexPath);
@@ -129,8 +131,13 @@ export async function POST(request: NextRequest) {
       index = JSON.parse(indexContent);
     }
     
+    // Initialize the database section if it doesn't exist
+    if (!index[requestContext.databaseIdHash]) {
+      index[requestContext.databaseIdHash] = {};
+    }
+
     // Add the new store to the index
-    index[storeName] = {
+    index[requestContext.databaseIdHash][storeName] = {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       itemCount: 0

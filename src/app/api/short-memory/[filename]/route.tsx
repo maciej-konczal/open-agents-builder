@@ -68,23 +68,13 @@ export async function DELETE(
     await authorizeStorageSchema(request);
 
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', 'short-memory-store')
+      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-store')
     });
 
-    // Check if store exists before attempting to delete
-    const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
-    if (!store) {
-      return NextResponse.json(
-        { error: 'Store not found' },
-        { status: 404 }
-      );
-    }
+    // Even if the store file doesn't exist, we should clean up the index
+    const indexPath = path.resolve(process.cwd(), 'data', 'short-memory-store', 'index.json');
+    let indexCleaned = false;
 
-    // Delete the store
-    await storeManager.deleteStore(requestContext.databaseIdHash, params.filename);
-
-    // Update the index.json file
-    const indexPath = path.resolve(process.cwd(), 'data', 'short-memory-stores-index.json');
     if (fs.existsSync(indexPath)) {
       const indexContent = fs.readFileSync(indexPath, 'utf-8');
       const index: StoreIndex = JSON.parse(indexContent);
@@ -92,6 +82,7 @@ export async function DELETE(
       // Remove the store from the index if it exists
       if (index[requestContext.databaseIdHash]?.[params.filename]) {
         delete index[requestContext.databaseIdHash][params.filename];
+        indexCleaned = true;
 
         // If this was the last store for this database, remove the database entry too
         if (Object.keys(index[requestContext.databaseIdHash]).length === 0) {
@@ -103,11 +94,25 @@ export async function DELETE(
       }
     }
 
-    return NextResponse.json({ message: 'Store deleted successfully' });
+    // Try to delete the actual store if it exists
+    const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
+    if (store) {
+      await storeManager.deleteStore(requestContext.databaseIdHash, params.filename);
+      return NextResponse.json({ message: 'Store deleted successfully', status: 200 });
+    } else if (indexCleaned) {
+      // If we cleaned up the index but store file wasn't found
+      return NextResponse.json({ message: 'Store index entry removed', status: 200 });
+    } else {
+      // If neither store nor index entry existed
+      return NextResponse.json(
+        { message: `Store '${params.filename}' not found`, status: 404 },
+        { status: 404 }
+      );
+    }
   } catch (err) {
     console.error('Error deleting store:', err);
     return NextResponse.json(
-      { error: getErrorMessage(err) },
+      { message: getErrorMessage(err), status: 500 },
       { status: 500 }
     );
   }

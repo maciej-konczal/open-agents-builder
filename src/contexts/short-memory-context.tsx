@@ -102,12 +102,16 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
     try {
       const apiClient = setupApiClient();
       const resp = await apiClient.deleteFile(fileName);
+      if (resp.status === 404) {
+        toast.error("Store not found");
+        throw new Error("Store not found");
+      }
       if (resp.status !== 200) {
-        toast.error(resp.message);
-        throw new Error(resp.message);
+        toast.error(resp.message || "Failed to delete store");
+        throw new Error(resp.message || "Failed to delete store");
       }
       setLoaderStatus(DataLoadingStatus.Success);
-      toast.success("File deleted");
+      toast.success("Store deleted successfully");
     } catch (error) {
       setLoaderStatus(DataLoadingStatus.Error);
       toast.error(getErrorMessage(error));
