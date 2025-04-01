@@ -227,4 +227,24 @@ export class MemoryApiClient extends AdminApiClient {
     ) as { embedding: number[] };
     return response.embedding;
   }
+
+  /**
+   * Delete a record from a vector store
+   */
+  async deleteRecord(fileName: string, recordId: string): Promise<void> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Storage-Schema": this.storageSchema
+    };
+
+    await this.request<void>(
+      `/api/memory/${fileName}/records/${recordId}`,
+      "DELETE",
+      { encryptedFields: [] },
+      undefined,
+      undefined,
+      undefined,
+      headers
+    );
+  }
 }

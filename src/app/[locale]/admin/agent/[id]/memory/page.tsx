@@ -350,6 +350,28 @@ export default function MemoryFilesPage() {
     setRecordFormOpen(true);
   };
 
+  /**
+   * Handle deleting a single record
+   */
+  const handleDeleteRecord = async (record: PreviewRecord) => {
+    if (!confirm(t("Are you sure you want to delete this record?") || "")) return;
+    
+    setIsRecordsLoading(true);
+    try {
+      // Delete the record using the memory context
+      await memoryContext.deleteRecord(selectedFileName, record.id);
+      
+      // Refresh the records list
+      await loadRecords(selectedFileName, recordOffset, recordSearchQuery, false);
+      
+      toast.success(t("Record deleted successfully"));
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setIsRecordsLoading(false);
+    }
+  };
+
   // ---------- RENDER ----------
   return (
     <div className="container mx-auto pt-1.5 pb-10">
@@ -555,13 +577,22 @@ export default function MemoryFilesPage() {
                       <td className="p-2 align-top">
                         {r.similarity ? r.similarity.toFixed(3) : ""}
                       </td>
-                      <td className="p-2 align-top">
+                      <td className="p-2 align-top space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => handleEditRecord(r)}
                         >
                           {t("Edit")}
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => handleDeleteRecord(r)}
+                          disabled={isRecordsLoading}
+                        >
+                          {t("Delete")}
                         </Button>
                       </td>
                     </tr>

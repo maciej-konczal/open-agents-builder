@@ -43,6 +43,9 @@ type MemoryContextType = {
     embedding: number[];
   }) => Promise<void>;
 
+  // New method to delete a record
+  deleteRecord: (fileName: string, recordId: string) => Promise<void>;
+
   // New method to generate embeddings
   generateEmbeddings: (content: string) => Promise<number[]>;
 };
@@ -182,6 +185,23 @@ export const MemoryProvider = ({ children }: { children: ReactNode }) => {
   };
 
   /**
+   * Delete a record from a vector store
+   */
+  const deleteRecord = async (fileName: string, recordId: string): Promise<void> => {
+    setLoaderStatus(DataLoadingStatus.Loading);
+    try {
+      const apiClient = setupApiClient();
+      await apiClient.deleteRecord(fileName, recordId);
+      setLoaderStatus(DataLoadingStatus.Success);
+      toast.success("Record deleted successfully");
+    } catch (error) {
+      setLoaderStatus(DataLoadingStatus.Error);
+      toast.error(getErrorMessage(error));
+      throw error;
+    }
+  };
+
+  /**
    * Generate embeddings for content
    */
   const generateEmbeddings = async (content: string): Promise<number[]> => {
@@ -206,6 +226,7 @@ export const MemoryProvider = ({ children }: { children: ReactNode }) => {
     listRecords,
     createStore,
     saveRecord,
+    deleteRecord,
     generateEmbeddings,
   };
 
