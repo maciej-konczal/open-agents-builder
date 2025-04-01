@@ -39,12 +39,13 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
       // Create stores_index table if it doesn't exist
       this.db.prepare(`
         CREATE TABLE IF NOT EXISTS stores_index (
-          storeName TEXT PRIMARY KEY,
+          storeName TEXT,
           partitionKey TEXT NOT NULL,
           itemCount INTEGER DEFAULT 0,
           createdAt TEXT NOT NULL,
           updatedAt TEXT NOT NULL,
-          lastAccessed TEXT
+          lastAccessed TEXT,
+          PRIMARY KEY (storeName, partitionKey)
         )
       `).run();
 
@@ -63,6 +64,15 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
 
   async getStore(partitionKey: string, storeName: string) {
     this.ensureDirectoryExists(this.baseDir);
+    
+    // Check if store exists in the index
+    const existing = this.db.prepare('SELECT storeName FROM stores_index WHERE storeName = ? AND partitionKey = ?')
+      .get(storeName, partitionKey);
+
+    if (!existing) {
+      return null;
+    }
+
     return createSQLiteVectorStore({
       storeName,
       partitionKey,
@@ -79,7 +89,15 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
       .get(config.storeName, config.partitionKey);
     
     if (existing) {
-      throw new Error(`Store ${config.storeName} already exists`);
+      // Double check if the store file actually exists
+      const dbPath = path.join(this.baseDir, `${config.storeName}.sqlite`);
+      if (!fs.existsSync(dbPath)) {
+        // Store is in index but file doesn't exist - clean up the index entry
+        this.db.prepare('DELETE FROM stores_index WHERE storeName = ? AND partitionKey = ?')
+          .run(config.storeName, config.partitionKey);
+      } else {
+        throw new Error(`Store ${config.storeName} already exists`);
+      }
     }
 
     try {
@@ -101,6 +119,7 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
         INSERT INTO stores_index (storeName, partitionKey, itemCount, createdAt, updatedAt, lastAccessed)
         VALUES (?, ?, ?, ?, ?, ?)
       `).run(config.storeName, config.partitionKey, 0, now, now, now);
+
       return store;
     } catch (err) {
       // If store creation failed, clean up any partial files
