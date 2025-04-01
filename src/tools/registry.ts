@@ -101,18 +101,10 @@ export const toolRegistry = {
         apiKey: process.env.OPENAI_API_KEY
       });
 
-      const vectorStore = createDiskVectorStore({
-        storeName: 'default',
-        partitionKey: databaseIdHash,
-        maxFileSizeMB: 10,
-        baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
-        generateEmbeddings
-      });
-
       availableTools = {
         ...availableTools,
-        memorySaveTool: createMemorySaveTool(databaseIdHash, sessionId, storageKey, agent, vectorStore),
-        memorySearchTool: createMemorySearchTool(databaseIdHash, sessionId, storageKey, agent, vectorStore),
+        memorySaveTool: createMemorySaveTool(databaseIdHash, sessionId, storageKey, agent),
+        memorySearchTool: createMemorySearchTool(databaseIdHash, sessionId, storageKey, agent),
       }
     }
 

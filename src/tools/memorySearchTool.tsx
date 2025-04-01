@@ -38,7 +38,6 @@ export function createMemorySearchTool(
               generateEmbeddings
             });
           }
-
           const results = await vectorStore.search(query, limit);
           return JSON.stringify(results);
         } catch (err) {
