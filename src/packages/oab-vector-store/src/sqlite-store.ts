@@ -1,4 +1,5 @@
 import path from 'path';
+import fs from 'fs';
 import Database from 'better-sqlite3';
 import type { Database as DatabaseType } from 'better-sqlite3';
 import * as sqliteVec from 'sqlite-vec';
@@ -35,47 +36,78 @@ export class SQLiteVectorStore implements VectorStore {
     this.partitionKey = config.partitionKey;
     this.generateEmbeddings = config.generateEmbeddings;
     
-    // Remove .sqlite extension if present in storeName
-    const baseStoreName = this.storeName.replace(/\.sqlite$/, '');
+    // Store files directly in the base directory
+    this.dbPath = path.join(config.baseDir, `${config.storeName}.sqlite`);
     
-    // Store files directly in the data directory
-    this.dbPath = path.join(config.baseDir, `${baseStoreName}.sqlite`);
+    // Ensure directory exists
+    const dirPath = path.dirname(this.dbPath);
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
+
+    // Check if we can access the directory
+    try {
+      fs.accessSync(dirPath, fs.constants.R_OK | fs.constants.W_OK);
+    } catch (err) {
+      throw new Error(`Cannot access directory ${dirPath}: ${err}`);
+    }
+
+    // Log the full path we're trying to use
+    console.log('Attempting to open database at:', this.dbPath);
     
-    // Initialize SQLite database
-    this.db = new Database(this.dbPath);
-    sqliteVec.load(this.db);
-    this.initializeDatabase();
+    // Initialize SQLite database with verbose error handling
+    try {
+      this.db = new Database(this.dbPath);
+    } catch (err) {
+      throw new Error(`Failed to open database at ${this.dbPath}: ${err}`);
+    }
+
+    try {
+      sqliteVec.load(this.db);
+    } catch (err) {
+      throw new Error(`Failed to load SQLite vector extension: ${err}`);
+    }
+
+    try {
+      this.initializeDatabase();
+    } catch (err) {
+      throw new Error(`Failed to initialize database: ${err}`);
+    }
   }
 
   private initializeDatabase(): void {
-    // Create tables if they don't exist
-    this.db.prepare(`
-      CREATE VIRTUAL TABLE IF NOT EXISTS vector_index USING vec0(
-        embedding float[1536]
-      )
-    `).run();
+    try {
+      // Create tables if they don't exist
+      this.db.prepare(`
+        CREATE VIRTUAL TABLE IF NOT EXISTS vector_index USING vec0(
+          embedding float[1536]
+        )
+      `).run();
 
-    this.db.prepare(`
-      CREATE TABLE IF NOT EXISTS entries (
-        id TEXT PRIMARY KEY,
-        content TEXT NOT NULL,
-        metadata TEXT NOT NULL,
-        createdAt TEXT NOT NULL,
-        updatedAt TEXT NOT NULL
-      )
-    `).run();
+      this.db.prepare(`
+        CREATE TABLE IF NOT EXISTS entries (
+          id TEXT PRIMARY KEY,
+          content TEXT NOT NULL,
+          metadata TEXT NOT NULL,
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL
+        )
+      `).run();
 
-    this.db.prepare(`
-      CREATE TABLE IF NOT EXISTS metadata (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL
-      )
-    `).run();
+      this.db.prepare(`
+        CREATE TABLE IF NOT EXISTS metadata (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL
+        )
+      `).run();
 
-    // Initialize metadata if not exists
-    const row = this.db.prepare('SELECT * FROM metadata WHERE key = ?').get('itemCount') as MetadataRow | undefined;
-    if (!row) {
-      this.db.prepare('INSERT INTO metadata (key, value) VALUES (?, ?)').run('itemCount', '0');
+      // Initialize metadata if not exists
+      const row = this.db.prepare('SELECT * FROM metadata WHERE key = ?').get('itemCount') as MetadataRow | undefined;
+      if (!row) {
+        this.db.prepare('INSERT INTO metadata (key, value) VALUES (?, ?)').run('itemCount', '0');
+      }
+    } catch (err) {
+      throw new Error(`Failed to initialize database tables: ${err}`);
     }
   }
 

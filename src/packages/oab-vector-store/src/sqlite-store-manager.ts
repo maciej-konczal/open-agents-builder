@@ -17,34 +17,46 @@ interface StoreIndexRow {
 
 export class SQLiteVectorStoreManager implements VectorStoreManager {
   private baseDir: string;
+  private indexDbPath: string;
 
   constructor(config: { baseDir: string }) {
     this.baseDir = config.baseDir;
+    this.indexDbPath = path.join(this.baseDir, 'stores_index.sqlite');
+    
+    // Ensure base directory exists
+    if (!fs.existsSync(this.baseDir)) {
+      fs.mkdirSync(this.baseDir, { recursive: true });
+    }
+  }
+
+  private ensureDirectoryExists(dirPath: string) {
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true });
+    }
   }
 
   async getStore(partitionKey: string, storeName: string) {
-    const storePath = path.join(this.baseDir, partitionKey, storeName);
+    this.ensureDirectoryExists(this.baseDir);
     return createSQLiteVectorStore({
       storeName,
       partitionKey,
-      baseDir: storePath,
+      baseDir: this.baseDir,
       generateEmbeddings: async (text: string, ...args: unknown[]) => [], // This will be set when actually using the store
     });
   }
 
   async createStore(config: { storeName: string; partitionKey: string; baseDir: string; generateEmbeddings: (text: string, ...args: unknown[]) => Promise<number[]>; maxFileSizeMB?: number }) {
-    const storePath = path.join(this.baseDir, config.partitionKey, config.storeName);
+    this.ensureDirectoryExists(this.baseDir);
     return createSQLiteVectorStore({
       storeName: config.storeName,
       partitionKey: config.partitionKey,
-      baseDir: storePath,
+      baseDir: this.baseDir,
       generateEmbeddings: config.generateEmbeddings,
     });
   }
 
   async deleteStore(partitionKey: string, storeName: string) {
-    const storePath = path.join(this.baseDir, partitionKey, storeName);
-    const dbPath = `${storePath}.sqlite`;
+    const dbPath = path.join(this.baseDir, `${storeName}.sqlite`);
     
     // Close any open connections
     const db = new Database(dbPath);
@@ -52,7 +64,7 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
     
     // Delete the database file
     try {
-      require('fs').unlinkSync(dbPath);
+      fs.unlinkSync(dbPath);
     } catch (err) {
       // Ignore errors if file doesn't exist
     }
@@ -63,7 +75,8 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
       const offset = params?.offset || 0;
       const limit = params?.limit || 10;
 
-      const db = new Database(path.join(this.baseDir, 'stores_index.sqlite'));
+      this.ensureDirectoryExists(path.dirname(this.indexDbPath));
+      const db = new Database(this.indexDbPath);
       const rows = db.prepare(`
         SELECT * FROM stores_index 
         WHERE partitionKey = ? 
@@ -87,7 +100,8 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
   }
 
   async searchStores(partitionKey: string, query: string, topK: number = 5): Promise<VectorStoreMetadata[]> {
-    const db = new Database(path.join(this.baseDir, 'stores_index.sqlite'));
+    this.ensureDirectoryExists(path.dirname(this.indexDbPath));
+    const db = new Database(this.indexDbPath);
     const rows = db.prepare(`
       SELECT * FROM stores_index 
       WHERE partitionKey = ? 
@@ -107,7 +121,8 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
   }
 
   async updateStoreMetadata(partitionKey: string, storeName: string, metadata: Partial<VectorStoreMetadata>): Promise<void> {
-    const db = new Database(path.join(this.baseDir, 'stores_index.sqlite'));
+    this.ensureDirectoryExists(path.dirname(this.indexDbPath));
+    const db = new Database(this.indexDbPath);
     const updates: string[] = [];
     const values: any[] = [];
 
