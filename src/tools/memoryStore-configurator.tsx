@@ -78,8 +78,13 @@ export function MemoryStoreConfigurator({
       handleStoreNameChange(newStoreName);
       setNewStoreName('');
       setShowCreateInput(false);
-    } catch (error) {
-      toast.error(getErrorMessage(error));
+    } catch (error: any) {
+      // Check if the error has a message property from the API response
+      if (error.response?.data?.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error(getErrorMessage(error));
+      }
     } finally {
       setIsCreating(false);
     }

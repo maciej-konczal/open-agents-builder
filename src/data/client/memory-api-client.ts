@@ -75,7 +75,7 @@ export class MemoryApiClient extends AdminApiClient {
   async createStore(storeName: string): Promise<void> {
     const fileName = this.ensureStoreNameFormat(storeName);
     
-    await this.request<void>(
+    const response = await this.request<{ error?: string }>(
       `/api/memory/create`,
       "POST",
       { encryptedFields: [] },
@@ -84,6 +84,11 @@ export class MemoryApiClient extends AdminApiClient {
       undefined,
       { "Storage-Schema": this.storageSchema }
     );
+
+    // Check if the response contains an error message
+    if (response && 'error' in response) {
+      throw new Error(response.error);
+    }
   }
 
   /**
