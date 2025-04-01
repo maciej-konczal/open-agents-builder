@@ -8,8 +8,8 @@ interface DatabaseRow {
   content: string;
   embedding: Buffer;
   metadata: Buffer;
-  created_at: string;
-  updated_at: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface MetadataRow {
@@ -63,8 +63,8 @@ export class SQLiteVectorStore implements VectorStore {
           id TEXT PRIMARY KEY,
           content TEXT NOT NULL,
           metadata TEXT NOT NULL,
-          created_at TEXT NOT NULL,
-          updated_at TEXT NOT NULL
+          createdAt TEXT NOT NULL,
+          updatedAt TEXT NOT NULL
         )
       `);
 
@@ -99,7 +99,7 @@ export class SQLiteVectorStore implements VectorStore {
 
         // Insert into entries table
         this.db.run(
-          `INSERT OR REPLACE INTO entries (id, content, metadata, created_at, updated_at)
+          `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt)
            VALUES (?, ?, ?, ?, ?)`,
           [id, entry.content, metadataBlob, now, now],
           (err: Error | null) => {
@@ -170,8 +170,8 @@ export class SQLiteVectorStore implements VectorStore {
                     content: row.content,
                     embedding: JSON.parse(vecRow.embedding.toString()),
                     metadata: JSON.parse(row.metadata.toString()),
-                    createdAt: row.created_at,
-                    updatedAt: row.updated_at
+                    createdAt: row.createdAt,
+                    updatedAt: row.updatedAt
                   });
                 }
               }
@@ -289,8 +289,8 @@ export class SQLiteVectorStore implements VectorStore {
             id: row.id,
             content: row.content,
             metadata: JSON.parse(row.metadata.toString()),
-            createdAt: row.created_at,
-            updatedAt: row.updated_at
+            createdAt: row.createdAt,
+            updatedAt: row.updatedAt
           }));
 
           // Get embeddings for all entries
@@ -352,8 +352,8 @@ export class SQLiteVectorStore implements VectorStore {
               content: row.content,
               embedding: JSON.parse(row.embedding.toString()),
               metadata: JSON.parse(row.metadata.toString()),
-              createdAt: row.created_at,
-              updatedAt: row.updated_at,
+              createdAt: row.createdAt,
+              updatedAt: row.updatedAt,
               similarity: 1 - row.distance // Convert distance to similarity
             })));
           }
