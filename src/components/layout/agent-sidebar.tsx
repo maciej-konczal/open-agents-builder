@@ -124,9 +124,9 @@ const availableItems : {
   },
   { 
     icon: MemoryStick, 
-    label: 'Short term memory', 
-    href: '/admin/agent/[id]/short-memory',
-    pattern: '/admin/agent/[id]/short-memory',
+    label: 'Memory and Knowledge', 
+    href: '/admin/agent/[id]/memory',
+    pattern: '/admin/agent/[id]/memory',
     activeOnlyOnSavedAgent: true
   },
   { 

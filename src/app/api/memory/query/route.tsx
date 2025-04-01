@@ -1,4 +1,4 @@
-// File: src/app/api/short-memory/query/route.tsx
+// File: src/app/api/memory/query/route.tsx
 
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
@@ -18,7 +18,7 @@ interface StoreIndex {
 }
 
 /**
- * GET /api/short-memory/query
+ * GET /api/memory/query
  * Returns an array of vector stores with their metadata, including item counts.
  *
  * Query params: ?limit=10&offset=0&query=partialName
@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const query = url.searchParams.get("query") ?? "";
 
     // Read the index.json file
-    const indexPath = path.resolve(process.cwd(), 'data', 'short-memory-store', 'index.json');
+    const indexPath = path.resolve(process.cwd(), 'data', 'memory-store', 'index.json');
     let index: StoreIndex = {};
     
     if (fs.existsSync(indexPath)) {

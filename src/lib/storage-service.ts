@@ -173,52 +173,5 @@ export class StorageService {
     fs.writeFileSync(this.getFilePath(storageKey), jsonString, 'utf8');
   }
 
-  /**
-   * Lists all ShortMemory JSON files, optionally filtered by `query`,
-   * and returns the slice for pagination.
-   */
-  public listShortMemoryJsonFiles(query: string | undefined, offset = 0, limit = 10) {
-    this.ensureDirExists();
-    let allFiles = fs
-      .readdirSync(this.uploadPath, { withFileTypes: true })
-      .filter((f) => f.isFile() && f.name.endsWith('.json'))
-      .map((f) => f.name);
 
-    // Optional search
-    if (query) {
-      const q = query.toLowerCase();
-      allFiles = allFiles.filter((name) => name.toLowerCase().includes(q)); // TODO add vector search by the file content
-    }
-
-    const total = allFiles.length;
-    const sliced = allFiles.slice(offset, offset + limit);
-
-    return {
-      files: sliced,
-      total,
-    };
-  }
-
-  /**
-   * Reads the content of a ShortMemory JSON file from disk as string.
-   */
-  public readShortMemoryJsonFile(fileName: string): string {
-    this.ensureDirExists();
-    const filePath = this.getFilePath(fileName);
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`File not found: ${fileName}`);
-    }
-    return fs.readFileSync(filePath, 'utf8');
-  }
-
-  /**
-   * Deletes a ShortMemory JSON file from disk.
-   */
-  public deleteShortMemoryFile(fileName: string): void {
-    this.ensureDirExists();
-    const filePath = this.getFilePath(fileName);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
-    }
-  }
 }

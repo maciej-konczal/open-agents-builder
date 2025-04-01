@@ -7,7 +7,7 @@ import { getErrorMessage } from "@/lib/utils";
 import { nanoid } from "nanoid";
 import path from "path";
 
-export function createShortMemorySaveTool(
+export function createMemorySaveTool(
   databaseIdHash: string,
   sessionId: string,
   storageKey: string | null | undefined,
@@ -15,9 +15,9 @@ export function createShortMemorySaveTool(
   vectorStore: VectorStore | null = null
 ): ToolDescriptor {
   return {
-    displayName: "Save document to short-term memory store",
+    displayName: "Save document to memory store",
     tool: tool({
-      description: "Save a document and its metadata to the short-term memory store.",
+      description: "Save a document and its metadata to the memory store.",
       parameters: z.object({
         id: z.string().describe("Unique identifier for the document. When not provided will be generated").optional(),
         content: z.string().describe("Content of the document"),
@@ -40,7 +40,7 @@ export function createShortMemorySaveTool(
               storeName: storeName || 'default',
               partitionKey: databaseIdHash,
               maxFileSizeMB: 10,
-              baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'short-memory-store'),
+              baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
               generateEmbeddings
             });
           }

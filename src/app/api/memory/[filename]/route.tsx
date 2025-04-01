@@ -19,8 +19,8 @@ interface StoreIndex {
 }
 
 /**
- * GET /api/short-memory/[filename]
- * Returns the raw file content of a short-memory JSON file.
+ * GET /api/memory/[filename]
+ * Returns the raw file content of a memory JSON file.
  */
 export async function GET(
   request: NextRequest,
@@ -32,7 +32,7 @@ export async function GET(
     await authorizeStorageSchema(request);
 
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', 'short-memory-store')
+      baseDir: path.resolve(process.cwd(), 'data', 'memory-store')
     });
 
     const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
@@ -55,8 +55,8 @@ export async function GET(
 }
 
 /**
- * DELETE /api/short-memory/[filename]
- * Deletes a short-memory JSON file.
+ * DELETE /api/memory/[filename]
+ * Deletes a memory JSON file.
  */
 export async function DELETE(
   request: NextRequest,
@@ -68,11 +68,11 @@ export async function DELETE(
     await authorizeStorageSchema(request);
 
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-store')
+      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
     });
 
     // Even if the store file doesn't exist, we should clean up the index
-    const indexPath = path.resolve(process.cwd(), 'data', 'short-memory-store', 'index.json');
+    const indexPath = path.resolve(process.cwd(), 'data', 'memory-store', 'index.json');
     let indexCleaned = false;
 
     if (fs.existsSync(indexPath)) {

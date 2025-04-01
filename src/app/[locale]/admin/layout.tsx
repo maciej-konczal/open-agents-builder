@@ -17,7 +17,7 @@ import { KeyContextProvider } from '@/contexts/key-context';
 import { OrderProvider } from '@/contexts/order-context';
 import { ProductProvider } from '@/contexts/product-context';
 import { SaaSContextProvider } from '@/contexts/saas-context';
-import { ShortMemoryProvider } from '@/contexts/short-memory-context';
+import { MemoryProvider } from '@/contexts/memory-context';
 import { StatsContextProvider } from '@/contexts/stats-context';
 import { TemplateProvider } from '@/contexts/template-context';
 import React, { useEffect } from 'react';
@@ -53,8 +53,7 @@ export default function GeneralAgentLayout({
                     <StatsContextProvider>
                       <ProductProvider>
                         <AttachmentProvider>
-                          <ShortMemoryProvider>
-
+                          <MemoryProvider>
                             <AgentProvider>
                               <TemplateProvider>
                                 <OrderProvider>
@@ -72,12 +71,10 @@ export default function GeneralAgentLayout({
                                       {children}
                                     </div>
                                   </div>
-
                                 </OrderProvider>
                               </TemplateProvider>
                             </AgentProvider>
-                          </ShortMemoryProvider>
-
+                          </MemoryProvider>
                         </AttachmentProvider>
                       </ProductProvider>
                     </StatsContextProvider>

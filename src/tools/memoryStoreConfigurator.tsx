@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useShortMemoryContext } from '@/contexts/short-memory-context';
+import { useMemoryContext } from '@/contexts/memory-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,33 +9,31 @@ import { getErrorMessage } from '@/lib/utils';
 import { Plus, Trash2 } from 'lucide-react';
 
 /** The shape of the options this configurator manages. */
-type ContextVectorStoreOptions = {
-  shardName: string;
-  sessionOnly: boolean;
+type MemoryStoreOptions = {
+  storeName: string;
 };
 
 /** Props for the configurator component. */
-type ContextVectorStoreConfiguratorProps = {
+type MemoryStoreConfiguratorProps = {
   /** Current options. */
-  options: ContextVectorStoreOptions;
+  options: MemoryStoreOptions;
   /** Callback when the user changes anything. */
-  onChange: (updated: ContextVectorStoreOptions) => void;
+  onChange: (updated: MemoryStoreOptions) => void;
 };
 
 /**
- * A configurator for ContextVectorStore that allows the user to set or change the shardName
- * and to toggle whether data is stored only for the session (sessionOnly).
+ * A configurator for memory stores that allows the user to set or change the store name,
+ * create new stores, or delete existing ones.
  */
-export function ContextVectorStoreConfigurator({
+export function MemoryStoreConfigurator({
   options,
   onChange
-}: ContextVectorStoreConfiguratorProps) {
+}: MemoryStoreConfiguratorProps) {
   const { t } = useTranslation();
-  const shortMemoryContext = useShortMemoryContext();
+  const memoryContext = useMemoryContext();
 
   // Keep local pieces of state so our inputs are controlled.
-  const [shardName, setShardName] = useState(options.shardName);
-  const [sessionOnly, setSessionOnly] = useState(!!options.sessionOnly);
+  const [storeName, setStoreName] = useState(options.storeName);
   const [stores, setStores] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -50,12 +48,11 @@ export function ContextVectorStoreConfigurator({
 
   const loadStores = async () => {
     try {
-      const response = await shortMemoryContext.queryFiles({
-        limit: 100,
-        offset: 0
-      });
-      const storeNames = response.files.map(f => f.displayName || f.file.replace(/\.json$/, ''));
-      setStores(storeNames);
+      await memoryContext.loadFiles();
+      if (memoryContext.files) {
+        const storeNames = memoryContext.files.files.map(file => file.displayName || file.file.replace(/\.json$/, ''));
+        setStores(storeNames);
+      }
     } catch (error) {
       toast.error(getErrorMessage(error));
     } finally {
@@ -63,15 +60,9 @@ export function ContextVectorStoreConfigurator({
     }
   };
 
-  const handleShardNameChange = (value: string) => {
-    setShardName(value);
-    onChange({ ...options, shardName: value });
-  };
-
-  const handleSessionOnlyChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const checked = e.target.checked;
-    setSessionOnly(checked);
-    onChange({ ...options, sessionOnly: checked });
+  const handleStoreNameChange = (value: string) => {
+    setStoreName(value);
+    onChange({ storeName: value });
   };
 
   const handleCreateStore = async () => {
@@ -82,9 +73,9 @@ export function ContextVectorStoreConfigurator({
 
     setIsCreating(true);
     try {
-      await shortMemoryContext.createStore(newStoreName);
+      await memoryContext.createStore(newStoreName);
       await loadStores();
-      handleShardNameChange(newStoreName);
+      handleStoreNameChange(newStoreName);
       setNewStoreName('');
       setShowCreateInput(false);
     } catch (error) {
@@ -99,12 +90,12 @@ export function ContextVectorStoreConfigurator({
     
     setIsDeleting(true);
     try {
-      await shortMemoryContext.deleteFile(storeName);
+      await memoryContext.deleteFile(storeName);
       await loadStores();
       
       // If the deleted store was selected, clear the selection
-      if (shardName === storeName) {
-        handleShardNameChange('');
+      if (storeName === storeName) {
+        handleStoreNameChange('');
       }
     } catch (error) {
       toast.error(getErrorMessage(error));
@@ -123,8 +114,8 @@ export function ContextVectorStoreConfigurator({
         {!showCreateInput ? (
           <div className="flex gap-2">
             <Select
-              value={shardName}
-              onValueChange={handleShardNameChange}
+              value={storeName}
+              onValueChange={handleStoreNameChange}
               disabled={isLoading}
             >
               <SelectTrigger className="w-[200px]">
@@ -177,12 +168,12 @@ export function ContextVectorStoreConfigurator({
         )}
 
         {/* Delete Store Button */}
-        {shardName && (
+        {storeName && (
           <div className="mt-2">
             <Button
               variant="destructive"
               size="sm"
-              onClick={() => handleDeleteStore(shardName)}
+              onClick={() => handleDeleteStore(storeName)}
               disabled={isDeleting}
             >
               <Trash2 className="h-4 w-4 mr-2" />
@@ -190,20 +181,6 @@ export function ContextVectorStoreConfigurator({
             </Button>
           </div>
         )}
-      </div>
-
-      {/* Session Only Checkbox */}
-      <div className="flex items-center">
-        <input
-          id="sessionOnly"
-          type="checkbox"
-          className="border p-2 rounded text-sm mr-2"
-          checked={sessionOnly}
-          onChange={handleSessionOnlyChange}
-        />
-        <label htmlFor="sessionOnly" className="block text-sm font-medium">
-          {t('Store data only for the current session (data is removed after session ends)')}
-        </label>
       </div>
     </div>
   );

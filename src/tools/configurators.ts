@@ -15,7 +15,7 @@ import { Agent } from '@/data/client/models';
 import { TraceToolConfigurator } from './traceTool-configurator';
 import { RenderComponentToolConfigurator } from './renderComponentTool-configurator';
 import { getAvailableUIComponents } from './availableUIComponentsTool';
-import { ContextVectorStoreConfigurator } from './shortMemorySaveTool-configurator';
+import { MemoryStoreConfigurator } from './memoryStoreConfigurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -72,27 +72,31 @@ export const toolConfiguratorsRepository = {
         configurator: UpdateResultToolConfigurator
       },
       contextVectorSaveTool: {
-        displayName: 'Short term memory save',
-        configurator: ContextVectorStoreConfigurator
-      },
-      contextVectorSearchTool: {
-        displayName: 'Short term memory search',
-        configurator: ContextVectorStoreConfigurator
-      },
-      shortMemorySaveTool: {
-        displayName: "Save document to short-term memory store",
-        configurator: ContextVectorStoreConfigurator,
+        displayName: 'Memory save',
+        configurator: MemoryStoreConfigurator,
         defaultOptions: {
-          storeName: "default",
-          sessionOnly: false
+          storeName: "default"
         }
       },
-      shortMemorySearchTool: {
-        displayName: "Search in short-term memory store",
-        configurator: ContextVectorStoreConfigurator,
+      contextVectorSearchTool: {
+        displayName: 'Memory search',
+        configurator: MemoryStoreConfigurator,
         defaultOptions: {
-          storeName: "default",
-          sessionOnly: false
+          storeName: "default"
+        }
+      },
+      memorySaveTool: {
+        displayName: "Save document to memory store",
+        configurator: MemoryStoreConfigurator,
+        defaultOptions: {
+          storeName: "default"
+        }
+      },
+      memorySearchTool: {
+        displayName: "Search in memory store",
+        configurator: MemoryStoreConfigurator,
+        defaultOptions: {
+          storeName: "default"
         }
       }
     }

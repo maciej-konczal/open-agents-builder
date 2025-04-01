@@ -21,9 +21,9 @@ import { FlowChunkEvent } from '@/flows/models';
 import { replaceBase64Content } from '@/lib/file-extractor';
 import { createAvailableUIComponentsTool, getAvailableUIComponents } from './availableUIComponentsTool';
 import { createRenderComponentTool } from './renderComponentTool';
-import { createShortMemorySaveTool } from './shortMemorySaveTool';
+import { createMemorySaveTool } from './memorySaveTool';
 import { createOpenAIEmbeddings } from '@oab/vector-store';
-import { createShortMemorySearchTool } from './shortMemorySearchTool';
+import { createMemorySearchTool } from './memorySearchTool';
 import { createDiskVectorStore } from '@oab/vector-store';
 import path from 'path';
 
@@ -105,14 +105,14 @@ export const toolRegistry = {
         storeName: 'default',
         partitionKey: databaseIdHash,
         maxFileSizeMB: 10,
-        baseDir: path.resolve(process.cwd(), 'data', 'short-memory-store'),
+        baseDir: path.resolve(process.cwd(), 'data', 'memory-store'),
         generateEmbeddings
       });
 
       availableTools = {
         ...availableTools,
-        shortMemorySaveTool: createShortMemorySaveTool(databaseIdHash, sessionId, storageKey, agent, vectorStore),
-        shortMemorySearchTool: createShortMemorySearchTool(databaseIdHash, sessionId, storageKey, agent, vectorStore),
+        memorySaveTool: createMemorySaveTool(databaseIdHash, sessionId, storageKey, agent, vectorStore),
+        memorySearchTool: createMemorySearchTool(databaseIdHash, sessionId, storageKey, agent, vectorStore),
       }
     }
 

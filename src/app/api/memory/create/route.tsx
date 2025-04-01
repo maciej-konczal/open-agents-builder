@@ -57,7 +57,7 @@ function validateStoreName(storeName: string): { isValid: boolean; error?: strin
 }
 
 /**
- * POST /api/short-memory/create
+ * POST /api/memory/create
  * Creates a new vector store with the given name.
  * Body: { storeName: string }
  */
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     // Create store manager instance
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-store')
+      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
     });
 
     // Check if store already exists
@@ -104,7 +104,7 @@ export async function POST(request: NextRequest) {
     await storeManager.createStore({
       storeName,
       partitionKey: requestContext.databaseIdHash,
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-store'),
+      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store'),
       generateEmbeddings: async () => [], // This will be set when actually using the store
     });
 
@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update the index.json file
-    const indexPath = path.resolve(process.cwd(), 'data', 'short-memory-store', 'index.json');
+    const indexPath = path.resolve(process.cwd(), 'data', 'memory-store', 'index.json');
     
     // Ensure the directory exists
     const dir = path.dirname(indexPath);

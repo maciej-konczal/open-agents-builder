@@ -1,4 +1,4 @@
-// File: src/app/api/short-memory/[filename]/records/route.tsx
+// File: src/app/api/memory/[filename]/records/route.tsx
 
 import { NextRequest, NextResponse } from "next/server";
 import { createDiskVectorStoreManager } from "@oab/vector-store";
@@ -18,7 +18,7 @@ interface StoreIndex {
 }
 
 function updateIndex(databaseIdHash: string, storeName: string, itemCount: number) {
-  const indexPath = path.resolve(process.cwd(), 'data', databaseIdHash, 'short-memory-index.json');
+  const indexPath = path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-index.json');
   let index: StoreIndex = {};
   
   // Ensure the directory exists
@@ -47,8 +47,8 @@ function updateIndex(databaseIdHash: string, storeName: string, itemCount: numbe
 }
 
 /**
- * GET /api/short-memory/[filename]/records
- * Query or vector-search records in a single short-memory JSON file.
+ * GET /api/memory/[filename]/records
+ * Query or vector-search records in a single memory JSON file.
  * Query params:
  *   - limit=10
  *   - offset=0
@@ -68,7 +68,7 @@ export async function GET(
     const topK = parseInt(searchParams.get('topK') || '5');
 
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-store')
+      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
     });
 
     const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
@@ -109,7 +109,7 @@ export async function GET(
 }
 
 /**
- * POST /api/short-memory/[filename]/records
+ * POST /api/memory/[filename]/records
  * Save a new record to the vector store.
  */
 export async function POST(
@@ -129,7 +129,7 @@ export async function POST(
     }
 
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'short-memory-store')
+      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
     });
 
     const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
