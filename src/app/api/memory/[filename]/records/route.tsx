@@ -1,7 +1,7 @@
 // File: src/app/api/memory/[filename]/records/route.tsx
 
 import { NextRequest, NextResponse } from "next/server";
-import { createDiskVectorStoreManager, createOpenAIEmbeddings } from "oab-vector-store";
+import { createDiskVectorStoreManager, createOpenAIEmbeddings, createDiskVectorStore } from "oab-vector-store";
 import path from 'path';
 import { VectorStoreEntry, VectorStore } from "oab-vector-store";
 import { authorizeRequestContext } from "@/lib/authorization-api";
@@ -11,22 +11,28 @@ async function getOrCreateStore(databaseIdHash: string, storeName: string): Prom
     baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store')
   });
 
-  let store = await storeManager.getStore(databaseIdHash, storeName);
-  
-  if (!store) {
-    const generateEmbeddings = createOpenAIEmbeddings({
-      apiKey: process.env.OPENAI_API_KEY
-    });
+  const generateEmbeddings = createOpenAIEmbeddings({
+    apiKey: process.env.OPENAI_API_KEY
+  });
 
-    store = await storeManager.createStore({
+  const existingStore = await storeManager.getStore(databaseIdHash, storeName);
+  
+  if (!existingStore) {
+    return await storeManager.createStore({
+      storeName,
+      partitionKey: databaseIdHash,
+      baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
+      generateEmbeddings
+    });
+  } else {
+    // Recreate the store with embeddings function
+    return createDiskVectorStore({
       storeName,
       partitionKey: databaseIdHash,
       baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
       generateEmbeddings
     });
   }
-
-  return store;
 }
 
 /**
@@ -54,20 +60,36 @@ export async function GET(
 
     if (embeddingSearch) {
       const results = await store.search(embeddingSearch, topK);
-      return NextResponse.json({ results });
+      return NextResponse.json({
+        rows: results.map(entry => {
+          interface SearchResult extends VectorStoreEntry {
+            embeddingPreview: number[];
+            similarity?: number;
+          }
+          const result: SearchResult = {
+            ...entry,
+            embeddingPreview: entry.embedding.slice(0, 8)
+          };
+          if ('similarity' in entry) {
+            result.similarity = (entry as { similarity: number }).similarity;
+          }
+          return result;
+        }),
+        total: results.length,
+        vectorSearchQuery: embeddingSearch
+      });
     }
 
-    const { items, total, hasMore } = await store.entries({ limit, offset });
+    const { items, total } = await store.entries({ limit, offset });
 
     return NextResponse.json({
-      items: items.map((entry: VectorStoreEntry) => ({
+      rows: items.map((entry: VectorStoreEntry) => ({
         id: entry.id,
         metadata: entry.metadata,
         content: entry.content,
         embeddingPreview: entry.embedding.slice(0, 8)
       })),
-      total,
-      hasMore
+      total
     });
   } catch (error) {
     console.error('Error fetching records:', error);
