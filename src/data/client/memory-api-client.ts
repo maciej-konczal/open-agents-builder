@@ -66,7 +66,15 @@ export class MemoryApiClient extends AdminApiClient {
   }
 
   private ensureStoreNameFormat(storeName: string): string {
-    return storeName.replace(/\.json$/, '');
+    // Remove .json extension if present
+    const nameWithoutExtension = storeName.replace(/\.json$/, '');
+    
+    // Check if the name contains only letters, digits, and underscores
+    if (!/^[a-zA-Z0-9_]+$/.test(nameWithoutExtension)) {
+      throw new Error("Store name can only contain letters, numbers, and underscores");
+    }
+    
+    return nameWithoutExtension;
   }
 
   /**
