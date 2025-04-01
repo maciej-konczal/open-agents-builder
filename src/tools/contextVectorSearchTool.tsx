@@ -1,20 +1,16 @@
 import { z } from "zod";
-import dedent from "dedent";
 import { ToolDescriptor } from "./registry";
-import { VectorStore, GenerateEmbeddings, EmbeddingResult, createDiskBackedVectorStore, cosineSimilarity } from "@/data/client/vector";
+import { createDiskVectorStore, createOpenAIEmbeddings, VectorStore } from "@oab/vector-store";
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
-import { vector } from "drizzle-orm/pg-core";
 import { getErrorMessage } from "@/lib/utils";
-
-
+import path from "path";
 
 export function createContextVectorSearchTool(
   databaseIdHash: string,
   sessionId: string,
   storageKey: string | null | undefined,
   agent: Agent,
-  generateEmbeddings: GenerateEmbeddings,
   vectorStore: VectorStore | null = null
 ): ToolDescriptor {
   return {
@@ -28,24 +24,25 @@ export function createContextVectorSearchTool(
         topK: z.number().int().positive().default(5).describe("Number of top results to return"),
       }),
       execute: async ({ query, shardName, sessionOnly, topK }) => {
-
         try {
           console.log(query, shardName, sessionOnly, topK);
-          const queryEmbedding = await generateEmbeddings(query);
 
-          if (vectorStore === null) {
-            vectorStore = createDiskBackedVectorStore(databaseIdHash, 'vector-store', agent?.id ?? '', (shardName ?? 'default') + (sessionOnly ? '-' + sessionId : ''));
+          // Create vector store if not provided
+          if (!vectorStore) {
+            const generateEmbeddings = createOpenAIEmbeddings({
+              apiKey: process.env.OPENAI_API_KEY
+            });
+
+            vectorStore = createDiskVectorStore({
+              storeName: storageKey || 'default',
+              partitionKey: databaseIdHash,
+              maxFileSizeMB: 10,
+              baseDir: path.resolve(process.cwd(), 'data'),
+              generateEmbeddings
+            });
           }
 
-          const entries = await vectorStore.entries();
-
-          const results = entries
-            .map(([id, entry]: [string, EmbeddingResult]) => {
-              const similarity = cosineSimilarity(queryEmbedding, entry.embedding);
-              return { ...entry, id, similarity };
-            })
-            .sort((a, b) => b.similarity - a.similarity)
-            .slice(0, topK);
+          const results = await vectorStore.search(query, topK);
           return results;
 
         } catch (err) {

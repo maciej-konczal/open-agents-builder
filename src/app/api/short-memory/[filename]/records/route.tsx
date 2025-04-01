@@ -1,11 +1,9 @@
 // File: src/app/api/short-memory/[filename]/records/route.tsx
 
 import { NextRequest, NextResponse } from "next/server";
-import { authorizeRequestContext } from "@/lib/authorization-api";
-import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
-import { getErrorMessage } from "@/lib/utils";
-import { createDiskVectorStore, createOpenAIEmbeddings, VectorStoreEntry } from "@oab/vector-store";
-
+import { createDiskVectorStore } from "@oab/vector-store";
+import { createOpenAIEmbeddings } from "@oab/vector-store";
+import path from 'path';
 
 /**
  * GET /api/short-memory/[filename]/records
@@ -21,64 +19,42 @@ export async function GET(
   { params }: { params: { filename: string } }
 ) {
   try {
-    // Authorization checks
-    const requestContext = await authorizeRequestContext(request);
-    await authorizeSaasContext(request);
-    await authorizeStorageSchema(request);
+    const searchParams = request.nextUrl.searchParams;
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const offset = parseInt(searchParams.get('offset') || '0');
+    const embeddingSearch = searchParams.get('embeddingSearch');
+    const topK = parseInt(searchParams.get('topK') || '5');
 
-    // Parse incoming query parameters
-    const url = request.nextUrl;
-    const limitParam = url.searchParams.get("limit") ?? "10";
-    const offsetParam = url.searchParams.get("offset") ?? "0";
-    const embeddingQuery = url.searchParams.get("embeddingSearch") ?? "";
-    const topKParam = url.searchParams.get("topK") ?? "5";
+    const generateEmbeddings = createOpenAIEmbeddings({ apiKey: process.env.OPENAI_API_KEY });
 
-    const limit = parseInt(limitParam, 10);
-    const offset = parseInt(offsetParam, 10);
-    const topK = parseInt(topKParam, 10);
-
-    // Create vector store instance
-    const generateEmbeddings = createOpenAIEmbeddings();
     const vectorStore = createDiskVectorStore({
+      partitionKey: 'short-memory',
       storeName: params.filename,
-      partitionKey: requestContext.databaseIdHash,
-      maxFileSizeMB: 10
-    }, generateEmbeddings);
+      maxFileSizeMB: 10,
+      baseDir: path.resolve(process.cwd(), 'data'),
+      generateEmbeddings
+    });
 
-    // If no vector search, just do a normal slice
-    if (!embeddingQuery) {
-      const allEntries = await vectorStore.entries();
-      const total = allEntries.length;
-      const sliced = allEntries.slice(offset, offset + limit).map((entry: VectorStoreEntry) => ({
-        id: entry.id,
-        metadata: entry.metadata,
-        content: entry.content,
-        embeddingPreview: entry.embedding.slice(0, 8)
-      }));
-
-      return NextResponse.json({
-        total,
-        rows: sliced,
-      });
+    if (embeddingSearch) {
+      const results = await vectorStore.search(embeddingSearch, topK);
+      return NextResponse.json({ results });
     }
 
-    // Otherwise, do vector search
-    const results = await vectorStore.search(embeddingQuery, topK);
+    const { items, total, hasMore } = await vectorStore.entries({ limit, offset });
     return NextResponse.json({
-      total: results.length,
-      rows: results.map((entry: VectorStoreEntry) => ({
+      items: items.map(entry => ({
         id: entry.id,
         metadata: entry.metadata,
         content: entry.content,
-        similarity: entry.similarity,
         embeddingPreview: entry.embedding.slice(0, 8)
       })),
-      vectorSearchQuery: embeddingQuery,
+      total,
+      hasMore
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching records:', error);
     return NextResponse.json(
-      { message: getErrorMessage(error), status: 500 },
+      { error: 'Failed to fetch records' },
       { status: 500 }
     );
   }

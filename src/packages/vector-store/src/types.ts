@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import path from 'path';
 
 /**
  * Core types for vector store entries
@@ -21,6 +22,7 @@ export const vectorStoreConfigSchema = z.object({
   storeName: z.string(),
   partitionKey: z.string(),
   maxFileSizeMB: z.number().optional(),
+  baseDir: z.string().default(() => path.resolve(process.cwd(), 'data')),
   generateEmbeddings: z.function()
     .args(z.string())
     .returns(z.promise(z.array(z.number())))
@@ -39,7 +41,7 @@ export interface VectorStore {
   upsert: (entry: VectorStoreEntry) => Promise<void>;
   
   // Query operations
-  entries: () => Promise<VectorStoreEntry[]>;
+  entries: (params?: PaginationParams) => Promise<PaginatedResult<VectorStoreEntry>>;
   search: (query: string, topK?: number) => Promise<VectorStoreEntry[]>;
   
   // Store management
@@ -55,4 +57,15 @@ export type VectorStoreFactory = (config: VectorStoreConfig) => VectorStore;
 /**
  * Embedding generation function type
  */
-export type GenerateEmbeddings = (content: string) => Promise<number[]>; 
+export type GenerateEmbeddings = (content: string) => Promise<number[]>;
+
+export interface PaginationParams {
+  limit: number;
+  offset: number;
+}
+
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  hasMore: boolean;
+} 

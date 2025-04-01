@@ -1,17 +1,17 @@
 import { z } from "zod";
 import { ToolDescriptor } from "./registry";
-import { VectorStore, GenerateEmbeddings, EmbeddingResult, createDiskBackedVectorStore } from "@/data/client/vector";
+import { createDiskVectorStore, createOpenAIEmbeddings, VectorStore, VectorStoreEntry } from "@oab/vector-store";
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
 import { getErrorMessage } from "@/lib/utils";
 import { nanoid } from "nanoid";
+import path from "path";
 
 export function createContextVectorSaveTool(
   databaseIdHash: string,
   sessionId: string,
   storageKey: string | null | undefined,
   agent: Agent,
-  generateEmbeddings: GenerateEmbeddings,
   vectorStore: VectorStore | null = null
 ): ToolDescriptor {
   return {
@@ -29,12 +29,31 @@ export function createContextVectorSaveTool(
         try {
           if (!id) id = nanoid();
           console.log(id, content, metadata, shardName, sessionOnly);
-          const embedding = await generateEmbeddings(content);
 
-          if (vectorStore === null) {
-            vectorStore = createDiskBackedVectorStore(databaseIdHash, 'vector-store', agent?.id ?? '', (shardName ?? 'default')  + (sessionOnly ? '-' + sessionId : '')); 
+          // Create vector store if not provided
+          if (!vectorStore) {
+            const generateEmbeddings = createOpenAIEmbeddings({
+              apiKey: process.env.OPENAI_API_KEY
+            });
+
+            vectorStore = createDiskVectorStore({
+              storeName: storageKey || 'default',
+              partitionKey: databaseIdHash,
+              maxFileSizeMB: 10,
+              baseDir: path.resolve(process.cwd(), 'data'),
+              generateEmbeddings
+            });
           }
-          await vectorStore.set(id, { content, metadata, embedding });    
+
+          // Create the entry
+          const entry: VectorStoreEntry = {
+            id,
+            content,
+            metadata: JSON.parse(metadata),
+            embedding: await vectorStore.getConfig().generateEmbeddings(content)
+          };
+
+          await vectorStore.set(id, entry);    
           return `Document saved with id: ${id}`;
         } catch (err) {
           return `Error saving document: ${getErrorMessage(err)}`;

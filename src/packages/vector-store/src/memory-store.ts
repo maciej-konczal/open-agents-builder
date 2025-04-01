@@ -1,22 +1,20 @@
-import { VectorStore, VectorStoreConfig, VectorStoreEntry } from './types';
-import { getCurrentTimestamp, sortBySimilarity } from './utils';
-import { GenerateEmbeddings } from './types';
+import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult } from './types';
+import { generateEntryId, getCurrentTimestamp } from './utils';
 
 export class InMemoryVectorStore implements VectorStore {
-  private store: Map<string, VectorStoreEntry> = new Map();
+  private store: Map<string, VectorStoreEntry>;
   private config: VectorStoreConfig;
   private generateEmbeddings: GenerateEmbeddings;
 
-  constructor(config: VectorStoreConfig, generateEmbeddings: GenerateEmbeddings) {
+  constructor(config: VectorStoreConfig) {
+    this.store = new Map();
     this.config = config;
-    this.generateEmbeddings = generateEmbeddings;
+    this.generateEmbeddings = config.generateEmbeddings;
   }
 
-  async set(id: string, entry: Omit<VectorStoreEntry, 'id'>): Promise<void> {
+  async set(id: string, entry: VectorStoreEntry): Promise<void> {
     this.store.set(id, {
       ...entry,
-      id,
-      createdAt: entry.createdAt || getCurrentTimestamp(),
       updatedAt: getCurrentTimestamp()
     });
   }
@@ -29,27 +27,45 @@ export class InMemoryVectorStore implements VectorStore {
     this.store.delete(id);
   }
 
-  async upsert(id: string, entry: Omit<VectorStoreEntry, 'id'>): Promise<void> {
-    const existing = await this.get(id);
-    if (existing) {
-      await this.set(id, {
-        ...entry,
-        createdAt: existing.createdAt,
-        updatedAt: getCurrentTimestamp()
-      });
-    } else {
-      await this.set(id, entry);
+  async upsert(entry: VectorStoreEntry): Promise<void> {
+    const id = entry.id || generateEntryId();
+    await this.set(id, entry);
+  }
+
+  async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
+    const allEntries = Array.from(this.store.values());
+    const total = allEntries.length;
+
+    if (!params) {
+      return {
+        items: allEntries,
+        total,
+        hasMore: false
+      };
     }
+
+    const { limit, offset } = params;
+    const items = allEntries.slice(offset, offset + limit);
+    const hasMore = offset + limit < total;
+
+    return {
+      items,
+      total,
+      hasMore
+    };
   }
 
-  async entries(): Promise<VectorStoreEntry[]> {
-    return Array.from(this.store.values());
-  }
-
-  async search(query: string, topK?: number): Promise<VectorStoreEntry[]> {
+  async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
     const queryEmbedding = await this.generateEmbeddings(query);
-    const allEntries = await this.entries();
-    return sortBySimilarity(allEntries, queryEmbedding, topK);
+    const { items } = await this.entries();
+    
+    return items
+      .map(entry => ({
+        ...entry,
+        similarity: this.cosineSimilarity(queryEmbedding, entry.embedding)
+      }))
+      .sort((a, b) => (b.similarity || 0) - (a.similarity || 0))
+      .slice(0, topK);
   }
 
   getConfig(): VectorStoreConfig {
@@ -59,11 +75,15 @@ export class InMemoryVectorStore implements VectorStore {
   async clear(): Promise<void> {
     this.store.clear();
   }
+
+  private cosineSimilarity(vecA: number[], vecB: number[]): number {
+    const dotProduct = vecA.reduce((sum, a, i) => sum + a * vecB[i], 0);
+    const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a ** 2, 0));
+    const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b ** 2, 0));
+    return dotProduct / (magnitudeA * magnitudeB);
+  }
 }
 
-export const createInMemoryVectorStore = (
-  config: VectorStoreConfig,
-  generateEmbeddings: GenerateEmbeddings
-): VectorStore => {
-  return new InMemoryVectorStore(config, generateEmbeddings);
-}; 
+export function createInMemoryVectorStore(config: VectorStoreConfig): VectorStore {
+  return new InMemoryVectorStore(config);
+} 

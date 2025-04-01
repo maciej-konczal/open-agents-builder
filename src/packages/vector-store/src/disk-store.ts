@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings } from './types';
+import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult } from './types';
 import { generateEntryId, getCurrentTimestamp } from './utils';
 
 export class DiskVectorStore implements VectorStore {
@@ -9,12 +9,12 @@ export class DiskVectorStore implements VectorStore {
   private config: VectorStoreConfig;
   private generateEmbeddings: GenerateEmbeddings;
 
-  constructor(config: VectorStoreConfig, generateEmbeddings: GenerateEmbeddings) {
+  constructor(config: VectorStoreConfig) {
     this.config = config;
-    this.generateEmbeddings = generateEmbeddings;
+    this.generateEmbeddings = config.generateEmbeddings;
     
-    // Create base directory structure
-    const baseDir = path.resolve(process.cwd(), 'data', config.partitionKey, 'vector-store');
+    // Create base directory structure using the configured baseDir
+    const baseDir = path.join(config.baseDir, config.partitionKey, 'vector-store');
     if (!fs.existsSync(baseDir)) {
       fs.mkdirSync(baseDir, { recursive: true });
     }
@@ -105,11 +105,30 @@ export class DiskVectorStore implements VectorStore {
     await this.set(id, entry);
   }
 
-  async entries(): Promise<VectorStoreEntry[]> {
+  async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
     await this.acquireLock();
     try {
       const data = await this.readData();
-      return Object.values(data);
+      const allEntries = Object.values(data);
+      const total = allEntries.length;
+
+      if (!params) {
+        return {
+          items: allEntries,
+          total,
+          hasMore: false
+        };
+      }
+
+      const { limit, offset } = params;
+      const items = allEntries.slice(offset, offset + limit);
+      const hasMore = offset + limit < total;
+
+      return {
+        items,
+        total,
+        hasMore
+      };
     } finally {
       this.releaseLock();
     }
@@ -117,14 +136,16 @@ export class DiskVectorStore implements VectorStore {
 
   async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
     const queryEmbedding = await this.generateEmbeddings(query);
-    const entries = await this.entries();
+    const { items } = await this.entries();
     
-    return entries
-      .map(entry => ({
+    return items
+      .map((entry: VectorStoreEntry) => ({
         ...entry,
         similarity: this.cosineSimilarity(queryEmbedding, entry.embedding)
       }))
-      .sort((a, b) => (b.similarity || 0) - (a.similarity || 0))
+      .sort((a: VectorStoreEntry & { similarity: number }, b: VectorStoreEntry & { similarity: number }) => 
+        (b.similarity || 0) - (a.similarity || 0)
+      )
       .slice(0, topK);
   }
 
@@ -149,9 +170,6 @@ export class DiskVectorStore implements VectorStore {
   }
 }
 
-export function createDiskVectorStore(
-  config: VectorStoreConfig,
-  generateEmbeddings: GenerateEmbeddings
-): VectorStore {
-  return new DiskVectorStore(config, generateEmbeddings);
+export function createDiskVectorStore(config: VectorStoreConfig): VectorStore {
+  return new DiskVectorStore(config);
 } 
