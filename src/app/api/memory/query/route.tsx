@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     // Convert stores to files array
     const files = stores.map((metadata: VectorStoreMetadata) => ({
-      file: `${metadata.name}.json`,
+      file: metadata.name,
       displayName: metadata.name,
       itemCount: metadata.itemCount,
       createdAt: metadata.createdAt,

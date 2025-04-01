@@ -16,9 +16,13 @@ export class DiskVectorStore implements VectorStore {
     this.partitionKey = config.partitionKey;
     this.generateEmbeddings = config.generateEmbeddings;
     this.maxFileSizeMB = config.maxFileSizeMB || 10;
+    
+    // Remove .json extension if present in storeName
+    const baseStoreName = this.storeName.replace(/\.json$/, '');
+    
     // Store files directly in the memory-store directory
-    this.filePath = path.join(config.baseDir, `${config.storeName}.json`);
-    this.lockPath = path.join(config.baseDir, `${config.storeName}.lock`);
+    this.filePath = path.join(config.baseDir, `${baseStoreName}.json`);
+    this.lockPath = path.join(config.baseDir, `${baseStoreName}.lock`);
     
     // Ensure the directory exists
     const dir = path.dirname(this.filePath);
