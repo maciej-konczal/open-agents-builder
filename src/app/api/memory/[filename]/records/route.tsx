@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { createVectorStoreManager, createOpenAIEmbeddings, createDiskVectorStore } from "oab-vector-store";
+import { createVectorStoreManager, createOpenAIEmbeddings, createVectorStore } from "oab-vector-store";
 import { getDataDir } from "@/utils/paths";
 import path from 'path';
 import { VectorStoreEntry, VectorStore } from "oab-vector-store";
@@ -29,7 +29,7 @@ async function getOrCreateStore(databaseIdHash: string, storeName: string): Prom
     });
   } else {
     // Recreate the store with embeddings function
-    return createDiskVectorStore({
+    return createVectorStore({
       storeName,
       partitionKey: databaseIdHash,
       baseDir: getDataDir(databaseIdHash),
