@@ -28,8 +28,6 @@ export function createMemorySaveTool(
       execute: async ({ id, content, metadata, storeName, sessionOnly }) => {
         try {
           if (!id) id = nanoid();
-          console.log(id, content, metadata, storeName, sessionOnly);
-
           // Create vector store if not provided
           if (!vectorStore) {
             const generateEmbeddings = createOpenAIEmbeddings({
@@ -56,6 +54,7 @@ export function createMemorySaveTool(
           await vectorStore.set(id, entry);    
           return `Document saved with id: ${id}`;
         } catch (err) {
+          console.error(err);
           return `Error saving document: ${getErrorMessage(err)}`;
         }
       },
