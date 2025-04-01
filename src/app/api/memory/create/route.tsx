@@ -4,19 +4,6 @@ import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api"
 import { getErrorMessage } from "@/lib/utils";
 import { createDiskVectorStoreManager } from "oab-vector-store";
 import path from "path";
-import fs from "fs";
-
-interface StoreMetadata {
-  createdAt: string;
-  updatedAt: string;
-  itemCount: number;
-}
-
-interface StoreIndex {
-  [databaseIdHash: string]: {
-    [storeName: string]: StoreMetadata;
-  };
-}
 
 /**
  * Validates a store name to ensure it only contains valid filesystem characters
@@ -27,13 +14,24 @@ function validateStoreName(storeName: string): { isValid: boolean; error?: strin
     return { isValid: false, error: 'Store name cannot be empty' };
   }
 
-  // Check for invalid characters
-  const invalidChars = /[<>:"/\\|?*\x00-\x1F]/g;
+  // Check for invalid characters (common filesystem restrictions)
+  const invalidChars = /[<>:"/\\|?*]/g;
   if (invalidChars.test(storeName)) {
     return { 
       isValid: false, 
       error: 'Store name contains invalid characters. Only letters, numbers, spaces, and basic punctuation are allowed.' 
     };
+  }
+
+  // Check for non-printable characters
+  for (let i = 0; i < storeName.length; i++) {
+    const code = storeName.charCodeAt(i);
+    if (code < 32 || code === 127) {
+      return {
+        isValid: false,
+        error: 'Store name contains invalid control characters.'
+      };
+    }
   }
 
   // Check if the name starts or ends with a space or dot
@@ -114,37 +112,12 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to initialize store');
     }
 
-    // Update the index.json file
-    const indexPath = path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store');
-    
-    // Ensure the directory exists
-    const dir = path.dirname(indexPath);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    
-    let index: StoreIndex = {};
-    
-    // Read existing index if it exists
-    if (fs.existsSync(indexPath)) {
-      const indexContent = fs.readFileSync(indexPath, 'utf-8');
-      index = JSON.parse(indexContent);
-    }
-    
-    // Initialize the database section if it doesn't exist
-    if (!index[requestContext.databaseIdHash]) {
-      index[requestContext.databaseIdHash] = {};
-    }
-
-    // Add the new store to the index
-    index[requestContext.databaseIdHash][storeName] = {
+    // Update store metadata
+    await storeManager.updateStoreMetadata(requestContext.databaseIdHash, storeName, {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       itemCount: 0
-    };
-
-    // Write the updated index back to disk
-    fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
+    });
 
     return NextResponse.json({ message: 'Store created successfully' });
   } catch (err) {
