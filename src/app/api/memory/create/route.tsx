@@ -115,7 +115,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update the index.json file
-    const indexPath = path.resolve(process.cwd(), 'data', 'memory-store', 'index.json');
+    const indexPath = path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store');
     
     // Ensure the directory exists
     const dir = path.dirname(indexPath);

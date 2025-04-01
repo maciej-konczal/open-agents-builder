@@ -32,7 +32,7 @@ export async function GET(
     await authorizeStorageSchema(request);
 
     const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', 'memory-store')
+      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
     });
 
     const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
@@ -72,7 +72,7 @@ export async function DELETE(
     });
 
     // Even if the store file doesn't exist, we should clean up the index
-    const indexPath = path.resolve(process.cwd(), 'data', 'memory-store', 'index.json');
+    const indexPath = path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store', 'index.json');
     let indexCleaned = false;
 
     if (fs.existsSync(indexPath)) {

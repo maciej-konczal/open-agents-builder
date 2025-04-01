@@ -105,7 +105,7 @@ export const toolRegistry = {
         storeName: 'default',
         partitionKey: databaseIdHash,
         maxFileSizeMB: 10,
-        baseDir: path.resolve(process.cwd(), 'data', 'memory-store'),
+        baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
         generateEmbeddings
       });
 
