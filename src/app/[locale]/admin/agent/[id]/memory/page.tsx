@@ -586,13 +586,13 @@ export default function MemoryFilesPage() {
                           {t("Edit")}
                         </Button>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
                           className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           onClick={() => handleDeleteRecord(r)}
                           disabled={isRecordsLoading}
                         >
-                          {t("Delete")}
+                          <TrashIcon className="h-3 w-3" />
                         </Button>
                       </td>
                     </tr>
