@@ -4,99 +4,186 @@ import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, P
 import { generateEntryId, getCurrentTimestamp } from './utils';
 
 export class DiskVectorStore implements VectorStore {
-  private storePath: string;
+  private filePath: string;
   private lockPath: string;
-  private config: VectorStoreConfig;
+  private storeName: string;
   private generateEmbeddings: GenerateEmbeddings;
+  private maxFileSizeMB: number;
+  private partitionKey: string;
 
   constructor(config: VectorStoreConfig) {
-    this.config = config;
+    this.storeName = config.storeName;
+    this.partitionKey = config.partitionKey;
     this.generateEmbeddings = config.generateEmbeddings;
-    
-    // Create base directory if it doesn't exist
-    if (!fs.existsSync(config.baseDir)) {
-      fs.mkdirSync(config.baseDir, { recursive: true });
-    }
-
-    // Set up file paths directly in the base directory
-    this.storePath = path.join(config.baseDir, `${config.storeName}.json`);
-    this.lockPath = `${this.storePath}.lock`;
+    this.maxFileSizeMB = config.maxFileSizeMB || 10;
+    // Store files directly in the memory-store directory
+    this.filePath = path.join(config.baseDir, `${config.storeName}.json`);
+    this.lockPath = path.join(config.baseDir, `${config.storeName}.lock`);
   }
 
   private async acquireLock(): Promise<void> {
-    let attempts = 0;
-    const maxAttempts = 50;
-    const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-    while (fs.existsSync(this.lockPath)) {
-      attempts++;
-      if (attempts > maxAttempts) {
-        throw new Error(`Could not acquire lock after ${maxAttempts} attempts`);
+    while (true) {
+      try {
+        await fs.promises.writeFile(this.lockPath, '', { flag: 'wx' });
+        return;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
+          throw error;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
-      await delay(100);
-    }
-
-    fs.writeFileSync(this.lockPath, '');
-  }
-
-  private releaseLock(): void {
-    if (fs.existsSync(this.lockPath)) {
-      fs.unlinkSync(this.lockPath);
     }
   }
 
-  private async readData(): Promise<Record<string, VectorStoreEntry>> {
-    if (!fs.existsSync(this.storePath)) {
-      return {};
+  private async releaseLock(): Promise<void> {
+    try {
+      await fs.promises.unlink(this.lockPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
     }
-    const raw = fs.readFileSync(this.storePath, 'utf8');
-    return JSON.parse(raw);
   }
 
-  private async writeData(data: Record<string, VectorStoreEntry>): Promise<void> {
-    const jsonString = JSON.stringify(data);
-    const size = Buffer.byteLength(jsonString, 'utf8');
-
-    if (size > (this.config.maxFileSizeMB || 10) * 1024 * 1024) {
-      throw new Error(`File size limit of ${this.config.maxFileSizeMB || 10}MB exceeded`);
+  private async ensureFile(): Promise<void> {
+    const dir = path.dirname(this.filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
     }
-
-    fs.writeFileSync(this.storePath, jsonString, 'utf8');
+    if (!fs.existsSync(this.filePath)) {
+      fs.writeFileSync(this.filePath, JSON.stringify({ entries: {} }, null, 2));
+    }
   }
 
   async set(id: string, entry: VectorStoreEntry): Promise<void> {
     await this.acquireLock();
     try {
-      const data = await this.readData();
-      data[id] = {
+      await this.ensureFile();
+
+      const content = await fs.promises.readFile(this.filePath, 'utf-8');
+      const data = JSON.parse(content);
+
+      const currentSize = Buffer.byteLength(content, 'utf-8') / (1024 * 1024);
+      if (currentSize >= this.maxFileSizeMB) {
+        throw new Error(`File size limit reached (${this.maxFileSizeMB}MB)`);
+      }
+
+      data.entries[id] = {
         ...entry,
         updatedAt: getCurrentTimestamp()
       };
-      await this.writeData(data);
+
+      await fs.promises.writeFile(this.filePath, JSON.stringify(data, null, 2));
     } finally {
-      this.releaseLock();
+      await this.releaseLock();
     }
   }
 
   async get(id: string): Promise<VectorStoreEntry | null> {
     await this.acquireLock();
     try {
-      const data = await this.readData();
-      return data[id] || null;
+      await this.ensureFile();
+
+      const content = await fs.promises.readFile(this.filePath, 'utf-8');
+      const data = JSON.parse(content);
+
+      return data.entries[id] || null;
     } finally {
-      this.releaseLock();
+      await this.releaseLock();
     }
   }
 
   async delete(id: string): Promise<void> {
     await this.acquireLock();
     try {
-      const data = await this.readData();
-      delete data[id];
-      await this.writeData(data);
+      await this.ensureFile();
+
+      const content = await fs.promises.readFile(this.filePath, 'utf-8');
+      const data = JSON.parse(content);
+
+      delete data.entries[id];
+      await fs.promises.writeFile(this.filePath, JSON.stringify(data, null, 2));
     } finally {
-      this.releaseLock();
+      await this.releaseLock();
     }
+  }
+
+  async clear(): Promise<void> {
+    await this.acquireLock();
+    try {
+      if (fs.existsSync(this.filePath)) {
+        await fs.promises.unlink(this.filePath);
+      }
+    } finally {
+      await this.releaseLock();
+    }
+  }
+
+  async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
+    await this.acquireLock();
+    try {
+      await this.ensureFile();
+
+      const content = await fs.promises.readFile(this.filePath, 'utf-8');
+      const data = JSON.parse(content);
+      const entries = Object.values(data.entries) as VectorStoreEntry[];
+
+      if (!params) {
+        return {
+          items: entries,
+          total: entries.length,
+          hasMore: false
+        };
+      }
+
+      const { offset = 0, limit = 10 } = params;
+      const items = entries.slice(offset, offset + limit);
+      const hasMore = offset + limit < entries.length;
+
+      return {
+        items,
+        total: entries.length,
+        hasMore
+      };
+    } finally {
+      await this.releaseLock();
+    }
+  }
+
+  async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
+    const queryEmbedding = await this.generateEmbeddings(query);
+    const { items: entries } = await this.entries();
+
+    const results = entries.map(entry => ({
+      entry,
+      similarity: this.cosineSimilarity(queryEmbedding, entry.embedding)
+    }));
+
+    return results
+      .sort((a, b) => b.similarity - a.similarity)
+      .slice(0, topK)
+      .map(result => ({
+        ...result.entry,
+        similarity: result.similarity
+      }));
+  }
+
+  private cosineSimilarity(a: number[], b: number[]): number {
+    if (a.length !== b.length) {
+      throw new Error('Vectors must have the same length');
+    }
+
+    let dotProduct = 0;
+    let normA = 0;
+    let normB = 0;
+
+    for (let i = 0; i < a.length; i++) {
+      dotProduct += a[i] * b[i];
+      normA += a[i] * a[i];
+      normB += b[i] * b[i];
+    }
+
+    return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
   }
 
   async upsert(entry: VectorStoreEntry): Promise<void> {
@@ -104,86 +191,31 @@ export class DiskVectorStore implements VectorStore {
     await this.set(id, entry);
   }
 
-  async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
-    await this.acquireLock();
-    try {
-      const data = await this.readData();
-      const allEntries = Object.values(data);
-      const total = allEntries.length;
-
-      if (!params) {
-        return {
-          items: allEntries,
-          total,
-          hasMore: false
-        };
-      }
-
-      const { limit, offset } = params;
-      const items = allEntries.slice(offset, offset + limit);
-      const hasMore = offset + limit < total;
-
-      return {
-        items,
-        total,
-        hasMore
-      };
-    } finally {
-      this.releaseLock();
-    }
-  }
-
-  async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
-    const queryEmbedding = await this.generateEmbeddings(query);
-    const { items } = await this.entries();
-    
-    return items
-      .map((entry: VectorStoreEntry) => ({
-        ...entry,
-        similarity: this.cosineSimilarity(queryEmbedding, entry.embedding)
-      }))
-      .sort((a: VectorStoreEntry & { similarity: number }, b: VectorStoreEntry & { similarity: number }) => 
-        (b.similarity || 0) - (a.similarity || 0)
-      )
-      .slice(0, topK);
-  }
-
   getConfig(): VectorStoreConfig {
-    return this.config;
+    return {
+      storeName: this.storeName,
+      partitionKey: this.partitionKey,
+      baseDir: path.dirname(this.filePath),
+      generateEmbeddings: this.generateEmbeddings,
+      maxFileSizeMB: this.maxFileSizeMB
+    };
   }
 
   async getMetadata(): Promise<VectorStoreMetadata> {
-    await this.acquireLock();
-    try {
-      const data = await this.readData();
-      const itemCount = Object.keys(data).length;
-      return {
-        name: this.config.storeName,
-        partitionKey: this.config.partitionKey,
-        itemCount,
-        createdAt: getCurrentTimestamp(), // This should be stored in the index
-        updatedAt: getCurrentTimestamp(), // This should be stored in the index
-        lastAccessed: getCurrentTimestamp()
-      };
-    } finally {
-      this.releaseLock();
-    }
-  }
+    await this.ensureFile();
 
-  async clear(): Promise<void> {
-    await this.acquireLock();
-    try {
-      await this.writeData({});
-    } finally {
-      this.releaseLock();
-    }
-  }
+    const content = await fs.promises.readFile(this.filePath, 'utf-8');
+    const data = JSON.parse(content);
+    const itemCount = Object.keys(data.entries).length;
 
-  private cosineSimilarity(vecA: number[], vecB: number[]): number {
-    const dotProduct = vecA.reduce((sum, a, i) => sum + a * vecB[i], 0);
-    const magnitudeA = Math.sqrt(vecA.reduce((sum, a) => sum + a ** 2, 0));
-    const magnitudeB = Math.sqrt(vecB.reduce((sum, b) => sum + b ** 2, 0));
-    return dotProduct / (magnitudeA * magnitudeB);
+    return {
+      name: this.storeName,
+      partitionKey: this.partitionKey,
+      itemCount,
+      createdAt: getCurrentTimestamp(),
+      updatedAt: getCurrentTimestamp(),
+      lastAccessed: getCurrentTimestamp()
+    };
   }
 }
 

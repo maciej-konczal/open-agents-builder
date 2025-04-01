@@ -4,18 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
+import { createDiskVectorStoreManager, VectorStoreMetadata } from "@oab/vector-store";
 import path from "path";
-import fs from "fs";
-
-interface StoreMetadata {
-  createdAt: string;
-  updatedAt: string;
-  itemCount: number;
-}
-
-interface StoreIndex {
-  [storeName: string]: StoreMetadata;
-}
 
 /**
  * GET /api/memory/query
@@ -34,46 +24,39 @@ export async function GET(request: NextRequest) {
     const offset = parseInt(url.searchParams.get("offset") ?? "0", 10);
     const query = url.searchParams.get("query") ?? "";
 
-    // Read the index.json file
-    const indexPath = path.resolve(process.cwd(), 'data', 'memory-store', 'index.json');
-    let index: StoreIndex = {};
-    
-    if (fs.existsSync(indexPath)) {
-      const indexContent = fs.readFileSync(indexPath, 'utf-8');
-      index = JSON.parse(indexContent);
-    }
+    // Create store manager instance
+    const storeManager = createDiskVectorStoreManager({
+      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
+    });
 
-    // Get stores for this database from the index
-    const databaseStores = index[requestContext.databaseIdHash] || {};
+    // Get stores with metadata from the store manager
+    const { items: stores } = await storeManager.listStores(requestContext.databaseIdHash, { limit, offset });
 
-    // Convert index to files array
-    let files = Object.entries(databaseStores).map(([storeName, metadata]) => ({
-      file: `${storeName}.json`,
-      displayName: storeName,
+    // Convert stores to files array
+    const files = stores.map((metadata: VectorStoreMetadata) => ({
+      file: `${metadata.name}.json`,
+      displayName: metadata.name,
       itemCount: metadata.itemCount,
       createdAt: metadata.createdAt,
-      updatedAt: metadata.updatedAt
+      updatedAt: metadata.updatedAt,
+      lastAccessed: metadata.lastAccessed
     }));
 
     // Apply search filter if query is provided
+    let filteredFiles = files;
     if (query) {
       const q = query.toLowerCase();
-      files = files.filter(file => 
+      filteredFiles = files.filter(file => 
         file.displayName.toLowerCase().includes(q)
       );
     }
 
-    // Apply pagination
-    const total = files.length;
-    const hasMore = offset + limit < total;
-    const paginatedFiles = files.slice(offset, offset + limit);
-
     return NextResponse.json({
-      files: paginatedFiles,
+      files: filteredFiles,
       limit,
       offset,
-      hasMore,
-      total,
+      hasMore: offset + limit < filteredFiles.length,
+      total: filteredFiles.length,
     });
   } catch (err) {
     console.error('Error listing stores:', err);

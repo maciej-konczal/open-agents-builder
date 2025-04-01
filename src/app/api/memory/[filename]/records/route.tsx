@@ -1,49 +1,32 @@
 // File: src/app/api/memory/[filename]/records/route.tsx
 
 import { NextRequest, NextResponse } from "next/server";
-import { createDiskVectorStoreManager } from "@oab/vector-store";
+import { createDiskVectorStoreManager, createOpenAIEmbeddings } from "@oab/vector-store";
 import path from 'path';
-import { VectorStoreEntry } from "@oab/vector-store";
+import { VectorStoreEntry, VectorStore } from "@oab/vector-store";
 import { authorizeRequestContext } from "@/lib/authorization-api";
-import fs from "fs";
 
-interface StoreMetadata {
-  createdAt: string;
-  updatedAt: string;
-  itemCount: number;
-}
+async function getOrCreateStore(databaseIdHash: string, storeName: string): Promise<VectorStore> {
+  const storeManager = createDiskVectorStoreManager({
+    baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store')
+  });
 
-interface StoreIndex {
-  [storeName: string]: StoreMetadata;
-}
-
-function updateIndex(databaseIdHash: string, storeName: string, itemCount: number) {
-  const indexPath = path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-index.json');
-  let index: StoreIndex = {};
+  let store = await storeManager.getStore(databaseIdHash, storeName);
   
-  // Ensure the directory exists
-  const dir = path.dirname(indexPath);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  
-  if (fs.existsSync(indexPath)) {
-    const indexContent = fs.readFileSync(indexPath, 'utf-8');
-    index = JSON.parse(indexContent);
-  }
+  if (!store) {
+    const generateEmbeddings = createOpenAIEmbeddings({
+      apiKey: process.env.OPENAI_API_KEY
+    });
 
-  if (!index[storeName]) {
-    index[storeName] = {
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      itemCount: 0
-    };
+    store = await storeManager.createStore({
+      storeName,
+      partitionKey: databaseIdHash,
+      baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
+      generateEmbeddings
+    });
   }
 
-  index[storeName].itemCount = itemCount;
-  index[storeName].updatedAt = new Date().toISOString();
-
-  fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
+  return store;
 }
 
 /**
@@ -67,17 +50,7 @@ export async function GET(
     const embeddingSearch = searchParams.get('embeddingSearch');
     const topK = parseInt(searchParams.get('topK') || '5');
 
-    const storeManager = createDiskVectorStoreManager({
-      baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
-    });
-
-    const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
-    if (!store) {
-      return NextResponse.json(
-        { error: 'Store not found' },
-        { status: 404 }
-      );
-    }
+    const store = await getOrCreateStore(requestContext.databaseIdHash, params.filename);
 
     if (embeddingSearch) {
       const results = await store.search(embeddingSearch, topK);
@@ -85,9 +58,6 @@ export async function GET(
     }
 
     const { items, total, hasMore } = await store.entries({ limit, offset });
-    
-    // Update the index with the current item count
-    updateIndex(requestContext.databaseIdHash, params.filename, total);
 
     return NextResponse.json({
       items: items.map((entry: VectorStoreEntry) => ({
@@ -119,7 +89,7 @@ export async function POST(
   try {
     const requestContext = await authorizeRequestContext(request);
     const record = await request.json();
-    const { id, content, metadata, embedding } = record;
+    const { id, content, metadata: recordMetadata, embedding } = record;
 
     if (!id || !content || !embedding) {
       return NextResponse.json(
@@ -132,23 +102,27 @@ export async function POST(
       baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
     });
 
-    const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
-    if (!store) {
-      throw new Error('Store not found');
-    }
+    const store = await getOrCreateStore(requestContext.databaseIdHash, params.filename);
 
     const entry: VectorStoreEntry = {
       id,
       content,
-      metadata: metadata || {},
+      metadata: recordMetadata || {},
       embedding
     };
 
     await store.set(id, entry);
 
-    // Get the updated total count and update the index
+    // Get the updated total count
     const { total } = await store.entries();
-    updateIndex(requestContext.databaseIdHash, params.filename, total);
+    
+    // Update the store metadata
+    const storeMetadata = await store.getMetadata();
+    await storeManager.updateStoreMetadata(requestContext.databaseIdHash, params.filename, {
+      ...storeMetadata,
+      itemCount: total,
+      updatedAt: new Date().toISOString()
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {

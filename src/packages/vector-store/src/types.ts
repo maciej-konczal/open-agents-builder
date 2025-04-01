@@ -74,6 +74,8 @@ export interface VectorStoreManager {
   getStore: (partitionKey: string, storeName: string) => Promise<VectorStore | null>;
   listStores: (partitionKey: string, params?: PaginationParams) => Promise<PaginatedResult<VectorStoreMetadata>>;
   searchStores: (partitionKey: string, query: string, topK?: number) => Promise<VectorStoreMetadata[]>;
+  // Metadata management
+  updateStoreMetadata: (partitionKey: string, storeName: string, metadata: Partial<VectorStoreMetadata>) => Promise<void>;
 }
 
 /**

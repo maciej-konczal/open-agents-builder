@@ -5,139 +5,214 @@ import { createDiskVectorStore } from './disk-store';
 import { getCurrentTimestamp } from './utils';
 
 interface StoreIndex {
-  stores: Record<string, Record<string, VectorStoreMetadata>>;
+  [storeName: string]: {
+    name: string;
+    itemCount: number;
+    createdAt: string;
+    updatedAt: string;
+    lastAccessed?: string;
+  };
 }
 
 export class DiskVectorStoreManager implements VectorStoreManager {
   private baseDir: string;
   private indexPath: string;
+  private indexLockPath: string;
 
   constructor(config: { baseDir: string }) {
     this.baseDir = config.baseDir;
     this.indexPath = path.join(this.baseDir, 'index.json');
-    this.ensureIndexFile();
+    this.indexLockPath = path.join(this.baseDir, 'index.lock');
   }
 
-  private ensureIndexFile(): void {
+  private async acquireLock(): Promise<void> {
+    while (true) {
+      try {
+        await fs.promises.writeFile(this.indexLockPath, '', { flag: 'wx' });
+        return;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== 'EEXIST') {
+          throw error;
+        }
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+    }
+  }
+
+  private async releaseLock(): Promise<void> {
+    try {
+      await fs.promises.unlink(this.indexLockPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        throw error;
+      }
+    }
+  }
+
+  private async ensureIndexFile(): Promise<void> {
     if (!fs.existsSync(this.baseDir)) {
       fs.mkdirSync(this.baseDir, { recursive: true });
     }
     if (!fs.existsSync(this.indexPath)) {
-      const initialIndex: StoreIndex = { stores: {} };
+      const initialIndex: StoreIndex = {};
       fs.writeFileSync(this.indexPath, JSON.stringify(initialIndex, null, 2));
     }
   }
 
   private async readIndex(): Promise<StoreIndex> {
-    const raw = fs.readFileSync(this.indexPath, 'utf8');
-    return JSON.parse(raw);
+    await this.acquireLock();
+    try {
+      await this.ensureIndexFile();
+      const content = await fs.promises.readFile(this.indexPath, 'utf-8');
+      return JSON.parse(content);
+    } finally {
+      await this.releaseLock();
+    }
   }
 
   private async writeIndex(index: StoreIndex): Promise<void> {
-    fs.writeFileSync(this.indexPath, JSON.stringify(index, null, 2));
+    await this.acquireLock();
+    try {
+      await fs.promises.writeFile(this.indexPath, JSON.stringify(index, null, 2));
+    } finally {
+      await this.releaseLock();
+    }
   }
 
   async createStore(config: VectorStoreConfig): Promise<VectorStore> {
-    const index = await this.readIndex();
-    const partitionKey = config.partitionKey;
-    const storeName = config.storeName;
+    await this.acquireLock();
+    try {
+      const index = await this.readIndex();
+      const storeName = config.storeName;
 
-    if (index.stores[partitionKey]?.[storeName]) {
-      throw new Error(`Store ${storeName} already exists in partition ${partitionKey}`);
+      if (index[storeName]) {
+        throw new Error(`Store ${storeName} already exists`);
+      }
+
+      const store = createDiskVectorStore({
+        ...config,
+        baseDir: this.baseDir
+      });
+
+      const metadata = {
+        name: storeName,
+        itemCount: 0,
+        createdAt: getCurrentTimestamp(),
+        updatedAt: getCurrentTimestamp(),
+        lastAccessed: getCurrentTimestamp()
+      };
+
+      index[storeName] = metadata;
+      await this.writeIndex(index);
+
+      return store;
+    } finally {
+      await this.releaseLock();
     }
-
-    const store = createDiskVectorStore(config);
-    const metadata: VectorStoreMetadata = {
-      name: storeName,
-      partitionKey,
-      itemCount: 0,
-      createdAt: getCurrentTimestamp(),
-      updatedAt: getCurrentTimestamp(),
-    };
-
-    if (!index.stores[partitionKey]) {
-      index.stores[partitionKey] = {};
-    }
-    index.stores[partitionKey][storeName] = metadata;
-    await this.writeIndex(index);
-
-    return store;
-  }
-
-  async deleteStore(partitionKey: string, storeName: string): Promise<void> {
-    const index = await this.readIndex();
-    if (!index.stores[partitionKey]?.[storeName]) {
-      throw new Error(`Store ${storeName} not found in partition ${partitionKey}`);
-    }
-
-    const store = await this.getStore(partitionKey, storeName);
-    if (store) {
-      await store.clear();
-    }
-
-    delete index.stores[partitionKey][storeName];
-    if (Object.keys(index.stores[partitionKey]).length === 0) {
-      delete index.stores[partitionKey];
-    }
-    await this.writeIndex(index);
   }
 
   async getStore(partitionKey: string, storeName: string): Promise<VectorStore | null> {
-    const index = await this.readIndex();
-    if (!index.stores[partitionKey]?.[storeName]) {
-      return null;
+    await this.acquireLock();
+    try {
+      const index = await this.readIndex();
+      const metadata = index[storeName];
+
+      if (!metadata) {
+        return null;
+      }
+
+      // Update last accessed timestamp
+      metadata.lastAccessed = getCurrentTimestamp();
+      await this.writeIndex(index);
+
+      return createDiskVectorStore({
+        storeName,
+        partitionKey,
+        baseDir: this.baseDir,
+        generateEmbeddings: async () => [], // This will be set when actually using the store
+      });
+    } finally {
+      await this.releaseLock();
     }
+  }
 
-    const metadata = index.stores[partitionKey][storeName];
-    metadata.lastAccessed = getCurrentTimestamp();
-    await this.writeIndex(index);
+  async deleteStore(partitionKey: string, storeName: string): Promise<void> {
+    await this.acquireLock();
+    try {
+      const index = await this.readIndex();
+      
+      if (index[storeName]) {
+        delete index[storeName];
+        await this.writeIndex(index);
+      }
 
-    return createDiskVectorStore({
-      storeName,
-      partitionKey,
-      baseDir: this.baseDir,
-      generateEmbeddings: async () => [], // This will be set by the caller
-    });
+      const filePath = path.join(this.baseDir, `${storeName}.json`);
+      if (fs.existsSync(filePath)) {
+        await fs.promises.unlink(filePath);
+      }
+    } finally {
+      await this.releaseLock();
+    }
   }
 
   async listStores(partitionKey: string, params?: PaginationParams): Promise<PaginatedResult<VectorStoreMetadata>> {
-    const index = await this.readIndex();
-    const stores = index.stores[partitionKey] || {};
-    const allStores = Object.values(stores);
-    const total = allStores.length;
+    await this.acquireLock();
+    try {
+      const index = await this.readIndex();
+      const stores = Object.entries(index).map(([name, metadata]) => ({
+        ...metadata,
+        partitionKey
+      }));
 
-    if (!params) {
+      const offset = params?.offset || 0;
+      const limit = params?.limit || 10;
+
       return {
-        items: allStores,
-        total,
-        hasMore: false,
+        items: stores.slice(offset, offset + limit),
+        total: stores.length,
+        hasMore: offset + limit < stores.length
       };
+    } finally {
+      await this.releaseLock();
     }
-
-    const { limit, offset } = params;
-    const items = allStores.slice(offset, offset + limit);
-    const hasMore = offset + limit < total;
-
-    return {
-      items,
-      total,
-      hasMore,
-    };
   }
 
   async searchStores(partitionKey: string, query: string, topK: number = 5): Promise<VectorStoreMetadata[]> {
-    const index = await this.readIndex();
-    const stores = index.stores[partitionKey] || {};
-    const allStores = Object.values(stores);
+    await this.acquireLock();
+    try {
+      const index = await this.readIndex();
+      const stores = Object.entries(index).map(([name, metadata]) => ({
+        ...metadata,
+        partitionKey
+      }));
 
-    // Simple text-based search for now
-    const queryLower = query.toLowerCase();
-    return allStores
-      .filter(store => 
-        store.name.toLowerCase().includes(queryLower) ||
-        store.partitionKey.toLowerCase().includes(queryLower)
-      )
-      .slice(0, topK);
+      const queryLower = query.toLowerCase();
+      return stores
+        .filter(store => store.name.toLowerCase().includes(queryLower))
+        .slice(0, topK);
+    } finally {
+      await this.releaseLock();
+    }
+  }
+
+  async updateStoreMetadata(partitionKey: string, storeName: string, metadata: Partial<VectorStoreMetadata>): Promise<void> {
+    await this.acquireLock();
+    try {
+      const index = await this.readIndex();
+      if (!index[storeName]) {
+        throw new Error(`Store ${storeName} not found`);
+      }
+
+      index[storeName] = {
+        ...index[storeName],
+        ...metadata,
+        updatedAt: new Date().toISOString()
+      };
+
+      await this.writeIndex(index);
+    } finally {
+      await this.releaseLock();
+    }
   }
 }
 

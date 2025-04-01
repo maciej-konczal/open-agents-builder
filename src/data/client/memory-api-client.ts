@@ -1,6 +1,8 @@
 // File: src/data/client/memory-api-client.ts
 
-import { getErrorMessage } from "@/lib/utils";
+import { AdminApiClient, ApiEncryptionConfig } from "./admin-api-client";
+import { DatabaseContextType } from "@/contexts/db-context";
+import { SaaSContextType } from "@/contexts/saas-context";
 
 export interface StoreMetadata {
   createdAt: string;
@@ -21,6 +23,7 @@ export interface MemoryListResponse {
     itemCount: number;
     createdAt: string;
     updatedAt: string;
+    lastAccessed?: string;
   }[];
   limit: number;
   offset: number;
@@ -34,166 +37,194 @@ export interface MemoryQueryParams {
   query?: string;
 }
 
+export interface MemoryRecordRow {
+  id: string;
+  metadata: Record<string, unknown>;
+  content: string;
+  embeddingPreview?: number[];
+  similarity?: number; // Only present if vector search is used
+}
+
 export interface MemoryRecordsResponse {
-  items: any[];
-  limit: number;
-  offset: number;
-  hasMore: boolean;
   total: number;
+  rows: MemoryRecordRow[];
+  vectorSearchQuery?: string;
 }
 
-/**
- * Create a new memory store with the given name.
- */
-export async function createStore(storeName: string): Promise<void> {
-  const response = await fetch(
-    `/api/memory/create`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ storeName }),
+export class MemoryApiClient extends AdminApiClient {
+  storageSchema: string;
+
+  constructor(
+    baseUrl: string,
+    storageSchema: string,
+    dbContext?: DatabaseContextType | null,
+    saasContext?: SaaSContextType | null,
+    encryptionConfig?: ApiEncryptionConfig
+  ) {
+    super(baseUrl, dbContext, saasContext, encryptionConfig);
+    this.storageSchema = storageSchema;
+  }
+
+  private ensureStoreNameFormat(storeName: string): string {
+    return storeName.replace(/\.json$/, '');
+  }
+
+  /**
+   * Create a new vector store with the given name
+   */
+  async createStore(storeName: string): Promise<void> {
+    const fileName = this.ensureStoreNameFormat(storeName);
+    
+    await this.request<void>(
+      `/api/memory/create`,
+      "POST",
+      { encryptedFields: [] },
+      { storeName: fileName },
+      undefined,
+      undefined,
+      { "Storage-Schema": this.storageSchema }
+    );
+  }
+
+  /**
+   * Lists memory files with possible pagination & search by filename.
+   */
+  async query(params: MemoryQueryParams): Promise<MemoryListResponse> {
+    const { limit, offset, query } = params;
+    const searchParams = new URLSearchParams({
+      limit: String(limit || 10),
+      offset: String(offset || 0),
+    });
+    if (query) {
+      searchParams.append("query", query);
     }
-  );
+    const url = `/api/memory/query?` + searchParams.toString();
 
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to create store');
-  }
-}
-
-/**
- * Lists memory files with possible pagination & search by filename.
- */
-export async function listFiles(params: MemoryQueryParams = {}): Promise<MemoryListResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.offset) searchParams.set('offset', params.offset.toString());
-  if (params.query) searchParams.set('query', params.query);
-
-  const url = `/api/memory/query?` + searchParams.toString();
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to list files');
+    const response = await this.request<MemoryListResponse>(
+      url,
+      "GET",
+      { encryptedFields: [] },
+      undefined,
+      undefined,
+      undefined,
+      { "Storage-Schema": this.storageSchema }
+    );
+    return response as MemoryListResponse;
   }
 
-  return response.json();
-}
+  /**
+   * Returns the raw file content (full JSON)
+   */
+  async getFileContent(filename: string): Promise<string> {
+    const fileName = this.ensureStoreNameFormat(filename);
+    
+    const response = await this.request<string>(
+      `/api/memory/${fileName}`,
+      "GET",
+      { encryptedFields: [] },
+      undefined,
+      undefined,
+      undefined,
+      { "Storage-Schema": this.storageSchema }
+    );
+    return response as string;
+  }
 
-/**
- * Get all records from a memory file.
- */
-export async function getRecords(filename: string): Promise<any[]> {
-  const response = await fetch(
-    `/api/memory/${filename}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+  /**
+   * Lists or vector-searches records in a single memory file.
+   * - limit, offset for normal pagination
+   * - embeddingSearch for vector search
+   * - topK for how many vector matches to return
+   */
+  async listRecords(
+    filename: string,
+    opts: { limit: number; offset: number; embeddingSearch?: string; topK?: number }
+  ): Promise<MemoryRecordsResponse> {
+    const fileName = this.ensureStoreNameFormat(filename);
+    const { limit, offset, embeddingSearch, topK } = opts;
+    const params = new URLSearchParams({
+      limit: String(limit),
+      offset: String(offset),
+    });
+    if (embeddingSearch) {
+      params.append("embeddingSearch", embeddingSearch);
+      if (topK) {
+        params.append("topK", String(topK));
+      }
     }
-  );
 
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to get records');
+    const url = `/api/memory/${fileName}/records?` + params.toString();
+    const response = await this.request<MemoryRecordsResponse>(
+      url,
+      "GET",
+      { encryptedFields: [] },
+      undefined,
+      undefined,
+      undefined,
+      { "Storage-Schema": this.storageSchema }
+    );
+    return response as MemoryRecordsResponse;
   }
 
-  return response.json();
-}
-
-/**
- * Lists or vector-searches records in a single memory file.
- */
-export async function searchRecords(
-  filename: string,
-  params: {
-    limit?: number;
-    offset?: number;
-    query?: string;
-    embeddings?: number[];
-  } = {}
-): Promise<MemoryRecordsResponse> {
-  const searchParams = new URLSearchParams();
-  if (params.limit) searchParams.set('limit', params.limit.toString());
-  if (params.offset) searchParams.set('offset', params.offset.toString());
-  if (params.query) searchParams.set('query', params.query);
-  if (params.embeddings) searchParams.set('embeddings', JSON.stringify(params.embeddings));
-
-  const url = `/api/memory/${filename}/records?` + params.toString();
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to search records');
+  /**
+   * Delete the specified memory file from the server.
+   */
+  async deleteFile(filename: string): Promise<{ message: string; status: number }> {
+    const fileName = this.ensureStoreNameFormat(filename);
+    
+    const response = await this.request<{ message: string; status: number }>(
+      `/api/memory/${fileName}`,
+      "DELETE",
+      { encryptedFields: [] },
+      undefined,
+      undefined,
+      undefined,
+      { "Storage-Schema": this.storageSchema }
+    );
+    return response as { message: string; status: number };
   }
 
-  return response.json();
-}
-
-/**
- * Delete the specified memory file from the server.
- */
-export async function deleteFile(filename: string): Promise<void> {
-  const response = await fetch(
-    `/api/memory/${filename}`,
-    {
-      method: 'DELETE',
+  /**
+   * Save a record to a vector store
+   */
+  async saveRecord(
+    fileName: string,
+    record: {
+      id: string;
+      content: string;
+      metadata: Record<string, unknown>;
+      embedding: number[];
     }
-  );
+  ): Promise<void> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Storage-Schema": this.storageSchema
+    };
 
-  if (!response.ok) {
-    const data = await response.json();
-    if (response.status === 404) {
-      throw new Error('Store not found');
-    }
-    throw new Error(data.message || 'Failed to delete file');
-  }
-}
-
-/**
- * Save records to a memory file.
- */
-export async function saveRecords(fileName: string, records: any[]): Promise<void> {
-  const response = await fetch(
-    `/api/memory/${fileName}/records`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ records }),
-    }
-  );
-
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to save records');
-  }
-}
-
-/**
- * Get embeddings for a text using the server's embedding model.
- */
-export async function getEmbeddings(text: string): Promise<number[]> {
-  const response = await fetch(
-    `/api/memory/embeddings`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ text }),
-    }
-  );
-
-  if (!response.ok) {
-    const data = await response.json();
-    throw new Error(data.error || 'Failed to get embeddings');
+    await this.request<void>(
+      `/api/memory/${fileName}/records`,
+      "POST",
+      { encryptedFields: [] },
+      record,
+      undefined,
+      undefined,
+      headers
+    );
   }
 
-  return response.json();
+  /**
+   * Generate embeddings for content using OpenAI
+   */
+  async generateEmbeddings(content: string): Promise<number[]> {
+    const response = await this.request<{ embedding: number[] }>(
+      `/api/memory/embeddings`,
+      "POST",
+      { encryptedFields: [] },
+      { content },
+      undefined,
+      undefined,
+      { "Storage-Schema": this.storageSchema }
+    ) as { embedding: number[] };
+    return response.embedding;
+  }
 }
