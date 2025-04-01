@@ -5,12 +5,14 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Loader2, TrashIcon } from "lucide-react";
+import { Loader2, TrashIcon, Plus } from "lucide-react";
 import { NoRecordsAlert } from "@/components/shared/no-records-alert";
 import { useShortMemoryContext } from "@/contexts/short-memory-context";
 import { getErrorMessage } from "@/lib/utils";
+import { createOpenAIEmbeddings } from "@oab/vector-store";
+import { nanoid } from "nanoid";
 
 // For table display
 type PreviewRecord = {
@@ -31,6 +33,12 @@ type ShortMemoryFile = {
   lastAccessed?: string;
 };
 
+// Add new types for record management
+type RecordFormData = {
+  content: string;
+  metadata: string;
+};
+
 /**
  * Extended Admin page for ShortMemory:
  * 1. Lists files with item counts and metadata.
@@ -41,6 +49,11 @@ type ShortMemoryFile = {
 export default function ShortMemoryFilesPage() {
   const { t } = useTranslation();
   const shortMemoryContext = useShortMemoryContext();
+
+  // Create store dialog state
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newStoreName, setNewStoreName] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
 
   // Searching the list of files
   const [query, setQuery] = useState("");
@@ -73,6 +86,15 @@ export default function ShortMemoryFilesPage() {
 
   // Separate loading state for the records table in the dialog
   const [isRecordsLoading, setIsRecordsLoading] = useState(false);
+
+  // Add state for record management
+  const [recordFormOpen, setRecordFormOpen] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<PreviewRecord | null>(null);
+  const [recordFormData, setRecordFormData] = useState<RecordFormData>({
+    content: "",
+    metadata: "{}"
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   // ---------- Searching the file list with a debounce ----------
   useEffect(() => {
@@ -225,20 +247,149 @@ export default function ShortMemoryFilesPage() {
     await loadRecords(selectedFileName, 0, "");
   };
 
+  /**
+   * Create a new vector store
+   */
+  const handleCreateStore = async () => {
+    if (!newStoreName.trim()) {
+      toast.error(t("Please enter a store name"));
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      await shortMemoryContext.createStore(newStoreName);
+      toast.success(t("Store created successfully"));
+      setCreateDialogOpen(false);
+      setNewStoreName("");
+      // Refresh the list
+      await loadFiles(true);
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  /**
+   * Handle saving a record (new or edit)
+   */
+  const handleSaveRecord = async () => {
+    if (!selectedFileName) return;
+
+    setIsSaving(true);
+    try {
+      const generateEmbeddings = createOpenAIEmbeddings({
+        apiKey: process.env.OPENAI_API_KEY
+      });
+
+      const metadata = JSON.parse(recordFormData.metadata);
+      const id = editingRecord?.id || nanoid();
+
+      const entry = {
+        id,
+        content: recordFormData.content,
+        metadata,
+        embedding: await generateEmbeddings(recordFormData.content)
+      };
+
+      // Save using the short-memory context
+      await shortMemoryContext.saveRecord(selectedFileName, entry);
+
+      // Refresh the records list
+      await loadRecords(selectedFileName, recordOffset, recordSearchQuery, false);
+      
+      // Close the form
+      setRecordFormOpen(false);
+      setEditingRecord(null);
+      setRecordFormData({ content: "", metadata: "{}" });
+      
+      toast.success(t("Record saved successfully"));
+    } catch (error) {
+      toast.error(getErrorMessage(error));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /**
+   * Open the record form for editing
+   */
+  const handleEditRecord = (record: PreviewRecord) => {
+    setEditingRecord(record);
+    setRecordFormData({
+      content: record.content,
+      metadata: JSON.stringify(record.metadata, null, 2)
+    });
+    setRecordFormOpen(true);
+  };
+
+  /**
+   * Open the record form for new record
+   */
+  const handleNewRecord = () => {
+    setEditingRecord(null);
+    setRecordFormData({
+      content: "",
+      metadata: "{}"
+    });
+    setRecordFormOpen(true);
+  };
+
   // ---------- RENDER ----------
   return (
     <div className="container mx-auto py-10">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">{t("Short-term Memory Files")}</h1>
-        <div className="w-1/3">
-          <Input
-            type="search"
-            placeholder={t("Search files...") || ""}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
+        <div className="flex items-center gap-4">
+          <div className="w-64">
+            <Input
+              type="search"
+              placeholder={t("Search files...") || ""}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+          <Button onClick={() => setCreateDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            {t("Create Store")}
+          </Button>
         </div>
       </div>
+
+      {/* Create Store Dialog */}
+      <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("Create New Vector Store")}</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              placeholder={t("Enter store name...") || ""}
+              value={newStoreName}
+              onChange={(e) => setNewStoreName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleCreateStore();
+                }
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+              {t("Cancel")}
+            </Button>
+            <Button onClick={handleCreateStore} disabled={isCreating}>
+              {isCreating ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Plus className="h-4 w-4 mr-2" />
+              )}
+              {t("Create")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {files.length === 0 && !isLoading ? (
         <NoRecordsAlert 
@@ -313,9 +464,15 @@ export default function ShortMemoryFilesPage() {
       {previewDialogOpen && (
         <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
           <DialogContent className="p-4 max-w-5xl">
-            <h3 className="text-md font-bold mb-4">
-              {t("ShortMemory File")}: {selectedFileName}
-            </h3>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-md font-bold">
+                {t("ShortMemory File")}: {selectedFileName}
+              </h3>
+              <Button onClick={handleNewRecord} size="sm">
+                <Plus className="h-4 w-4 mr-2" />
+                {t("New Record")}
+              </Button>
+            </div>
 
             <div className="mb-4 flex items-center gap-2">
               {isVectorSearchMode ? (
@@ -365,6 +522,7 @@ export default function ShortMemoryFilesPage() {
                     <th className="p-2 text-left">{t("Content")}</th>
                     <th className="p-2 text-left">{t("Embedding (partial)")}</th>
                     <th className="p-2 text-left">{t("Similarity")}</th>
+                    <th className="p-2 text-left">{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -386,6 +544,15 @@ export default function ShortMemoryFilesPage() {
                       </td>
                       <td className="p-2 align-top">
                         {r.similarity ? r.similarity.toFixed(3) : ""}
+                      </td>
+                      <td className="p-2 align-top">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditRecord(r)}
+                        >
+                          {t("Edit")}
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -410,6 +577,56 @@ export default function ShortMemoryFilesPage() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Record Form Dialog */}
+      <Dialog open={recordFormOpen} onOpenChange={setRecordFormOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingRecord ? t("Edit Record") : t("New Record")}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {t("Content")}
+              </label>
+              <textarea
+                className="w-full h-32 p-2 border rounded"
+                value={recordFormData.content}
+                onChange={(e) => setRecordFormData(prev => ({
+                  ...prev,
+                  content: e.target.value
+                }))}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">
+                {t("Metadata (JSON)")}
+              </label>
+              <textarea
+                className="w-full h-32 p-2 border rounded font-mono text-sm"
+                value={recordFormData.metadata}
+                onChange={(e) => setRecordFormData(prev => ({
+                  ...prev,
+                  metadata: e.target.value
+                }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRecordFormOpen(false)}>
+              {t("Cancel")}
+            </Button>
+            <Button onClick={handleSaveRecord} disabled={isSaving}>
+              {isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : null}
+              {t("Save")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

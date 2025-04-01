@@ -31,6 +31,17 @@ type ShortMemoryContextType = {
     embeddingSearch?: string;
     topK?: number;
   }) => Promise<ShortMemoryRecordsResponse>;
+
+  // New method to create a store
+  createStore: (storeName: string) => Promise<void>;
+
+  // New method to save a record
+  saveRecord: (fileName: string, record: {
+    id: string;
+    content: string;
+    metadata: Record<string, unknown>;
+    embedding: number[];
+  }) => Promise<void>;
 };
 
 const ShortMemoryContext = createContext<ShortMemoryContextType | undefined>(undefined);
@@ -102,7 +113,7 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
   };
 
   /**
-   * New method: list (or vector-search) a single file’s records with server pagination.
+   * New method: list (or vector-search) a single file's records with server pagination.
    */
   const listRecords = async (
     fileName: string,
@@ -121,12 +132,56 @@ export const ShortMemoryProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  /**
+   * Create a new vector store with the given name
+   */
+  const createStore = async (storeName: string): Promise<void> => {
+    setLoaderStatus(DataLoadingStatus.Loading);
+    try {
+      const apiClient = setupApiClient();
+      await apiClient.createStore(storeName);
+      setLoaderStatus(DataLoadingStatus.Success);
+      toast.success("Store created successfully");
+    } catch (error) {
+      setLoaderStatus(DataLoadingStatus.Error);
+      toast.error(getErrorMessage(error));
+      throw error;
+    }
+  };
+
+  /**
+   * Save a record to a vector store
+   */
+  const saveRecord = async (
+    fileName: string,
+    record: {
+      id: string;
+      content: string;
+      metadata: Record<string, unknown>;
+      embedding: number[];
+    }
+  ): Promise<void> => {
+    setLoaderStatus(DataLoadingStatus.Loading);
+    try {
+      const apiClient = setupApiClient();
+      await apiClient.saveRecord(fileName, record);
+      setLoaderStatus(DataLoadingStatus.Success);
+      toast.success("Record saved successfully");
+    } catch (error) {
+      setLoaderStatus(DataLoadingStatus.Error);
+      toast.error(getErrorMessage(error));
+      throw error;
+    }
+  };
+
   const value: ShortMemoryContextType = {
     loaderStatus,
     queryFiles,
     getFileContent,
     deleteFile,
     listRecords,
+    createStore,
+    saveRecord,
   };
 
   return (

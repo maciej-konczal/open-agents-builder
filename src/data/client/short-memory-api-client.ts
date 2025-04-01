@@ -56,6 +56,21 @@ export class ShortMemoryApiClient extends AdminApiClient {
   }
 
   /**
+   * Create a new vector store with the given name
+   */
+  async createStore(storeName: string): Promise<void> {
+    await this.request<void>(
+      `/api/short-memory/create`,
+      "POST",
+      { encryptedFields: [] },
+      { storeName },
+      undefined,
+      undefined,
+      { "Storage-Schema": this.storageSchema }
+    );
+  }
+
+  /**
    * Lists short-memory files with possible pagination & search by filename.
    * Now returns itemCount for each file if known.
    */
@@ -147,5 +162,33 @@ export class ShortMemoryApiClient extends AdminApiClient {
       { "Storage-Schema": this.storageSchema }
     );
     return response as { message: string; status: number };
+  }
+
+  /**
+   * Save a record to a vector store
+   */
+  async saveRecord(
+    fileName: string,
+    record: {
+      id: string;
+      content: string;
+      metadata: Record<string, unknown>;
+      embedding: number[];
+    }
+  ): Promise<void> {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      "Storage-Schema": this.storageSchema
+    };
+
+    await this.request<void>(
+      `/api/short-memory/${fileName}/records`,
+      "POST",
+      { encryptedFields: [] },
+      record,
+      undefined,
+      undefined,
+      headers
+    );
   }
 }
