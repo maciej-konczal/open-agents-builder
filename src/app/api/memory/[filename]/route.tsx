@@ -4,19 +4,6 @@ import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api"
 import { getErrorMessage } from "@/lib/utils";
 import { createDiskVectorStoreManager } from "oab-vector-store";
 import path from "path";
-import fs from "fs";
-
-interface StoreMetadata {
-  createdAt: string;
-  updatedAt: string;
-  itemCount: number;
-}
-
-interface StoreIndex {
-  [databaseIdHash: string]: {
-    [storeName: string]: StoreMetadata;
-  };
-}
 
 /**
  * GET /api/memory/[filename]
@@ -71,44 +58,19 @@ export async function DELETE(
       baseDir: path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store')
     });
 
-    // Even if the store file doesn't exist, we should clean up the index
-    const indexPath = path.resolve(process.cwd(), 'data', requestContext.databaseIdHash, 'memory-store', 'index.json');
-    let indexCleaned = false;
-
-    if (fs.existsSync(indexPath)) {
-      const indexContent = fs.readFileSync(indexPath, 'utf-8');
-      const index: StoreIndex = JSON.parse(indexContent);
-
-      // Remove the store from the index if it exists
-      if (index[requestContext.databaseIdHash]?.[params.filename]) {
-        delete index[requestContext.databaseIdHash][params.filename];
-        indexCleaned = true;
-
-        // If this was the last store for this database, remove the database entry too
-        if (Object.keys(index[requestContext.databaseIdHash]).length === 0) {
-          delete index[requestContext.databaseIdHash];
-        }
-
-        // Write the updated index back to disk
-        fs.writeFileSync(indexPath, JSON.stringify(index, null, 2));
-      }
-    }
-
-    // Try to delete the actual store if it exists
+    // Check if store exists first
     const store = await storeManager.getStore(requestContext.databaseIdHash, params.filename);
-    if (store) {
-      await storeManager.deleteStore(requestContext.databaseIdHash, params.filename);
-      return NextResponse.json({ message: 'Store deleted successfully', status: 200 });
-    } else if (indexCleaned) {
-      // If we cleaned up the index but store file wasn't found
-      return NextResponse.json({ message: 'Store index entry removed', status: 200 });
-    } else {
-      // If neither store nor index entry existed
+    if (!store) {
       return NextResponse.json(
         { message: `Store '${params.filename}' not found`, status: 404 },
         { status: 404 }
       );
     }
+
+    // Delete the store - this will handle both the store file and index cleanup
+    await storeManager.deleteStore(requestContext.databaseIdHash, params.filename);
+    return NextResponse.json({ message: 'Store deleted successfully', status: 200 });
+
   } catch (err) {
     console.error('Error deleting store:', err);
     return NextResponse.json(
