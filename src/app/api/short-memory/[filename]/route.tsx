@@ -2,31 +2,35 @@ import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
 import { getErrorMessage } from "@/lib/utils";
-import { StorageService } from "@/lib/storage-service";
+import { createDiskVectorStore, createOpenAIEmbeddings } from "@oab/vector-store";
 
 /**
  * GET /api/short-memory/[filename]
- * Returns the content of a short-memory .json file as text (UTF-8).
+ * Get the full content of a short-memory file
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: { filename: string } }
 ) {
   try {
+    // Authorization checks
     const requestContext = await authorizeRequestContext(request);
     await authorizeSaasContext(request);
-    const storageSchema = await authorizeStorageSchema(request);
+    await authorizeStorageSchema(request);
 
-    const storageService = new StorageService(requestContext.databaseIdHash, storageSchema);
-    const content = storageService.readShortMemoryJsonFile(params.filename);
+    // Create vector store instance
+    const generateEmbeddings = createOpenAIEmbeddings();
+    const vectorStore = createDiskVectorStore({
+      storeName: params.filename,
+      partitionKey: requestContext.databaseIdHash,
+      maxFileSizeMB: 10
+    }, generateEmbeddings);
 
-    return new NextResponse(content, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    // Get all entries
+    const entries = await vectorStore.entries();
+    return NextResponse.json(entries);
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { message: getErrorMessage(error), status: 500 },
       { status: 500 }
@@ -36,26 +40,32 @@ export async function GET(
 
 /**
  * DELETE /api/short-memory/[filename]
- * Deletes the specified short-memory .json file from disk.
+ * Delete a short-memory file
  */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { filename: string } }
 ) {
   try {
+    // Authorization checks
     const requestContext = await authorizeRequestContext(request);
     await authorizeSaasContext(request);
-    const storageSchema = await authorizeStorageSchema(request);
+    await authorizeStorageSchema(request);
 
-    const storageService = new StorageService(requestContext.databaseIdHash, storageSchema);
+    // Create vector store instance
+    const generateEmbeddings = createOpenAIEmbeddings();
+    const vectorStore = createDiskVectorStore({
+      storeName: params.filename,
+      partitionKey: requestContext.databaseIdHash,
+      maxFileSizeMB: 10
+    }, generateEmbeddings);
 
-    if (!storageService.fileExists(params.filename)) {
-      return NextResponse.json({ message: "File not found", status: 404 }, { status: 404 });
-    }
+    // Clear all entries
+    await vectorStore.clear();
 
-    storageService.deleteShortMemoryFile(params.filename);
-    return NextResponse.json({ message: "File deleted", status: 200 }, { status: 200 });
+    return NextResponse.json({ message: "File deleted successfully" });
   } catch (error) {
+    console.error(error);
     return NextResponse.json(
       { message: getErrorMessage(error), status: 500 },
       { status: 500 }
