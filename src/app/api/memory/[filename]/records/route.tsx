@@ -3,7 +3,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authorizeRequestContext } from "@/lib/authorization-api";
 import { authorizeSaasContext, authorizeStorageSchema } from "@/lib/generic-api";
-import { getErrorMessage } from "@/lib/utils";
 import { createVectorStoreManager, createOpenAIEmbeddings, createVectorStore } from "oab-vector-store";
 import { getDataDir } from "@/utils/paths";
 import path from 'path';
