@@ -5,6 +5,7 @@ import type { Database as DatabaseType } from 'better-sqlite3';
 import { VectorStoreManager, VectorStoreConfig, VectorStoreMetadata, PaginationParams, PaginatedResult, VectorStore } from './types';
 import { createSQLiteVectorStore } from './sqlite-store';
 import { getCurrentTimestamp } from './utils';
+import { SqliteMigrationManager, MigrationType } from './sqlite-migrations/migration-manager';
 
 interface StoreIndexRow {
   storeName: string;
@@ -12,13 +13,14 @@ interface StoreIndexRow {
   itemCount: number;
   createdAt: string;
   updatedAt: string;
-  lastAccessed?: string;
+  lastAccessed: string | null;
 }
 
 export class SQLiteVectorStoreManager implements VectorStoreManager {
   private baseDir: string;
   private indexDbPath: string;
   private db: DatabaseType;
+  private migrationManager: SqliteMigrationManager;
 
   constructor(config: { baseDir: string }) {
     this.baseDir = config.baseDir;
@@ -31,28 +33,31 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
 
     // Initialize the stores index database
     this.db = new Database(this.indexDbPath);
+    this.migrationManager = new SqliteMigrationManager(this.db, 'stores_index', this.indexDbPath, 'manager' as MigrationType);
     this.initializeStoresIndex();
   }
 
-  private initializeStoresIndex(): void {
+  private async initializeStoresIndex() {
     try {
-      // Create stores_index table if it doesn't exist
-      this.db.prepare(`
-        CREATE TABLE IF NOT EXISTS stores_index (
-          storeName TEXT,
-          partitionKey TEXT NOT NULL,
-          itemCount INTEGER DEFAULT 0,
-          createdAt TEXT NOT NULL,
-          updatedAt TEXT NOT NULL,
-          lastAccessed TEXT,
-          PRIMARY KEY (storeName, partitionKey)
-        )
-      `).run();
+      await this.migrationManager.migrate();
+    } catch (error) {
+      throw new Error(`Failed to initialize stores index: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 
-      // Create index on partitionKey for faster queries
-      this.db.prepare('CREATE INDEX IF NOT EXISTS idx_partition_key ON stores_index(partitionKey)').run();
-    } catch (err) {
-      throw new Error(`Failed to initialize stores index: ${err}`);
+  private async executeQuery(query: string, params: unknown[] = []) {
+    try {
+      return this.db.prepare(query).run(...params);
+    } catch (error) {
+      throw new Error(`Failed to execute query: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async executeQueryWithResult<T>(query: string, params: unknown[] = []): Promise<T[]> {
+    try {
+      return this.db.prepare(query).all(...params) as T[];
+    } catch (error) {
+      throw new Error(`Failed to execute query: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

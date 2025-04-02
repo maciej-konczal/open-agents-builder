@@ -5,7 +5,7 @@ import type { Database as DatabaseType } from 'better-sqlite3';
 import * as sqliteVec from 'sqlite-vec';
 import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult, VectorStoreMetadata } from './types';
 import { generateEntryId, getCurrentTimestamp } from './utils';
-import { SqliteMigrationManager } from './sqlite-migrations/migration-manager';
+import { SqliteMigrationManager, MigrationType } from './sqlite-migrations/migration-manager';
 
 interface DatabaseRow {
   id: string;
@@ -76,7 +76,7 @@ export class SQLiteVectorStore implements VectorStore {
     }
 
     try {
-      this.migrationManager = new SqliteMigrationManager(this.db, this.storeName, this.dbPath);
+      this.migrationManager = new SqliteMigrationManager(this.db, this.storeName, this.dbPath, 'store' as MigrationType);
       await this.initializeDatabase();
     } catch (err) {
       throw new Error(`Failed to initialize database: ${err}`);

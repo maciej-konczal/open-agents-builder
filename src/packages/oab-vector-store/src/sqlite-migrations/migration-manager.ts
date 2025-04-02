@@ -4,15 +4,19 @@ import path from 'path';
 import { Migration, MigrationMetadata } from './types';
 import { getCurrentTimestamp } from '../utils';
 
+export type MigrationType = 'store' | 'manager';
+
 export class SqliteMigrationManager {
   private db: Database;
   private storeName: string;
   private dbPath: string;
+  private migrationType: MigrationType;
 
-  constructor(db: Database, storeName: string, dbPath: string) {
+  constructor(db: Database, storeName: string, dbPath: string, migrationType: MigrationType) {
     this.db = db;
     this.storeName = storeName;
     this.dbPath = dbPath;
+    this.migrationType = migrationType;
     this.initMigrationTable();
   }
 
@@ -21,18 +25,21 @@ export class SqliteMigrationManager {
       CREATE TABLE IF NOT EXISTS migrations (
         version INTEGER PRIMARY KEY,
         name TEXT NOT NULL,
-        appliedAt TEXT NOT NULL
+        appliedAt TEXT NOT NULL,
+        type TEXT NOT NULL
       )
     `).run();
   }
 
   private getCurrentVersion(): number {
-    const result = this.db.prepare('SELECT MAX(version) as version FROM migrations').get() as { version: number | null };
+    const result = this.db.prepare(
+      'SELECT MAX(version) as version FROM migrations WHERE type = ?'
+    ).get(this.migrationType) as { version: number | null };
     return result.version || 0;
   }
 
   private async loadMigrations(): Promise<Migration[]> {
-    const migrationsDir = path.join(__dirname);
+    const migrationsDir = path.join(__dirname, this.migrationType);
     const files = fs.readdirSync(migrationsDir)
       .filter(file => file.endsWith('.ts') || file.endsWith('.js'))
       .filter(file => !file.includes('types') && !file.includes('migration-manager'));
@@ -51,33 +58,33 @@ export class SqliteMigrationManager {
 
   private recordMigration(migration: Migration): void {
     this.db.prepare(`
-      INSERT INTO migrations (version, name, appliedAt)
-      VALUES (?, ?, ?)
-    `).run(migration.version, migration.constructor.name, getCurrentTimestamp());
+      INSERT INTO migrations (version, name, appliedAt, type)
+      VALUES (?, ?, ?, ?)
+    `).run(migration.version, migration.constructor.name, getCurrentTimestamp(), this.migrationType);
   }
 
   async migrate(): Promise<void> {
-    console.log(`Running vector store migrations for store '${this.storeName}' at ${this.dbPath}`);
+    console.log(`Running ${this.migrationType} migrations for store '${this.storeName}' at ${this.dbPath}`);
     
     const currentVersion = this.getCurrentVersion();
     const migrations = await this.loadMigrations();
     const pendingMigrations = migrations.filter(m => m.version > currentVersion);
 
     if (pendingMigrations.length === 0) {
-      console.log(`Database '${this.storeName}' is up to date (version ${currentVersion})`);
+      console.log(`${this.migrationType} database '${this.storeName}' is up to date (version ${currentVersion})`);
       return;
     }
 
-    console.log(`Current database version: ${currentVersion}`);
-    console.log(`Found ${pendingMigrations.length} pending migrations`);
+    console.log(`Current ${this.migrationType} database version: ${currentVersion}`);
+    console.log(`Found ${pendingMigrations.length} pending ${this.migrationType} migrations`);
 
     // Run migrations in a transaction
     const transaction = this.db.transaction(() => {
       for (const migration of pendingMigrations) {
-        console.log(`Applying migration version ${migration.version} to '${this.storeName}'...`);
+        console.log(`Applying ${this.migrationType} migration version ${migration.version} to '${this.storeName}'...`);
         migration.up(this.db);
         this.recordMigration(migration);
-        console.log(`Migration version ${migration.version} applied successfully to '${this.storeName}'`);
+        console.log(`${this.migrationType} migration version ${migration.version} applied successfully to '${this.storeName}'`);
       }
     });
 
@@ -85,11 +92,11 @@ export class SqliteMigrationManager {
   }
 
   async rollback(targetVersion: number): Promise<void> {
-    console.log(`Rolling back vector store '${this.storeName}' migrations`);
+    console.log(`Rolling back ${this.migrationType} migrations for store '${this.storeName}'`);
     
     const currentVersion = this.getCurrentVersion();
     if (targetVersion >= currentVersion) {
-      console.log(`Nothing to rollback for '${this.storeName}'`);
+      console.log(`Nothing to rollback for '${this.storeName}' ${this.migrationType} database`);
       return;
     }
 
@@ -99,19 +106,19 @@ export class SqliteMigrationManager {
       .sort((a, b) => b.version - a.version); // Reverse order for rollback
 
     if (migrationsToRollback.length === 0) {
-      console.log(`No migrations to rollback for '${this.storeName}'`);
+      console.log(`No migrations to rollback for '${this.storeName}' ${this.migrationType} database`);
       return;
     }
 
-    console.log(`Rolling back '${this.storeName}' from version ${currentVersion} to ${targetVersion}`);
+    console.log(`Rolling back '${this.storeName}' ${this.migrationType} database from version ${currentVersion} to ${targetVersion}`);
 
     // Run rollbacks in a transaction
     const transaction = this.db.transaction(() => {
       for (const migration of migrationsToRollback) {
-        console.log(`Rolling back migration version ${migration.version} from '${this.storeName}'...`);
+        console.log(`Rolling back ${this.migrationType} migration version ${migration.version} from '${this.storeName}'...`);
         migration.down(this.db);
-        this.db.prepare('DELETE FROM migrations WHERE version = ?').run(migration.version);
-        console.log(`Migration version ${migration.version} rolled back successfully from '${this.storeName}'`);
+        this.db.prepare('DELETE FROM migrations WHERE version = ? AND type = ?').run(migration.version, this.migrationType);
+        console.log(`${this.migrationType} migration version ${migration.version} rolled back successfully from '${this.storeName}'`);
       }
     });
 
@@ -122,7 +129,8 @@ export class SqliteMigrationManager {
     return this.db.prepare(`
       SELECT version, name, appliedAt
       FROM migrations
+      WHERE type = ?
       ORDER BY version DESC
-    `).all() as MigrationMetadata[];
+    `).all(this.migrationType) as MigrationMetadata[];
   }
 } 
