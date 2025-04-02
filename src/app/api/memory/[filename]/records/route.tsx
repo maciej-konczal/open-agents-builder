@@ -56,11 +56,6 @@ export async function GET(
     await authorizeSaasContext(request);
     await authorizeStorageSchema(request);
 
-    const dataDir = getDataDir(requestContext.databaseIdHash);
-    const storeManager = createVectorStoreManager({
-      baseDir: dataDir
-    });
-
     const searchParams = request.nextUrl.searchParams;
     const limit = parseInt(searchParams.get('limit') || '10');
     const offset = parseInt(searchParams.get('offset') || '0');
