@@ -10,8 +10,7 @@ export function createMemorySearchTool(
   databaseIdHash: string,
   sessionId: string,
   storageKey: string | null | undefined,
-  agent: Agent,
-  vectorStore: VectorStore | null = null
+  agent: Agent
 ): ToolDescriptor {
   return {
     displayName: "Search in memory store",
@@ -25,19 +24,18 @@ export function createMemorySearchTool(
       execute: async ({ query, storeName, limit }) => {
         try {
           // Create vector store if not provided
-          if (!vectorStore) {
-            const generateEmbeddings = createOpenAIEmbeddings({
-              apiKey: process.env.OPENAI_API_KEY
-            });
+          const generateEmbeddings = createOpenAIEmbeddings({
+            apiKey: process.env.OPENAI_API_KEY
+          });
 
-            vectorStore = createVectorStore({
-              storeName: storeName || 'default',
-              partitionKey: databaseIdHash,
-              maxFileSizeMB: 10,
-              baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
-              generateEmbeddings
-            });
-          }
+          const vectorStore = createVectorStore({
+            storeName: storeName || 'default',
+            partitionKey: databaseIdHash,
+            maxFileSizeMB: 10,
+            baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
+            generateEmbeddings
+          });
+
           const results = await vectorStore.search(query, limit);
           return JSON.stringify(results);
         } catch (err) {

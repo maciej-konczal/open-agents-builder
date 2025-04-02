@@ -1,18 +1,18 @@
 import { z } from "zod";
 import { ToolDescriptor } from "./registry";
-import { createVectorStore, createOpenAIEmbeddings, VectorStore, VectorStoreEntry } from "oab-vector-store";
+import { createVectorStore, createOpenAIEmbeddings, VectorStore, VectorStoreEntry, createVectorStoreManager } from "oab-vector-store";
 import { tool } from "ai";
 import { Agent } from "@/data/client/models";
 import { getErrorMessage, safeJsonParse } from "@/lib/utils";
 import { nanoid } from "nanoid";
 import path from "path";
+import { getDataDir } from "@/utils/paths";
 
 export function createMemorySaveTool(
   databaseIdHash: string,
   sessionId: string,
   storageKey: string | null | undefined,
-  agent: Agent,
-  vectorStore: VectorStore | null = null
+  agent: Agent
 ): ToolDescriptor {
   return {
     displayName: "Save document to memory store",
@@ -23,25 +23,27 @@ export function createMemorySaveTool(
         content: z.string().describe("Content of the document"),
         metadata: z.string().describe("Additional metadata for the document"),
         storeName: z.string().optional().describe("Name of the store to save in - if not provided will use 'default'"),
-        sessionOnly: z.boolean().optional().default(false).describe("Whether to search only in the current session")        
+        sessionOnly: z.boolean().optional().default(false).describe("Whether to search only in the current session")
       }),
       execute: async ({ id, content, metadata, storeName, sessionOnly }) => {
         try {
           if (!id) id = nanoid();
           // Create vector store if not provided
-          if (!vectorStore) {
-            const generateEmbeddings = createOpenAIEmbeddings({
-              apiKey: process.env.OPENAI_API_KEY
-            });
+          const baseDir = getDataDir(databaseIdHash);
 
-            vectorStore = createVectorStore({
-              storeName: storeName || 'default',
-              partitionKey: databaseIdHash,
-              maxFileSizeMB: 10,
-              baseDir: path.resolve(process.cwd(), 'data', databaseIdHash, 'memory-store'),
-              generateEmbeddings
-            });
-          }
+
+          const generateEmbeddings = createOpenAIEmbeddings({
+            apiKey: process.env.OPENAI_API_KEY
+          });
+
+          const vectorStore = createVectorStore({
+            storeName: storeName || 'default',
+            partitionKey: databaseIdHash,
+            maxFileSizeMB: 10,
+            baseDir,
+            generateEmbeddings
+          });
+
 
           // Create the entry
           const entry: VectorStoreEntry = {
@@ -51,7 +53,23 @@ export function createMemorySaveTool(
             embedding: await vectorStore.getConfig().generateEmbeddings(content)
           };
 
-          await vectorStore.set(id, entry);    
+          await vectorStore.set(id, entry);
+
+          const storeManager = createVectorStoreManager({
+            baseDir
+          });
+
+          // Get the updated total count
+          const { total } = await vectorStore.entries();
+
+          // Update the store metadata
+          const storeMetadata = await vectorStore.getMetadata();
+          await storeManager.updateStoreMetadata(databaseIdHash, storeName || 'default', {
+            ...storeMetadata,
+            itemCount: total,
+            updatedAt: new Date().toISOString()
+          });
+
           return `Document saved with id: ${id}`;
         } catch (err) {
           console.error(err);
