@@ -32,8 +32,10 @@ Please check the documentation first to see if your question or issue is already
 
 ### Branching Strategy
 
-- Create a new branch from `main`:
+- Create a new branch from `develop` (our nightly/test build):
   ```bash
+  git checkout develop
+  git pull origin develop
   git checkout -b feature/my-awesome-feature
   ```
 
@@ -56,7 +58,9 @@ git commit -m "feat: add new agent configuration options"
 ### Pull Requests
 
 - Make sure your changes pass all tests and linters.
-- Submit a pull request to the `main` branch.
+- Submit a pull request to the `develop` branch (our nightly/test build).
+- Only after integration tests pass, changes will be merged to `main` branch.
+- The `main` branch is reserved for stable releases and hotfixes.
 - Include a clear description of what your PR does.
 - Link any relevant issues.
 

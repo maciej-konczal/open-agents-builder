@@ -261,6 +261,8 @@ git clone https://github.com/CatchTheTornado/open-agents-builder
 cd open-agents-builder
 ```
 
+> **Note:** For development, please use the `develop` branch which is our nightly/test build. The `main` branch is reserved for stable releases and hotfixes. All pull requests should be targeted to `develop` branch.
+
 Install required dependencies: `poppler` and `markitdown`:
 
 ```bash
