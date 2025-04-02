@@ -14,6 +14,8 @@ Open Agents Builder is an Enterprise Grade AI Agents development platform:
 - 👩‍💼 **Customer facing apps** support - by the interactive Chat interface - included,
 - **API keys management, permissions, statistics** - all the features enterprises like - included.
 
+[Read more about the idea](https://www.linkedin.com/pulse/open-agents-builder-live-help-us-bring-agentic-real-piotr-karwatka-pxanf/?trackingId=bHtUgZu1R6mZaF5M%2F2yUqg%3D%3D)
+
 
 💵 **Production grade Business Agents** within hours. With Open Agents Builder you are able to build the fully fledge POC (Proof of Concept) app for your Business Stakeholders **within hours, not days**.
 
