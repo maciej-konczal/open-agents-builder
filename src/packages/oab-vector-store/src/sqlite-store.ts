@@ -105,13 +105,13 @@ export class SQLiteVectorStore implements VectorStore {
     try {
       // Begin transaction
       const transaction = this.db.transaction(() => {
-        // Get next vector_id
-        const maxVectorId = this.db.prepare('SELECT COALESCE(MAX(vector_id), 0) as max_id FROM entries').get() as { max_id: number };
+        // Get next vectorId
+        const maxVectorId = this.db.prepare('SELECT COALESCE(MAX(vectorId), 0) as max_id FROM entries').get() as { max_id: number };
         const vectorId = maxVectorId.max_id + 1;
 
         // Insert into entries table
         this.db.prepare(
-          `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt, sessionId, expiry, vector_id)
+          `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt, sessionId, expiry, vectorId)
            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
         ).run(id, entry.content, metadataBlob, now, now, entry.sessionId || null, entry.expiry || null, vectorId);
 
@@ -119,7 +119,7 @@ export class SQLiteVectorStore implements VectorStore {
         const embeddingArray = new Float32Array(entry.embedding);
         const embeddingBuffer = new Uint8Array(embeddingArray.buffer);
 
-        // Insert into vector index using the integer vector_id
+        // Insert into vector index using the integer vectorId
         this.db.prepare(
           `INSERT INTO vector_index(embedding) VALUES (?)`
         ).run(embeddingBuffer);
@@ -159,13 +159,13 @@ export class SQLiteVectorStore implements VectorStore {
     const transaction = this.db.transaction(() => {
       // Get all expired entries
       const expiredEntries = this.db.prepare(
-        'SELECT id, vector_id FROM entries WHERE expiry IS NOT NULL AND expiry < ?'
-      ).all(now) as { id: string; vector_id: number }[];
+        'SELECT id, vectorId FROM entries WHERE expiry IS NOT NULL AND expiry < ?'
+      ).all(now) as { id: string; vectorId: number }[];
 
       // Delete expired entries and their vector indices
       for (const entry of expiredEntries) {
         // Delete from vector index
-        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vector_id);
+        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vectorId);
         // Delete from entries table
         this.db.prepare('DELETE FROM entries WHERE id = ?').run(entry.id);
       }
@@ -188,7 +188,7 @@ export class SQLiteVectorStore implements VectorStore {
       'UPDATE metadata SET value = ? WHERE key = ?'
     ).run(now, 'lastAccessed');
 
-    const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Uint8Array }) | undefined;
+    const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vectorId = v.id WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Uint8Array }) | undefined;
     if (!row) return null;
 
     // Check if entry is expired
@@ -215,11 +215,11 @@ export class SQLiteVectorStore implements VectorStore {
   async delete(id: string): Promise<void> {
     await this.ensureInitialized();
     const transaction = this.db.transaction(() => {
-      // Get the vector_id first
-      const entry = this.db.prepare('SELECT vector_id FROM entries WHERE id = ?').get(id) as { vector_id: number } | undefined;
+      // Get the vectorId first
+      const entry = this.db.prepare('SELECT vectorId FROM entries WHERE id = ?').get(id) as { vectorId: number } | undefined;
       if (entry) {
         // Delete from vector index
-        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vector_id);
+        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vectorId);
       }
 
       // Delete from entries table
@@ -255,8 +255,8 @@ export class SQLiteVectorStore implements VectorStore {
   async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
     await this.ensureInitialized();
     const query = params
-      ? 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id LIMIT ? OFFSET ?'
-      : 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id';
+      ? 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vectorId = v.id LIMIT ? OFFSET ?'
+      : 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vectorId = v.id';
     
     const queryParams = params ? [params.limit, params.offset] : [];
     const rows = this.db.prepare(query).all(...queryParams) as (DatabaseRow & { embedding: Uint8Array })[];
@@ -295,7 +295,7 @@ export class SQLiteVectorStore implements VectorStore {
         v.embedding,
         v.distance
       FROM entries e
-      JOIN vector_index v ON e.vector_id = v.id
+      JOIN vector_index v ON e.vectorId = v.id
       WHERE v.embedding MATCH ? AND k = ?
       ORDER BY distance ASC`
     ).all(queryEmbeddingBuffer, topK) as (DatabaseRow & { embedding: Uint8Array; distance: number })[];

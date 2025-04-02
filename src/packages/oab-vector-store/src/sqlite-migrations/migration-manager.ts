@@ -46,7 +46,7 @@ export class SqliteMigrationManager {
     this.db.prepare(`
       INSERT INTO migrations (version, name, appliedAt, type)
       VALUES (?, ?, ?, ?)
-    `).run(migration.version, migration.constructor.name, getCurrentTimestamp(), this.migrationType);
+    `).run(migration.version, migration.name, getCurrentTimestamp(), this.migrationType);
   }
 
   migrate(): void {
