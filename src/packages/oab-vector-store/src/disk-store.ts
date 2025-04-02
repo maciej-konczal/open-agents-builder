@@ -61,7 +61,15 @@ export class DiskVectorStore implements VectorStore {
       fs.mkdirSync(dir, { recursive: true });
     }
     if (!fs.existsSync(this.filePath)) {
-      fs.writeFileSync(this.filePath, JSON.stringify({ entries: {} }, null, 2));
+      fs.writeFileSync(this.filePath, JSON.stringify({ 
+        entries: {},
+        metadata: {
+          itemCount: 0,
+          createdAt: getCurrentTimestamp(),
+          updatedAt: getCurrentTimestamp(),
+          lastAccessed: getCurrentTimestamp()
+        }
+      }, null, 2));
     }
   }
 
@@ -80,6 +88,13 @@ export class DiskVectorStore implements VectorStore {
 
       data.entries[id] = {
         ...entry,
+        updatedAt: getCurrentTimestamp()
+      };
+
+      // Update metadata
+      data.metadata = {
+        ...data.metadata,
+        itemCount: Object.keys(data.entries).length,
         updatedAt: getCurrentTimestamp()
       };
 
@@ -212,15 +227,20 @@ export class DiskVectorStore implements VectorStore {
 
     const content = await fs.promises.readFile(this.filePath, 'utf-8');
     const data = JSON.parse(content);
-    const itemCount = Object.keys(data.entries).length;
+    const metadata = data.metadata || {
+      itemCount: Object.keys(data.entries).length,
+      createdAt: getCurrentTimestamp(),
+      updatedAt: getCurrentTimestamp(),
+      lastAccessed: getCurrentTimestamp()
+    };
 
     return {
       name: this.storeName,
       partitionKey: this.partitionKey,
-      itemCount,
-      createdAt: getCurrentTimestamp(),
-      updatedAt: getCurrentTimestamp(),
-      lastAccessed: getCurrentTimestamp()
+      itemCount: metadata.itemCount,
+      createdAt: metadata.createdAt,
+      updatedAt: metadata.updatedAt,
+      lastAccessed: metadata.lastAccessed
     };
   }
 }

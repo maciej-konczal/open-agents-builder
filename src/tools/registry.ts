@@ -22,10 +22,7 @@ import { replaceBase64Content } from '@/lib/file-extractor';
 import { createAvailableUIComponentsTool, getAvailableUIComponents } from './availableUIComponentsTool';
 import { createRenderComponentTool } from './renderComponentTool';
 import { createMemorySaveTool } from './memorySaveTool';
-import { createOpenAIEmbeddings } from 'oab-vector-store';
 import { createMemorySearchTool } from './memorySearchTool';
-import { createDiskVectorStore } from 'oab-vector-store';
-import path from 'path';
 
 export type ToolDescriptor = {
   displayName: string;
@@ -95,10 +92,6 @@ export const toolRegistry = {
           ...availableTools,
           ['flowTool' + flow.code]: flowTool
         }
-      });
-
-      const generateEmbeddings = createOpenAIEmbeddings({
-        apiKey: process.env.OPENAI_API_KEY
       });
 
       availableTools = {
