@@ -1,8 +1,8 @@
 import type { Database } from 'better-sqlite3';
-import fs from 'fs';
-import path from 'path';
 import { Migration, MigrationMetadata } from './types';
 import { getCurrentTimestamp } from '../utils';
+import { storeMigrations } from './store';
+import { managerMigrations } from './manager';
 
 export type MigrationType = 'store' | 'manager';
 
@@ -38,22 +38,8 @@ export class SqliteMigrationManager {
     return result.version || 0;
   }
 
-  private async loadMigrations(): Promise<Migration[]> {
-    const migrationsDir = path.join(__dirname, this.migrationType);
-    const files = fs.readdirSync(migrationsDir)
-      .filter(file => file.endsWith('.ts') || file.endsWith('.js'))
-      .filter(file => !file.includes('types') && !file.includes('migration-manager'));
-
-    const migrations: Migration[] = [];
-    for (const file of files) {
-      const module = await import(path.join(migrationsDir, file));
-      if (module.migration && typeof module.migration.version === 'number') {
-        migrations.push(module.migration);
-      }
-    }
-
-    // Sort migrations by version
-    return migrations.sort((a, b) => a.version - b.version);
+  private getMigrations(): Migration[] {
+    return this.migrationType === 'store' ? storeMigrations : managerMigrations;
   }
 
   private recordMigration(migration: Migration): void {
@@ -67,7 +53,7 @@ export class SqliteMigrationManager {
     console.log(`Running ${this.migrationType} migrations for store '${this.storeName}' at ${this.dbPath}`);
     
     const currentVersion = this.getCurrentVersion();
-    const migrations = await this.loadMigrations();
+    const migrations = this.getMigrations();
     const pendingMigrations = migrations.filter(m => m.version > currentVersion);
 
     if (pendingMigrations.length === 0) {
@@ -100,7 +86,7 @@ export class SqliteMigrationManager {
       return;
     }
 
-    const migrations = await this.loadMigrations();
+    const migrations = this.getMigrations();
     const migrationsToRollback = migrations
       .filter(m => m.version <= currentVersion && m.version > targetVersion)
       .sort((a, b) => b.version - a.version); // Reverse order for rollback
