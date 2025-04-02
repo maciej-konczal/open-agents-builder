@@ -5,6 +5,7 @@ import type { Database as DatabaseType } from 'better-sqlite3';
 import * as sqliteVec from 'sqlite-vec';
 import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult, VectorStoreMetadata } from './types';
 import { generateEntryId, getCurrentTimestamp } from './utils';
+import { MigrationManager } from './migrations/migration-manager';
 
 interface DatabaseRow {
   id: string;
@@ -27,11 +28,13 @@ interface CountRow {
 }
 
 export class SQLiteVectorStore implements VectorStore {
-  private db: DatabaseType;
+  private db!: DatabaseType;
   private storeName: string;
   private generateEmbeddings: GenerateEmbeddings;
   private partitionKey: string;
   private dbPath: string;
+  private migrationManager!: MigrationManager;
+  private initialized: Promise<void>;
 
   constructor(config: VectorStoreConfig) {
     this.storeName = config.storeName;
@@ -47,12 +50,18 @@ export class SQLiteVectorStore implements VectorStore {
       fs.mkdirSync(dirPath, { recursive: true });
     }
 
+    // Initialize database asynchronously
+    this.initialized = this.initialize();
+  }
+
+  private async initialize(): Promise<void> {
     // Check if we can access the directory
     try {
-      fs.accessSync(dirPath, fs.constants.R_OK | fs.constants.W_OK);
+      fs.accessSync(path.dirname(this.dbPath), fs.constants.R_OK | fs.constants.W_OK);
     } catch (err) {
-      throw new Error(`Cannot access directory ${dirPath}: ${err}`);
+      throw new Error(`Cannot access directory ${path.dirname(this.dbPath)}: ${err}`);
     }
+
     // Initialize SQLite database with verbose error handling
     try {
       this.db = new Database(this.dbPath);
@@ -67,15 +76,21 @@ export class SQLiteVectorStore implements VectorStore {
     }
 
     try {
-      this.initializeDatabase();
+      this.migrationManager = new MigrationManager(this.db);
+      await this.initializeDatabase();
     } catch (err) {
       throw new Error(`Failed to initialize database: ${err}`);
     }
   }
 
-  private initializeDatabase(): void {
+  // Helper method to ensure initialization is complete
+  private async ensureInitialized(): Promise<void> {
+    await this.initialized;
+  }
+
+  private async initializeDatabase(): Promise<void> {
     try {
-      // Create tables if they don't exist
+      // Create base tables if they don't exist
       this.db.prepare(`
         CREATE TABLE IF NOT EXISTS entries (
           id TEXT PRIMARY KEY,
@@ -83,8 +98,6 @@ export class SQLiteVectorStore implements VectorStore {
           metadata TEXT NOT NULL,
           createdAt TEXT NOT NULL,
           updatedAt TEXT NOT NULL,
-          sessionId TEXT,
-          expiry TEXT,
           vector_id INTEGER
         )
       `).run();
@@ -119,12 +132,16 @@ export class SQLiteVectorStore implements VectorStore {
           embedding float[1536]
         )
       `).run();
+
+      // Run any pending migrations
+      await this.migrationManager.migrate();
     } catch (err) {
       throw new Error(`Failed to initialize database tables: ${err}`);
     }
   }
 
   async set(id: string, entry: VectorStoreEntry): Promise<void> {
+    await this.ensureInitialized();
     const now = getCurrentTimestamp();
     const metadataBlob = Buffer.from(JSON.stringify(entry.metadata));
 
@@ -180,6 +197,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   private async garbageCollect(): Promise<void> {
+    await this.ensureInitialized();
     const now = getCurrentTimestamp();
     const transaction = this.db.transaction(() => {
       // Get all expired entries
@@ -205,6 +223,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async get(id: string): Promise<VectorStoreEntry | null> {
+    await this.ensureInitialized();
     const now = getCurrentTimestamp();
     
     // Update last accessed timestamp
@@ -237,6 +256,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async delete(id: string): Promise<void> {
+    await this.ensureInitialized();
     const transaction = this.db.transaction(() => {
       // Get the vector_id first
       const entry = this.db.prepare('SELECT vector_id FROM entries WHERE id = ?').get(id) as { vector_id: number } | undefined;
@@ -258,6 +278,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async clear(): Promise<void> {
+    await this.ensureInitialized();
     const transaction = this.db.transaction(() => {
       // Delete from entries table
       this.db.prepare('DELETE FROM entries').run();
@@ -275,6 +296,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
+    await this.ensureInitialized();
     const query = params
       ? 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id LIMIT ? OFFSET ?'
       : 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id';
@@ -305,6 +327,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
+    await this.ensureInitialized();
     const queryEmbedding = await this.generateEmbeddings(query);
     const queryEmbeddingArray = new Float32Array(queryEmbedding);
     const queryEmbeddingBuffer = new Uint8Array(queryEmbeddingArray.buffer);
@@ -336,6 +359,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async getMetadata(): Promise<VectorStoreMetadata> {
+    await this.ensureInitialized();
     const metadataRows = this.db.prepare('SELECT key, value FROM metadata').all() as MetadataRow[];
     const metadata = new Map(metadataRows.map(row => [row.key, row.value]));
 
@@ -350,6 +374,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async upsert(entry: VectorStoreEntry): Promise<void> {
+    await this.ensureInitialized();
     const id = entry.id || generateEntryId();
     await this.set(id, entry);
   }
@@ -364,6 +389,8 @@ export class SQLiteVectorStore implements VectorStore {
   }
 }
 
-export function createSQLiteVectorStore(config: VectorStoreConfig): VectorStore {
-  return new SQLiteVectorStore(config);
+export async function createSQLiteVectorStore(config: VectorStoreConfig): Promise<VectorStore> {
+  const store = new SQLiteVectorStore(config);
+  await store['initialized'];
+  return store;
 } 
