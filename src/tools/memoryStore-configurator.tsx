@@ -39,7 +39,6 @@ export function MemoryStoreConfigurator({
   const [isCreating, setIsCreating] = useState(false);
   const [newStoreName, setNewStoreName] = useState('');
   const [showCreateInput, setShowCreateInput] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   // Load existing stores
   useEffect(() => {
