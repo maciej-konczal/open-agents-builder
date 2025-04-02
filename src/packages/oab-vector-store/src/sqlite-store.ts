@@ -90,49 +90,6 @@ export class SQLiteVectorStore implements VectorStore {
 
   private async initializeDatabase(): Promise<void> {
     try {
-      // Create base tables if they don't exist
-      this.db.prepare(`
-        CREATE TABLE IF NOT EXISTS entries (
-          id TEXT PRIMARY KEY,
-          content TEXT NOT NULL,
-          metadata TEXT NOT NULL,
-          createdAt TEXT NOT NULL,
-          updatedAt TEXT NOT NULL,
-          vector_id INTEGER
-        )
-      `).run();
-
-      this.db.prepare(`
-        CREATE TABLE IF NOT EXISTS metadata (
-          key TEXT PRIMARY KEY,
-          value TEXT NOT NULL
-        )
-      `).run();
-
-      // Initialize metadata if not exists
-      const now = getCurrentTimestamp();
-      const metadataRows = [
-        { key: 'itemCount', value: '0' },
-        { key: 'createdAt', value: now },
-        { key: 'updatedAt', value: now },
-        { key: 'lastAccessed', value: now }
-      ];
-
-      for (const row of metadataRows) {
-        this.db.prepare('INSERT OR IGNORE INTO metadata (key, value) VALUES (?, ?)').run(row.key, row.value);
-      }
-
-      // Create index on vector_id
-      this.db.prepare('CREATE INDEX IF NOT EXISTS idx_vector_id ON entries(vector_id)').run();
-
-      // Create vector index virtual table last
-      this.db.prepare(`
-        CREATE VIRTUAL TABLE IF NOT EXISTS vector_index USING vec0(
-          id integer primary key autoincrement,
-          embedding float[1536]
-        )
-      `).run();
-
       // Run any pending migrations
       await this.migrationManager.migrate();
     } catch (err) {
