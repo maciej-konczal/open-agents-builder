@@ -13,6 +13,8 @@ interface DatabaseRow {
   metadata: Buffer;
   createdAt: string;
   updatedAt: string;
+  sessionId: string | null;
+  expiry: string | null;
 }
 
 interface MetadataRow {
@@ -81,6 +83,8 @@ export class SQLiteVectorStore implements VectorStore {
           metadata TEXT NOT NULL,
           createdAt TEXT NOT NULL,
           updatedAt TEXT NOT NULL,
+          sessionId TEXT,
+          expiry TEXT,
           vector_id INTEGER
         )
       `).run();
@@ -133,9 +137,9 @@ export class SQLiteVectorStore implements VectorStore {
 
         // Insert into entries table
         this.db.prepare(
-          `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt, vector_id)
-           VALUES (?, ?, ?, ?, ?, ?)`
-        ).run(id, entry.content, metadataBlob, now, now, vectorId);
+          `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt, sessionId, expiry, vector_id)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        ).run(id, entry.content, metadataBlob, now, now, entry.sessionId || null, entry.expiry || null, vectorId);
 
         // Convert embedding to Float32Array and then to Uint8Array
         const embeddingArray = new Float32Array(entry.embedding);
@@ -164,10 +168,40 @@ export class SQLiteVectorStore implements VectorStore {
       if (!saved) {
         throw new Error('Failed to save record: Record not found after save');
       }
+
+      // Run garbage collection asynchronously
+      this.garbageCollect().catch(err => {
+        console.error('Error during garbage collection:', err);
+      });
     } catch (err) {
       console.error('Error saving record:', err);
       throw new Error(`Failed to save record: ${err}`);
     }
+  }
+
+  private async garbageCollect(): Promise<void> {
+    const now = getCurrentTimestamp();
+    const transaction = this.db.transaction(() => {
+      // Get all expired entries
+      const expiredEntries = this.db.prepare(
+        'SELECT id, vector_id FROM entries WHERE expiry IS NOT NULL AND expiry < ?'
+      ).all(now) as { id: string; vector_id: number }[];
+
+      // Delete expired entries and their vector indices
+      for (const entry of expiredEntries) {
+        // Delete from vector index
+        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vector_id);
+        // Delete from entries table
+        this.db.prepare('DELETE FROM entries WHERE id = ?').run(entry.id);
+      }
+
+      // Update item count
+      this.db.prepare(
+        'UPDATE metadata SET value = (SELECT COUNT(*) FROM entries) WHERE key = ?'
+      ).run('itemCount');
+    });
+
+    transaction();
   }
 
   async get(id: string): Promise<VectorStoreEntry | null> {
@@ -181,6 +215,12 @@ export class SQLiteVectorStore implements VectorStore {
     const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Uint8Array }) | undefined;
     if (!row) return null;
 
+    // Check if entry is expired
+    if (row.expiry && row.expiry < now) {
+      await this.delete(id);
+      return null;
+    }
+
     // Convert Uint8Array back to Float32Array
     const embeddingArray = new Float32Array(row.embedding.buffer);
 
@@ -190,7 +230,9 @@ export class SQLiteVectorStore implements VectorStore {
       embedding: Array.from(embeddingArray),
       metadata: JSON.parse(row.metadata.toString()),
       createdAt: row.createdAt,
-      updatedAt: row.updatedAt
+      updatedAt: row.updatedAt,
+      sessionId: row.sessionId || undefined,
+      expiry: row.expiry || undefined
     };
   }
 

@@ -99,6 +99,45 @@ export class DiskVectorStore implements VectorStore {
       };
 
       await fs.promises.writeFile(this.filePath, JSON.stringify(data, null, 2));
+
+      // Run garbage collection asynchronously
+      this.garbageCollect().catch(err => {
+        console.error('Error during garbage collection:', err);
+      });
+    } finally {
+      await this.releaseLock();
+    }
+  }
+
+  private async garbageCollect(): Promise<void> {
+    await this.acquireLock();
+    try {
+      await this.ensureFile();
+
+      const content = await fs.promises.readFile(this.filePath, 'utf-8');
+      const data = JSON.parse(content);
+      const now = getCurrentTimestamp();
+
+      // Find and remove expired entries
+      const expiredIds = Object.entries(data.entries)
+        .filter(([, vectorEntry]) => {
+          const entry = vectorEntry as VectorStoreEntry;
+          return entry.expiry && entry.expiry < now;
+        })
+        .map(([id]) => id);
+
+      for (const id of expiredIds) {
+        delete data.entries[id];
+      }
+
+      // Update metadata
+      data.metadata = {
+        ...data.metadata,
+        itemCount: Object.keys(data.entries).length,
+        updatedAt: now
+      };
+
+      await fs.promises.writeFile(this.filePath, JSON.stringify(data, null, 2));
     } finally {
       await this.releaseLock();
     }
@@ -111,8 +150,17 @@ export class DiskVectorStore implements VectorStore {
 
       const content = await fs.promises.readFile(this.filePath, 'utf-8');
       const data = JSON.parse(content);
+      const entry = data.entries[id];
 
-      return data.entries[id] || null;
+      if (!entry) return null;
+
+      // Check if entry is expired
+      if (entry.expiry && entry.expiry < getCurrentTimestamp()) {
+        await this.delete(id);
+        return null;
+      }
+
+      return entry;
     } finally {
       await this.releaseLock();
     }

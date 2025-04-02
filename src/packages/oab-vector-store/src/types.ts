@@ -11,6 +11,8 @@ export const vectorStoreEntrySchema = z.object({
   metadata: z.record(z.unknown()),
   createdAt: z.string().optional(),
   updatedAt: z.string().optional(),
+  sessionId: z.string().optional(),
+  expiry: z.string().optional(),
 });
 
 export type VectorStoreEntry = z.infer<typeof vectorStoreEntrySchema>;
