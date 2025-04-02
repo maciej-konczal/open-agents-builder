@@ -3,6 +3,7 @@ import { Migration } from '../types';
 
 export const migration: Migration = {
   version: 1,
+  name: 'create_stores_index',
   up: (db: Database) => {
     // Create stores index table
     db.prepare(`

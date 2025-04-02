@@ -4,6 +4,7 @@ import { getCurrentTimestamp } from '../../utils';
 
 export const migration: Migration = {
   version: 2,
+  name: 'create_initial_tables',
   up: (db: Database) => {
     // Create base tables
     db.prepare(`

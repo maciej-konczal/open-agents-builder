@@ -37,9 +37,10 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
     this.initializeStoresIndex();
   }
 
-  private async initializeStoresIndex() {
+  private initializeStoresIndex() {
     try {
-      await this.migrationManager.migrate();
+      // Run migrations synchronously
+      this.migrationManager.migrate();
     } catch (error) {
       throw new Error(`Failed to initialize stores index: ${error instanceof Error ? error.message : String(error)}`);
     }

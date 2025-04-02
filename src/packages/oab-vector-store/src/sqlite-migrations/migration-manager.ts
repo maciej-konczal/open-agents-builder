@@ -49,7 +49,7 @@ export class SqliteMigrationManager {
     `).run(migration.version, migration.constructor.name, getCurrentTimestamp(), this.migrationType);
   }
 
-  async migrate(): Promise<void> {
+  migrate(): void {
     console.log(`Running ${this.migrationType} migrations for store '${this.storeName}' at ${this.dbPath}`);
     
     const currentVersion = this.getCurrentVersion();
@@ -77,7 +77,7 @@ export class SqliteMigrationManager {
     transaction();
   }
 
-  async rollback(targetVersion: number): Promise<void> {
+  rollback(targetVersion: number): void {
     console.log(`Rolling back ${this.migrationType} migrations for store '${this.storeName}'`);
     
     const currentVersion = this.getCurrentVersion();

@@ -1,8 +1,9 @@
 import type { Database } from 'better-sqlite3';
-import { Migration } from './types';
+import { Migration } from '../types';
 
 export const migration: Migration = {
-  version: 1,
+  version: 2,
+  name: 'add_session_and_expiry',
   up: (db: Database) => {
     // Add new columns
     db.prepare(`
