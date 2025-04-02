@@ -9,7 +9,7 @@ import path from 'path';
 import { VectorStoreEntry, VectorStore } from "oab-vector-store";
 
 async function getOrCreateStore(databaseIdHash: string, storeName: string): Promise<VectorStore> {
-  const storeManager = createVectorStoreManager({
+  const storeManager = await createVectorStoreManager({
     baseDir: getDataDir(databaseIdHash)
   });
 
@@ -28,7 +28,7 @@ async function getOrCreateStore(databaseIdHash: string, storeName: string): Prom
     });
   } else {
     // Recreate the store with embeddings function
-    return createVectorStore({
+    return await createVectorStore({
       storeName,
       partitionKey: databaseIdHash,
       baseDir: getDataDir(databaseIdHash),
@@ -94,6 +94,8 @@ export async function GET(
         id: entry.id,
         metadata: entry.metadata,
         content: entry.content,
+        sessionId: entry.sessionId,
+        expiry: entry.expiry,
         embeddingPreview: entry.embedding.slice(0, 8)
       })),
       total
@@ -121,7 +123,7 @@ export async function POST(
     await authorizeStorageSchema(request);
 
     const dataDir = getDataDir(requestContext.databaseIdHash);
-    const storeManager = createVectorStoreManager({
+    const storeManager = await createVectorStoreManager({
       baseDir: dataDir
     });
 

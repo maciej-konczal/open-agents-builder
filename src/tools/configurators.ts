@@ -16,6 +16,7 @@ import { TraceToolConfigurator } from './traceTool-configurator';
 import { RenderComponentToolConfigurator } from './renderComponentTool-configurator';
 import { getAvailableUIComponents } from './availableUIComponentsTool';
 import { MemoryStoreConfigurator } from './memoryStore-configurator';
+import { MemorySearchConfigurator } from './memorySearch-configurator';
 
 type ToolConfiguratorDescriptor = {
   displayName: string;
@@ -80,7 +81,7 @@ export const toolConfiguratorsRepository = {
       },
       memorySearchTool: {
         displayName: "Memory/vector search",
-        configurator: MemoryStoreConfigurator,
+        configurator: MemorySearchConfigurator,
         defaultOptions: {
           storeName: "default"
         }

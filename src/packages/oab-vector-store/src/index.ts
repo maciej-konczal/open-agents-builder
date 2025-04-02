@@ -1,4 +1,4 @@
-import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, VectorStoreManager } from './types';
+import { VectorStore, VectorStoreConfig, VectorStoreManager } from './types';
 import { createDiskVectorStore } from './disk-store';
 import { createSQLiteVectorStore } from './sqlite-store';
 import { createDiskVectorStoreManager } from './disk-store-manager';
@@ -17,26 +17,26 @@ export type { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddin
 
 // Factory function to create a vector store manager based on environment variable
 export function createVectorStoreManager(config: { baseDir: string }): VectorStoreManager {
-  const storageEngine = process.env.VECTOR_STORE_ENGINE || 'sqlite';
-  
-  switch (storageEngine.toLowerCase()) {
-    case 'disk':
-      return createDiskVectorStoreManager(config);
-    case 'sqlite':
-    default:
-      return createSQLiteVectorStoreManager(config);
-  }
+    const storageEngine = process.env.VECTOR_STORE_ENGINE || 'sqlite';
+
+    switch (storageEngine.toLowerCase()) {
+        case 'disk':
+            return createDiskVectorStoreManager(config);
+        case 'sqlite':
+        default:
+            return createSQLiteVectorStoreManager(config);
+    }
 }
 
 // Factory function to create a vector store based on environment variable
-export function createVectorStore(config: VectorStoreConfig): VectorStore {
-  const storageEngine = process.env.VECTOR_STORE_ENGINE || 'sqlite';
-  
-  switch (storageEngine.toLowerCase()) {
-    case 'disk':
-      return createDiskVectorStore(config);
-    case 'sqlite':
-    default:
-      return createSQLiteVectorStore(config);
-  }
+export async function createVectorStore(config: VectorStoreConfig): Promise<VectorStore> {
+    const storageEngine = process.env.VECTOR_STORE_ENGINE || 'sqlite';
+
+    switch (storageEngine.toLowerCase()) {
+        case 'disk':
+            return createDiskVectorStore(config);
+        case 'sqlite':
+        default:
+            return createSQLiteVectorStore(config);
+    }
 } 

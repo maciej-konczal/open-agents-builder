@@ -20,6 +20,8 @@ type PreviewRecord = {
   metadata: Record<string, unknown>;
   embeddingPreview?: number[];
   similarity?: number;
+  sessionId?: string;
+  expiry?: string;
 };
 
 // For file listing
@@ -550,53 +552,63 @@ export default function MemoryFilesPage() {
                 <thead>
                   <tr className="bg-gray-100 border-b">
                     <th className="p-2 text-left">{t("ID")}</th>
+                    <th className="p-2 text-left">{t("Session ID")}</th>
+                    <th className="p-2 text-left">{t("Expiry Date")}</th>
                     <th className="p-2 text-left">{t("Metadata")}</th>
                     <th className="p-2 text-left">{t("Content")}</th>
-                    <th className="p-2 text-left">{t("Embedding (partial)")}</th>
                     <th className="p-2 text-left">{t("Similarity")}</th>
                     <th className="p-2 text-left">{t("Actions")}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {records?.map((r) => (
-                    <tr key={r.id} className="border-b">
-                      <td className="p-2 align-top w-24 font-bold">{r.id}</td>
-                      <td className="p-2 align-top">
-                        <pre className="whitespace-pre-wrap">
-                          {JSON.stringify(r.metadata ?? {}, null, 2)}
-                        </pre>
-                      </td>
-                      <td className="p-2 align-top">
-                        {r.content?.length > 100
-                          ? r.content.slice(0, 100) + "…"
-                          : r.content}
-                      </td>
-                      <td className="p-2 align-top">
-                        [{r.embeddingPreview?.join(", ")}]
-                      </td>
-                      <td className="p-2 align-top">
-                        {r.similarity ? r.similarity.toFixed(3) : ""}
-                      </td>
-                      <td className="p-2 align-top space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleEditRecord(r)}
-                        >
-                          {t("Edit")}
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => handleDeleteRecord(r)}
-                          disabled={isRecordsLoading}
-                        >
-                          <TrashIcon className="h-3 w-3" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
+                  {records?.map((r) => {
+                    const metadata = r.metadata as Record<string, unknown>;
+                    const expiryDate = r.expiry as string | undefined;
+                    const sessionId = r.sessionId as string | undefined;
+                    const isExpired = expiryDate && new Date(expiryDate) < new Date();
+                    const hasExpiry = !!expiryDate;
+                    
+                    return (
+                      <tr key={r.id} className={`border-b ${isExpired ? 'text-red-600' : hasExpiry ? 'text-orange-600' : ''}`}>
+                        <td className="p-2 align-top w-24 font-bold">{r.id}</td>
+                        <td className="p-2 align-top">{sessionId || '-'}</td>
+                        <td className="p-2 align-top">
+                          {expiryDate ? new Date(expiryDate).toLocaleString() : '-'}
+                        </td>
+                        <td className="p-2 align-top">
+                          <pre className="whitespace-pre-wrap">
+                            {JSON.stringify(metadata ?? {}, null, 2)}
+                          </pre>
+                        </td>
+                        <td className="p-2 align-top">
+                          {r.content?.length > 100
+                            ? r.content.slice(0, 100) + "…"
+                            : r.content}
+                        </td>
+                        <td className="p-2 align-top">
+                          {r.similarity ? r.similarity.toFixed(3) : ""}
+                        </td>
+                        <td className="p-2 align-top space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditRecord(r)}
+                          >
+                            {t("Edit")}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDeleteRecord(r)}
+                            disabled={isRecordsLoading}
+                          >
+                            <TrashIcon className="h-3 w-3" />
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

@@ -270,7 +270,9 @@ export class SQLiteVectorStore implements VectorStore {
         embedding: Array.from(embeddingArray),
         metadata: JSON.parse(row.metadata.toString()),
         createdAt: row.createdAt,
-        updatedAt: row.updatedAt
+        updatedAt: row.updatedAt,
+        sessionId: row.sessionId || undefined,
+        expiry: row.expiry || undefined
       };
     });
 
@@ -306,6 +308,8 @@ export class SQLiteVectorStore implements VectorStore {
       return {
         id: row.id,
         content: row.content,
+        sessionId: row.sessionId || undefined,
+        expiry: row.expiry || undefined,
         embedding: Array.from(embeddingArray),
         metadata: JSON.parse(row.metadata.toString()),
         createdAt: row.createdAt,

@@ -23,20 +23,22 @@ export function createMemorySaveTool(
         content: z.string().describe("Content of the document"),
         metadata: z.string().describe("Additional metadata for the document"),
         storeName: z.string().optional().describe("Name of the store to save in - if not provided will use 'default'"),
-        sessionOnly: z.boolean().optional().default(false).describe("Whether to search only in the current session")
+        shortTerm: z.boolean().optional().default(false).describe("Whether to save the document as short term memory"),
+        expirationPeriod: z.number().optional().default(0).describe("Expiration period in hours for short term memory")
       }),
-      execute: async ({ id, content, metadata, storeName, sessionOnly }) => {
+      execute: async ({ id, content, metadata, storeName, expirationPeriod, shortTerm }) => {
         try {
           if (!id) id = nanoid();
           // Create vector store if not provided
           const baseDir = getDataDir(databaseIdHash);
+          console.log(sessionId, shortTerm, expirationPeriod);
 
 
           const generateEmbeddings = createOpenAIEmbeddings({
             apiKey: process.env.OPENAI_API_KEY
           });
 
-          const vectorStore = createVectorStore({
+          const vectorStore = await createVectorStore({
             storeName: storeName || 'default',
             partitionKey: databaseIdHash,
             maxFileSizeMB: 10,
@@ -52,6 +54,11 @@ export function createMemorySaveTool(
             metadata: safeJsonParse(metadata, {}),
             embedding: await vectorStore.getConfig().generateEmbeddings(content)
           };
+
+          if (shortTerm) { // this is a short term memory
+            entry.sessionId = sessionId;
+            entry.expiry = new Date(Date.now() + expirationPeriod * 60 * 60 * 1000).toISOString();
+          }
 
           await vectorStore.set(id, entry);
 

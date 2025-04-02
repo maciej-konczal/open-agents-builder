@@ -19,7 +19,7 @@ export async function GET(
     await authorizeStorageSchema(request);
 
     const dataDir = getDataDir(requestContext.databaseIdHash);
-    const storeManager = createVectorStoreManager({
+    const storeManager = await createVectorStoreManager({
       baseDir: dataDir
     });
 
@@ -56,7 +56,7 @@ export async function DELETE(
     await authorizeStorageSchema(request);
 
     const dataDir = getDataDir(requestContext.databaseIdHash);
-    const storeManager = createVectorStoreManager({
+    const storeManager = await createVectorStoreManager({
       baseDir: dataDir
     });
 

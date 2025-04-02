@@ -11,8 +11,6 @@ import { Plus } from 'lucide-react';
 /** The shape of the options this configurator manages. */
 type MemoryStoreOptions = {
   storeName: string;
-  shortTerm: boolean;
-  expirationPeriod: number;
 };
 
 /** Props for the configurator component. */
@@ -27,7 +25,7 @@ type MemoryStoreConfiguratorProps = {
  * A configurator for memory stores that allows the user to set or change the store name,
  * create new stores, or delete existing ones.
  */
-export function MemoryStoreConfigurator({
+export function MemorySearchConfigurator({
   options,
   onChange
 }: MemoryStoreConfiguratorProps) {
@@ -36,8 +34,6 @@ export function MemoryStoreConfigurator({
 
   // Keep local pieces of state so our inputs are controlled.
   const [storeName, setStoreName] = useState(options.storeName);
-  const [shortTerm, setShortTerm] = useState(options.shortTerm || false);
-  const [expirationPeriod, setExpirationPeriod] = useState(options.expirationPeriod || 1);
   const [stores, setStores] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
@@ -68,16 +64,6 @@ export function MemoryStoreConfigurator({
     onChange({ ...options, storeName: value });
   };
 
-  const handleShortTermChange = (checked: boolean) => {
-    setShortTerm(checked);
-    onChange({ ...options, shortTerm: checked });
-  };
-
-  const handleExpirationPeriodChange = (value: string) => {
-    const period = parseFloat(value);
-    setExpirationPeriod(period);
-    onChange({ ...options, expirationPeriod: period });
-  };
 
   const handleCreateStore = async () => {
     if (!newStoreName.trim()) {
@@ -170,43 +156,6 @@ export function MemoryStoreConfigurator({
 
       </div>
 
-      {/* Memory Type Options */}
-      <div className="space-y-2">
-        <div className="flex items-center space-x-2">
-          <input
-            type="checkbox"
-            id="shortTerm"
-            checked={shortTerm}
-            onChange={(e) => handleShortTermChange(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300"
-          />
-          <label htmlFor="shortTerm" className="text-sm font-medium">
-            {t('Short term memory - with expiration date')}
-          </label>
-        </div>
-
-        {shortTerm && (
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">
-              {t('Expiration Period (hours)')}
-            </label>
-            <Select
-              value={expirationPeriod?.toString() || "1"}
-              onValueChange={handleExpirationPeriodChange}
-            >
-              <SelectTrigger className="w-[200px]">
-                <SelectValue placeholder={t('Select period...')} />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="0.5">30 minutes</SelectItem>
-                <SelectItem value="1">1 hour</SelectItem>
-                <SelectItem value="24">24 hours</SelectItem>
-                <SelectItem value="72">72 hours</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        )}
-      </div>
     </div>
   );
 } 

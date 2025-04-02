@@ -28,7 +28,7 @@ export function createMemorySearchTool(
             apiKey: process.env.OPENAI_API_KEY
           });
 
-          const vectorStore = createVectorStore({
+          const vectorStore = await createVectorStore({
             storeName: storeName || 'default',
             partitionKey: databaseIdHash,
             maxFileSizeMB: 10,
