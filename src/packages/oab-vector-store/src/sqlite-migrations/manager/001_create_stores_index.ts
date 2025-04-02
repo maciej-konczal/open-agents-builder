@@ -8,20 +8,20 @@ export const migration: Migration = {
     // Create stores index table
     db.prepare(`
       CREATE TABLE IF NOT EXISTS stores_index (
-        partition_key TEXT NOT NULL,
-        store_name TEXT NOT NULL,
-        base_dir TEXT NOT NULL,
-        created_at TEXT NOT NULL,
-        updated_at TEXT NOT NULL,
-        last_accessed TEXT,
-        PRIMARY KEY (partition_key, store_name)
+        partitionKey TEXT NOT NULL,
+        storeName TEXT NOT NULL,
+        baseDir TEXT NOT NULL,
+        createdAt TEXT NOT NULL,
+        updatedAt TEXT NOT NULL,
+        lastAccessed TEXT,
+        PRIMARY KEY (partitionKey, storeName)
       )
     `).run();
 
     // Create index for faster lookups
     db.prepare(`
       CREATE INDEX IF NOT EXISTS idx_stores_partition 
-      ON stores_index(partition_key)
+      ON stores_index(partitionKey)
     `).run();
   },
   down: (db: Database) => {

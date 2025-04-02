@@ -67,7 +67,7 @@ export class SqliteMigrationManager {
     // Run migrations in a transaction
     const transaction = this.db.transaction(() => {
       for (const migration of pendingMigrations) {
-        console.log(`Applying ${this.migrationType} migration version ${migration.version} to '${this.storeName}'...`);
+        console.log(`Applying [${this.migrationType}]:${migration.name} migration version ${migration.version} to '${this.storeName}'...`);
         migration.up(this.db);
         this.recordMigration(migration);
         console.log(`${this.migrationType} migration version ${migration.version} applied successfully to '${this.storeName}'`);
