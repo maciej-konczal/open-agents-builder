@@ -311,7 +311,7 @@ export class SQLiteVectorStore implements VectorStore {
         sessionId: row.sessionId || undefined,
         expiry: row.expiry || undefined,
         embedding: Array.from(embeddingArray),
-        metadata: JSON.parse(row.metadata.toString()),
+        metadata: JSON.parse(row.metadata.toString()) as Record<string, unknown>,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
         similarity: row.distance

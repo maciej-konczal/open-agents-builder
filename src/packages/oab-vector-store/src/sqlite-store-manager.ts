@@ -183,7 +183,7 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
         itemCount: row.itemCount,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
-        lastAccessed: row.lastAccessed
+        lastAccessed: row.lastAccessed || undefined
       })),
       total: totalCount.count,
       hasMore: offset + limit < totalCount.count
@@ -205,7 +205,7 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
       itemCount: row.itemCount,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
-      lastAccessed: row.lastAccessed
+      lastAccessed: row.lastAccessed || undefined
     }));
   }
 

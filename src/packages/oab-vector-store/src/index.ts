@@ -13,7 +13,7 @@ export * from './openai-embeddings';
 export * from './sqlite-store';
 
 // Re-export commonly used types
-export type { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, VectorStoreManager } from './types';
+export type { VectorStore, VectorStoreConfig, VectorStoreManager } from './types';
 
 // Factory function to create a vector store manager based on environment variable
 export function createVectorStoreManager(config: { baseDir: string }): VectorStoreManager {
