@@ -51,6 +51,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const totalStores = filteredFiles.length;
+
     return NextResponse.json({
       files: filteredFiles,
       limit,
