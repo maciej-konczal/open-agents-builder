@@ -122,9 +122,9 @@ export class SQLiteVectorStoreManager implements VectorStoreManager {
       // If store creation was successful, add to the index
       const now = getCurrentTimestamp();
       this.db.prepare(`
-        INSERT INTO stores_index (storeName, partitionKey, itemCount, createdAt, updatedAt, lastAccessed)
-        VALUES (?, ?, ?, ?, ?, ?)
-      `).run(config.storeName, config.partitionKey, 0, now, now, now);
+        INSERT INTO stores_index (storeName, partitionKey, itemCount, createdAt, updatedAt, lastAccessed, baseDir)  
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `).run(config.storeName, config.partitionKey, 0, now, now, now, this.baseDir);
 
       return store;
     } catch (err) {

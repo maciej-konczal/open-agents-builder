@@ -14,8 +14,6 @@ export const migration: Migration = {
         metadata TEXT NOT NULL,
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL,
-        sessionId TEXT,
-        expiry TEXT,
         vector_id INTEGER
       )
     `).run();
