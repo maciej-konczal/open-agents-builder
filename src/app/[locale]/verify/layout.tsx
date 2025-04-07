@@ -11,7 +11,7 @@ import { useEffect } from 'react';
 const i18nNamespaces = ['translation'];
 
 // eslint-disable-next-line @next/next/no-async-client-component
-export default async function GeneraChatlLayout({
+export default function GeneraChatlLayout({
   children,
   params,
 }: {
