@@ -55,8 +55,8 @@ export async function GET(request: NextRequest) {
       files: filteredFiles,
       limit,
       offset,
-      hasMore: offset + limit < filteredFiles.length,
-      total: filteredFiles.length,
+      hasMore: offset + limit < totalStores,
+      total: totalStores,
     });
   } catch (err) {
     console.error('Error listing stores:', err);
