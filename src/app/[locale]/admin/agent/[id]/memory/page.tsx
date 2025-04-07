@@ -547,20 +547,20 @@ export default function MemoryFilesPage() {
             )}
 
             {/* Table of records */}
-            <div className="overflow-auto max-h-96 border p-2 bg-white">
+            <div className="overflow-auto max-h-96 border rounded-md">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="bg-gray-100 border-b">
-                    <th className="p-2 text-left">{t("ID")}</th>
-                    <th className="p-2 text-left">{t("Session ID")}</th>
-                    <th className="p-2 text-left">{t("Expiry Date")}</th>
-                    <th className="p-2 text-left">{t("Metadata")}</th>
-                    <th className="p-2 text-left">{t("Content")}</th>
-                    <th className="p-2 text-left">{t("Similarity")}</th>
-                    <th className="p-2 text-left">{t("Actions")}</th>
+                  <tr className="bg-muted/50 border-b">
+                    <th className="p-2 text-left font-medium">{t("ID")}</th>
+                    <th className="p-2 text-left font-medium">{t("Session ID")}</th>
+                    <th className="p-2 text-left font-medium">{t("Expiry Date")}</th>
+                    <th className="p-2 text-left font-medium">{t("Metadata")}</th>
+                    <th className="p-2 text-left font-medium">{t("Content")}</th>
+                    <th className="p-2 text-left font-medium">{t("Similarity")}</th>
+                    <th className="p-2 text-left font-medium">{t("Actions")}</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-card">
                   {records?.map((r) => {
                     const metadata = r.metadata as Record<string, unknown>;
                     const expiryDate = r.expiry as string | undefined;
@@ -569,7 +569,7 @@ export default function MemoryFilesPage() {
                     const hasExpiry = !!expiryDate;
                     
                     return (
-                      <tr key={r.id} className={`border-b ${isExpired ? 'text-red-600' : hasExpiry ? 'text-orange-600' : ''}`}>
+                      <tr key={r.id} className={`border-b hover:bg-muted/50 transition-colors ${isExpired ? 'text-red-600' : hasExpiry ? 'text-orange-600' : ''}`}>
                         <td className="p-2 align-top w-24 font-bold">{r.id}</td>
                         <td className="p-2 align-top">{sessionId || '-'}</td>
                         <td className="p-2 align-top">
