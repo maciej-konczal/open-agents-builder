@@ -5,6 +5,7 @@ import type { Database as DatabaseType } from 'better-sqlite3';
 import * as sqliteVec from 'sqlite-vec';
 import { VectorStore, VectorStoreConfig, VectorStoreEntry, GenerateEmbeddings, PaginationParams, PaginatedResult, VectorStoreMetadata } from './types';
 import { generateEntryId, getCurrentTimestamp } from './utils';
+import { SqliteMigrationManager, MigrationType } from './sqlite-migrations/migration-manager';
 
 interface DatabaseRow {
   id: string;
@@ -13,6 +14,8 @@ interface DatabaseRow {
   metadata: Buffer;
   createdAt: string;
   updatedAt: string;
+  sessionId: string | null;
+  expiry: string | null;
 }
 
 interface MetadataRow {
@@ -25,11 +28,13 @@ interface CountRow {
 }
 
 export class SQLiteVectorStore implements VectorStore {
-  private db: DatabaseType;
+  private db!: DatabaseType;
   private storeName: string;
   private generateEmbeddings: GenerateEmbeddings;
   private partitionKey: string;
   private dbPath: string;
+  private migrationManager!: SqliteMigrationManager;
+  private initialized: Promise<void>;
 
   constructor(config: VectorStoreConfig) {
     this.storeName = config.storeName;
@@ -45,12 +50,18 @@ export class SQLiteVectorStore implements VectorStore {
       fs.mkdirSync(dirPath, { recursive: true });
     }
 
+    // Initialize database asynchronously
+    this.initialized = this.initialize();
+  }
+
+  private async initialize(): Promise<void> {
     // Check if we can access the directory
     try {
-      fs.accessSync(dirPath, fs.constants.R_OK | fs.constants.W_OK);
+      fs.accessSync(path.dirname(this.dbPath), fs.constants.R_OK | fs.constants.W_OK);
     } catch (err) {
-      throw new Error(`Cannot access directory ${dirPath}: ${err}`);
+      throw new Error(`Cannot access directory ${path.dirname(this.dbPath)}: ${err}`);
     }
+
     // Initialize SQLite database with verbose error handling
     try {
       this.db = new Database(this.dbPath);
@@ -65,83 +76,50 @@ export class SQLiteVectorStore implements VectorStore {
     }
 
     try {
-      this.initializeDatabase();
+      this.migrationManager = new SqliteMigrationManager(this.db, this.storeName, this.dbPath, 'store' as MigrationType);
+      await this.initializeDatabase();
     } catch (err) {
       throw new Error(`Failed to initialize database: ${err}`);
     }
   }
 
-  private initializeDatabase(): void {
+  // Helper method to ensure initialization is complete
+  private async ensureInitialized(): Promise<void> {
+    await this.initialized;
+  }
+
+  private async initializeDatabase(): Promise<void> {
     try {
-      // Create tables if they don't exist
-      this.db.prepare(`
-        CREATE TABLE IF NOT EXISTS entries (
-          id TEXT PRIMARY KEY,
-          content TEXT NOT NULL,
-          metadata TEXT NOT NULL,
-          createdAt TEXT NOT NULL,
-          updatedAt TEXT NOT NULL,
-          vector_id INTEGER
-        )
-      `).run();
-
-      this.db.prepare(`
-        CREATE TABLE IF NOT EXISTS metadata (
-          key TEXT PRIMARY KEY,
-          value TEXT NOT NULL
-        )
-      `).run();
-
-      // Initialize metadata if not exists
-      const now = getCurrentTimestamp();
-      const metadataRows = [
-        { key: 'itemCount', value: '0' },
-        { key: 'createdAt', value: now },
-        { key: 'updatedAt', value: now },
-        { key: 'lastAccessed', value: now }
-      ];
-
-      for (const row of metadataRows) {
-        this.db.prepare('INSERT OR IGNORE INTO metadata (key, value) VALUES (?, ?)').run(row.key, row.value);
-      }
-
-      // Create index on vector_id
-      this.db.prepare('CREATE INDEX IF NOT EXISTS idx_vector_id ON entries(vector_id)').run();
-
-      // Create vector index virtual table last
-      this.db.prepare(`
-        CREATE VIRTUAL TABLE IF NOT EXISTS vector_index USING vec0(
-          id integer primary key autoincrement,
-          embedding float[1536]
-        )
-      `).run();
+      // Run any pending migrations
+      await this.migrationManager.migrate();
     } catch (err) {
       throw new Error(`Failed to initialize database tables: ${err}`);
     }
   }
 
   async set(id: string, entry: VectorStoreEntry): Promise<void> {
+    await this.ensureInitialized();
     const now = getCurrentTimestamp();
     const metadataBlob = Buffer.from(JSON.stringify(entry.metadata));
 
     try {
       // Begin transaction
       const transaction = this.db.transaction(() => {
-        // Get next vector_id
-        const maxVectorId = this.db.prepare('SELECT COALESCE(MAX(vector_id), 0) as max_id FROM entries').get() as { max_id: number };
+        // Get next vectorId
+        const maxVectorId = this.db.prepare('SELECT COALESCE(MAX(vectorId), 0) as max_id FROM entries').get() as { max_id: number };
         const vectorId = maxVectorId.max_id + 1;
 
         // Insert into entries table
         this.db.prepare(
-          `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt, vector_id)
-           VALUES (?, ?, ?, ?, ?, ?)`
-        ).run(id, entry.content, metadataBlob, now, now, vectorId);
+          `INSERT OR REPLACE INTO entries (id, content, metadata, createdAt, updatedAt, sessionId, expiry, vectorId)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+        ).run(id, entry.content, metadataBlob, now, now, entry.sessionId || null, entry.expiry || null, vectorId);
 
         // Convert embedding to Float32Array and then to Uint8Array
         const embeddingArray = new Float32Array(entry.embedding);
         const embeddingBuffer = new Uint8Array(embeddingArray.buffer);
 
-        // Insert into vector index using the integer vector_id
+        // Insert into vector index using the integer vectorId
         this.db.prepare(
           `INSERT INTO vector_index(embedding) VALUES (?)`
         ).run(embeddingBuffer);
@@ -164,13 +142,45 @@ export class SQLiteVectorStore implements VectorStore {
       if (!saved) {
         throw new Error('Failed to save record: Record not found after save');
       }
+
+      // Run garbage collection asynchronously
+      this.garbageCollect().catch(err => {
+        console.error('Error during garbage collection:', err);
+      });
     } catch (err) {
       console.error('Error saving record:', err);
       throw new Error(`Failed to save record: ${err}`);
     }
   }
 
+  private async garbageCollect(): Promise<void> {
+    await this.ensureInitialized();
+    const now = getCurrentTimestamp();
+    const transaction = this.db.transaction(() => {
+      // Get all expired entries
+      const expiredEntries = this.db.prepare(
+        'SELECT id, vectorId FROM entries WHERE expiry IS NOT NULL AND expiry < ?'
+      ).all(now) as { id: string; vectorId: number }[];
+
+      // Delete expired entries and their vector indices
+      for (const entry of expiredEntries) {
+        // Delete from vector index
+        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vectorId);
+        // Delete from entries table
+        this.db.prepare('DELETE FROM entries WHERE id = ?').run(entry.id);
+      }
+
+      // Update item count
+      this.db.prepare(
+        'UPDATE metadata SET value = (SELECT COUNT(*) FROM entries) WHERE key = ?'
+      ).run('itemCount');
+    });
+
+    transaction();
+  }
+
   async get(id: string): Promise<VectorStoreEntry | null> {
+    await this.ensureInitialized();
     const now = getCurrentTimestamp();
     
     // Update last accessed timestamp
@@ -178,9 +188,14 @@ export class SQLiteVectorStore implements VectorStore {
       'UPDATE metadata SET value = ? WHERE key = ?'
     ).run(now, 'lastAccessed');
 
-
-    const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Uint8Array }) | undefined;
+    const row = this.db.prepare('SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vectorId = v.id WHERE e.id = ?').get(id) as (DatabaseRow & { embedding: Uint8Array }) | undefined;
     if (!row) return null;
+
+    // Check if entry is expired
+    if (row.expiry && row.expiry < now) {
+      await this.delete(id);
+      return null;
+    }
 
     // Convert Uint8Array back to Float32Array
     const embeddingArray = new Float32Array(row.embedding.buffer);
@@ -191,17 +206,20 @@ export class SQLiteVectorStore implements VectorStore {
       embedding: Array.from(embeddingArray),
       metadata: JSON.parse(row.metadata.toString()),
       createdAt: row.createdAt,
-      updatedAt: row.updatedAt
+      updatedAt: row.updatedAt,
+      sessionId: row.sessionId || undefined,
+      expiry: row.expiry || undefined
     };
   }
 
   async delete(id: string): Promise<void> {
+    await this.ensureInitialized();
     const transaction = this.db.transaction(() => {
-      // Get the vector_id first
-      const entry = this.db.prepare('SELECT vector_id FROM entries WHERE id = ?').get(id) as { vector_id: number } | undefined;
+      // Get the vectorId first
+      const entry = this.db.prepare('SELECT vectorId FROM entries WHERE id = ?').get(id) as { vectorId: number } | undefined;
       if (entry) {
         // Delete from vector index
-        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vector_id);
+        this.db.prepare('DELETE FROM vector_index WHERE id = ?').run(entry.vectorId);
       }
 
       // Delete from entries table
@@ -217,6 +235,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async clear(): Promise<void> {
+    await this.ensureInitialized();
     const transaction = this.db.transaction(() => {
       // Delete from entries table
       this.db.prepare('DELETE FROM entries').run();
@@ -234,9 +253,10 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async entries(params?: PaginationParams): Promise<PaginatedResult<VectorStoreEntry>> {
+    await this.ensureInitialized();
     const query = params
-      ? 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id LIMIT ? OFFSET ?'
-      : 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vector_id = v.id';
+      ? 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vectorId = v.id LIMIT ? OFFSET ?'
+      : 'SELECT e.*, v.embedding FROM entries e LEFT JOIN vector_index v ON e.vectorId = v.id';
     
     const queryParams = params ? [params.limit, params.offset] : [];
     const rows = this.db.prepare(query).all(...queryParams) as (DatabaseRow & { embedding: Uint8Array })[];
@@ -250,7 +270,9 @@ export class SQLiteVectorStore implements VectorStore {
         embedding: Array.from(embeddingArray),
         metadata: JSON.parse(row.metadata.toString()),
         createdAt: row.createdAt,
-        updatedAt: row.updatedAt
+        updatedAt: row.updatedAt,
+        sessionId: row.sessionId || undefined,
+        expiry: row.expiry || undefined
       };
     });
 
@@ -264,6 +286,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async search(query: string, topK: number = 5): Promise<VectorStoreEntry[]> {
+    await this.ensureInitialized();
     const queryEmbedding = await this.generateEmbeddings(query);
     const queryEmbeddingArray = new Float32Array(queryEmbedding);
     const queryEmbeddingBuffer = new Uint8Array(queryEmbeddingArray.buffer);
@@ -274,7 +297,7 @@ export class SQLiteVectorStore implements VectorStore {
         v.embedding,
         v.distance
       FROM entries e
-      JOIN vector_index v ON e.vector_id = v.id
+      JOIN vector_index v ON e.vectorId = v.id
       WHERE v.embedding MATCH ? AND k = ?
       ORDER BY distance ASC`
     ).all(queryEmbeddingBuffer, topK) as (DatabaseRow & { embedding: Uint8Array; distance: number })[];
@@ -285,8 +308,10 @@ export class SQLiteVectorStore implements VectorStore {
       return {
         id: row.id,
         content: row.content,
+        sessionId: row.sessionId || undefined,
+        expiry: row.expiry || undefined,
         embedding: Array.from(embeddingArray),
-        metadata: JSON.parse(row.metadata.toString()),
+        metadata: JSON.parse(row.metadata.toString()) as Record<string, unknown>,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
         similarity: row.distance
@@ -295,6 +320,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async getMetadata(): Promise<VectorStoreMetadata> {
+    await this.ensureInitialized();
     const metadataRows = this.db.prepare('SELECT key, value FROM metadata').all() as MetadataRow[];
     const metadata = new Map(metadataRows.map(row => [row.key, row.value]));
 
@@ -309,6 +335,7 @@ export class SQLiteVectorStore implements VectorStore {
   }
 
   async upsert(entry: VectorStoreEntry): Promise<void> {
+    await this.ensureInitialized();
     const id = entry.id || generateEntryId();
     await this.set(id, entry);
   }
@@ -323,6 +350,8 @@ export class SQLiteVectorStore implements VectorStore {
   }
 }
 
-export function createSQLiteVectorStore(config: VectorStoreConfig): VectorStore {
-  return new SQLiteVectorStore(config);
+export async function createSQLiteVectorStore(config: VectorStoreConfig): Promise<VectorStore> {
+  const store = new SQLiteVectorStore(config);
+  await store['initialized'];
+  return store;
 } 
