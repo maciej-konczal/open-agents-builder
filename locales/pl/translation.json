@@ -862,5 +862,12 @@
   "Expiration Period (hours)": "Okres ważności (godziny)",
   "Select period...": "Wybierz okres...",
   "Store deleted successfully": "Magazyn usunięty pomyślnie",
-  "Memory and Knowledge": "Pamięć i wiedza"
+  "Memory and Knowledge": "Pamięć i wiedza",
+  "API and widgets": "API i widżety",
+  "Website widget": "Widżet na stronę internetową",
+  "Add the widget to your website to allow users to interact with your agent. Paste this HTML code before the closing ": "Dodaj widżet do swojej strony internetowej, aby umożliwić użytkownikom wzajemne działanie z Twoim agentem. Wklej ten kod HTML przed zamknięciem tagu ",
+  "</body>": "</body>",
+  "tag of your website:": " Twojej strony internetowej:",
+  "Widget HTML code has been copied to the clipboard": "Kod HTML widżetu został skopiowany do schowka",
+  "API Access": "Dostęp do API"
 }
