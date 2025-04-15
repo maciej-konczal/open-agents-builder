@@ -6,11 +6,10 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const defaultMetadata: Metadata = {
+export const metadata: Metadata = {
    title: "Open Agents Builder",
    description: "Build an interactive AI agent from a single prompt; send it as a link; process results; ideal for interactive bookings, pre-visit chats, polls, and many more"
 };
-
 
 export default function RootLayout({
   children, params: { locale }
