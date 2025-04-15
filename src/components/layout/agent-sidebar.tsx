@@ -145,7 +145,7 @@ const availableItems : {
   },
   { 
     icon: CogIcon, 
-    label: 'API', 
+    label: 'API and widgets', 
     href: '/admin/agent/[id]/api',
     pattern: '/admin/agent/[id]/api',
     activeOnlyOnSavedAgent: false
