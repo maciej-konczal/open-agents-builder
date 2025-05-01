@@ -242,6 +242,7 @@ export type AgentFlow = {
     code: string;
     flow: EditorStep;
     inputs: FlowInputVariable[] | null;
+    elevenLabsAgentId?: string | null;
 }
 
 export class Agent {

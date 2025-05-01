@@ -3,7 +3,7 @@
   "version": "0.4.0",
   "private": true,
   "workspaces": [
-   "src/packages/*"
+    "src/packages/*"
   ],
   "scripts": {
     "dev": "yarn workspace oab-vector-store build && next dev",
@@ -78,6 +78,7 @@
     "deep-object-diff": "^1.1.9",
     "drizzle-kit": "^0.22.7",
     "drizzle-orm": "^0.31.2",
+    "elevenlabs": "^1.57.0",
     "emblor": "^1.4.6",
     "fast-sort": "^3.4.0",
     "ffmpeg-wasm": "^1.0.1",
